@@ -1,5 +1,6 @@
 package cn.dreampie.core.http;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -161,6 +162,9 @@ public class HttpRequest extends AbstractRequest {
     return null;
   }
 
+  public RequestDispatcher getRequestDispatcher(String url) {
+    return request.getRequestDispatcher(url);
+  }
 
   public String getHeader(String headerName) {
     return request.getHeader(headerName);

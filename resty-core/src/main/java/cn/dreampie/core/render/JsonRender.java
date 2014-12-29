@@ -8,6 +8,8 @@ import com.alibaba.fastjson.JSON;
 
 /**
  * Created by ice on 14-12-29.
+ *
+ * @JSONFiled(serialize=false)
  */
 public class JsonRender extends Render {
   public void render(HttpRequest request, HttpResponse response, Object out) {

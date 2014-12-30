@@ -1,7 +1,7 @@
 package cn.dreampie.core.config;
 
 import cn.dreampie.core.route.base.Resource;
-import cn.dreampie.kit.ClassScaner;
+import cn.dreampie.util.ClassScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
 
@@ -18,7 +18,7 @@ final public class ResourceLoader {
   private List<Class<? extends Resource>> includeResources = new ArrayList();
   private List<String> includeResourcePaths = new ArrayList();
   private List<String> excludeResourcePaths = new ArrayList();
-  private static final Logger LOGGER = LoggerFactory.getLogger(ResourceLoader.class);
+  private static final Logger logger = LoggerFactory.getLogger(ResourceLoader.class);
 
   public ResourceLoader add(ResourceLoader resourceLoader) {
     if (resourceLoader != null) {
@@ -88,7 +88,7 @@ final public class ResourceLoader {
         continue;
       }
       this.add(resource);
-      LOGGER.info("resources.add(" + resource.getName() + ")");
+      logger.info("resources.add(" + resource.getName() + ")");
     }
   }
 

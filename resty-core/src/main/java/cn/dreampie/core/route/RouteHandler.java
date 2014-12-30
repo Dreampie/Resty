@@ -1,21 +1,12 @@
 package cn.dreampie.core.route;
 
-import cn.dreampie.core.base.Render;
-import cn.dreampie.core.config.ConstantLoader;
 import cn.dreampie.core.handler.Handler;
 import cn.dreampie.core.http.HttpRequest;
 import cn.dreampie.core.http.HttpResponse;
 import cn.dreampie.core.http.HttpStatus;
-import cn.dreampie.core.http.exception.WebException;
-import cn.dreampie.core.render.JsonRender;
 import cn.dreampie.core.render.RenderFactory;
-import cn.dreampie.kit.HttpTyper;
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
-import com.alibaba.fastjson.JSON;
-
-import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * ActionHandler
@@ -23,7 +14,7 @@ import java.io.PrintWriter;
 public final class RouteHandler extends Handler {
 
   private final RouteBuilder resourceBuilder;
-  private static final Logger LOGGER = LoggerFactory.getLogger(RouteHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(RouteHandler.class);
 
   public RouteHandler(RouteBuilder resourceBuilder) {
     this.resourceBuilder = resourceBuilder;

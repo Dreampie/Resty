@@ -1,4 +1,4 @@
-package cn.dreampie.kit;
+package cn.dreampie.util;
 
 import java.util.Arrays;
 import java.util.List;

@@ -4,8 +4,8 @@ package cn.dreampie.core.route;
 import cn.dreampie.core.base.Request;
 import cn.dreampie.core.interceptor.Interceptor;
 import cn.dreampie.core.route.base.Resource;
-import cn.dreampie.kit.Joiner;
-import cn.dreampie.kit.ParamNamesScaner;
+import cn.dreampie.util.Joiner;
+import cn.dreampie.util.ParamNamesScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
 
@@ -14,15 +14,15 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cn.dreampie.kit.Checker.checkArgument;
-import static cn.dreampie.kit.Checker.checkNotNull;
+import static cn.dreampie.util.Checker.checkArgument;
+import static cn.dreampie.util.Checker.checkNotNull;
 
 /**
  * Created by ice on 14-12-19.
  */
 public class Route {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Route.class);
+  private static final Logger logger = LoggerFactory.getLogger(Route.class);
   private final String httpMethod;
   private final String pathPattern;
   private final String stdPathPattern;
@@ -55,7 +55,7 @@ public class Route {
     stdPathPattern = s.stdPathPatternBuilder.toString();
     pathParamNames = s.pathParamNames;
 
-    LOGGER.info("route match " + httpMethod + " " + pathPattern + "->" + pattern + "(" + Joiner.on(",").join(allParamNames) + ")");
+    logger.info("route match " + httpMethod + " " + pathPattern + "->" + pattern + "(" + Joiner.on(",").join(allParamNames) + ")");
   }
 
 

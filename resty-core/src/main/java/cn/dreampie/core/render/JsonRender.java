@@ -3,7 +3,7 @@ package cn.dreampie.core.render;
 import cn.dreampie.core.base.Render;
 import cn.dreampie.core.http.HttpRequest;
 import cn.dreampie.core.http.HttpResponse;
-import cn.dreampie.kit.HttpTyper;
+import cn.dreampie.util.HttpTyper;
 import com.alibaba.fastjson.JSON;
 
 /**

@@ -1,4 +1,4 @@
-package cn.dreampie.kit;
+package cn.dreampie.util;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

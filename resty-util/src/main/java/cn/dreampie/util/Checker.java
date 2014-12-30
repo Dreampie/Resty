@@ -1,4 +1,4 @@
-package cn.dreampie.kit;
+package cn.dreampie.util;
 
 /**
  * Created by ice on 14-12-29.

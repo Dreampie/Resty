@@ -1,7 +1,8 @@
-package cn.dreampie;
+package cn.dreampie.orm;
 
 /**
  * ActiveRecord plugin.
  */
 public class ActiveRecordPlugin {
+
 }

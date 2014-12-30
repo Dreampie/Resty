@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static cn.dreampie.kit.Checker.checkNotNull;
+import static cn.dreampie.util.Checker.checkNotNull;
 
 /**
  * Created by ice on 14-12-19.

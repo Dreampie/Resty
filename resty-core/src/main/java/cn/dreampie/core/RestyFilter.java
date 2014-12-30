@@ -22,7 +22,7 @@ public final class RestyFilter implements Filter {
   private String encoding = Constant.ENCODING;
   private Config config;
   private static final RestyIniter RESTY_INITER = RestyIniter.instance();
-  private static final Logger LOGGER = LoggerFactory.getLogger(RestyFilter.class);
+  private static final Logger logger = LoggerFactory.getLogger(RestyFilter.class);
 
   public void init(FilterConfig filterConfig) throws ServletException {
     createConfig(filterConfig.getInitParameter("configClass"));
@@ -48,7 +48,7 @@ public final class RestyFilter implements Filter {
     try {
       handler.handle(new HttpRequest(request), new HttpResponse(response, request), isHandled);
     } catch (Exception e) {
-      throw new WebException(e);
+      throw new RuntimeException(e);
     }
 
     if (!isHandled[0])
@@ -75,7 +75,7 @@ public final class RestyFilter implements Filter {
         throw new RuntimeException("Can not create instance of class: " + configClass + ". Please check the config in web.xml");
     } else {
       config = new NoConfig();
-      LOGGER.warn("Can not found config and start in NoConfig.");
+      logger.warn("Can not found config and start in NoConfig.");
     }
 
   }

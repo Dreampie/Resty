@@ -15,7 +15,7 @@ public class ConfigIniter {
   private static final PluginLoader PLUGIN_LOADER = new PluginLoader();
   private static final InterceptorLoader INTERCEPTOR_LOADER = new InterceptorLoader();
   private static final HandlerLoader HANDLER_LOADER = new HandlerLoader();
-  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigIniter.class);
+  private static final Logger logger = LoggerFactory.getLogger(ConfigIniter.class);
 
   // prevent new Config();
   private ConfigIniter() {
@@ -61,10 +61,10 @@ public class ConfigIniter {
     for (Plugin plugin : pluginList) {
       try {
         if (!plugin.start()) {
-          LOGGER.error("Plugin start error: " + plugin.getClass().getName());
+          logger.error("Plugin start error: " + plugin.getClass().getName());
         }
       } catch (Exception e) {
-        LOGGER.error("Plugin start error: " + plugin.getClass().getName() + ". \n" + e.getMessage(), e);
+        logger.error("Plugin start error: " + plugin.getClass().getName() + ". \n" + e.getMessage(), e);
       }
     }
   }

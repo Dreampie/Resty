@@ -1,10 +1,9 @@
 package cn.dreampie.core.config;
 
+import cn.dreampie.orm.cache.CacheManager;
 import cn.dreampie.core.Constant;
 import cn.dreampie.core.base.Render;
 import cn.dreampie.core.render.RenderFactory;
-
-import java.util.Map;
 
 /**
  * The constant for Restj runtime.
@@ -12,22 +11,33 @@ import java.util.Map;
 final public class ConstantLoader {
 
   public void setDevMode(boolean devMode) {
-    Constant.DEV_MODE = devMode;
+    Constant.dev_mode = devMode;
   }
 
   public void setDefaultEncoding(String defaultEncoding) {
-    Constant.ENCODING = defaultEncoding;
+    Constant.encoding = defaultEncoding;
   }
 
-  public static void add(String extension, Render render) {
+  public void addRender(String extension, Render render) {
     RenderFactory.add(extension, render);
   }
 
-  public static void addAll(Map<String, Render> renders) {
-    RenderFactory.addAll(renders);
+  public void addRender(String extension, Render render, boolean isDefault) {
+    RenderFactory.add(extension, render, isDefault);
   }
 
+  public void setCacheManager(CacheManager cacheManager) {
+    Constant.cacheManager = cacheManager;
+  }
 
+  public void setCacheManager(CacheManager cacheManager, boolean cacheEnable) {
+    Constant.cacheManager = cacheManager;
+    Constant.cache_enabled = cacheEnable;
+  }
+
+  public void setCacheEnable(boolean cacheEnable) {
+    Constant.cache_enabled = cacheEnable;
+  }
 }
 
 

@@ -3,8 +3,8 @@ package cn.dreampie.example;
 import cn.dreampie.core.route.annotation.GET;
 import cn.dreampie.core.route.annotation.POST;
 import cn.dreampie.core.route.base.Resource;
-import cn.dreampie.kit.Lister;
-import cn.dreampie.kit.Maper;
+import cn.dreampie.util.Lister;
+import cn.dreampie.util.Maper;
 
 import java.util.List;
 import java.util.Map;

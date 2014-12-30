@@ -1,7 +1,7 @@
 package cn.dreampie.core.http;
 
 import cn.dreampie.core.base.Request;
-import cn.dreampie.kit.Joiner;
+import cn.dreampie.util.Joiner;
 
 import java.util.List;
 import java.util.Locale;

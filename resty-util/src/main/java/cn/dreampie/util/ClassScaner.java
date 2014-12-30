@@ -1,7 +1,4 @@
-package cn.dreampie.kit;
-
-import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
+package cn.dreampie.util;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -18,7 +15,6 @@ import java.util.jar.JarFile;
  * Created by ice on 14-12-19.
  */
 public class ClassScaner {
-  protected static final Logger LOG = LoggerFactory.getLogger(ClassScaner.class);
 
   private List<String> includepaths = new ArrayList();
 
@@ -96,7 +92,7 @@ public class ClassScaner {
     // 判断目录是否存在
     File baseDir = new File(baseDirName);
     if (!baseDir.exists() || !baseDir.isDirectory()) {
-      LOG.error("search error：" + baseDirName + "is not a dir！");
+      throw new RuntimeException("search error：" + baseDirName + "is not a dir！");
     } else {
       String[] filelist = baseDir.list();
       String classname = null;
@@ -231,7 +227,7 @@ public class ClassScaner {
       // 判断目录是否存在
       File baseDir = new File(baseDirName);
       if (!baseDir.exists() || !baseDir.isDirectory()) {
-        LOG.error("file serach error：" + baseDirName + " is not a dir！");
+        throw new RuntimeException("file serach error：" + baseDirName + " is not a dir！");
       } else {
         String[] filelist = baseDir.list(new FilenameFilter() {
           @Override

@@ -1,6 +1,6 @@
-package cn.dreampie.kit;
+package cn.dreampie.util;
 
-import static cn.dreampie.kit.Checker.checkArgument;
+import static cn.dreampie.util.Checker.checkArgument;
 
 /**
  * Created by ice on 14-12-29.

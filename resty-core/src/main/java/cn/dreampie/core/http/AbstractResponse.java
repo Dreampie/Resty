@@ -1,8 +1,8 @@
 package cn.dreampie.core.http;
 
 import cn.dreampie.core.base.Response;
-import cn.dreampie.kit.HttpTyper;
-import cn.dreampie.kit.Joiner;
+import cn.dreampie.util.HttpTyper;
+import cn.dreampie.util.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

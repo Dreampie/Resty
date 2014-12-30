@@ -18,7 +18,7 @@ import java.util.List;
  */
 public final class RestyIniter {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RestyIniter.class);
+  private static final Logger logger = LoggerFactory.getLogger(RestyIniter.class);
 
   private ConstantLoader constantLoader;
   private RouteBuilder routeBuilder;
@@ -70,9 +70,9 @@ public final class RestyIniter {
 
         try {
           if (!plugins.get(i).stop())
-            LOGGER.error("Plugin stop error: " + plugins.get(i).getClass().getName());
+            logger.error("Plugin stop error: " + plugins.get(i).getClass().getName());
         } catch (Exception e) {
-          LOGGER.error("Plugin stop error: " + plugins.get(i).getClass().getName(), e);
+          logger.error("Plugin stop error: " + plugins.get(i).getClass().getName(), e);
         }
       }
     }

@@ -1,4 +1,4 @@
-package cn.dreampie.kit;
+package cn.dreampie.util;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-import static cn.dreampie.kit.Checker.checkNotNull;
+import static cn.dreampie.util.Checker.checkNotNull;
 
 /**
  * Created by ice on 14-12-29.

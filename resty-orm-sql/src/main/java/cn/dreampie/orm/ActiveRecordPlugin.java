@@ -53,7 +53,6 @@ public class ActiveRecordPlugin implements Plugin {
   }
 
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public ActiveRecordPlugin addExcludeClasses(Class<? extends Model>... clazzes) {
     for (Class<? extends Model> clazz : clazzes) {
       excludeClasses.add(clazz);
@@ -61,7 +60,6 @@ public class ActiveRecordPlugin implements Plugin {
     return this;
   }
 
-  @SuppressWarnings("rawtypes")
   public ActiveRecordPlugin addExcludeClasses(List<Class<? extends Model>> clazzes) {
     if (clazzes != null) {
       excludeClasses.addAll(clazzes);
@@ -76,7 +74,6 @@ public class ActiveRecordPlugin implements Plugin {
     return this;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public ActiveRecordPlugin addIncludeClasses(Class<? extends Model>... clazzes) {
     for (Class<? extends Model> clazz : clazzes) {
       includeClasses.add(clazz);
@@ -84,7 +81,6 @@ public class ActiveRecordPlugin implements Plugin {
     return this;
   }
 
-  @SuppressWarnings("rawtypes")
   public ActiveRecordPlugin addIncludeClasses(List<Class<? extends Model>> clazzes) {
     if (clazzes != null) {
       includeClasses.addAll(clazzes);

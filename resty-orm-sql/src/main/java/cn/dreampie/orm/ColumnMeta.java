@@ -19,13 +19,13 @@ package cn.dreampie.orm;
 
 import java.io.Serializable;
 
-public class ColumnMetadata implements Serializable {
+public class ColumnMeta implements Serializable {
 
     private final String columnName;
     private final String typeName;
     private final int columnSize;
 
-    public ColumnMetadata(String columnName, String  typeName, int columnSize) {
+    public ColumnMeta(String columnName, String typeName, int columnSize) {
         this.columnName = columnName;
         this.typeName = typeName;
         this.columnSize = columnSize;

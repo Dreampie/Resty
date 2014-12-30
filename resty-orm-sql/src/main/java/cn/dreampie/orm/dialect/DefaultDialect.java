@@ -26,12 +26,29 @@ import cn.dreampie.util.Joiner;
  */
 public abstract class DefaultDialect implements Dialect {
 
-  public String select(String from) {
-    return "SELECT * FROM " + from;
+  public String select(String table) {
+    return "SELECT * FROM " + table;
   }
 
-  public String select(String from, String where) {
-    return where != null ? "SELECT * FROM " + from + " WHERE " + where : select(from);
+  public String select(String table, String... columns) {
+    StringBuilder query = new StringBuilder().append("SELECT ");
+    query.append(Joiner.on(", ").join(query, columns));
+    query.append(" FROM ");
+    query.append(table);
+    return query.toString();
+  }
+
+
+  public String select(String table, String where) {
+    return where != null ? "SELECT * FROM " + table + " WHERE " + where : select(table);
+  }
+
+  public String select(String table, String where, String... columns) {
+    if (where == null) return select(table, columns);
+    StringBuilder query = new StringBuilder().append("SELECT ");
+    query.append(Joiner.on(", ").join(query, columns));
+    query.append(" FROM " + table + " WHERE " + where);
+    return query.toString();
   }
 
   protected void appendQuestions(StringBuilder query, int count) {
@@ -61,13 +78,19 @@ public abstract class DefaultDialect implements Dialect {
   }
 
 
-  public String update(String table, String set) {
-    return "UPDATE FROM " + table + " SET " + set;
+  public String update(String table, String... columns) {
+    StringBuilder query = new StringBuilder().append("UPDATE ").append(table).append(" SET ");
+    query.append(Joiner.on("=?, ").join(query, columns));
+    return query.toString();
   }
 
 
-  public String update(String table, String set, String where) {
-    return "UPDATE FROM " + table + " SET " + set + " WHERE " + where;
+  public String update(String table, String where, String... columns) {
+    if (where == null) return update(table, columns);
+    StringBuilder query = new StringBuilder().append("UPDATE ").append(table).append(" SET ");
+    query.append(Joiner.on("=?, ").join(query, columns));
+    query.append(" WHERE " + where);
+    return query.toString();
   }
 
 

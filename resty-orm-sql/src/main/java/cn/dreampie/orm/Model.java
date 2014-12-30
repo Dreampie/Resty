@@ -10,12 +10,9 @@ public class Model {
   /**
    * Attributes of this model
    */
-  private Map<String, Object> attrs = getAttrsMap();
+  private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
 
-  private Map<String, Object> getAttrsMap() {
-    Config config = getConfig();
-    if (config == null)
-      return DbKit.brokenConfig.containerFactory.getAttrsMap();
-    return config.containerFactory.getAttrsMap();
+  public Map<String, Object> getAttrs() {
+    return attrs;
   }
 }

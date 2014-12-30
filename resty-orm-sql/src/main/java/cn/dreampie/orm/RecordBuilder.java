@@ -12,7 +12,7 @@ import java.util.Map;
  * Created by ice on 14-12-30.
  */
 public class RecordBuilder {
-  public static final List<Record> build(Config config, ResultSet rs) throws SQLException {
+  public static final List<Record> build(DataSourceMeta dataSourceMeta, ResultSet rs) throws SQLException {
     List<Record> result = new ArrayList<Record>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
@@ -21,9 +21,9 @@ public class RecordBuilder {
     buildLabelNamesAndTypes(rsmd, labelNames, types);
     while (rs.next()) {
       Record record = new Record();
-      record.setColumnsMap(config.containerFactory.getColumnsMap());
+      record.setColumns(new CaseInsensitiveMap<Object>());
       Map<String, Object> columns = record.getColumns();
-      for (int i=1; i<=columnCount; i++) {
+      for (int i = 1; i <= columnCount; i++) {
         Object value;
         if (types[i] < Types.BLOB)
           value = rs.getObject(i);
@@ -44,7 +44,7 @@ public class RecordBuilder {
   }
 
   private static final void buildLabelNamesAndTypes(ResultSetMetaData rsmd, String[] labelNames, int[] types) throws SQLException {
-    for (int i=1; i<labelNames.length; i++) {
+    for (int i = 1; i < labelNames.length; i++) {
       labelNames[i] = rsmd.getColumnLabel(i);
       types[i] = rsmd.getColumnType(i);
     }

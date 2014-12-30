@@ -2,6 +2,8 @@ package cn.dreampie.orm.druid;
 
 import cn.dreampie.orm.DataSourceProvider;
 import cn.dreampie.core.base.Plugin;
+import cn.dreampie.orm.dialect.Dialect;
+import cn.dreampie.orm.dialect.DialectFactory;
 import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.pool.DruidDataSource;
 
@@ -66,26 +68,30 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
   private List<Filter> filterList;
 
   private DruidDataSource ds;
+  private Dialect dialect;
 
-  public DruidPlugin(String url, String username, String password) {
+  public DruidPlugin(String url, String username, String password, String dialect) {
     this.url = url;
     this.username = username;
     this.password = password;
+    this.dialect = DialectFactory.get(dialect);
   }
 
-  public DruidPlugin(String url, String username, String password, String driverClass) {
+  public DruidPlugin(String url, String username, String password, String driverClass, String dialect) {
     this.url = url;
     this.username = username;
     this.password = password;
     this.driverClass = driverClass;
+    this.dialect = DialectFactory.get(dialect);
   }
 
-  public DruidPlugin(String url, String username, String password, String driverClass, String filters) {
+  public DruidPlugin(String url, String username, String password, String driverClass, String filters, String dialect) {
     this.url = url;
     this.username = username;
     this.password = password;
     this.driverClass = driverClass;
     this.filters = filters;
+    this.dialect = DialectFactory.get(dialect);
   }
 
   /**
@@ -172,6 +178,10 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
 
   public DataSource getDataSource() {
     return ds;
+  }
+
+  public Dialect getDialect() {
+    return dialect;
   }
 
   public DruidPlugin set(int initialSize, int minIdle, int maxActive) {

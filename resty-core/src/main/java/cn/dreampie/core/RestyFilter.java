@@ -19,7 +19,7 @@ import java.io.IOException;
 public final class RestyFilter implements Filter {
 
   private Handler handler;
-  private String encoding = Constant.ENCODING;
+  private String encoding = Constant.encoding;
   private Config config;
   private static final RestyIniter RESTY_INITER = RestyIniter.instance();
   private static final Logger logger = LoggerFactory.getLogger(RestyFilter.class);

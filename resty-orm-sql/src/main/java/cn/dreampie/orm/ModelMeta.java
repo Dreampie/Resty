@@ -29,28 +29,27 @@ import java.util.SortedMap;
 import static cn.dreampie.util.Checker.checkNotNull;
 
 
-public class ModelMetadata implements Serializable {
-  private final static Logger logger = LoggerFactory.getLogger(ModelMetadata.class);
+public class ModelMeta implements Serializable {
+  private final static Logger logger = LoggerFactory.getLogger(ModelMeta.class);
 
-  private SortedMap<String, ColumnMetadata> columnMetadata;
+  private SortedMap<String, ColumnMeta> columnMetadata;
   private final String primaryKey;
-  private final String tableName;
+  private final String tableName, dsName;
   private final Class<? extends Model> modelClass;
   private final boolean cached;
-  private final ConnectionMetadata connectionMetadata;
 
-  protected ModelMetadata(Class<? extends Model> modelClass, ConnectionMetadata connectionMetadata) {
+  protected ModelMeta(Class<? extends Model> modelClass, String dsName) {
     Table tableAnnotation = modelClass.getAnnotation(Table.class);
     checkNotNull(tableAnnotation, "Not found @Table Annotation.");
     this.modelClass = modelClass;
     this.primaryKey = tableAnnotation.primaryKey();
     this.tableName = tableAnnotation.name();
     this.cached = tableAnnotation.cached();
-    this.connectionMetadata = connectionMetadata;
+    this.dsName = dsName;
   }
 
-  public String getDbName() {
-    return connectionMetadata.getDbName();
+  public String getDsName() {
+    return dsName;
   }
 
   public boolean cached() {
@@ -65,7 +64,7 @@ public class ModelMetadata implements Serializable {
     return tableName;
   }
 
-  void setColumnMetadata(SortedMap<String, ColumnMetadata> columnMetadata) {
+  void setColumnMetadata(SortedMap<String, ColumnMeta> columnMetadata) {
     this.columnMetadata = columnMetadata;
   }
 
@@ -78,13 +77,12 @@ public class ModelMetadata implements Serializable {
     return primaryKey;
   }
 
-
   public String getDbType() {
-    return connectionMetadata.getDialect().getDbType();
+    return Metadatas.getDataSourceMetadata(dsName).getDialect().getDbType();
   }
 
   public Dialect getDialect() {
-    return connectionMetadata.getDialect();
+    return Metadatas.getDataSourceMetadata(dsName).getDialect();
   }
 
   /**
@@ -93,7 +91,7 @@ public class ModelMetadata implements Serializable {
    *
    * @return Provides column metadata map, keyed by attribute names.
    */
-  public SortedMap<String, ColumnMetadata> getColumnMetadata() {
+  public SortedMap<String, ColumnMeta> getColumnMetadata() {
     checkNotNull(columnMetadata, "Failed to find table: " + getTableName());
     return Collections.unmodifiableSortedMap(columnMetadata);
   }

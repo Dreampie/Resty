@@ -12,6 +12,7 @@ import java.util.Map;
  * Created by ice on 14-12-30.
  */
 public class ModelBuilder {
+
   public static final <T> List<T> build(ResultSet rs, Class<? extends Model> modelClass) throws SQLException, InstantiationException, IllegalAccessException {
     List<T> result = new ArrayList<T>();
     ResultSetMetaData rsmd = rs.getMetaData();
@@ -20,9 +21,9 @@ public class ModelBuilder {
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
     while (rs.next()) {
-      Model<?> ar = modelClass.newInstance();
+      Model ar = modelClass.newInstance();
       Map<String, Object> attrs = ar.getAttrs();
-      for (int i=1; i<=columnCount; i++) {
+      for (int i = 1; i <= columnCount; i++) {
         Object value;
         if (types[i] < Types.BLOB)
           value = rs.getObject(i);
@@ -37,13 +38,13 @@ public class ModelBuilder {
 
         attrs.put(labelNames[i], value);
       }
-      result.add((T)ar);
+      result.add((T) ar);
     }
     return result;
   }
 
   private static final void buildLabelNamesAndTypes(ResultSetMetaData rsmd, String[] labelNames, int[] types) throws SQLException {
-    for (int i=1; i<labelNames.length; i++) {
+    for (int i = 1; i < labelNames.length; i++) {
       labelNames[i] = rsmd.getColumnLabel(i);
       types[i] = rsmd.getColumnType(i);
     }
@@ -56,15 +57,18 @@ public class ModelBuilder {
     InputStream is = null;
     try {
       is = blob.getBinaryStream();
-      byte[] data = new byte[(int)blob.length()];		// byte[] data = new byte[is.available()];
+      byte[] data = new byte[(int) blob.length()];    // byte[] data = new byte[is.available()];
       is.read(data);
       is.close();
       return data;
     } catch (IOException e) {
       throw new RuntimeException(e);
-    }
-    finally {
-      try {is.close();} catch (IOException e) {throw new RuntimeException(e);}
+    } finally {
+      try {
+        is.close();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -75,14 +79,17 @@ public class ModelBuilder {
     Reader reader = null;
     try {
       reader = clob.getCharacterStream();
-      char[] buffer = new char[(int)clob.length()];
+      char[] buffer = new char[(int) clob.length()];
       reader.read(buffer);
       return new String(buffer);
     } catch (IOException e) {
       throw new RuntimeException(e);
-    }
-    finally {
-      try {reader.close();} catch (IOException e) {throw new RuntimeException(e);}
+    } finally {
+      try {
+        reader.close();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 }

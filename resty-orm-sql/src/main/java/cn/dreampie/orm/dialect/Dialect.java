@@ -16,20 +16,19 @@ limitations under the License.
 
 package cn.dreampie.orm.dialect;
 
-import cn.dreampie.orm.ModelMetadata;
-
-import java.sql.PreparedStatement;
-import java.util.List;
-
 /**
  * @author ericbn
  */
 public interface Dialect {
   String getDbType();
 
-  String select(String from);
+  String select(String table);
 
-  String select(String from, String where);
+  String select(String table, String... columns);
+
+  String select(String table, String where);
+
+  String select(String table, String where, String... columns);
 
   String insert(String table, String... columns);
 
@@ -37,9 +36,9 @@ public interface Dialect {
 
   String delete(String table, String where);
 
-  String update(String table, String set);
+  String update(String table, String... columns);
 
-  String update(String table, String set, String where);
+  String update(String table, String where, String... columns);
 
   String count(String table);
 

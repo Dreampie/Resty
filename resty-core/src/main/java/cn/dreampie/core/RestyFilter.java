@@ -4,7 +4,6 @@ import cn.dreampie.core.config.Config;
 import cn.dreampie.core.handler.Handler;
 import cn.dreampie.core.http.HttpRequest;
 import cn.dreampie.core.http.HttpResponse;
-import cn.dreampie.core.http.exception.WebException;
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
 

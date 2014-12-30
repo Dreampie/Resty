@@ -3,10 +3,11 @@ package cn.dreampie.orm;
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
 
-import java.sql.*;
-import java.util.HashMap;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 
 /**

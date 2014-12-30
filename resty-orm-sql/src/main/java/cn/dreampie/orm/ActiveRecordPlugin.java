@@ -5,11 +5,8 @@ import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
-import cn.dreampie.orm.name.INameStyle;
-import cn.dreampie.orm.name.SimpleNameStyles;
 import cn.dreampie.util.ClassScaner;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,37 +16,24 @@ import java.util.List;
 public class ActiveRecordPlugin implements Plugin {
   private static final Logger logger = LoggerFactory.getLogger(ActiveRecordPlugin.class);
 
-  private List<Class<? extends Model>> excludeClasses = new ArrayList();
-  private List<Class<? extends Model>> includeClasses = new ArrayList();
-  private List<String> includeClassPaths = new ArrayList();
-  private List<String> excludeClassPaths = new ArrayList();
-  private INameStyle nameStyle;
+  private List<Class<? extends Model>> excludeClasses = new ArrayList<Class<? extends Model>>();
+  private List<Class<? extends Model>> includeClasses = new ArrayList<Class<? extends Model>>();
+  private List<String> includeClassPaths = new ArrayList<String>();
+  private List<String> excludeClassPaths = new ArrayList<String>();
 
   private DataSourceProvider dataSourceProvider;
   private String dsName;
   private List<ModelMeta> modelMetas;
   private boolean showSql = false;
 
-  public ActiveRecordPlugin(DataSource dataSource) {
-    this(dataSource, SimpleNameStyles.DEFAULT);
-  }
-
-  public ActiveRecordPlugin(DataSource dataSource, INameStyle nameStyle) {
-    this.nameStyle = nameStyle;
-  }
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
-    this(dataSourceProvider, SimpleNameStyles.DEFAULT);
+    this(DS.DEFAULT_DS_NAME, dataSourceProvider);
   }
 
-  public ActiveRecordPlugin(DataSourceProvider dataSourceProvider, INameStyle nameStyle) {
-    this(DS.DEFAULT_DS_NAME, dataSourceProvider, nameStyle);
-  }
-
-  public ActiveRecordPlugin(String dsName, DataSourceProvider dataSourceProvider, INameStyle nameStyle) {
+  public ActiveRecordPlugin(String dsName, DataSourceProvider dataSourceProvider) {
     this.dsName = dsName;
     this.dataSourceProvider = dataSourceProvider;
-    this.nameStyle = nameStyle;
   }
 
 

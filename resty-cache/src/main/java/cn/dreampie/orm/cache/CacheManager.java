@@ -25,7 +25,6 @@ import java.util.List;
 
 /**
  * Abstract method to be sub-classed by various caching technologies.
- *
  */
 public abstract class CacheManager {
   private final static Logger logger = LoggerFactory.getLogger(CacheManager.class);

@@ -18,78 +18,77 @@ package cn.dreampie.orm.cache;
 
 /**
  * Event object. Sent to {@link cn.dreampie.orm.cache.CacheManager} to let it know
- * of cache purge events. 
- *
+ * of cache purge events.
  */
 public class CacheEvent {
 
-    public static final CacheEvent ALL = new CacheEvent(null);
+  public static final CacheEvent ALL = new CacheEvent(null);
 
 
-    public enum  CacheEventType{
-        /**
-         * This type means that all caches need to be cleared. 
-         */
-        ALL,
-
-        /**
-         * This type means that only a cache for a specific group (table) needs to be cleared.
-         */
-        GROUP
-    }
-    private String source, group;
-    private CacheEventType type;
-
+  public enum CacheEventType {
+    /**
+     * This type means that all caches need to be cleared.
+     */
+    ALL,
 
     /**
-     * Creates a new event type of {@link cn.dreampie.orm.cache.CacheEvent.CacheEventType#GROUP}.
-     * Usually an application creates an instance of this event to clear a group of caches for a table.
-     *
-     *
-     * @param group name of group (usually name of table), cannot be null.
-     * @param source string representation of source of event, whatever that means for the application. This event will
-     * be broadcast to listeners, and they might use this piece of information. Can be null. 
+     * This type means that only a cache for a specific group (table) needs to be cleared.
      */
-    public CacheEvent( String group, String source){
-        if(group == null)
-            throw new IllegalArgumentException("group canot be null");
-        
-        this.type = CacheEventType.GROUP;
-        this.source = source;
-        this.group = group;
-    }
+    GROUP
+  }
+
+  private String source, group;
+  private CacheEventType type;
 
 
-    /**
-     * Creates a new event type of {@link cn.dreampie.orm.cache.CacheEvent.CacheEventType#ALL}
-     *
-     * @param source string representation of source of event, whatever that means for the application. This event will
-     * be broadcast to listeners, and they might use this piece of information. Can be null. 
-     */
-    public CacheEvent(String source){
-        this.type = CacheEventType.ALL;
-        this.source = source;
-    }
+  /**
+   * Creates a new event type of {@link cn.dreampie.orm.cache.CacheEvent.CacheEventType#GROUP}.
+   * Usually an application creates an instance of this event to clear a group of caches for a table.
+   *
+   * @param group  name of group (usually name of table), cannot be null.
+   * @param source string representation of source of event, whatever that means for the application. This event will
+   *               be broadcast to listeners, and they might use this piece of information. Can be null.
+   */
+  public CacheEvent(String group, String source) {
+    if (group == null)
+      throw new IllegalArgumentException("group canot be null");
+
+    this.type = CacheEventType.GROUP;
+    this.source = source;
+    this.group = group;
+  }
 
 
-    public String getSource() {
-        return source;
-    }
+  /**
+   * Creates a new event type of {@link cn.dreampie.orm.cache.CacheEvent.CacheEventType#ALL}
+   *
+   * @param source string representation of source of event, whatever that means for the application. This event will
+   *               be broadcast to listeners, and they might use this piece of information. Can be null.
+   */
+  public CacheEvent(String source) {
+    this.type = CacheEventType.ALL;
+    this.source = source;
+  }
 
-    public CacheEventType getType() {
-        return type;
-    }
 
-    public String getGroup() {
-        return group;
-    }
+  public String getSource() {
+    return source;
+  }
 
-    @Override
-    public String toString() {
-        return "CacheEvent{" +
-                "source='" + source + '\'' +
-                ", group='" + group + '\'' +
-                ", type=" + type +
-                '}';
-    }
+  public CacheEventType getType() {
+    return type;
+  }
+
+  public String getGroup() {
+    return group;
+  }
+
+  @Override
+  public String toString() {
+    return "CacheEvent{" +
+        "source='" + source + '\'' +
+        ", group='" + group + '\'' +
+        ", type=" + type +
+        '}';
+  }
 }

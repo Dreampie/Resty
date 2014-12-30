@@ -16,10 +16,10 @@ import java.util.jar.JarFile;
  */
 public class ClassScaner {
 
-  private List<String> includepaths = new ArrayList();
+  private List<String> includepaths = new ArrayList<String>();
 
   private static <T> List<Class<? extends T>> extraction(Class<T> clazz, List<String> classFileList) throws ClassNotFoundException {
-    List<Class<? extends T>> classList = new ArrayList();
+    List<Class<? extends T>> classList = new ArrayList<Class<? extends T>>();
     for (String classFile : classFileList) {
       Class<?> classInFile = Class.forName(classFile);
       if (clazz.isAssignableFrom(classInFile) && clazz != classInFile) {
@@ -44,7 +44,7 @@ public class ClassScaner {
     /**
      * 算法简述： 从某个给定的需查找的文件夹出发，搜索该文件夹的所有子文件夹及文件， 若为文件，则进行匹配，匹配成功则加入结果集，若为子文件夹，则进队列。 队列不空，重复上述操作，队列为空，程序结束，返回结果。
      */
-    List<String> classFiles = new ArrayList();
+    List<String> classFiles = new ArrayList<String>();
     //判断class路径
     Enumeration<URL> baseURLs = null;
     try {
@@ -87,7 +87,7 @@ public class ClassScaner {
    * @return
    */
   private static List<String> findPathFiles(String baseDirName, String targetFileName) {
-    List<String> classFiles = new ArrayList();
+    List<String> classFiles = new ArrayList<String>();
     String tempName = null;
     // 判断目录是否存在
     File baseDir = new File(baseDirName);
@@ -181,7 +181,7 @@ public class ClassScaner {
 
   public <T> List<Class<? extends T>> search() {
     if (includepaths.size() <= 0) {
-      List<String> classFileList = new ArrayList();
+      List<String> classFileList = new ArrayList<String>();
       Enumeration<URL> resources = null;
       try {
         resources = ClassScaner.class.getClassLoader().getResources("");
@@ -201,7 +201,7 @@ public class ClassScaner {
         throw new RuntimeException(e);
       }
     } else {
-      List<String> classFileList = new ArrayList();
+      List<String> classFileList = new ArrayList<String>();
       for (String classpath : includepaths) {
         classFileList.addAll(findFiles(classpath, "*.class"));
 //        classFileList.addAll(findjarFiles(libDir, includeJars, null));
@@ -222,7 +222,7 @@ public class ClassScaner {
    * @param includeJars jar文件地址 <a href="http://my.oschina.net/u/556800" target="_blank" rel="nofollow">@return</a>
    */
   private List<String> findjarFiles(String baseDirName, final List<String> includeJars, String packageName) {
-    List<String> classFiles = new ArrayList();
+    List<String> classFiles = new ArrayList<String>();
     try {
       // 判断目录是否存在
       File baseDir = new File(baseDirName);
@@ -256,7 +256,7 @@ public class ClassScaner {
    * @throws java.io.IOException 文件读取异常
    */
   private static List<String> findJarFile(String filePath, String packageName) throws IOException {
-    List<String> classFiles = new ArrayList();
+    List<String> classFiles = new ArrayList<String>();
     JarFile localJarFile = new JarFile(new File(filePath));
     classFiles = findInJar(localJarFile, packageName);
     localJarFile.close();
@@ -264,7 +264,7 @@ public class ClassScaner {
   }
 
   private static List<String> findInJar(JarFile localJarFile, String packageName) {
-    List<String> classFiles = new ArrayList();
+    List<String> classFiles = new ArrayList<String>();
     Enumeration<JarEntry> entries = localJarFile.entries();
     while (entries.hasMoreElements()) {
       JarEntry jarEntry = entries.nextElement();

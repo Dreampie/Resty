@@ -1,9 +1,9 @@
 package cn.dreampie.core.config;
 
 import cn.dreampie.core.route.base.Resource;
-import cn.dreampie.util.ClassScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
+import cn.dreampie.util.ClassScaner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +13,11 @@ import java.util.List;
  */
 final public class ResourceLoader {
 
-  private final List<Class<? extends Resource>> resources = new ArrayList();
-  private List<Class<? extends Resource>> excludeResources = new ArrayList();
-  private List<Class<? extends Resource>> includeResources = new ArrayList();
-  private List<String> includeResourcePaths = new ArrayList();
-  private List<String> excludeResourcePaths = new ArrayList();
+  private final List<Class<? extends Resource>> resources = new ArrayList<Class<? extends Resource>>();
+  private List<Class<? extends Resource>> excludeResources = new ArrayList<Class<? extends Resource>>();
+  private List<Class<? extends Resource>> includeResources = new ArrayList<Class<? extends Resource>>();
+  private List<String> includeResourcePaths = new ArrayList<String>();
+  private List<String> excludeResourcePaths = new ArrayList<String>();
   private static final Logger logger = LoggerFactory.getLogger(ResourceLoader.class);
 
   public ResourceLoader add(ResourceLoader resourceLoader) {

@@ -16,11 +16,11 @@ limitations under the License.
 
 package cn.dreampie.orm.cache;
 
+import cn.dreampie.log.Logger;
+import cn.dreampie.log.LoggerFactory;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
-import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 
 import java.io.InputStream;
 import java.net.URL;

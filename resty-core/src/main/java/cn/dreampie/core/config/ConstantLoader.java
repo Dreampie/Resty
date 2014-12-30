@@ -1,9 +1,9 @@
 package cn.dreampie.core.config;
 
-import cn.dreampie.orm.cache.CacheManager;
 import cn.dreampie.core.Constant;
 import cn.dreampie.core.base.Render;
 import cn.dreampie.core.render.RenderFactory;
+import cn.dreampie.orm.cache.CacheManager;
 
 /**
  * The constant for Restj runtime.

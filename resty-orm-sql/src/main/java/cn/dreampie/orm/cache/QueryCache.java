@@ -18,7 +18,7 @@ limitations under the License.
 package cn.dreampie.orm.cache;
 
 
-import cn.dreampie.core.Constant;
+import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.util.Joiner;

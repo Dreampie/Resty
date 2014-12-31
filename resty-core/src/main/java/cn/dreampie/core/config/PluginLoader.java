@@ -1,7 +1,7 @@
 package cn.dreampie.core.config;
 
 
-import cn.dreampie.core.base.Plugin;
+import cn.dreampie.common.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -21,7 +21,6 @@ import cn.dreampie.core.http.HttpResponse;
 
 /**
  * Handler.
- * <p/>
  * You can config Handler in JFinalConfig.configHandler() method,
  * Handler can do anything under the jfinal action.
  */

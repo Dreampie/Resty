@@ -58,7 +58,7 @@ public class ColumnMeta implements Serializable {
     return typeName;
   }
 
-  @Override
+
   public String toString() {
     return "[ columnName=" + columnName
         + ", typeName=" + typeName

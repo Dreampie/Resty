@@ -18,10 +18,15 @@ public class ClassScaner {
 
   private List<String> includepaths = new ArrayList<String>();
 
-  private static <T> List<Class<? extends T>> extraction(Class<T> clazz, List<String> classFileList) throws ClassNotFoundException {
+  private static <T> List<Class<? extends T>> extraction(Class<T> clazz, List<String> classFileList) {
     List<Class<? extends T>> classList = new ArrayList<Class<? extends T>>();
     for (String classFile : classFileList) {
-      Class<?> classInFile = Class.forName(classFile);
+      Class<?> classInFile = null;
+      try {
+        classInFile = Class.forName(classFile);
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+      }
       if (clazz.isAssignableFrom(classInFile) && clazz != classInFile) {
         classList.add((Class<? extends T>) classInFile);
       }
@@ -195,22 +200,15 @@ public class ClassScaner {
       }
 
 //      classFileList.addAll(findjarFiles(libDir, includeJars, null));
-      try {
-        return extraction(target, classFileList);
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+
+      return extraction(target, classFileList);
     } else {
       List<String> classFileList = new ArrayList<String>();
       for (String classpath : includepaths) {
         classFileList.addAll(findFiles(classpath, "*.class"));
 //        classFileList.addAll(findjarFiles(libDir, includeJars, null));
       }
-      try {
-        return extraction(target, classFileList);
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+      return extraction(target, classFileList);
     }
   }
 
@@ -230,7 +228,7 @@ public class ClassScaner {
         throw new RuntimeException("file serach error：" + baseDirName + " is not a dir！");
       } else {
         String[] filelist = baseDir.list(new FilenameFilter() {
-          @Override
+
           public boolean accept(File dir, String name) {
             return includeJars.contains(name);
           }

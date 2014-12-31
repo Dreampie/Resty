@@ -9,7 +9,7 @@
 
   <artifactId>resty-core</artifactId>
   <packaging>jar</packaging>
-
+  <version>${parent.version}</version>
   <name>resty-core</name>
   <url>http://maven.apache.org</url>
 
@@ -21,7 +21,7 @@
     <logback.version>1.1.2</logback.version>
     <fastjson.version>1.1.41</fastjson.version>
     <xstream.version>1.4.7</xstream.version>
-    <resty.version>1.0-SNAPSHOT</resty.version>
+    <resty.version>${parent.version}</resty.version>
   </properties>
 
   <dependencies>
@@ -61,6 +61,26 @@
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-util</artifactId>
       <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-common</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+      <scope>provided</scope>
     </dependency>
 
   </dependencies>

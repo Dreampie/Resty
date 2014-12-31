@@ -1,7 +1,7 @@
 package cn.dreampie.core;
 
 
-import cn.dreampie.core.base.Plugin;
+import cn.dreampie.common.Plugin;
 import cn.dreampie.core.config.*;
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;

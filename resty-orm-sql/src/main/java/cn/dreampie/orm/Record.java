@@ -29,14 +29,12 @@ import java.util.Set;
  */
 public class Record implements Serializable {
 
-  private static final long serialVersionUID = 905784513600884082L;
 
-  private Map<String, Object> columns;  // = getColumnsMap();	// getConfig().containerFactory.getColumnsMap();	// new HashMap<String, Object>();
+  private Map<String, Object> columns;
 
   /**
    * Return columns map.
    */
-  @SuppressWarnings("unchecked")
   public Map<String, Object> getColumns() {
     if (columns == null) {
       columns = new CaseInsensitiveMap<Object>();

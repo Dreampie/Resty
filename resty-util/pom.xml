@@ -9,20 +9,38 @@
 
   <artifactId>resty-util</artifactId>
   <packaging>jar</packaging>
-
+  <version>${parent.version}</version>
   <name>resty-util</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <junit.version>4.11</junit.version>
+    <fastjson.version>1.1.41</fastjson.version>
+    <resty.version>${parent.version}</resty.version>
   </properties>
 
   <dependencies>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>${fastjson.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-common</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
+
   </dependencies>
 </project>

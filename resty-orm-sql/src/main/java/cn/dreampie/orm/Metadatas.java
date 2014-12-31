@@ -10,43 +10,43 @@ import static cn.dreampie.util.Checker.checkNotNull;
  */
 public class Metadatas {
 
-  private static Map<String, DataSourceMeta> dataSourceMetadataMap = new HashMap<String, DataSourceMeta>();
+  private static Map<String, DataSourceMeta> dataSourceMetaMap = new HashMap<String, DataSourceMeta>();
 
-  private static Map<Class<? extends Model>, ModelMeta> modelMetadataMap = new HashMap<Class<? extends Model>, ModelMeta>();
+  private static Map<Class<? extends Base>, ModelMeta> modelMetaMap = new HashMap<Class<? extends Base>, ModelMeta>();
 
-  public static DataSourceMeta getDataSourceMetadata(String dsName) {
-    DataSourceMeta dsm = dataSourceMetadataMap.get(dsName);
+  public static DataSourceMeta getDataSourceMeta(String dsName) {
+    DataSourceMeta dsm = dataSourceMetaMap.get(dsName);
     checkNotNull(dsm, "Not found DataSourceMetadata for this dsName:" + dsName);
     return dsm;
   }
 
-  public static ModelMeta getModelMetadata(Class<? extends Model> modelClass) {
-    ModelMeta mm = modelMetadataMap.get(modelClass);
+  public static ModelMeta getModelMeta(Class<? extends Base> modelClass) {
+    ModelMeta mm = modelMetaMap.get(modelClass);
     checkNotNull(mm, "Not found ModelMetadata for this model:" + modelClass.getName());
     return mm;
   }
 
-  public static void setDataSourceMetadataMap(Map<String, DataSourceMeta> connMap) {
-    dataSourceMetadataMap = connMap;
+  public static void setDataSourceMetaMap(Map<String, DataSourceMeta> connMap) {
+    dataSourceMetaMap = connMap;
   }
 
-  public static void addDataSourceMetadata(DataSourceMeta dsm) {
-    dataSourceMetadataMap.put(dsm.getDsName(), dsm);
+  public static void addDataSourceMeta(DataSourceMeta dsm) {
+    dataSourceMetaMap.put(dsm.getDsName(), dsm);
   }
 
-  public static void addDataSourceMetadata(String dbName, DataSourceMeta conn) {
-    dataSourceMetadataMap.put(dbName, conn);
+  public static void addDataSourceMeta(String dbName, DataSourceMeta conn) {
+    dataSourceMetaMap.put(dbName, conn);
   }
 
-  public static void setModelMetadataMap(Map<Class<? extends Model>, ModelMeta> modelMap) {
-    modelMetadataMap = modelMap;
+  public static void setModelMetaMap(Map<Class<? extends Base>, ModelMeta> modelMap) {
+    modelMetaMap = modelMap;
   }
 
-  public static void addModelMetadata(ModelMeta model) {
-    modelMetadataMap.put(model.getModelClass(), model);
+  public static void addModelMeta(ModelMeta model) {
+    modelMetaMap.put(model.getModelClass(), model);
   }
 
-  public static void addModelMetadata(Class<? extends Model> modelClass, ModelMeta model) {
-    modelMetadataMap.put(modelClass, model);
+  public static void addModelMeta(Class<? extends Base> modelClass, ModelMeta model) {
+    modelMetaMap.put(modelClass, model);
   }
 }

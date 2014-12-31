@@ -56,7 +56,7 @@ public class EHCacheManager extends CacheManager {
     this.cacheManager = net.sf.ehcache.CacheManager.create(configuration);
   }
 
-  @Override
+
   public Object getCache(String group, String key) {
     try {
       createIfMissing(group);
@@ -79,13 +79,13 @@ public class EHCacheManager extends CacheManager {
     }
   }
 
-  @Override
+
   public void addCache(String group, String key, Object cache) {
     createIfMissing(group);
     cacheManager.getCache(group).put(new Element(key, cache));
   }
 
-  @Override
+
   public void doFlush(CacheEvent event) {
 
     if (event.getType().equals(CacheEvent.CacheEventType.ALL)) {

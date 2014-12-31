@@ -17,6 +17,9 @@
 package cn.dreampie.orm;
 
 
+import cn.dreampie.orm.dialect.Dialect;
+import cn.dreampie.orm.exception.ActiveRecordException;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,15 +29,13 @@ import java.util.List;
 import static cn.dreampie.util.Checker.checkNotNull;
 
 /**
- * DbPro. Professional database query and update tool.
+ * DS. Professional database query and update tool.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class DS {
 
   public static final String DEFAULT_DS_NAME = "default";
   public static final String DEFAULT_PRIMARY_KAY = "id";
-  static final Object[] NULL_PARA_ARRAY = new Object[0];
-
+  public static final Object[] NULL_PARA_ARRAY = new Object[0];
 
   private DataSourceMeta dataSourceMeta;
 
@@ -43,12 +44,19 @@ public class DS {
   }
 
   public static DS use(String dbName) {
-    DS DS = new DS();
-    DS.dataSourceMeta = Metadatas.getDataSourceMetadata(dbName);
-    checkNotNull(DS.dataSourceMeta, " Not found dbName:" + dbName);
-    return DS;
+    DS ds = new DS();
+    ds.dataSourceMeta = Metadatas.getDataSourceMeta(dbName);
+    checkNotNull(ds.dataSourceMeta, " Not found dbName:" + dbName);
+    return ds;
   }
 
+  private PreparedStatement getPreparedStatement(String sql, Object[] paras) throws SQLException {
+    PreparedStatement pst = dataSourceMeta.getConnection().prepareStatement(sql);
+    for (int i = 0; i < paras.length; i++) {
+      pst.setObject(i + 1, paras[i]);
+    }
+    return pst;
+  }
 
   <T> List<T> query(String sql, Object... paras) {
 
@@ -77,14 +85,6 @@ public class DS {
       throw new RuntimeException(e);
     }
     return result;
-  }
-
-  private PreparedStatement getPreparedStatement(String sql, Object[] paras) throws SQLException {
-    PreparedStatement pst = dataSourceMeta.getConnection().prepareStatement(sql);
-    for (int i = 0; i < paras.length; i++) {
-      pst.setObject(i + 1, paras[i]);
-    }
-    return pst;
   }
 
   /**
@@ -243,7 +243,7 @@ public class DS {
   /**
    * Execute sql update
    */
-  int update(String sql, Object... paras) {
+  public int update(String sql, Object... paras) {
     int result = -1;
     try {
       PreparedStatement pst = getPreparedStatement(sql, paras);
@@ -276,7 +276,8 @@ public class DS {
     return id;
   }
 
-  List<Record> find(String sql, Object... paras) {
+
+  public List<Record> find(String sql, Object... paras) {
     List<Record> result = null;
     try {
       PreparedStatement pst = getPreparedStatement(sql, paras);
@@ -284,7 +285,7 @@ public class DS {
       result = RecordBuilder.build(dataSourceMeta, rs);
       dataSourceMeta.close(rs, pst);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new ActiveRecordException(e);
     }
     return result;
   }
@@ -327,7 +328,7 @@ public class DS {
    * @param idValue   the id value of the record
    */
   public Record findById(String tableName, Object idValue) {
-    return findById(tableName, DEFAULT_PRIMARY_KAY, idValue, "*");
+    return findById(tableName, DEFAULT_PRIMARY_KAY, idValue);
   }
 
   /**
@@ -430,7 +431,7 @@ public class DS {
       result = pst.executeUpdate();
       record.set(primaryKey, getGeneratedKey(pst));
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new ActiveRecordException(e);
     } finally {
       dataSourceMeta.close(pst);
     }
@@ -462,6 +463,42 @@ public class DS {
   public boolean update(String tableName, Record record) {
     return update(tableName, DEFAULT_PRIMARY_KAY, record);
   }
+
+
+  public Page<Record> paginate(int pageNo, int pageSize, String sql, Object... paras) {
+    if (pageNo < 1 || pageSize < 1)
+      throw new ActiveRecordException("pageNo and pageSize must be more than 0");
+    Dialect dialect = dataSourceMeta.getDialect();
+
+    long totalRow = 0;
+    int totalPage = 0;
+    List result = query(dialect.countWith(sql), paras);
+    int size = result.size();
+    if (size == 1)
+      totalRow = ((Number) result.get(0)).longValue();
+    else if (size > 1)
+      totalRow = result.size();
+    else
+      return new Page<Record>(new ArrayList<Record>(0), pageNo, pageSize, 0, 0);
+
+    totalPage = (int) (totalRow / pageSize);
+    if (totalRow % pageSize != 0) {
+      totalPage++;
+    }
+
+    // --------
+    List<Record> list = find(dialect.paginateWith(pageNo, pageSize, sql), paras);
+    return new Page<Record>(list, pageNo, pageSize, totalPage, (int) totalRow);
+  }
+
+
+  /**
+   * @see #paginate(int, int, String, Object...)
+   */
+  public Page<Record> paginate(int pageNo, int pageSize, String sql) {
+    return paginate(pageNo, pageSize, sql, NULL_PARA_ARRAY);
+  }
+
 
 }
 

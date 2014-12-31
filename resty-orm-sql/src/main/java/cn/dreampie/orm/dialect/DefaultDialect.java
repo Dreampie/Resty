@@ -45,6 +45,7 @@ public abstract class DefaultDialect implements Dialect {
 
   public String select(String table, String where, String... columns) {
     if (where == null) return select(table, columns);
+    if (columns == null || columns.length <= 0) return select(table, where);
     StringBuilder query = new StringBuilder().append("SELECT ");
     query.append(Joiner.on(", ").join(query, columns));
     query.append(" FROM " + table + " WHERE " + where);
@@ -84,7 +85,6 @@ public abstract class DefaultDialect implements Dialect {
     return query.toString();
   }
 
-
   public String update(String table, String where, String... columns) {
     if (where == null) return update(table, columns);
     StringBuilder query = new StringBuilder().append("UPDATE ").append(table).append(" SET ");
@@ -101,5 +101,26 @@ public abstract class DefaultDialect implements Dialect {
 
   public String count(String table, String where) {
     return "SELECT COUNT(*) FROM " + table + " WHERE " + where;
+  }
+
+  public String countWith(String sql) {
+    return "SELECT COUNT(*) FROM (" + sql + ") temp";
+  }
+
+
+  public String paginate(int pageNo, int pageSize, String table) {
+    return paginateWith(pageNo, pageSize, select(table));
+  }
+
+  public String paginate(int pageNo, int pageSize, String table, String... columns) {
+    return paginateWith(pageNo, pageSize, select(table, columns));
+  }
+
+  public String paginate(int pageNo, int pageSize, String table, String where) {
+    return paginateWith(pageNo, pageSize, select(table, where));
+  }
+
+  public String paginate(int pageNo, int pageSize, String table, String where, String... columns) {
+    return paginateWith(pageNo, pageSize, select(table, where, columns));
   }
 }

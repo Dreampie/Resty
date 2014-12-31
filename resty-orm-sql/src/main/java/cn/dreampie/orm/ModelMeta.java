@@ -35,10 +35,10 @@ public class ModelMeta implements Serializable {
   private SortedMap<String, ColumnMeta> columnMetadata;
   private final String primaryKey;
   private final String tableName, dsName;
-  private final Class<? extends Model> modelClass;
+  private final Class<? extends Base> modelClass;
   private final boolean cached;
 
-  protected ModelMeta(Class<? extends Model> modelClass, String dsName) {
+  protected ModelMeta(Class<? extends Base> modelClass, String dsName) {
     Table tableAnnotation = modelClass.getAnnotation(Table.class);
     checkNotNull(tableAnnotation, "Not found @Table Annotation.");
     this.modelClass = modelClass;
@@ -56,7 +56,7 @@ public class ModelMeta implements Serializable {
     return cached;
   }
 
-  public Class<? extends Model> getModelClass() {
+  public Class<? extends Base> getModelClass() {
     return modelClass;
   }
 
@@ -78,11 +78,11 @@ public class ModelMeta implements Serializable {
   }
 
   public String getDbType() {
-    return Metadatas.getDataSourceMetadata(dsName).getDialect().getDbType();
+    return Metadatas.getDataSourceMeta(dsName).getDialect().getDbType();
   }
 
   public Dialect getDialect() {
-    return Metadatas.getDataSourceMetadata(dsName).getDialect();
+    return Metadatas.getDataSourceMeta(dsName).getDialect();
   }
 
   /**
@@ -96,6 +96,10 @@ public class ModelMeta implements Serializable {
     return Collections.unmodifiableSortedMap(columnMetadata);
   }
 
+  public String getColumnTypeName(String columnName) {
+    SortedMap<String, ColumnMeta> columnMetaSortedMap = getColumnMetadata();
+    return columnMetaSortedMap.get(columnName).getTypeName();
+  }
 
   /**
    * returns true if this attribute is present in this meta model. This method i case insensitive.
@@ -107,7 +111,7 @@ public class ModelMeta implements Serializable {
     return columnMetadata != null && columnMetadata.containsKey(attribute);
   }
 
-  @Override
+
   public String toString() {
     final StringBuilder t = new StringBuilder();
     t.append("MetaModel: ").append(tableName).append(", ").append(modelClass).append("\n");

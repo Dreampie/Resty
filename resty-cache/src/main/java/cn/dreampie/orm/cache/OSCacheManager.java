@@ -39,7 +39,7 @@ public class OSCacheManager extends CacheManager {
     administrator = new GeneralCacheAdministrator(properties);
   }
 
-  @Override
+
   public Object getCache(String group, String key) {
     try {
       return administrator.getFromCache(key);
@@ -55,7 +55,7 @@ public class OSCacheManager extends CacheManager {
     return null;
   }
 
-  @Override
+
   public void addCache(String group, String key, Object cache) {
     try {
       administrator.putInCache(key, cache, new String[]{group});
@@ -64,7 +64,7 @@ public class OSCacheManager extends CacheManager {
     }
   }
 
-  @Override
+
   public void doFlush(CacheEvent event) {
 
     if (event.getType().equals(CacheEvent.CacheEventType.ALL)) {

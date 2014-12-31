@@ -26,7 +26,7 @@ public class ModelMetaBuilder {
         temp = modelMeta;
         modelMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), modelMeta.getTableName()));
         //添加到model元数据集合
-        Metadatas.addModelMetadata(modelMeta.getModelClass(), modelMeta);
+        Metadatas.addModelMeta(modelMeta.getModelClass(), modelMeta);
       }
     } catch (Exception e) {
       if (temp != null)

@@ -1,5 +1,6 @@
 package cn.dreampie.core;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.core.config.Config;
 import cn.dreampie.core.handler.Handler;
 import cn.dreampie.core.http.HttpRequest;

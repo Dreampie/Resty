@@ -1,6 +1,6 @@
 package cn.dreampie.core;
 
-import cn.dreampie.core.base.Plugin;
+import cn.dreampie.common.Plugin;
 import cn.dreampie.core.config.Config;
 import cn.dreampie.core.config.ConstantLoader;
 import cn.dreampie.core.handler.Handler;

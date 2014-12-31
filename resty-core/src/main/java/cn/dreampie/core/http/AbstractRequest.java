@@ -16,7 +16,7 @@ public abstract class AbstractRequest implements Request {
   protected AbstractRequest() {
   }
 
-  @Override
+
   public String toString() {
     StringBuilder sb = new StringBuilder("[resty request] ");
     sb.append(getHttpMethod()).append(" ").append(getRestPath());
@@ -77,7 +77,7 @@ public abstract class AbstractRequest implements Request {
     }
   }
 
-  @Override
+
   public String getClientAddress() {
     // see http://en.wikipedia.org/wiki/X-Forwarded-For
     checkProxyRequest();

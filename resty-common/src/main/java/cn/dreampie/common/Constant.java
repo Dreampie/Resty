@@ -1,4 +1,4 @@
-package cn.dreampie.core;
+package cn.dreampie.common;
 
 import cn.dreampie.orm.cache.CacheManager;
 import cn.dreampie.orm.cache.EHCacheManager;

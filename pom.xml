@@ -13,6 +13,7 @@
     <module>resty-cache</module>
     <module>resty-log</module>
     <module>resty-util</module>
+    <module>resty-common</module>
   </modules>
   <name>resty</name>
   <url>http://maven.apache.org</url>

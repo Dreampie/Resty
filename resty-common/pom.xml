@@ -7,17 +7,16 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>resty-log</artifactId>
+  <artifactId>resty-common</artifactId>
   <packaging>jar</packaging>
   <version>${parent.version}</version>
-  <name>resty-log</name>
+  <name>resty-common</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
-    <slf4j.version>1.7.7</slf4j.version>
-    <logback.version>1.1.2</logback.version>
+    <resty.version>${parent.version}</resty.version>
   </properties>
 
   <dependencies>
@@ -27,20 +26,10 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-      <scope>provided</scope>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-cache</artifactId>
+      <version>${resty.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
   </dependencies>
 </project>

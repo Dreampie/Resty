@@ -1,4 +1,4 @@
-package cn.dreampie.core.base;
+package cn.dreampie.common;
 
 /**
  * Plugin interface

@@ -5,20 +5,22 @@
     <groupId>cn.dreampie</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
 
+  <modelVersion>4.0.0</modelVersion>
   <artifactId>resty-cache</artifactId>
   <packaging>jar</packaging>
-
+  <version>${parent.version}</version>
   <name>resty-cache</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
-    <resty-log.version>1.0-SNAPSHOT</resty-log.version>
+    <resty-log.version>${parent.version}</resty-log.version>
     <ehcache.version>2.6.6</ehcache.version>
     <oscache.version>2.4.1</oscache.version>
+    <slf4j.version>1.7.7</slf4j.version>
+    <logback.version>1.1.2</logback.version>
   </properties>
 
   <dependencies>
@@ -38,6 +40,12 @@
       <artifactId>ehcache-core</artifactId>
       <version>${ehcache.version}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -63,6 +71,20 @@
           <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

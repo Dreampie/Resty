@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class ModelBuilder {
 
-  public static final <T> List<T> build(ResultSet rs, Class<? extends Model> modelClass) throws SQLException, InstantiationException, IllegalAccessException {
+  public static final <T> List<T> build(ResultSet rs, Class<? extends Base> modelClass) throws SQLException, InstantiationException, IllegalAccessException {
     List<T> result = new ArrayList<T>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
@@ -21,7 +21,7 @@ public class ModelBuilder {
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
     while (rs.next()) {
-      Model ar = modelClass.newInstance();
+      Base ar = modelClass.newInstance();
       Map<String, Object> attrs = ar.getAttrs();
       for (int i = 1; i <= columnCount; i++) {
         Object value;

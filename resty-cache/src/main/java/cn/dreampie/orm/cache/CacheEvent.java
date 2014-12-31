@@ -17,7 +17,7 @@ limitations under the License.
 package cn.dreampie.orm.cache;
 
 /**
- * Event object. Sent to {@link cn.dreampie.orm.cache.CacheManager} to let it know
+ * Event object. Sent to {@link CacheManager} to let it know
  * of cache purge events.
  */
 public class CacheEvent {
@@ -42,7 +42,7 @@ public class CacheEvent {
 
 
   /**
-   * Creates a new event type of {@link cn.dreampie.orm.cache.CacheEvent.CacheEventType#GROUP}.
+   * Creates a new event type of {@link CacheEvent.CacheEventType#GROUP}.
    * Usually an application creates an instance of this event to clear a group of caches for a table.
    *
    * @param group  name of group (usually name of table), cannot be null.
@@ -60,7 +60,7 @@ public class CacheEvent {
 
 
   /**
-   * Creates a new event type of {@link cn.dreampie.orm.cache.CacheEvent.CacheEventType#ALL}
+   * Creates a new event type of {@link CacheEvent.CacheEventType#ALL}
    *
    * @param source string representation of source of event, whatever that means for the application. This event will
    *               be broadcast to listeners, and they might use this piece of information. Can be null.
@@ -83,7 +83,7 @@ public class CacheEvent {
     return group;
   }
 
-  @Override
+
   public String toString() {
     return "CacheEvent{" +
         "source='" + source + '\'' +

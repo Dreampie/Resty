@@ -5,9 +5,11 @@
     <groupId>cn.dreampie</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
+
   <modelVersion>4.0.0</modelVersion>
   <artifactId>resty-example</artifactId>
   <packaging>war</packaging>
+  <version>${parent.version}</version>
   <name>resty-example</name>
   <url>http://maven.apache.org</url>
 
@@ -15,7 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <servlet.version>3.1.0</servlet.version>
-    <resty.version>1.0-SNAPSHOT</resty.version>
+    <resty.version>${parent.version}</resty.version>
   </properties>
 
   <dependencies>
@@ -39,6 +41,11 @@
       <version>${resty.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-orm-sql</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>resty-example</finalName>

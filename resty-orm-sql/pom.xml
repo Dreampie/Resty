@@ -9,22 +9,37 @@
 
   <artifactId>resty-orm-sql</artifactId>
   <packaging>jar</packaging>
-
+  <version>${parent.version}</version>
   <name>resty-orm-sql</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
-    <resty.version>1.0-SNAPSHOT</resty.version>
+    <fastjson.version>1.1.41</fastjson.version>
+    <resty.version>${parent.version}</resty.version>
     <druid.version>1.0.12</druid.version>
+    <ehcache.version>2.6.6</ehcache.version>
+    <mysql.version>5.1.33</mysql.version>
   </properties>
 
   <dependencies>
 
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>${fastjson.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>cn.dreampie</groupId>
-      <artifactId>resty-core</artifactId>
+      <artifactId>resty-common</artifactId>
       <version>${resty.version}</version>
     </dependency>
 
@@ -41,6 +56,18 @@
     </dependency>
 
     <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <version>${ehcache.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-common</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-util</artifactId>
       <version>${resty.version}</version>
@@ -50,6 +77,13 @@
       <groupId>com.alibaba</groupId>
       <artifactId>druid</artifactId>
       <version>${druid.version}</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql.version}</version>
     </dependency>
   </dependencies>
 </project>

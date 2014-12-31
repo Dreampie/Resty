@@ -43,4 +43,17 @@ public interface Dialect {
   String count(String table);
 
   String count(String table, String where);
+
+  String countWith(String sql);
+
+
+  String paginate(int pageNo, int pageSize, String table);
+
+  String paginate(int pageNo, int pageSize, String table, String... columns);
+
+  String paginate(int pageNo, int pageSize, String table, String where);
+
+  String paginate(int pageNo, int pageSize, String table, String where, String... columns);
+
+  String paginateWith(int pageNo, int pageSize, String sql);
 }

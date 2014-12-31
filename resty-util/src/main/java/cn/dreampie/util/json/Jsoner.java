@@ -14,7 +14,7 @@ public class Jsoner {
 
   public static String toJSONString(Object object) {
     if (config == null) {
-      config = new SerializeConfig();
+      config = SerializeConfig.getGlobalInstance();
       config.put(Entity.class, new ModelSerializer());
     }
     return JSON.toJSONString(object, config);

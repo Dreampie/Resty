@@ -1,5 +1,6 @@
 package cn.dreampie.example;
 
+import cn.dreampie.route.core.annotation.API;
 import cn.dreampie.route.core.annotation.GET;
 import cn.dreampie.route.core.annotation.POST;
 import cn.dreampie.route.core.base.Resource;
@@ -10,6 +11,7 @@ import java.util.Map;
 /**
  * Created by ice on 14-12-29.
  */
+@API("/api")
 public class UserResource extends Resource {
 
   @GET("/users/:name")

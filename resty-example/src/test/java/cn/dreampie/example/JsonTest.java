@@ -19,10 +19,8 @@ public class JsonTest {
   public void testJson() {
     User user = new User();
     user.put("test", "test");
-    Jsoner.addSerializer(User.class, ModelSerializer.instance());
     String json = Jsoner.toJSONString(user);
     System.out.println(json);
-    Jsoner.addDeserializer(User.class, ModelDeserializer.instance());
     User t = (User) Jsoner.parseObject("{\"key\":\"value\"}", User.class);
     System.out.println(t.get("key"));
   }

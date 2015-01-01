@@ -32,7 +32,7 @@ public final class RouteBuilder {
 
     List<Route> matchBuilder = new ArrayList<Route>();
 
-    Resource resource = null;
+    API api = null;
     DELETE delete = null;
     GET get = null;
     POST post = null;
@@ -46,9 +46,9 @@ public final class RouteBuilder {
     //addResources
     for (Class<? extends cn.dreampie.route.core.base.Resource> resourceClazz : resourceLoader.getResources()) {
       Interceptor[] resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
-      resource = resourceClazz.getAnnotation(Resource.class);
-      if (resource != null) {
-        apiPath = resource.value();
+      api = resourceClazz.getAnnotation(API.class);
+      if (api != null) {
+        apiPath = api.value();
       } else {
         apiPath = "";
       }

@@ -23,4 +23,8 @@ public class UserResource extends Resource {
     return user;
   }
 
+  @GET("/users")
+  public void noreturn() {
+    System.out.println("no return.");
+  }
 }

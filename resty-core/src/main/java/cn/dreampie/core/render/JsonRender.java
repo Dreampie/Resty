@@ -13,8 +13,12 @@ import cn.dreampie.util.json.Jsoner;
  */
 public class JsonRender extends Render {
   public void render(HttpRequest request, HttpResponse response, Object out) {
-    String json = Jsoner.toJSONString(out);
-    response.setContentType(HttpTyper.ContentType.JSON.toString());
-    write(request, response, json);
+    if (out == null) {
+      write(request, response, "");
+    } else {
+      String json = Jsoner.toJSONString(out);
+      response.setContentType(HttpTyper.ContentType.JSON.toString());
+      write(request, response, json);
+    }
   }
 }

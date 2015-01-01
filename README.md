@@ -9,3 +9,5 @@ resty 一款restful的轻量级的web框架
 3.运行resty-example下的pom.xml->flyway-maven-plugin:migration，生成resources下得数据库表创建文件
 4.运行resty-example下的pom.xml->tomcat7-maven-plugin:run,启动example程序
 
+注意:推荐idea作为开发ide，使用分模块的多module开发
+

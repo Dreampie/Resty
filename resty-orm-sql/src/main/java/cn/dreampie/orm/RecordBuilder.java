@@ -21,8 +21,8 @@ public class RecordBuilder {
     buildLabelNamesAndTypes(rsmd, labelNames, types);
     while (rs.next()) {
       Record record = new Record();
-      record.setColumns(new CaseInsensitiveMap<Object>());
-      Map<String, Object> columns = record.getColumns();
+      record.putAttrs(new CaseInsensitiveMap<Object>());
+      Map<String, Object> columns = record.getAttrs();
       for (int i = 1; i <= columnCount; i++) {
         Object value;
         if (types[i] < Types.BLOB)

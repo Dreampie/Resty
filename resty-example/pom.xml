@@ -18,6 +18,7 @@
     <junit.version>4.11</junit.version>
     <servlet.version>3.1.0</servlet.version>
     <resty.version>${parent.version}</resty.version>
+    <mysql.version>5.1.33</mysql.version>
   </properties>
 
   <dependencies>
@@ -46,10 +47,32 @@
       <artifactId>resty-orm-sql</artifactId>
       <version>${resty.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql.version}</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>resty-example</finalName>
     <plugins>
+      <plugin>
+        <groupId>cn.dreampie</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <config>${basedir}/src/main/resources/application.properties</config>
+          <location>filesystem:${basedir}/src/main/resources/db/migration/</location>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
       <plugin>
         <groupId>org.apache.tomcat.maven</groupId>
         <artifactId>tomcat7-maven-plugin</artifactId>

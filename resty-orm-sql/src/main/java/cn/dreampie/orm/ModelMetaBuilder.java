@@ -47,20 +47,27 @@ public class ModelMetaBuilder {
       /*
        * Valid table name format: tablename or schemaname.tablename
        */
-    String[] vals = table.split(".");
+
+
     String schema = null;
     String tableName;
 
-    if (vals.length == 1) {
-      tableName = vals[0];
-    } else if (vals.length == 2) {
-      schema = vals[0];
-      tableName = vals[1];
-      if (schema.length() == 0 || tableName.length() == 0) {
-        throw new RuntimeException("invalid table name : " + table);
+    if (table.contains(".")) {
+      String[] vals = table.split(".");
+
+      if (vals.length == 1) {
+        tableName = vals[0];
+      } else if (vals.length == 2) {
+        schema = vals[0];
+        tableName = vals[1];
+        if (schema.length() == 0 || tableName.length() == 0) {
+          throw new RuntimeException("invalid table name : " + table);
+        }
+      } else {
+        throw new RuntimeException("invalid table name: " + table);
       }
     } else {
-      throw new RuntimeException("invalid table name: " + table);
+      tableName = table;
     }
 
     ResultSet rs = databaseMetaData.getColumns(null, schema, tableName, null);

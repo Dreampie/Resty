@@ -16,7 +16,8 @@
 
 package cn.dreampie.orm;
 
-import com.alibaba.fastjson.JSON;
+import cn.dreampie.common.Entity;
+import cn.dreampie.util.json.Jsoner;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -27,38 +28,38 @@ import java.util.Set;
 /**
  * Record
  */
-public class Record implements Serializable {
+public class Record extends Entity<Record> implements Serializable {
 
 
-  private Map<String, Object> columns;
+  private Map<String, Object> attrs;
 
   /**
-   * Return columns map.
+   * Return attrs map.
    */
-  public Map<String, Object> getColumns() {
-    if (columns == null) {
-      columns = new CaseInsensitiveMap<Object>();
+  public Map<String, Object> getAttrs() {
+    if (attrs == null) {
+      attrs = new CaseInsensitiveMap<Object>();
     }
-    return columns;
+    return attrs;
   }
 
   /**
-   * Set columns value with map.
+   * Set attrs value with map.
    *
-   * @param columns the columns map
+   * @param attrs the attrs map
    */
-  public Record setColumns(Map<String, Object> columns) {
-    this.getColumns().putAll(columns);
+  public Record putAttrs(Map<String, Object> attrs) {
+    this.getAttrs().putAll(attrs);
     return this;
   }
 
   /**
-   * Set columns value with record.
+   * Set attrs value with record.
    *
    * @param record the record
    */
-  public Record setColumns(Record record) {
-    getColumns().putAll(record.getColumns());
+  public Record putAttrs(Record record) {
+    getAttrs().putAll(record.getAttrs());
     return this;
   }
 
@@ -68,27 +69,27 @@ public class Record implements Serializable {
    * @param column the column name of the record
    */
   public Record remove(String column) {
-    getColumns().remove(column);
+    getAttrs().remove(column);
     return this;
   }
 
   /**
-   * Remove columns of this record.
+   * Remove attrs of this record.
    *
    * @param columns the column names of the record
    */
   public Record remove(String... columns) {
     if (columns != null)
       for (String c : columns)
-        this.getColumns().remove(c);
+        this.getAttrs().remove(c);
     return this;
   }
 
   /**
-   * Remove columns if it is null.
+   * Remove attrs if it is null.
    */
-  public Record removeNullValueColumns() {
-    for (java.util.Iterator<Entry<String, Object>> it = getColumns().entrySet().iterator(); it.hasNext(); ) {
+  public Record removeNullValueAttrs() {
+    for (java.util.Iterator<Entry<String, Object>> it = getAttrs().entrySet().iterator(); it.hasNext(); ) {
       Entry<String, Object> e = it.next();
       if (e.getValue() == null) {
         it.remove();
@@ -98,44 +99,44 @@ public class Record implements Serializable {
   }
 
   /**
-   * Keep columns of this record and remove other columns.
+   * Keep attrs of this record and remove other attrs.
    *
    * @param columns the column names of the record
    */
   public Record keep(String... columns) {
     if (columns != null && columns.length > 0) {
-      Map<String, Object> newColumns = new HashMap<String, Object>(columns.length);  // getConfig().containerFactory.getColumnsMap();
+      Map<String, Object> newAttrs = new HashMap<String, Object>(columns.length);  // getConfig().containerFactory.getAttrsMap();
       for (String c : columns)
-        if (this.getColumns().containsKey(c))  // prevent put null value to the newColumns
-          newColumns.put(c, this.getColumns().get(c));
+        if (this.getAttrs().containsKey(c))  // prevent put null value to the newAttrs
+          newAttrs.put(c, this.getAttrs().get(c));
 
-      this.getColumns().clear();
-      this.getColumns().putAll(newColumns);
+      this.getAttrs().clear();
+      this.getAttrs().putAll(newAttrs);
     } else
-      this.getColumns().clear();
+      this.getAttrs().clear();
     return this;
   }
 
   /**
-   * Keep column of this record and remove other columns.
+   * Keep column of this record and remove other attrs.
    *
    * @param column the column names of the record
    */
   public Record keep(String column) {
-    if (getColumns().containsKey(column)) {  // prevent put null value to the newColumns
-      Object keepIt = getColumns().get(column);
-      getColumns().clear();
-      getColumns().put(column, keepIt);
+    if (getAttrs().containsKey(column)) {  // prevent put null value to the newAttrs
+      Object keepIt = getAttrs().get(column);
+      getAttrs().clear();
+      getAttrs().put(column, keepIt);
     } else
-      getColumns().clear();
+      getAttrs().clear();
     return this;
   }
 
   /**
-   * Remove all columns of this record.
+   * Remove all attrs of this record.
    */
   public Record clear() {
-    getColumns().clear();
+    getAttrs().clear();
     return this;
   }
 
@@ -146,7 +147,7 @@ public class Record implements Serializable {
    * @param value  the value of the column
    */
   public Record set(String column, Object value) {
-    getColumns().put(column, value);
+    getAttrs().put(column, value);
     return this;
   }
 
@@ -155,7 +156,7 @@ public class Record implements Serializable {
    */
   @SuppressWarnings("unchecked")
   public <T> T get(String column) {
-    return (T) getColumns().get(column);
+    return (T) getAttrs().get(column);
   }
 
   /**
@@ -163,7 +164,7 @@ public class Record implements Serializable {
    */
   @SuppressWarnings("unchecked")
   public <T> T get(String column, Object defaultValue) {
-    Object result = getColumns().get(column);
+    Object result = getAttrs().get(column);
     return (T) (result != null ? result : defaultValue);
   }
 
@@ -171,77 +172,77 @@ public class Record implements Serializable {
    * Get column of mysql type: varchar, char, enum, set, text, tinytext, mediumtext, longtext
    */
   public String getStr(String column) {
-    return (String) getColumns().get(column);
+    return (String) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: int, integer, tinyint(n) n > 1, smallint, mediumint
    */
   public Integer getInt(String column) {
-    return (Integer) getColumns().get(column);
+    return (Integer) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: bigint
    */
   public Long getLong(String column) {
-    return (Long) getColumns().get(column);
+    return (Long) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: unsigned bigint
    */
   public java.math.BigInteger getBigInteger(String column) {
-    return (java.math.BigInteger) getColumns().get(column);
+    return (java.math.BigInteger) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: date, year
    */
   public java.util.Date getDate(String column) {
-    return (java.util.Date) getColumns().get(column);
+    return (java.util.Date) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: time
    */
   public java.sql.Time getTime(String column) {
-    return (java.sql.Time) getColumns().get(column);
+    return (java.sql.Time) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: timestamp, datetime
    */
   public java.sql.Timestamp getTimestamp(String column) {
-    return (java.sql.Timestamp) getColumns().get(column);
+    return (java.sql.Timestamp) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: real, double
    */
   public Double getDouble(String column) {
-    return (Double) getColumns().get(column);
+    return (Double) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: float
    */
   public Float getFloat(String column) {
-    return (Float) getColumns().get(column);
+    return (Float) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: bit, tinyint(1)
    */
   public Boolean getBoolean(String column) {
-    return (Boolean) getColumns().get(column);
+    return (Boolean) getAttrs().get(column);
   }
 
   /**
    * Get column of mysql type: decimal, numeric
    */
   public java.math.BigDecimal getBigDecimal(String column) {
-    return (java.math.BigDecimal) getColumns().get(column);
+    return (java.math.BigDecimal) getAttrs().get(column);
   }
 
   /**
@@ -249,21 +250,21 @@ public class Record implements Serializable {
    * I have not finished the test.
    */
   public byte[] getBytes(String column) {
-    return (byte[]) getColumns().get(column);
+    return (byte[]) getAttrs().get(column);
   }
 
   /**
    * Get column of any type that extends from Number
    */
   public Number getNumber(String column) {
-    return (Number) getColumns().get(column);
+    return (Number) getAttrs().get(column);
   }
 
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(super.toString()).append(" {");
     boolean first = true;
-    for (Entry<String, Object> e : getColumns().entrySet()) {
+    for (Entry<String, Object> e : getAttrs().entrySet()) {
       if (first)
         first = false;
       else
@@ -283,18 +284,18 @@ public class Record implements Serializable {
       return false;
     if (o == this)
       return true;
-    return this.getColumns().equals(((Record) o).getColumns());
+    return this.getAttrs().equals(((Record) o).getAttrs());
   }
 
   public int hashCode() {
-    return getColumns() == null ? 0 : getColumns().hashCode();
+    return getAttrs() == null ? 0 : getAttrs().hashCode();
   }
 
   /**
    * Return column names of this record.
    */
   public String[] getColumnNames() {
-    Set<String> attrNameSet = getColumns().keySet();
+    Set<String> attrNameSet = getAttrs().keySet();
     return attrNameSet.toArray(new String[attrNameSet.size()]);
   }
 
@@ -302,7 +303,7 @@ public class Record implements Serializable {
    * Return column values of this record.
    */
   public Object[] getColumnValues() {
-    java.util.Collection<Object> attrValueCollection = getColumns().values();
+    java.util.Collection<Object> attrValueCollection = getAttrs().values();
     return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
   }
 
@@ -310,7 +311,7 @@ public class Record implements Serializable {
    * Return json string of this record.
    */
   public String toJson() {
-    return JSON.toJSONString(getColumns());
+    return Jsoner.toJSONString(getAttrs());
   }
 }
 

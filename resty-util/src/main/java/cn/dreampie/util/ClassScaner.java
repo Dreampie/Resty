@@ -53,7 +53,7 @@ public class ClassScaner {
     //判断class路径
     Enumeration<URL> baseURLs = null;
     try {
-      baseURLs = ClassScaner.class.getClassLoader().getResources(File.separator + baseDirName.replaceAll("\\.", "/"));
+      baseURLs = ClassScaner.class.getClassLoader().getResources(baseDirName.replaceAll("\\.", "/"));
     } catch (IOException e) {
       e.printStackTrace();
     }

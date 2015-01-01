@@ -3,10 +3,9 @@ package cn.dreampie.core.route;
 import cn.dreampie.core.interceptor.Interceptor;
 import cn.dreampie.core.invocation.Invocation;
 import cn.dreampie.core.route.base.Resource;
-import com.alibaba.fastjson.JSON;
+import cn.dreampie.util.json.Jsoner;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -72,7 +71,7 @@ public class RouteInvocation implements Invocation {
         if (paraType == String.class) {
           args[i] = routeMatch.getPathParam(name);
         } else
-          args[i] = JSON.parseObject(routeMatch.getPathParam(name), paraType);
+          args[i] = Jsoner.parseObject(routeMatch.getPathParam(name), paraType);
       } else {//其他参数
         valueArr = routeMatch.getOtherParam(name);
         if (valueArr != null) {
@@ -81,29 +80,14 @@ public class RouteInvocation implements Invocation {
             if (paraType == String.class) {
               args[i] = valueArr.get(0);
             } else
-              args[i] = JSON.parseObject(valueArr.get(0), paraType);
+              args[i] = Jsoner.parseObject(valueArr.get(0), paraType);
           } else {
-            args[i] = JSON.parseObject(JSON.toJSONString(valueArr), paraType);
+            args[i] = Jsoner.parseObject(Jsoner.toJSONString(valueArr), paraType);
           }
         }
       }
       i++;
     }
     return args;
-  }
-
-  public static void main(String[] args) {
-    List<String> v = new ArrayList<String>();
-    v.add("1");
-
-    List<Integer> result = JSON.parseObject(JSON.toJSONString(v), List.class);
-
-    System.out.println(v.getClass() == ArrayList.class);
-
-    String s = "asdasda.x";
-    int index = s.indexOf(".");
-    String a = s.substring(index + 1);
-    s = s.substring(0, index);
-    System.out.println(s + "----" + a);
   }
 }

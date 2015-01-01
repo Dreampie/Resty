@@ -6,6 +6,9 @@ import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
 import cn.dreampie.util.ClassScaner;
+import cn.dreampie.util.json.Jsoner;
+import cn.dreampie.util.json.ModelDeserializer;
+import cn.dreampie.util.json.ModelSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +19,8 @@ import java.util.List;
 public class ActiveRecordPlugin implements Plugin {
   private static final Logger logger = LoggerFactory.getLogger(ActiveRecordPlugin.class);
 
-  private List<Class<? extends Base>> excludeClasses = new ArrayList<Class<? extends Base>>();
-  private List<Class<? extends Base>> includeClasses = new ArrayList<Class<? extends Base>>();
+  private List<Class<? extends Model>> excludeClasses = new ArrayList<Class<? extends Model>>();
+  private List<Class<? extends Model>> includeClasses = new ArrayList<Class<? extends Model>>();
   private List<String> includeClassPaths = new ArrayList<String>();
   private List<String> excludeClassPaths = new ArrayList<String>();
 
@@ -37,14 +40,14 @@ public class ActiveRecordPlugin implements Plugin {
   }
 
 
-  public ActiveRecordPlugin addExcludeClasses(Class<? extends Base>... clazzes) {
-    for (Class<? extends Base> clazz : clazzes) {
+  public ActiveRecordPlugin addExcludeClasses(Class<? extends Model>... clazzes) {
+    for (Class<? extends Model> clazz : clazzes) {
       excludeClasses.add(clazz);
     }
     return this;
   }
 
-  public ActiveRecordPlugin addExcludeClasses(List<Class<? extends Base>> clazzes) {
+  public ActiveRecordPlugin addExcludeClasses(List<Class<? extends Model>> clazzes) {
     if (clazzes != null) {
       excludeClasses.addAll(clazzes);
     }
@@ -58,14 +61,14 @@ public class ActiveRecordPlugin implements Plugin {
     return this;
   }
 
-  public ActiveRecordPlugin addIncludeClasses(Class<? extends Base>... clazzes) {
-    for (Class<? extends Base> clazz : clazzes) {
+  public ActiveRecordPlugin addIncludeClasses(Class<? extends Model>... clazzes) {
+    for (Class<? extends Model> clazz : clazzes) {
       includeClasses.add(clazz);
     }
     return this;
   }
 
-  public ActiveRecordPlugin addIncludeClasses(List<Class<? extends Base>> clazzes) {
+  public ActiveRecordPlugin addIncludeClasses(List<Class<? extends Model>> clazzes) {
     if (clazzes != null) {
       includeClasses.addAll(clazzes);
     }
@@ -81,9 +84,9 @@ public class ActiveRecordPlugin implements Plugin {
 
   public boolean start() {
     if (includeClasses.size() <= 0) {
-      includeClasses = ClassScaner.of(Base.class).includepaths(includeClassPaths).search();
+      includeClasses = ClassScaner.of(Model.class).includepaths(includeClassPaths).search();
     }
-    for (Class<? extends Base> modelClass : includeClasses) {
+    for (Class<? extends Model> modelClass : includeClasses) {
       boolean isexclude = false;
       if (excludeClassPaths.size() > 0) {
         for (String excludepath : excludeClassPaths) {
@@ -101,6 +104,9 @@ public class ActiveRecordPlugin implements Plugin {
       ModelMeta modelMeta = new ModelMeta(modelClass, dsName);
       modelMetas.add(modelMeta);
       logger.debug("addMapping(" + modelMeta.getTableName() + ", " + modelClass.getName() + ")");
+
+      //json  config
+      Jsoner.addConfig(modelClass, ModelSerializer.instance(), ModelDeserializer.instance());
     }
     DataSourceMeta dsm = new DataSourceMeta(dsName, dataSourceProvider, showSql);
     //数据源  元数据

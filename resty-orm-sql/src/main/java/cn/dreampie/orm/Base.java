@@ -5,7 +5,7 @@ import cn.dreampie.common.Entity;
 import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.ActiveRecordException;
-import com.alibaba.fastjson.JSON;
+import cn.dreampie.util.json.Jsoner;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * Created by ice on 14-12-30.
  */
-public abstract class Base<M extends Base> extends Entity implements Serializable {
+public abstract class Base<M extends Base> extends Entity<Base> implements Serializable {
   /**
    * Attributes of this model
    */
@@ -111,6 +111,8 @@ public abstract class Base<M extends Base> extends Entity implements Serializabl
    * Put key value pair to the model when the key is not attribute of the model.
    */
   public M put(String key, Object value) {
+    if (getModelMeta().hasAttribute(key))
+      getModifyFlag().put(key, value);
     attrs.put(key, value);
     return (M) this;
   }
@@ -527,6 +529,10 @@ public abstract class Base<M extends Base> extends Entity implements Serializabl
     return (M) setAttrs(model.getAttrs());
   }
 
+  public M putAttrs(M model) {
+    return (M) putAttrs(model.getAttrs());
+  }
+
   /**
    * Set attributes with Map.
    *
@@ -536,6 +542,13 @@ public abstract class Base<M extends Base> extends Entity implements Serializabl
   public M setAttrs(Map<String, Object> attrs) {
     for (Map.Entry<String, Object> e : attrs.entrySet())
       set(e.getKey(), e.getValue());
+    return (M) this;
+  }
+
+
+  public M putAttrs(Map<String, Object> attrs) {
+    for (Map.Entry<String, Object> e : attrs.entrySet())
+      put(e.getKey(), e.getValue());
     return (M) this;
   }
 
@@ -691,7 +704,7 @@ public abstract class Base<M extends Base> extends Entity implements Serializabl
    * Return json string of this model.
    */
   public String toJson() {
-    return JSON.toJSONString(attrs);
+    return Jsoner.toJSONString(attrs);
   }
 
 }

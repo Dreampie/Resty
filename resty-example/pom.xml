@@ -38,7 +38,7 @@
 
     <dependency>
       <groupId>cn.dreampie</groupId>
-      <artifactId>resty-core</artifactId>
+      <artifactId>resty-route</artifactId>
       <version>${resty.version}</version>
     </dependency>
 

@@ -6,7 +6,11 @@
   <display-name>Archetype Created Web Application</display-name>
   <filter>
     <filter-name>RestyFilter</filter-name>
-    <filter-class>cn.dreampie.core.RestyFilter</filter-class>
+    <filter-class>cn.dreampie.route.RestyFilter</filter-class>
+    <init-param>
+      <param-name>configClass</param-name>
+      <param-value>cn.dreampie.example.AppConfig</param-value>
+    </init-param>
   </filter>
   <filter-mapping>
     <filter-name>RestyFilter</filter-name>

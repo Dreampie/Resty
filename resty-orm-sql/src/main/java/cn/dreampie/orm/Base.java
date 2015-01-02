@@ -8,11 +8,9 @@ import cn.dreampie.orm.exception.ActiveRecordException;
 import cn.dreampie.util.json.Jsoner;
 
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 /**
  * Created by ice on 14-12-30.
@@ -62,7 +60,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
 
   /**
-   * Return attribute names of this model.
+   * Return attribute name of this model.
    */
   public String[] getModifyNames() {
     Set<String> attrNameSet = modifyFlag.keySet();
@@ -250,7 +248,12 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
   private PreparedStatement getPreparedStatement(DataSourceMeta dsm, String sql, Object[] paras) throws SQLException {
-    PreparedStatement pst = dsm.getConnection().prepareStatement(sql);
+    PreparedStatement pst = null;
+    if (dsm.getDialect().getDbType().equalsIgnoreCase("oracle")) {
+      pst = dsm.getConnection().prepareStatement(sql, new String[]{getModelMeta().getPrimaryKey()});
+    } else {
+      pst = dsm.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+    }
     for (int i = 0; i < paras.length; i++) {
       pst.setObject(i + 1, paras[i]);
     }
@@ -390,7 +393,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     PreparedStatement pst = null;
     int result = 0;
     try {
-      pst = getPreparedStatement(sql, new String[]{modelMeta.getPrimaryKey()});
+      pst = getPreparedStatement(sql, getAttrValues());
 
       result = pst.executeUpdate();
       getGeneratedKey(pst, modelMeta);
@@ -567,7 +570,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   /**
    * Remove attributes of this model.
    *
-   * @param attrs the attribute names of the model
+   * @param attrs the attribute name of the model
    * @return this model
    */
   public M remove(String... attrs) {
@@ -598,7 +601,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   /**
    * Keep attributes of this model and remove other attributes.
    *
-   * @param attrs the attribute names of the model
+   * @param attrs the attribute name of the model
    * @return this model
    */
   public M keep(String... attrs) {
@@ -685,7 +688,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
   /**
-   * Return attribute names of this model.
+   * Return attribute name of this model.
    */
   public String[] getAttrNames() {
     Set<String> attrNameSet = attrs.keySet();

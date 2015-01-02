@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 public @interface Table {
   String name();
 
-  String primaryKey() default "";
+  String primaryKey() default "id";
 
   boolean cached() default false;
 }

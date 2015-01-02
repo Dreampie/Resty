@@ -47,21 +47,23 @@ public abstract class DefaultDialect implements Dialect {
     if (where == null) return select(table, columns);
     if (columns == null || columns.length <= 0) return select(table, where);
     StringBuilder query = new StringBuilder().append("SELECT ");
-    query.append(Joiner.on(", ").join(query, columns));
+    query.append(Joiner.on(", ").join(columns));
     query.append(" FROM " + table + " WHERE " + where);
     return query.toString();
   }
 
   protected void appendQuestions(StringBuilder query, int count) {
-    Joiner joiner = Joiner.on(", ");
     for (int i = 0; i < count; i++) {
-      query.append(joiner.join(query, "?"));
+      if (i == 0)
+        query.append("?");
+      else
+        query.append(",?");
     }
   }
 
   public String insert(String table, String... columns) {
     StringBuilder query = new StringBuilder().append("INSERT INTO ").append(table).append(" (");
-    query.append(Joiner.on(", ").join(query, columns));
+    query.append(Joiner.on(", ").join(columns));
     query.append(") VALUES (");
     appendQuestions(query, columns.length);
     query.append(')');
@@ -81,14 +83,14 @@ public abstract class DefaultDialect implements Dialect {
 
   public String update(String table, String... columns) {
     StringBuilder query = new StringBuilder().append("UPDATE ").append(table).append(" SET ");
-    query.append(Joiner.on("=?, ").join(query, columns));
+    query.append(Joiner.on("=?, ").join(columns));
     return query.toString();
   }
 
   public String update(String table, String where, String... columns) {
     if (where == null) return update(table, columns);
     StringBuilder query = new StringBuilder().append("UPDATE ").append(table).append(" SET ");
-    query.append(Joiner.on("=?, ").join(query, columns));
+    query.append(Joiner.on("=?, ").join(columns));
     query.append(" WHERE " + where);
     return query.toString();
   }

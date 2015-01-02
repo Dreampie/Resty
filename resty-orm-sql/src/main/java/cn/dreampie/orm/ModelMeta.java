@@ -86,10 +86,10 @@ public class ModelMeta implements Serializable {
   }
 
   /**
-   * Provides column metadata map, keyed by attribute names.
+   * Provides column metadata map, keyed by attribute name.
    * Table columns correspond to ActiveJDBC model attributes.
    *
-   * @return Provides column metadata map, keyed by attribute names.
+   * @return Provides column metadata map, keyed by attribute name.
    */
   public SortedMap<String, ColumnMeta> getColumnMetadata() {
     checkNotNull(columnMetadata, "Failed to find table: " + getTableName());

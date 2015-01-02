@@ -86,6 +86,9 @@ public class ActiveRecordPlugin implements Plugin {
     if (includeClasses.size() <= 0) {
       includeClasses = ClassScaner.of(Model.class).includepaths(includeClassPaths).search();
     }
+
+    modelMetas = new ArrayList<ModelMeta>();
+    ModelMeta modelMeta = null;
     for (Class<? extends Model> modelClass : includeClasses) {
       boolean isexclude = false;
       if (excludeClassPaths.size() > 0) {
@@ -100,8 +103,8 @@ public class ActiveRecordPlugin implements Plugin {
       if (isexclude || excludeClasses.contains(modelClass)) {
         continue;
       }
-      modelMetas = new ArrayList<ModelMeta>();
-      ModelMeta modelMeta = new ModelMeta(modelClass, dsName);
+      //add modelMeta
+      modelMeta = new ModelMeta(modelClass, dsName);
       modelMetas.add(modelMeta);
       logger.debug("addMapping(" + modelMeta.getTableName() + ", " + modelClass.getName() + ")");
 

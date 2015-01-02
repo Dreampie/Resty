@@ -91,10 +91,10 @@ public class ModelMetaBuilder {
     }
 
     if (columns.size() > 0) {
-      logger.info("Fetched metadata for table: {}", table);
+      logger.info("Fetched metadata for table: %s", table);
     } else {
-      logger.warn("Failed to retrieve metadata for table: '{}'."
-              + " Are you sure this table exists? For some databases table names are case sensitive.",
+      logger.warn("Failed to retrieve metadata for table: '%s'."
+              + " Are you sure this table exists? For some databases table name are case sensitive.",
           table);
     }
     return columns;

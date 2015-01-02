@@ -1,4 +1,4 @@
-package cn.dreampie.example;
+package cn.dreampie.example.config;
 
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.druid.DruidPlugin;
@@ -25,6 +25,7 @@ public class AppConfig extends Config {
     pluginLoader.add(druidPlugin);
     ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
     activeRecordPlugin.addIncludePaths("cn.dreampie.example");
+    activeRecordPlugin.setShowSql(true);
     pluginLoader.add(activeRecordPlugin);
   }
 

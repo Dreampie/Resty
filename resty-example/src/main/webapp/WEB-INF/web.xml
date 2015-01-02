@@ -9,7 +9,7 @@
     <filter-class>cn.dreampie.route.RestyFilter</filter-class>
     <init-param>
       <param-name>configClass</param-name>
-      <param-value>cn.dreampie.example.AppConfig</param-value>
+      <param-value>cn.dreampie.example.config.AppConfig</param-value>
     </init-param>
   </filter>
   <filter-mapping>

@@ -76,7 +76,7 @@ public class Record extends Entity<Record> implements Serializable {
   /**
    * Remove attrs of this record.
    *
-   * @param columns the column names of the record
+   * @param columns the column name of the record
    */
   public Record remove(String... columns) {
     if (columns != null)
@@ -101,7 +101,7 @@ public class Record extends Entity<Record> implements Serializable {
   /**
    * Keep attrs of this record and remove other attrs.
    *
-   * @param columns the column names of the record
+   * @param columns the column name of the record
    */
   public Record keep(String... columns) {
     if (columns != null && columns.length > 0) {
@@ -120,7 +120,7 @@ public class Record extends Entity<Record> implements Serializable {
   /**
    * Keep column of this record and remove other attrs.
    *
-   * @param column the column names of the record
+   * @param column the column name of the record
    */
   public Record keep(String column) {
     if (getAttrs().containsKey(column)) {  // prevent put null value to the newAttrs
@@ -292,7 +292,7 @@ public class Record extends Entity<Record> implements Serializable {
   }
 
   /**
-   * Return column names of this record.
+   * Return column name of this record.
    */
   public String[] getColumnNames() {
     Set<String> attrNameSet = getAttrs().keySet();

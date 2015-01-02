@@ -89,6 +89,17 @@ public class DataSourceMeta {
     return showSql ? new SqlPrinter(dataSource.getConnection()).getConnection() : dataSource.getConnection();
   }
 
+  public Connection getCurrentConnection() {
+    return connectionTL.get();
+  }
+
+  public void setCurrentConnection(Connection connection) {
+    connectionTL.set(connection);
+  }
+
+  public void rmCurrentConnection() {
+    connectionTL.remove();
+  }
 
   /**
    * Close ResultSet、Statement、Connection

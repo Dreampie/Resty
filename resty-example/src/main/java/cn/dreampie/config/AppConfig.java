@@ -13,11 +13,13 @@ import cn.dreampie.util.properties.Proper;
  */
 public class AppConfig extends Config {
   public void configConstant(ConstantLoader constantLoader) {
-//    constantLoader.addRender("json", new JsonRender());
+    //通过后缀来返回不同的数据类型  你可以自定义自己的  render  如：FreemarkerRender
+    //constantLoader.addRender("json", new JsonRender());
   }
 
   public void configResource(ResourceLoader resourceLoader) {
-
+    //设置resource的目录  减少启动扫描目录
+    resourceLoader.addIncludePaths("cn.dreampie");
   }
 
   public void configPlugin(PluginLoader pluginLoader) {
@@ -39,6 +41,7 @@ public class AppConfig extends Config {
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {
+    //事务的拦截器 @Transaction
     interceptorLoader.add(new TransactionInterceptor());
   }
 

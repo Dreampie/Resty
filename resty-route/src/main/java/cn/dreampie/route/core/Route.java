@@ -67,7 +67,7 @@ public class Route {
     String restPath = request.getRestPath();
     String extension = "";
     if (restPath.contains(".")) {
-      int index = restPath.indexOf(".");
+      int index = restPath.lastIndexOf(".");
       extension = restPath.substring(index + 1);
       restPath = restPath.substring(0, index);
     }

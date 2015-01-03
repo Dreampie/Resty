@@ -8,6 +8,6 @@ import java.lang.reflect.Method;
  */
 public interface Aspect {
 
-  public void aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable;
+  public Object aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable;
 
 }

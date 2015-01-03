@@ -49,7 +49,7 @@ public class AspectHandler implements InvocationHandler {
 
     Object result = null;
     if (index < aspects.length)
-      aspects[index++].aspect(this, proxy, method, args);
+      result = aspects[index++].aspect(this, proxy, method, args);
     else if (index++ == aspects.length) {
       result = method.invoke(getTarget(), args);
     }

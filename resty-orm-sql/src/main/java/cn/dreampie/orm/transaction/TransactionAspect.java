@@ -11,7 +11,7 @@ public class TransactionAspect implements Aspect {
   private DsTransactionExcutor[] excutors;
   private int index = 0;
 
-  public void aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable {
+  public Object aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable {
     if (index == 0) {
       Transaction transactionAnn = method.getAnnotation(Transaction.class);
       if (transactionAnn != null) {
@@ -33,7 +33,7 @@ public class TransactionAspect implements Aspect {
       }
     }
 
-    ih.invoke(proxy, method, args);
+    return ih.invoke(proxy, method, args);
   }
 
 }

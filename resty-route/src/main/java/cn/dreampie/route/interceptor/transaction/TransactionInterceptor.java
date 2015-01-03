@@ -26,14 +26,16 @@ public class TransactionInterceptor implements Interceptor {
       }
     }
 
-    if (excutors.length > 0) {
-      if (index < excutors.length)
-        excutors[index++].transaction(this, ri);
-      else if (index++ == excutors.length) {
-        index = 0;
-        excutors = null;
-        ri.invoke();
-        return;
+    if (excutors != null && excutors.length > 0) {
+      if (excutors.length > 0) {
+        if (index < excutors.length)
+          excutors[index++].transaction(this, ri);
+        else if (index++ == excutors.length) {
+          index = 0;
+          excutors = null;
+          ri.invoke();
+          return;
+        }
       }
     }
   }

@@ -1,5 +1,6 @@
 package cn.dreampie.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import java.util.List;
  */
 public class Lister {
   public static <T> List<T> of(Object... objects) {
+    if (objects == null || objects.length == 0) return new ArrayList<T>();
     return (List<T>) Arrays.asList(objects);
   }
 }

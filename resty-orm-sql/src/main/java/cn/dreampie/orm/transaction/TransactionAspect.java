@@ -24,7 +24,7 @@ public class TransactionAspect implements Aspect {
       }
     }
 
-    if (excutors.length > 0) {
+    if (excutors != null && excutors.length > 0) {
       if (index < excutors.length)
         excutors[index++].transaction(this, ih, proxy, method, args);
       else if (index++ == excutors.length) {

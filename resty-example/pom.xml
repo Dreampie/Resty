@@ -18,6 +18,7 @@
     <junit.version>4.11</junit.version>
     <servlet.version>3.1.0</servlet.version>
     <resty.version>${parent.version}</resty.version>
+    <druid.version>1.0.12</druid.version>
     <mysql.version>5.1.33</mysql.version>
     <slf4j.version>1.7.7</slf4j.version>
     <logback.version>1.1.2</logback.version>
@@ -48,6 +49,13 @@
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-orm-sql</artifactId>
       <version>${resty.version}</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>druid</artifactId>
+      <version>${druid.version}</version>
     </dependency>
 
     <dependency>

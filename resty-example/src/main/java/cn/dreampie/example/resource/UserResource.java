@@ -12,6 +12,7 @@ import cn.dreampie.route.core.annotation.API;
 import cn.dreampie.route.core.annotation.GET;
 import cn.dreampie.route.core.annotation.POST;
 import cn.dreampie.route.core.base.Resource;
+import cn.dreampie.util.Lister;
 import cn.dreampie.util.Maper;
 
 import java.util.Map;
@@ -28,6 +29,7 @@ public class UserResource extends Resource {
 
   @GET("/users/:name")
   public Map find(String name) {
+//    return Lister.of(name);
     return Maper.of("k1", "v1,name:" + name, "k2", "v2");
   }
 

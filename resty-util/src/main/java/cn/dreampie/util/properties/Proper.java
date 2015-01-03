@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * PropKit. PropKit can load properties file from CLASSPATH or File object.
+ * Proper. Proper can load properties file from CLASSPATH or File object.
  */
 public class Proper {
 
@@ -45,15 +45,15 @@ public class Proper {
    * Using the properties file. It will loading the properties file if not loading.
    * <p/>
    * Example:<br>
-   * PropKit.use("config.txt", "UTF-8");<br>
-   * PropKit.use("other_config.txt", "UTF-8");<br><br>
-   * String userName = PropKit.get("userName");<br>
-   * String password = PropKit.get("password");<br><br>
+   * Proper.use("config.txt", "UTF-8");<br>
+   * Proper.use("other_config.txt", "UTF-8");<br><br>
+   * String userName = Proper.get("userName");<br>
+   * String password = Proper.get("password");<br><br>
    * <p/>
-   * userName = PropKit.use("other_config.txt").get("userName");<br>
-   * password = PropKit.use("other_config.txt").get("password");<br><br>
+   * userName = Proper.use("other_config.txt").get("userName");<br>
+   * password = Proper.use("other_config.txt").get("password");<br><br>
    * <p/>
-   * PropKit.use("com/jfinal/config_in_sub_directory_of_classpath.txt");
+   * Proper.use("com/jfinal/config_in_sub_directory_of_classpath.txt");
    *
    * @param fileName the properties file's name in classpath or the sub directory of classpath
    * @param encoding the encoding
@@ -82,8 +82,8 @@ public class Proper {
    * Using the properties file bye File object. It will loading the properties file if not loading.
    * <p/>
    * Example:<br>
-   * PropKit.use(new File("/var/config/my_config.txt"), "UTF-8");<br>
-   * Strig userName = PropKit.use("my_config.txt").get("userName");
+   * Proper.use(new File("/var/config/my_config.txt"), "UTF-8");<br>
+   * Strig userName = Proper.use("my_config.txt").get("userName");
    *
    * @param file     the properties File object
    * @param encoding the encoding
@@ -113,7 +113,7 @@ public class Proper {
 
   public static Prop getProp() {
     if (prop == null)
-      throw new IllegalStateException("Load propties file by invoking PropKit.use(String fileName) method first.");
+      throw new IllegalStateException("Load propties file by invoking Proper.use(String fileName) method first.");
     return prop;
   }
 

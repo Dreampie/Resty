@@ -72,12 +72,12 @@ public class ClassScaner {
           String[] paths = basePath.split("!/");
           // 获取jar
           try {
-            classFiles = findJarFile(URLDecoder.decode(paths[0].replace("file:", ""), "UTF-8"), paths[1]);
+            classFiles.addAll(findJarFile(URLDecoder.decode(paths[0].replace("file:", ""), "UTF-8"), paths[1]));
           } catch (IOException e) {
             e.printStackTrace();
           }
         } else {
-          classFiles = findPathFiles(basePath, targetFileName);
+          classFiles.addAll(findPathFiles(basePath, targetFileName));
         }
       }
     }

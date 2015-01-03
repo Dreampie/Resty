@@ -106,7 +106,7 @@ public enum QueryCache {
 
 
   private String getKey(String tableName, String query, Object[] params) {
-    return new StringBuilder(tableName).append(query).append(params == null ? null : Arrays.asList(params).toString()).toString();
+    return tableName + query + (params == null ? null : Arrays.asList(params).toString());
   }
 
   /**

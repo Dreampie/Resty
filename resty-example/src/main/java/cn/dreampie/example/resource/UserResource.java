@@ -12,7 +12,6 @@ import cn.dreampie.route.core.annotation.API;
 import cn.dreampie.route.core.annotation.GET;
 import cn.dreampie.route.core.annotation.POST;
 import cn.dreampie.route.core.base.Resource;
-import cn.dreampie.util.Lister;
 import cn.dreampie.util.Maper;
 
 import java.util.Map;

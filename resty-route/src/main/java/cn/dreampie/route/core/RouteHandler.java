@@ -6,6 +6,7 @@ import cn.dreampie.route.handler.Handler;
 import cn.dreampie.route.http.HttpRequest;
 import cn.dreampie.route.http.HttpResponse;
 import cn.dreampie.route.http.HttpStatus;
+import cn.dreampie.route.http.exception.WebException;
 import cn.dreampie.route.render.RenderFactory;
 
 /**
@@ -39,7 +40,11 @@ public final class RouteHandler extends Handler {
 
     if (routeMatch != null) {
       response.setStatus(HttpStatus.OK);
-      routeMatch.getRender().render(request, response, new RouteInvocation(route, routeMatch).invoke());
+      try {
+        routeMatch.getRender().render(request, response, new RouteInvocation(route, routeMatch).invoke());
+      } catch (Exception e) {
+        throw new WebException(e.getMessage());
+      }
     } else {
       // no route matched
       String path = request.getRestPath();

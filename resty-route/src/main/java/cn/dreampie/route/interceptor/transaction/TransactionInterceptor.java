@@ -13,7 +13,7 @@ public class TransactionInterceptor implements Interceptor {
   private DsTransactionExcutor[] excutors;
   private int index = 0;
 
-  public void intercept(Invocation ri) {
+  public Object intercept(Invocation ri) {
     if (index == 0) {
       Transaction transactionAnn = ((RouteInvocation) ri).getMethod().getAnnotation(Transaction.class);
       if (transactionAnn != null) {
@@ -33,11 +33,10 @@ public class TransactionInterceptor implements Interceptor {
         else if (index++ == excutors.length) {
           index = 0;
           excutors = null;
-          ri.invoke();
-          return;
         }
       }
     }
+    return ri.invoke();
   }
 
 }

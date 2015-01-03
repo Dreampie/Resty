@@ -30,10 +30,10 @@ public class TransactionAspect implements Aspect {
       else if (index++ == excutors.length) {
         index = 0;
         excutors = null;
-        ih.invoke(proxy, method, args);
-        return;
       }
     }
+
+    ih.invoke(proxy, method, args);
   }
 
 }

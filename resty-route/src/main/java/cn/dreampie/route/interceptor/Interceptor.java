@@ -23,5 +23,5 @@ import cn.dreampie.route.invocation.Invocation;
  * Interceptor.
  */
 public interface Interceptor {
-  void intercept(Invocation ai);
+  Object intercept(Invocation ai);
 }

@@ -36,7 +36,7 @@ public class RouteInvocation implements Invocation {
   public Object invoke() {
     Object result = null;
     if (index < interceptors.length)
-      interceptors[index++].intercept(this);
+      result = interceptors[index++].intercept(this);
     else if (index++ == interceptors.length) {
       Resource resource = null;
       try {

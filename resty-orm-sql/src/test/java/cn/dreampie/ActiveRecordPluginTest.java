@@ -7,7 +7,6 @@ import cn.dreampie.orm.Record;
 import cn.dreampie.orm.druid.DruidPlugin;
 import cn.dreampie.util.properties.Prop;
 import cn.dreampie.util.properties.Proper;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -24,8 +23,6 @@ public class ActiveRecordPluginTest {
     activeRecordPlugin.start();
 
     Record record = DS.use().findById("sec_user", 1);
-
-    Assert.assertNotNull(record);
 
   }
 }

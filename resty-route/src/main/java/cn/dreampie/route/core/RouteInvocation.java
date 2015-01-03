@@ -1,11 +1,12 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.invocation.Invocation;
-import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.util.json.Jsoner;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -89,5 +90,9 @@ public class RouteInvocation implements Invocation {
       i++;
     }
     return args;
+  }
+
+  public Method getMethod() {
+    return route.getMethod();
   }
 }

@@ -1,9 +1,9 @@
 package cn.dreampie.route.config;
 
 import cn.dreampie.common.Constant;
+import cn.dreampie.orm.cache.CacheManager;
 import cn.dreampie.route.base.Render;
 import cn.dreampie.route.render.RenderFactory;
-import cn.dreampie.orm.cache.CacheManager;
 
 /**
  * The constant for Restj runtime.

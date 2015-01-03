@@ -1,9 +1,12 @@
 package cn.dreampie.example.resource;
 
+import cn.dreampie.demo.model.Role;
 import cn.dreampie.example.model.User;
+import cn.dreampie.example.model.UserInfo;
 import cn.dreampie.example.service.UserService;
 import cn.dreampie.example.service.UserServiceImpl;
 import cn.dreampie.orm.transaction.AspectFactory;
+import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.orm.transaction.TransactionAspect;
 import cn.dreampie.route.core.annotation.API;
 import cn.dreampie.route.core.annotation.GET;
@@ -33,7 +36,25 @@ public class UserResource extends Resource {
   }
 
   @GET("/users")
+  @Transaction(name = {"default", "demo"})
   public User transaction() {
-    return userService.save(new User().set("username", "test").set("providername", "test").set("password", "123456"));
+    User u = new User().set("username", "test").set("providername", "test").set("password", "123456");
+    UserInfo userInfo = null;
+    if (u.get("user_info") == null) {
+      userInfo = new UserInfo().set("gender", 0);
+    } else {
+      userInfo = u.get("user_info");
+    }
+    if (u.save()) {
+      userInfo.set("user_id", u.get("id"));
+      userInfo.save();
+
+      Role role = new Role().set("name", "test").set("value", "xx");
+      role.save();
+      int[] a = new int[0];
+      System.out.println(a[2]);
+    }
+    return u;
+//    return userService.save(new User().set("username", "test").set("providername", "test").set("password", "123456"));
   }
 }

@@ -14,7 +14,7 @@ import java.sql.Connection;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Transaction {
-  String name() default DS.DEFAULT_DS_NAME;
+  String[] name() default DS.DEFAULT_DS_NAME;
 
-  int level() default Connection.TRANSACTION_READ_COMMITTED;
+  int[] level() default Connection.TRANSACTION_READ_COMMITTED;
 }

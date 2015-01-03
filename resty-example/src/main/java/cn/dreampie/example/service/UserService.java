@@ -7,6 +7,6 @@ import cn.dreampie.orm.transaction.Transaction;
  * Created by wangrenhui on 15/1/2.
  */
 public interface UserService {
-  @Transaction
+  @Transaction(name = {"default", "demo"})
   public User save(User u);
 }

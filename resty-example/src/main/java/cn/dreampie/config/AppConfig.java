@@ -1,9 +1,9 @@
-package cn.dreampie.example.config;
+package cn.dreampie.config;
 
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.druid.DruidPlugin;
 import cn.dreampie.route.config.*;
-import cn.dreampie.route.render.JsonRender;
+import cn.dreampie.route.interceptor.transaction.TransactionInterceptor;
 import cn.dreampie.util.properties.Prop;
 import cn.dreampie.util.properties.Proper;
 
@@ -23,14 +23,21 @@ public class AppConfig extends Config {
     Prop prop = Proper.use("application.properties");
     DruidPlugin druidPlugin = new DruidPlugin(prop.get("db.default.url"), prop.get("db.default.user"), prop.get("db.default.password"), prop.get("db.default.driver"), prop.get("db.default.dialect"));
     pluginLoader.add(druidPlugin);
-    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
+    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin("default", druidPlugin);
     activeRecordPlugin.addIncludePaths("cn.dreampie.example");
     activeRecordPlugin.setShowSql(true);
     pluginLoader.add(activeRecordPlugin);
+
+    DruidPlugin demoPlugin = new DruidPlugin(prop.get("db.demo.url"), prop.get("db.demo.user"), prop.get("db.demo.password"), prop.get("db.demo.driver"), prop.get("db.demo.dialect"));
+    pluginLoader.add(demoPlugin);
+    ActiveRecordPlugin demoRecordPlugin = new ActiveRecordPlugin("demo", demoPlugin);
+    demoRecordPlugin.addIncludePaths("cn.dreampie.demo");
+    demoRecordPlugin.setShowSql(true);
+    pluginLoader.add(demoRecordPlugin);
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {
-
+    interceptorLoader.add(new TransactionInterceptor());
   }
 
   public void configHandler(HandlerLoader handlerLoader) {

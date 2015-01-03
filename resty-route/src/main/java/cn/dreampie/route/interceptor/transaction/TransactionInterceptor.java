@@ -1,19 +1,21 @@
-package cn.dreampie.orm.transaction;
+package cn.dreampie.route.interceptor.transaction;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
+import cn.dreampie.orm.transaction.Transaction;
+import cn.dreampie.route.core.RouteInvocation;
+import cn.dreampie.route.interceptor.Interceptor;
+import cn.dreampie.route.invocation.Invocation;
 
 /**
  * Created by wangrenhui on 15/1/2.
  */
-public class TransactionAspect implements Aspect {
+public class TransactionInterceptor implements Interceptor {
 
   private DsTransactionExcutor[] excutors;
   private int index = 0;
 
-  public void aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable {
+  public void intercept(Invocation ri) {
     if (index == 0) {
-      Transaction transactionAnn = method.getAnnotation(Transaction.class);
+      Transaction transactionAnn = ((RouteInvocation) ri).getMethod().getAnnotation(Transaction.class);
       if (transactionAnn != null) {
         String[] names = transactionAnn.name();
         int[] levels = transactionAnn.level();
@@ -26,11 +28,11 @@ public class TransactionAspect implements Aspect {
 
     if (excutors.length > 0) {
       if (index < excutors.length)
-        excutors[index++].transaction(this, ih, proxy, method, args);
+        excutors[index++].transaction(this, ri);
       else if (index++ == excutors.length) {
         index = 0;
         excutors = null;
-        ih.invoke(proxy, method, args);
+        ri.invoke();
         return;
       }
     }

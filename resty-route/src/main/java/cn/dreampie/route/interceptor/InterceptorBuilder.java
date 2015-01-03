@@ -1,8 +1,8 @@
 package cn.dreampie.route.interceptor;
 
+import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.route.interceptor.annotation.ClearInterceptors;
 import cn.dreampie.route.interceptor.annotation.Interceptors;
-import cn.dreampie.route.core.base.Resource;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

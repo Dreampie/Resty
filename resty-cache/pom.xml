@@ -9,14 +9,14 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>resty-cache</artifactId>
   <packaging>jar</packaging>
-  <version>${parent.version}</version>
+  <version>${project.parent.version}</version>
   <name>resty-cache</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
-    <resty-log.version>${parent.version}</resty-log.version>
+    <resty-log.version>${project.parent.version}</resty-log.version>
     <ehcache.version>2.6.6</ehcache.version>
     <slf4j.version>1.7.7</slf4j.version>
     <logback.version>1.1.2</logback.version>

@@ -71,27 +71,21 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
   private Dialect dialect;
 
   public DruidPlugin(String url, String username, String password, String dialect) {
-    this.url = url;
-    this.username = username;
-    this.password = password;
-    this.dialect = DialectFactory.get(dialect);
+    this(url, username, password, null, dialect);
   }
 
   public DruidPlugin(String url, String username, String password, String driverClass, String dialect) {
-    this.url = url;
-    this.username = username;
-    this.password = password;
-    this.driverClass = driverClass;
-    this.dialect = DialectFactory.get(dialect);
+    this(url, username, password, dialect, driverClass, null);
   }
 
-  public DruidPlugin(String url, String username, String password, String driverClass, String filters, String dialect) {
+  public DruidPlugin(String url, String username, String password, String dialect, String driverClass, String filters) {
     this.url = url;
     this.username = username;
     this.password = password;
+    this.dialect = DialectFactory.get(dialect == null ? "mysql" : dialect);
+    this.validationQuery = this.dialect.validQuery();
     this.driverClass = driverClass;
     this.filters = filters;
-    this.dialect = DialectFactory.get(dialect);
   }
 
   /**

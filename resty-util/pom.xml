@@ -9,7 +9,7 @@
 
   <artifactId>resty-util</artifactId>
   <packaging>jar</packaging>
-  <version>${parent.version}</version>
+  <version>${project.parent.version}</version>
   <name>resty-util</name>
   <url>http://maven.apache.org</url>
 
@@ -17,7 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <fastjson.version>1.1.41</fastjson.version>
-    <resty.version>${parent.version}</resty.version>
+    <resty.version>${project.parent.version}</resty.version>
   </properties>
 
   <dependencies>

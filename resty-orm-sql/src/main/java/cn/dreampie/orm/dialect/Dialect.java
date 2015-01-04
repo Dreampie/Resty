@@ -20,40 +20,41 @@ package cn.dreampie.orm.dialect;
  * @author ericbn
  */
 public interface Dialect {
-  String getDbType();
+  public String getDbType();
 
-  String select(String table);
+  public String validQuery();
 
-  String select(String table, String... columns);
+  public String select(String table);
 
-  String select(String table, String where);
+  public String select(String table, String... columns);
 
-  String select(String table, String where, String... columns);
+  public String select(String table, String where);
 
-  String insert(String table, String... columns);
+  public String select(String table, String where, String... columns);
 
-  String delete(String table);
+  public String insert(String table, String... columns);
 
-  String delete(String table, String where);
+  public String delete(String table);
 
-  String update(String table, String... columns);
+  public String delete(String table, String where);
 
-  String update(String table, String where, String... columns);
+  public String update(String table, String... columns);
 
-  String count(String table);
+  public String update(String table, String where, String... columns);
 
-  String count(String table, String where);
+  public String count(String table);
 
-  String countWith(String sql);
+  public String count(String table, String where);
 
+  public String countWith(String sql);
 
-  String paginate(int pageNo, int pageSize, String table);
+  public String paginate(int pageNo, int pageSize, String table);
 
-  String paginate(int pageNo, int pageSize, String table, String... columns);
+  public String paginate(int pageNo, int pageSize, String table, String... columns);
 
-  String paginate(int pageNo, int pageSize, String table, String where);
+  public String paginate(int pageNo, int pageSize, String table, String where);
 
-  String paginate(int pageNo, int pageSize, String table, String where, String... columns);
+  public String paginate(int pageNo, int pageSize, String table, String where, String... columns);
 
-  String paginateWith(int pageNo, int pageSize, String sql);
+  public String paginateWith(int pageNo, int pageSize, String sql);
 }

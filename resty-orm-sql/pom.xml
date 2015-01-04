@@ -9,7 +9,7 @@
 
   <artifactId>resty-orm-sql</artifactId>
   <packaging>jar</packaging>
-  <version>${parent.version}</version>
+  <version>${project.parent.version}</version>
   <name>resty-orm-sql</name>
   <url>http://maven.apache.org</url>
 
@@ -17,10 +17,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <fastjson.version>1.1.41</fastjson.version>
-    <resty.version>${parent.version}</resty.version>
+    <resty.version>${project.parent.version}</resty.version>
     <druid.version>1.0.12</druid.version>
     <ehcache.version>2.6.6</ehcache.version>
-    <mysql.version>5.1.33</mysql.version>
+    <mysql.version>5.1.34</mysql.version>
   </properties>
 
   <dependencies>

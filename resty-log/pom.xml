@@ -9,7 +9,7 @@
 
   <artifactId>resty-log</artifactId>
   <packaging>jar</packaging>
-  <version>${parent.version}</version>
+  <version>${project.parent.version}</version>
   <name>resty-log</name>
   <url>http://maven.apache.org</url>
 

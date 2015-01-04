@@ -25,12 +25,19 @@ public final class RouteBuilder {
     this.interceptorLoader = interceptorLoader;
   }
 
+  public void addRoute(Route route) {
+    for (Route r : routes) {
+      if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern())) {
+        throw new RuntimeException("Same path pattern " + r.getHttpMethod() + " " + r.getPattern() + " (" + r.getPathPattern() + " = " + route.getPathPattern() + ")");
+      }
+    }
+    routes.add(route);
+  }
+
   public void build() {
     InterceptorBuilder interceptorBuilder = new InterceptorBuilder();
     Interceptor[] defaultInters = interceptorLoader.getInterceptorArray();
     interceptorBuilder.addToInterceptorsMap(defaultInters);
-
-    List<Route> matchBuilder = new ArrayList<Route>();
 
     API api = null;
     DELETE delete = null;
@@ -61,37 +68,37 @@ public final class RouteBuilder {
 
         delete = method.getAnnotation(DELETE.class);
         if (delete != null) {
-          routes.add(new Route(resourceClazz, "DELETE", apiPath + delete.value(), method, routeInters));
+          addRoute(new Route(resourceClazz, "DELETE", apiPath + delete.value(), method, routeInters));
           continue;
         }
 
         get = method.getAnnotation(GET.class);
         if (get != null) {
-          routes.add(new Route(resourceClazz, "GET", apiPath + get.value(), method, routeInters));
+          addRoute(new Route(resourceClazz, "GET", apiPath + get.value(), method, routeInters));
           continue;
         }
 
         post = method.getAnnotation(POST.class);
         if (post != null) {
-          routes.add(new Route(resourceClazz, "POST", apiPath + post.value(), method, routeInters));
+          addRoute(new Route(resourceClazz, "POST", apiPath + post.value(), method, routeInters));
           continue;
         }
 
         put = method.getAnnotation(PUT.class);
         if (put != null) {
-          routes.add(new Route(resourceClazz, "PUT", apiPath + put.value(), method, routeInters));
+          addRoute(new Route(resourceClazz, "PUT", apiPath + put.value(), method, routeInters));
           continue;
         }
 
         head = method.getAnnotation(HEAD.class);
         if (head != null) {
-          routes.add(new Route(resourceClazz, "HEAD", apiPath + head.value(), method, routeInters));
+          addRoute(new Route(resourceClazz, "HEAD", apiPath + head.value(), method, routeInters));
           continue;
         }
 
         patch = method.getAnnotation(PATCH.class);
         if (patch != null) {
-          routes.add(new Route(resourceClazz, "PATCH", apiPath + patch.value(), method, routeInters));
+          addRoute(new Route(resourceClazz, "PATCH", apiPath + patch.value(), method, routeInters));
           continue;
         }
       }

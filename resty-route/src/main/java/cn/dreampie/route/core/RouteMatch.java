@@ -15,7 +15,6 @@ import static cn.dreampie.util.Checker.checkNotNull;
 public class RouteMatch {
   private final String pattern;
   private final String path;
-  private final String extension;
   private final Render render;
   private final Map<String, String> pathParams;
   private final Map<String, List<String>> otherParams;
@@ -36,15 +35,21 @@ public class RouteMatch {
     this(pattern, path, "", pathParams, new HashMap<String, List<String>>());
   }
 
+
   public RouteMatch(String pattern, String path, String extension,
+                    Map<String, String> pathParams,
+                    Map<String, List<String>> otherParams) {
+    this(pattern, path, RenderFactory.getRender(extension), pathParams, otherParams);
+  }
+
+  public RouteMatch(String pattern, String path, Render render,
                     Map<String, String> pathParams,
                     Map<String, List<String>> otherParams) {
     this.pattern = checkNotNull(pattern);
     this.path = checkNotNull(path);
-    this.extension = checkNotNull(extension);
     this.pathParams = checkNotNull(pathParams);
     this.otherParams = checkNotNull(otherParams);
-    this.render = RenderFactory.getRender(extension);
+    this.render = render;
   }
 
   public String getPath() {

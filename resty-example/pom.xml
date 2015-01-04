@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>resty-example</artifactId>
   <packaging>war</packaging>
-  <version>${parent.version}</version>
+  <version>${project.parent.version}</version>
   <name>resty-example</name>
   <url>http://maven.apache.org</url>
 
@@ -17,9 +17,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <servlet.version>3.1.0</servlet.version>
-    <resty.version>${parent.version}</resty.version>
+    <resty.version>${project.parent.version}</resty.version>
     <druid.version>1.0.12</druid.version>
-    <mysql.version>5.1.33</mysql.version>
+    <mysql.version>5.1.34</mysql.version>
     <slf4j.version>1.7.7</slf4j.version>
     <logback.version>1.1.2</logback.version>
   </properties>

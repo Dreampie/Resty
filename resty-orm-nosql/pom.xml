@@ -6,7 +6,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <version>${parent.version}</version>
+  <version>${project.parent.version}</version>
   <artifactId>resty-orm-nosql</artifactId>
   <packaging>jar</packaging>
 

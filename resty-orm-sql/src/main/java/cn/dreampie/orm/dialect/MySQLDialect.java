@@ -26,6 +26,10 @@ public class MySQLDialect extends DefaultDialect {
     return "mysql";
   }
 
+  public String validQuery() {
+    return "SELECT 1";
+  }
+
   public String paginateWith(int pageNo, int pageSize, String sql) {
     int offset = pageSize * (pageNo - 1);
     return sql + " limit " + offset + ", " + pageSize;

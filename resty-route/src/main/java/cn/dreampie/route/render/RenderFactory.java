@@ -18,12 +18,15 @@ public class RenderFactory {
   }};
 
   public static void add(String extension, Render render) {
-    renderMap.put(extension, render);
+    if (!FileRender.class.isAssignableFrom(render.getClass()))
+      renderMap.put(extension, render);
   }
 
   public static void add(String extension, Render render, boolean isDefault) {
-    renderMap.put(extension, render);
-    if (isDefault) defaultExtension = extension;
+    if (!FileRender.class.isAssignableFrom(render.getClass())) {
+      renderMap.put(extension, render);
+      if (isDefault) defaultExtension = extension;
+    }
   }
 
   public static Render getRender(String extension) {
@@ -32,6 +35,10 @@ public class RenderFactory {
       render = renderMap.get(defaultExtension);
     }
     return render;
+  }
+
+  public static boolean contains(String extension) {
+    return renderMap.containsKey(extension);
   }
 
   public static Render getDefaultRender() {

@@ -1,12 +1,34 @@
 package cn.dreampie.util;
 
+import cn.dreampie.util.properties.Proper;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Properties;
+
 import static cn.dreampie.util.Checker.checkArgument;
 
 /**
  * Created by ice on 14-12-29.
  */
 public class HttpTyper {
+  private static final Properties mimeType;
   private final static String RFC_2616_TOKEN_SPECIAL_CHARS_REGEX = "[\\s\\(\\)<>@,;:\\\\\"/\\[\\]\\?=\\{\\}]";
+
+  static {
+    mimeType = Proper.use("mime-types.properties").getProperties();
+    for (String prop : mimeType.stringPropertyNames()) {
+      Iterable<String> types = Lister.of(mimeType.getProperty(prop));
+      Iterator<String> iterator = types.iterator();
+      mimeType.setProperty(prop, iterator.hasNext() ? iterator.next() : "application/octet-stream");
+    }
+  }
+
+  public static String getContentTypeFromExtension(String filename) {
+    String ext = filename.substring(filename.lastIndexOf('.') + 1);
+    return mimeType.getProperty(ext);
+  }
+
 
   public static boolean isTextContentType(String contentType) {
     // the list is not fully exhaustive, should cover most cases.

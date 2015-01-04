@@ -14,6 +14,7 @@ import cn.dreampie.route.core.annotation.POST;
 import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.util.Maper;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -60,5 +61,10 @@ public class UserResource extends Resource {
     return u;
     //service层的事务
     //return userService.save(new User().set("username", "test").set("providername", "test").set("password", "123456"));
+  }
+
+  @GET("/files/{filename}")
+  public File file(String filename) {
+    return new File(this.getClass().getClassLoader().getResource("application.properties").getFile());
   }
 }

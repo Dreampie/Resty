@@ -93,4 +93,8 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
     }
     throw new IllegalArgumentException("underlying implementation is HttpServletResponse, not " + clazz.getName());
   }
+
+  public void reset() {
+    response.reset();
+  }
 }

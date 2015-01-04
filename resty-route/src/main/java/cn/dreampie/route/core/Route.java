@@ -3,12 +3,17 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
+import cn.dreampie.route.base.Render;
 import cn.dreampie.route.base.Request;
 import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.route.interceptor.Interceptor;
+import cn.dreampie.route.render.FileRender;
+import cn.dreampie.route.render.JsonRender;
+import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.util.Joiner;
 import cn.dreampie.util.ParamNamesScaner;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -37,11 +42,20 @@ public class Route {
 
   private final Interceptor[] interceptors;
 
+  private final Render render;
+
   public Route(Class<? extends Resource> resourceClass, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors) {
     this.resourceClass = resourceClass;
     this.httpMethod = checkNotNull(httpMethod);
     this.pathPattern = checkNotNull(pathPattern);
     this.method = method;
+    //文件类型
+    if (File.class.isAssignableFrom(method.getReturnType())) {
+      render = new FileRender();
+    } else {
+      render = null;
+    }
+
     this.interceptors = interceptors;
 
     allParamNames = ParamNamesScaner.getParamNames(method);
@@ -55,7 +69,7 @@ public class Route {
     stdPathPattern = s.stdPathPatternBuilder.toString();
     pathParamNames = s.pathParamNames;
 
-    logger.info("route match " + httpMethod + " " + pathPattern + "->" + pattern + "(" + Joiner.on(",").join(allParamNames) + ")");
+    logger.info("Route build " + httpMethod + " " + pathPattern + " -> " + pattern);
   }
 
 
@@ -63,13 +77,17 @@ public class Route {
     if (!this.httpMethod.equals(request.getHttpMethod())) {
       return null;
     }
-
     String restPath = request.getRestPath();
+
     String extension = "";
     if (restPath.contains(".")) {
       int index = restPath.lastIndexOf(".");
       extension = restPath.substring(index + 1);
-      restPath = restPath.substring(0, index);
+      if (RenderFactory.contains(extension)) {
+        restPath = restPath.substring(0, index);
+      } else {
+        extension = "";
+      }
     }
 
     Matcher m = pattern.matcher(restPath);
@@ -82,7 +100,11 @@ public class Route {
       params.put(pathParamNames.get(i), m.group(i + 1));
     }
 
-    return new RouteMatch(pathPattern, restPath, extension, params, request.getQueryParams());
+    if (render != null) {
+      return new RouteMatch(pathPattern, restPath, render, params, request.getQueryParams());
+    } else {
+      return new RouteMatch(pathPattern, restPath, extension, params, request.getQueryParams());
+    }
   }
 
 
@@ -100,6 +122,10 @@ public class Route {
 
   public String getHttpMethod() {
     return httpMethod;
+  }
+
+  public String getPattern() {
+    return pattern.pattern();
   }
 
   public String getPathPattern() {

@@ -32,7 +32,7 @@ public abstract class DefaultDialect implements Dialect {
 
   public String select(String table, String... columns) {
     StringBuilder query = new StringBuilder().append("SELECT ");
-    query.append(Joiner.on(", ").join(query, columns));
+    query.append(Joiner.on(", ").join(columns));
     query.append(" FROM ");
     query.append(table);
     return query.toString();

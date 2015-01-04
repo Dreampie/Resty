@@ -336,7 +336,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @param columns the specific columns
    */
   public M findById(Object id, String columns) {
-    String sql = getDialect().select(getModelMeta().getTableName(), columns.split(","));
+    String sql = getDialect().select(getModelMeta().getTableName(), getModelMeta().getPrimaryKey() + "=?", columns.split(","));
     List<M> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }

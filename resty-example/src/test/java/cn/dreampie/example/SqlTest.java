@@ -3,11 +3,14 @@ package cn.dreampie.example;
 import cn.dreampie.demo.model.Role;
 import cn.dreampie.example.model.User;
 import cn.dreampie.example.model.UserInfo;
+import cn.dreampie.util.Lister;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+
+import java.util.List;
 
 /**
  * Created by ice on 15-1-4.
@@ -39,18 +42,25 @@ public class SqlTest {
 
   @Test
   public void testFind() {
-    User u = User.dao.findById(1);
+    List<User> users = User.dao.findAll();
+    for (User user : users) {
+      System.out.println(user.get("username"));
+    }
   }
 
   @Test
   public void testUpdate() {
-    User u = User.dao.findById(1);
-    u.set("username", "testupdate");
+    List<User> users = User.dao.findAll();
+    for (User user : users) {
+      user.set("username", "testupdate");
+    }
   }
 
   @Test
   public void testDelete() {
-    User u = User.dao.findById(1);
-    u.delete();
+    List<User> users = User.dao.findAll();
+    for (User user : users) {
+      user.delete();
+    }
   }
 }

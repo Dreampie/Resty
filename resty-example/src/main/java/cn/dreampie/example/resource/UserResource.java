@@ -59,6 +59,6 @@ public class UserResource extends Resource {
     }
     return u;
     //service层的事务
-//    return userService.save(new User().set("username", "test").set("providername", "test").set("password", "123456"));
+    //return userService.save(new User().set("username", "test").set("providername", "test").set("password", "123456"));
   }
 }

@@ -32,4 +32,8 @@
       <version>${resty.version}</version>
     </dependency>
   </dependencies>
+
+  <build>
+    <finalName>${project.name}</finalName>
+  </build>
 </project>

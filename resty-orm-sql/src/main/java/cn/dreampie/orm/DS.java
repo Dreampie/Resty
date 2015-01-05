@@ -18,7 +18,7 @@ package cn.dreampie.orm;
 
 
 import cn.dreampie.orm.dialect.Dialect;
-import cn.dreampie.orm.exception.ActiveRecordException;
+import cn.dreampie.orm.exception.DBException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cn.dreampie.util.Checker.checkArgument;
 import static cn.dreampie.util.Checker.checkNotNull;
 
 /**
@@ -46,7 +47,7 @@ public class DS {
   public static DS use(String dbName) {
     DS ds = new DS();
     ds.dataSourceMeta = Metadatas.getDataSourceMeta(dbName);
-    checkNotNull(ds.dataSourceMeta, " Not found dbName:" + dbName);
+    checkNotNull(ds.dataSourceMeta, "Could not found dbName " + dbName + ".");
     return ds;
   }
 
@@ -82,7 +83,7 @@ public class DS {
       dataSourceMeta.close(rs, pst);
 
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DBException(e);
     }
     return result;
   }
@@ -133,7 +134,7 @@ public class DS {
     if (result.size() > 0) {
       T temp = result.get(0);
       if (temp instanceof Object[])
-        throw new RuntimeException("Only one column can be queried.");
+        throw new DBException("Only one column can be queried.");
       return temp;
     }
     return null;
@@ -250,7 +251,7 @@ public class DS {
       result = pst.executeUpdate();
       dataSourceMeta.close(pst);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DBException(e);
     }
     return result;
   }
@@ -285,7 +286,7 @@ public class DS {
       result = RecordBuilder.build(dataSourceMeta, rs);
       dataSourceMeta.close(rs, pst);
     } catch (SQLException e) {
-      throw new ActiveRecordException(e);
+      throw new DBException(e);
     }
     return result;
   }
@@ -431,7 +432,7 @@ public class DS {
       result = pst.executeUpdate();
       record.set(primaryKey, getGeneratedKey(pst));
     } catch (SQLException e) {
-      throw new ActiveRecordException(e);
+      throw new DBException(e);
     } finally {
       dataSourceMeta.close(pst);
     }
@@ -466,8 +467,8 @@ public class DS {
 
 
   public Page<Record> paginate(int pageNo, int pageSize, String sql, Object... paras) {
-    if (pageNo < 1 || pageSize < 1)
-      throw new ActiveRecordException("pageNo and pageSize must be more than 0");
+    checkArgument(pageNo >= 1 || pageSize >= 1, "pageNo and pageSize must be more than 0");
+
     Dialect dialect = dataSourceMeta.getDialect();
 
     long totalRow = 0;
@@ -498,8 +499,7 @@ public class DS {
   public Page<Record> paginate(int pageNo, int pageSize, String sql) {
     return paginate(pageNo, pageSize, sql, NULL_PARA_ARRAY);
   }
-
-
+  
 }
 
 

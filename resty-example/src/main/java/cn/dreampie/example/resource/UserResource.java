@@ -27,10 +27,10 @@ public class UserResource extends Resource {
   // 注意java的自动代理必须存在接口
   private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect());
 
-  @GET("/users/:name")
-  public Map find(String name) {
+  @GET("/users/:name/:age")
+  public Map find(String name, int age) {
 //    return Lister.of(name);
-    return Maper.of("k1", "v1,name:" + name, "k2", "v2");
+    return Maper.of("k1", "v1,name:" + name + ",age:" + age, "k2", "v2");
   }
 
   @POST("/users")

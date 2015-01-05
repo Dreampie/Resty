@@ -39,7 +39,7 @@ public class RouteMatch {
   public RouteMatch(String pattern, String path, String extension,
                     Map<String, String> pathParams,
                     Map<String, List<String>> otherParams) {
-    this(pattern, path, RenderFactory.getRender(extension), pathParams, otherParams);
+    this(pattern, path, RenderFactory.get(extension), pathParams, otherParams);
   }
 
   public RouteMatch(String pattern, String path, Render render,
@@ -58,10 +58,7 @@ public class RouteMatch {
 
   public String getPathParam(String paramName) {
     String v = pathParams.get(paramName);
-    if (v == null) {
-      throw new IllegalStateException(
-          String.format("path parameter %s was not found", paramName));
-    }
+    checkNotNull(v, "path parameter %s was not found", paramName);
     return v;
   }
 
@@ -82,7 +79,7 @@ public class RouteMatch {
   }
 
   public String toString() {
-    return "StdRestjHandlerMatch{" +
+    return "RouteMatch{" +
         "pattern='" + pattern + '\'' +
         ", path='" + path + '\'' +
         ", pathParams=" + pathParams +

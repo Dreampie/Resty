@@ -91,7 +91,7 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
     if (clazz == HttpServletResponse.class || clazz == ServletResponse.class) {
       return (T) response;
     }
-    throw new IllegalArgumentException("underlying implementation is HttpServletResponse, not " + clazz.getName());
+    throw new IllegalArgumentException("Underlying implementation is HttpServletResponse, not " + clazz.getName());
   }
 
   public void reset() {

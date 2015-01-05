@@ -1,29 +1,33 @@
-package cn.dreampie.route.interceptor.transaction;
+package cn.dreampie.orm.transaction;
 
+import cn.dreampie.log.Logger;
+import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.Metadatas;
-import cn.dreampie.orm.exception.ActiveRecordException;
-import cn.dreampie.route.interceptor.Interceptor;
-import cn.dreampie.route.invocation.Invocation;
+import cn.dreampie.orm.exception.TransactionException;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * Created by wangrenhui on 15/1/3.
  */
-public class DsTransactionExcutor {
+public class TransactionExcutor {
+
+  private final static Logger logger = LoggerFactory.getLogger(TransactionExcutor.class);
   private String dsName;
   private int level;
 
 
-  public DsTransactionExcutor(String dsName, int level) {
+  public TransactionExcutor(String dsName, int level) {
     this.dsName = dsName;
     this.level = level;
   }
 
 
-  public void transaction(Interceptor interceptor, Invocation ri) {
+  public void transaction(TransactionAspect aspect, InvocationHandler ih, Object proxy, Method method, Object[] args) {
     DataSourceMeta dataSourceMeta = Metadatas.getDataSourceMeta(dsName);
     Connection conn = dataSourceMeta.getCurrentConnection();
     if (conn != null) {
@@ -33,7 +37,7 @@ public class DsTransactionExcutor {
         }
         return;
       } catch (SQLException e) {
-        throw new ActiveRecordException(e);
+        throw new TransactionException(e);
       }
     }
 
@@ -44,15 +48,15 @@ public class DsTransactionExcutor {
       dataSourceMeta.setCurrentConnection(conn);
       conn.setTransactionIsolation(level);  // conn.setTransactionIsolation(transactionLevel);
       conn.setAutoCommit(false);
-      interceptor.intercept(ri);
+      aspect.aspect(ih, proxy, method, args);
       conn.commit();
     } catch (Throwable t) {
       if (conn != null) try {
         conn.rollback();
-      } catch (Exception e) {
-        e.printStackTrace();
+      } catch (SQLException e) {
+        logger.error("Could not rollback " + dsName + " connection.", e);
       }
-      throw new ActiveRecordException(t);
+      throw new TransactionException(t);
     } finally {
       try {
         if (conn != null) {
@@ -61,7 +65,7 @@ public class DsTransactionExcutor {
           conn.close();
         }
       } catch (Throwable t) {
-        t.printStackTrace();  // can not throw exception here, otherwise the more important exception in previous catch block can not be thrown
+        logger.error("Could not close " + dsName + " connection.", t);  // can not throw exception here, otherwise the more important exception in previous catch block can not be thrown
       } finally {
         dataSourceMeta.rmCurrentConnection();  // prevent memory leak
       }

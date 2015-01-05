@@ -2,6 +2,7 @@ package cn.dreampie.route.base;
 
 import cn.dreampie.route.http.HttpRequest;
 import cn.dreampie.route.http.HttpResponse;
+import cn.dreampie.route.http.exception.WebException;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,14 +23,14 @@ public abstract class Render {
       writer.print(content);
       writer.flush();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new WebException(e.getMessage());
     } finally {
       if (writer != null)
         writer.close();
       try {
         response.close();
       } catch (Exception ex) {
-        throw new RuntimeException(ex);
+        throw new WebException(ex.getMessage());
       }
     }
   }

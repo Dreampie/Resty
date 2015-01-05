@@ -7,7 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
+
+import static cn.dreampie.util.Checker.checkArgument;
+import static cn.dreampie.util.Checker.checkNotNull;
 
 /**
  * Date: 1/22/13
@@ -108,8 +112,7 @@ public class HttpRequest extends AbstractRequest {
 
   public String getHttpMethod() {
     String httpMethod = request.getMethod();
-    if (httpMethod == null)
-      throw new IllegalArgumentException("Invalid HTTP Method : " + httpMethod);
+    checkArgument(httpMethod != null, "Invalid HTTP Method : " + httpMethod);
     return httpMethod;
   }
 
@@ -195,5 +198,13 @@ public class HttpRequest extends AbstractRequest {
 
   public List<Locale> getLocales() {
     return Collections.list((request.getLocales()));
+  }
+
+  public String getCharacterEncoding() {
+    return request.getCharacterEncoding();
+  }
+
+  public void setCharacterEncoding(String encoding) throws UnsupportedEncodingException {
+    request.setCharacterEncoding(encoding);
   }
 }

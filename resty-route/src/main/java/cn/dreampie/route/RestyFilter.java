@@ -4,9 +4,12 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.route.config.Config;
+import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.handler.Handler;
 import cn.dreampie.route.http.HttpRequest;
 import cn.dreampie.route.http.HttpResponse;
+import cn.dreampie.route.http.exception.WebException;
+import cn.dreampie.route.render.RenderFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -21,16 +24,16 @@ public final class RestyFilter implements Filter {
   private Handler handler;
   private String encoding = Constant.encoding;
   private Config config;
-  private static final RestyIniter RESTY_INITER = RestyIniter.instance();
+  private static final RestyIniter restyIniter = RestyIniter.instance();
   private static final Logger logger = LoggerFactory.getLogger(RestyFilter.class);
 
   public void init(FilterConfig filterConfig) throws ServletException {
     createConfig(filterConfig.getInitParameter("configClass"));
 
-    if (!RESTY_INITER.init(config, filterConfig.getServletContext()))
-      throw new RuntimeException("Resty init error!");
+    if (!restyIniter.init(config, filterConfig.getServletContext()))
+      throw new InitException("Resty init error!");
 
-    handler = RESTY_INITER.getHandler();
+    handler = restyIniter.getHandler();
 
   }
 
@@ -40,24 +43,33 @@ public final class RestyFilter implements Filter {
       throw new ServletException("Resty doesn't support non-HTTP request or response.");
     }
 
-    HttpServletRequest request = (HttpServletRequest) servletRequest;
-    HttpServletResponse response = (HttpServletResponse) servletResponse;
+    HttpRequest request = new HttpRequest((HttpServletRequest) servletRequest);
+    HttpResponse response = new HttpResponse((HttpServletResponse) servletResponse, (HttpServletRequest) servletRequest);
     request.setCharacterEncoding(encoding);
 
     boolean[] isHandled = {false};
+
     try {
-      handler.handle(new HttpRequest(request), new HttpResponse(response, request), isHandled);
+      handler.handle(request, response, isHandled);
+    } catch (WebException e) {
+      response.setStatus(e.getStatus());
+      RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getContent());
+      if (logger.isErrorEnabled()) {
+        logger.warn("Request \"" + request.getRestPath() + "\" error:" + e.getMessage());
+      }
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      if (logger.isErrorEnabled()) {
+        logger.error(request.getRestPath(), e);
+      }
     }
 
     if (!isHandled[0])
-      chain.doFilter(request, response);
+      chain.doFilter(servletRequest, servletResponse);
   }
 
   public void destroy() {
     config.beforeStop();
-    RESTY_INITER.stopPlugins();
+    restyIniter.stopPlugins();
   }
 
   private void createConfig(String configClass) {
@@ -66,16 +78,16 @@ public final class RestyFilter implements Filter {
       try {
         temp = Class.forName(configClass).newInstance();
       } catch (Exception e) {
-        throw new RuntimeException("Can not create instance of class: " + configClass, e);
+        throw new InitException("Could not create instance of class: " + configClass, e);
       }
 
       if (temp instanceof Config)
         config = (Config) temp;
       else
-        throw new RuntimeException("Can not create instance of class: " + configClass + ". Please check the config in web.xml");
+        throw new InitException("Could not create instance of class: " + configClass + ". Please check the config in web.xml");
     } else {
       config = new NoConfig();
-      logger.warn("Can not found config and start in NoConfig.");
+      logger.warn("Could not found config and start in NoConfig.");
     }
 
   }

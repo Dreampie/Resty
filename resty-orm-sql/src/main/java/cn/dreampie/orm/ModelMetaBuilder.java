@@ -30,7 +30,7 @@ public class ModelMetaBuilder {
       }
     } catch (Exception e) {
       if (temp != null)
-        throw new RuntimeException("Can not create Table object, maybe the table " + temp.getTableName() + " is not exists.", e);
+        throw new RuntimeException("Could not create Table object, maybe the table " + temp.getTableName() + " is not exists.", e);
     } finally {
       dsm.close(conn);
     }
@@ -43,12 +43,7 @@ public class ModelMetaBuilder {
    * @throws java.sql.SQLException
    */
   private static SortedMap<String, ColumnMeta> fetchMetaParams(DatabaseMetaData databaseMetaData, String databaseProductName, String table) throws SQLException {
-
-      /*
-       * Valid table name format: tablename or schemaname.tablename
-       */
-
-
+    // Valid table name format: tablename or schemaname.tablename
     String schema = null;
     String tableName;
 

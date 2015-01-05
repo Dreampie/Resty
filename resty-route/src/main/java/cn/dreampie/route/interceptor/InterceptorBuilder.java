@@ -3,6 +3,7 @@ package cn.dreampie.route.interceptor;
 import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.route.interceptor.annotation.ClearInterceptors;
 import cn.dreampie.route.interceptor.annotation.Interceptors;
+import cn.dreampie.route.interceptor.exception.InterceptorException;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -106,7 +107,7 @@ public class InterceptorBuilder {
           result[i] = interceptorClasses[i].newInstance();
           intersMap.put(interceptorClasses[i], result[i]);
         } catch (Exception e) {
-          throw new RuntimeException(e);
+          throw new InterceptorException(e);
         }
       }
     }

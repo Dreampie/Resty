@@ -79,7 +79,7 @@ public abstract class AbstractResponse<R> implements Response {
     }
 
     if (charset == null) {
-      logger.warn("no charset defined while getting writer to write http response." +
+      logger.warn("No charset defined while getting writer to write http response." +
           " Make sure you call setContentType() before calling getWriter(). Using UTF-8 charset.");
       charset = Charsets.UTF_8;
     }
@@ -147,7 +147,7 @@ public abstract class AbstractResponse<R> implements Response {
 
 
   public String toString() {
-    return "[resty response] " + status;
+    return "[Resty response] " + status;
   }
 
 
@@ -155,7 +155,7 @@ public abstract class AbstractResponse<R> implements Response {
     if (clazz == this.responseClass) {
       return (T) response;
     }
-    throw new IllegalArgumentException("underlying implementation is " + this.responseClass.getName()
+    throw new IllegalArgumentException("Underlying implementation is " + this.responseClass.getName()
         + ", not " + clazz.getName());
   }
 

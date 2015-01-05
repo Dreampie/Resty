@@ -19,17 +19,20 @@ package cn.dreampie.orm.exception;
 /**
  * ActiveRecordException
  */
-public class ActiveRecordException extends RuntimeException {
+public class TransactionException extends RuntimeException {
 
-  public ActiveRecordException(String message) {
+  public TransactionException() {
+  }
+
+  public TransactionException(String message) {
     super(message);
   }
 
-  public ActiveRecordException(Throwable cause) {
+  public TransactionException(Throwable cause) {
     super(cause);
   }
 
-  public ActiveRecordException(String message, Throwable cause) {
+  public TransactionException(String message, Throwable cause) {
     super(message, cause);
   }
 }

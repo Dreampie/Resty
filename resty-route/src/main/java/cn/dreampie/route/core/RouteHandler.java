@@ -40,26 +40,10 @@ public final class RouteHandler extends Handler {
 
     if (routeMatch != null) {
       response.setStatus(HttpStatus.OK);
-      try {
-        routeMatch.getRender().render(request, response, new RouteInvocation(route, routeMatch).invoke());
-      } catch (Exception e) {
-        throw new WebException(e.getMessage());
-      }
+      routeMatch.getRender().render(request, response, new RouteInvocation(route, routeMatch).invoke());
     } else {
       // no route matched
-      String path = request.getRestPath();
-      StringBuilder sb = new StringBuilder()
-          .append("No rest route found for ")
-          .append(request.getHttpMethod()).append(" ").append(path).append("\n");
-
-      sb.append("routes:\n")
-          .append("-----------------------------------\n");
-      for (Route router : resourceBuilder.getRoutes()) {
-        sb.append(router).append("\n");
-      }
-      sb.append("-----------------------------------");
-      response.setStatus(HttpStatus.NOT_FOUND);
-      RenderFactory.getRender("text").render(request, response, sb);
+      throw new WebException(HttpStatus.NOT_FOUND, "No rest route found.");
     }
   }
 }

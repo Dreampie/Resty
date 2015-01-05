@@ -17,7 +17,10 @@ limitations under the License.
 
 package cn.dreampie.orm;
 
+import cn.dreampie.log.Logger;
+import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.orm.dialect.Dialect;
+import cn.dreampie.orm.exception.DBException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -31,6 +34,8 @@ import static cn.dreampie.util.Checker.checkNotNull;
  * ConnectionAccess
  */
 public class DataSourceMeta {
+
+  private static final Logger logger = LoggerFactory.getLogger(DataSourceMeta.class);
 
   private boolean showSql;
   private String dsName;
@@ -110,6 +115,7 @@ public class DataSourceMeta {
       try {
         rs.close();
       } catch (SQLException e) {
+        logger.warn("Could not close resultSet!", e);
       }
     }
 
@@ -121,24 +127,25 @@ public class DataSourceMeta {
       try {
         st.close();
       } catch (SQLException e) {
-        throw new RuntimeException(e);
+        logger.warn("Could not close statement!", e);
       }
     }
 
     try {
       close(getConnection());
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DBException(e);
     }
   }
 
   public final void close(Connection conn) {
-    if (connectionTL.get() == null)    // in transaction if conn in threadlocal
+    if (connectionTL.get() == null) {   // in transaction if conn in threadlocal
       if (conn != null)
         try {
           conn.close();
         } catch (SQLException e) {
-          throw new RuntimeException(e);
+          logger.warn("Could not close connection!", e);
         }
+    }
   }
 }

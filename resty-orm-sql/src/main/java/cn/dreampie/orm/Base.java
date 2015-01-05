@@ -4,12 +4,16 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.Entity;
 import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
-import cn.dreampie.orm.exception.ActiveRecordException;
+import cn.dreampie.orm.exception.DBException;
+import cn.dreampie.orm.exception.ModelException;
 import cn.dreampie.util.json.Jsoner;
 
 import java.io.Serializable;
 import java.sql.*;
 import java.util.*;
+
+import static cn.dreampie.util.Checker.checkArgument;
+import static cn.dreampie.util.Checker.checkNotNull;
 
 /**
  * Created by ice on 14-12-30.
@@ -93,7 +97,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @param attr  the attribute name of the model
    * @param value the value of the attribute
    * @return this model
-   * @throws ActiveRecordException if the attribute is not exists of the model
+   * @throws cn.dreampie.orm.exception.DBException if the attribute is not exists of the model
    */
   public M set(String attr, Object value) {
     if (getModelMeta().hasAttribute(attr)) {
@@ -101,7 +105,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       getModifyFlag().put(attr, value);  // Add modify flag, update() need this flag.
       return (M) this;
     }
-    throw new ActiveRecordException("The attribute name is not exists: " + attr);
+    throw new DBException("The attribute name is not exists: " + attr);
   }
 
   /**
@@ -284,8 +288,12 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       ResultSet rs = pst.executeQuery();
       result = ModelBuilder.build(rs, modelClass);
       getDataSourceMeta().close(rs, pst);
-    } catch (Exception e) {
-      throw new ActiveRecordException(e);
+    } catch (SQLException e) {
+      throw new DBException(e);
+    } catch (InstantiationException e) {
+      throw new ModelException(e);
+    } catch (IllegalAccessException e) {
+      throw new ModelException(e);
     }
     return result;
   }
@@ -341,10 +349,15 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     return result.size() > 0 ? result.get(0) : null;
   }
 
-
+  /**
+   * @param pageNo   页码
+   * @param pageSize 每页数量
+   * @param sql      sql语句
+   * @param paras    参数
+   * @return
+   */
   public Page<M> paginate(int pageNo, int pageSize, String sql, Object... paras) {
-    if (pageNo < 1 || pageSize < 1)
-      throw new ActiveRecordException("pageNo and pageSize must be more than 0");
+    checkArgument(pageNo >= 1 && pageSize >= 1, "pageNo and pageSize must be more than 0");
 
     DataSourceMeta dsm = getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
@@ -398,8 +411,8 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       getGeneratedKey(pst, modelMeta);
       getModifyFlag().clear();
       return result >= 1;
-    } catch (Exception e) {
-      throw new ActiveRecordException(e);
+    } catch (SQLException e) {
+      throw new DBException(e);
     } finally {
       dsm.close(pst);
     }
@@ -427,7 +440,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     ModelMeta modelMeta = getModelMeta();
     Object id = attrs.get(modelMeta.getPrimaryKey());
     if (id == null)
-      throw new ActiveRecordException("You can't delete model without primaryKey.");
+      throw new ModelException("You can't delete model without primaryKey.");
     return deleteById(id);
   }
 
@@ -438,8 +451,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @return true if delete succeed otherwise false
    */
   public boolean deleteById(Object id) {
-    if (id == null)
-      throw new IllegalArgumentException("id can not be null");
+    checkNotNull(id, "id can not be null");
     return deleteById(getModelMeta(), id);
   }
 
@@ -450,8 +462,8 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     try {
       String sql = getDialect().delete(modelMeta.getTableName(), modelMeta.getPrimaryKey() + "=?");
       return getPreparedStatement(sql, new Object[]{id}).executeUpdate() > 0;
-    } catch (Exception e) {
-      throw new ActiveRecordException(e);
+    } catch (SQLException e) {
+      throw new DBException(e);
     } finally {
       getDataSourceMeta().close(pst);
     }
@@ -484,8 +496,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
     String pKey = modelMeta.getPrimaryKey();
     Object id = attrs.get(pKey);
-    if (id == null)
-      throw new ActiveRecordException("You can't update model without Primary Key.");
+    checkNotNull(id, "You can't update model without Primary Key.");
 
     String sql = dialect.update(modelMeta.getTableName(), pKey + "=?", getModifyNames());
 
@@ -503,8 +514,8 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
         return true;
       }
       return false;
-    } catch (Exception e) {
-      throw new ActiveRecordException(e);
+    } catch (SQLException e) {
+      throw new DBException(e);
     } finally {
       getDataSourceMeta().close(pst);
     }
@@ -517,7 +528,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   private void checkTableName(Class<? extends Base> modelClass, String sql) {
     ModelMeta modelMeta = getModelMeta();
     if (!sql.toLowerCase().contains(modelMeta.getTableName().toLowerCase()))
-      throw new ActiveRecordException("The table name: " + modelMeta.getTableName() + " not in your sql.");
+      throw new DBException("The table name: " + modelMeta.getTableName() + " not in your sql.");
   }
 
 

@@ -2,6 +2,7 @@ package cn.dreampie.route.base;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -172,4 +173,8 @@ public interface Request {
    * <code>Locale</code> objects for the client
    */
   List<Locale> getLocales();
+
+  String getCharacterEncoding();
+
+  void setCharacterEncoding(String var1) throws UnsupportedEncodingException;
 }

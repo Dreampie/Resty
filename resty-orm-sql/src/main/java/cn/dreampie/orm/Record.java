@@ -154,7 +154,6 @@ public class Record extends Entity<Record> implements Serializable {
   /**
    * Get column of any mysql type
    */
-  @SuppressWarnings("unchecked")
   public <T> T get(String column) {
     return (T) getAttrs().get(column);
   }
@@ -162,7 +161,6 @@ public class Record extends Entity<Record> implements Serializable {
   /**
    * Get column of any mysql type. Returns defaultValue if null.
    */
-  @SuppressWarnings("unchecked")
   public <T> T get(String column, Object defaultValue) {
     Object result = getAttrs().get(column);
     return (T) (result != null ? result : defaultValue);

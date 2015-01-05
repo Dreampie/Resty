@@ -12,13 +12,13 @@ import java.util.List;
  * Routes.
  */
 final public class ResourceLoader {
+  private static final Logger logger = LoggerFactory.getLogger(ResourceLoader.class);
 
   private final List<Class<? extends Resource>> resources = new ArrayList<Class<? extends Resource>>();
   private List<Class<? extends Resource>> excludeResources = new ArrayList<Class<? extends Resource>>();
   private List<Class<? extends Resource>> includeResources = new ArrayList<Class<? extends Resource>>();
   private List<String> includeResourcePaths = new ArrayList<String>();
   private List<String> excludeResourcePaths = new ArrayList<String>();
-  private static final Logger logger = LoggerFactory.getLogger(ResourceLoader.class);
 
   public ResourceLoader add(ResourceLoader resourceLoader) {
     if (resourceLoader != null) {

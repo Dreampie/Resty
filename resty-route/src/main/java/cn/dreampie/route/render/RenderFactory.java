@@ -29,12 +29,20 @@ public class RenderFactory {
     }
   }
 
-  public static Render getRender(String extension) {
+  public static Render get(String extension) {
     Render render = renderMap.get(extension);
     if (render == null) {
       render = renderMap.get(defaultExtension);
     }
     return render;
+  }
+
+  public static Render getByUrl(String url) {
+    String extension = "";
+    if (url.contains(".")) {
+      extension = url.substring(url.lastIndexOf(".") + 1);
+    }
+    return get(extension);
   }
 
   public static boolean contains(String extension) {

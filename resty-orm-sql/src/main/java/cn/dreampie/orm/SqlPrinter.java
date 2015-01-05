@@ -19,6 +19,7 @@ package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.log.LoggerFactory;
+import cn.dreampie.orm.exception.DBException;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -52,7 +53,7 @@ public class SqlPrinter implements InvocationHandler {
       }
       return method.invoke(conn, args);
     } catch (InvocationTargetException e) {
-      throw e.getTargetException();
+      throw new DBException(e);
     }
   }
 }

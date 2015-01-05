@@ -16,13 +16,13 @@ public class Metadatas {
 
   public static DataSourceMeta getDataSourceMeta(String dsName) {
     DataSourceMeta dsm = dataSourceMetaMap.get(dsName);
-    checkNotNull(dsm, "Not found DataSourceMetadata for this dsName:" + dsName);
+    checkNotNull(dsm, "Could not found DataSourceMetadata for this dsName:" + dsName);
     return dsm;
   }
 
   public static ModelMeta getModelMeta(Class<? extends Base> modelClass) {
     ModelMeta mm = modelMetaMap.get(modelClass);
-    checkNotNull(mm, "Not found ModelMetadata for this model:" + modelClass.getName());
+    checkNotNull(mm, "Could not found ModelMetadata for this model:" + modelClass.getName());
     return mm;
   }
 

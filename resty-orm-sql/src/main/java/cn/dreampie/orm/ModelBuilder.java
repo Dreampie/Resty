@@ -1,5 +1,7 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.orm.exception.ModelException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -13,7 +15,7 @@ import java.util.Map;
  */
 public class ModelBuilder {
 
-  public static final <T> List<T> build(ResultSet rs, Class<? extends Base> modelClass) throws SQLException, InstantiationException, IllegalAccessException {
+  public static <T> List<T> build(ResultSet rs, Class<? extends Base> modelClass) throws SQLException, InstantiationException, IllegalAccessException {
     List<T> result = new ArrayList<T>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
@@ -43,14 +45,14 @@ public class ModelBuilder {
     return result;
   }
 
-  private static final void buildLabelNamesAndTypes(ResultSetMetaData rsmd, String[] labelNames, int[] types) throws SQLException {
+  private static void buildLabelNamesAndTypes(ResultSetMetaData rsmd, String[] labelNames, int[] types) throws SQLException {
     for (int i = 1; i < labelNames.length; i++) {
       labelNames[i] = rsmd.getColumnLabel(i);
       types[i] = rsmd.getColumnType(i);
     }
   }
 
-  public static byte[] handleBlob(Blob blob) throws SQLException {
+  public static byte[] handleBlob(Blob blob) {
     if (blob == null)
       return null;
 
@@ -59,20 +61,22 @@ public class ModelBuilder {
       is = blob.getBinaryStream();
       byte[] data = new byte[(int) blob.length()];    // byte[] data = new byte[is.available()];
       is.read(data);
-      is.close();
       return data;
+    } catch (SQLException e) {
+      throw new ModelException(e);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ModelException(e);
     } finally {
       try {
-        is.close();
+        if (is != null)
+          is.close();
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new ModelException(e);
       }
     }
   }
 
-  public static String handleClob(Clob clob) throws SQLException {
+  public static String handleClob(Clob clob) {
     if (clob == null)
       return null;
 
@@ -82,13 +86,16 @@ public class ModelBuilder {
       char[] buffer = new char[(int) clob.length()];
       reader.read(buffer);
       return new String(buffer);
+    } catch (SQLException e) {
+      throw new ModelException(e);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ModelException(e);
     } finally {
       try {
-        reader.close();
+        if (reader != null)
+          reader.close();
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new ModelException(e);
       }
     }
   }

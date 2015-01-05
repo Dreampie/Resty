@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
  */
 public class TransactionAspect implements Aspect {
 
-  private DsTransactionExcutor[] excutors;
+  private TransactionExcutor[] excutors;
   private int index = 0;
 
   public Object aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable {
@@ -17,9 +17,9 @@ public class TransactionAspect implements Aspect {
       if (transactionAnn != null) {
         String[] names = transactionAnn.name();
         int[] levels = transactionAnn.level();
-        excutors = new DsTransactionExcutor[names.length];
+        excutors = new TransactionExcutor[names.length];
         for (int i = 0; i < names.length; i++) {
-          excutors[i] = new DsTransactionExcutor(names[i], levels.length == 1 ? levels[0] : levels[i]);
+          excutors[i] = new TransactionExcutor(names[i], levels.length == 1 ? levels[0] : levels[i]);
         }
       }
     }

@@ -37,18 +37,6 @@ public class WebException extends RuntimeException {
   }
 
   /**
-   * Returns the content type to use in the HTTP response generated for this exception.
-   * <p/>
-   * Developer's note: override to provide another content type than text-plain
-   * Alternatively you can override the writeTo method for full control over the response.
-   *
-   * @return the content type to use in the response.
-   */
-  public String getContentType() {
-    return "text/plain";
-  }
-
-  /**
    * Returns the content to use in the HTTP response generated for this exception.
    * <p/>
    * Developer's note: override to provide a content different from the exception message.
@@ -59,26 +47,5 @@ public class WebException extends RuntimeException {
   public String getContent() {
     return getMessage();
   }
-
-  /**
-   * Writes this web exception in a RestyResponse.
-   * <p/>
-   * This implementation uses the status, contentType and content found on the exception.
-   * Override it to provide custom response.
-   * Note that the implementation is also responsible for logging the exception.
-   *
-   * @param request
-   * @param response the response to write to
-   * @throws java.io.IOException in case of IO error.
-   */
-  public void writeTo(Request request, Response response) throws IOException {
-    // by default log stack trace at debug level only
-    if (logger.isDebugEnabled()) {
-      logger.debug("request raised WebException - " + request, this);
-    }
-
-    response.setStatus(getStatus());
-    response.setContentType(getContentType());
-    response.getWriter().print(getContent());
-  }
+  
 }

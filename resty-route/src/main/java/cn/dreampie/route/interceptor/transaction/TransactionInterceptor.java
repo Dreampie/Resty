@@ -10,7 +10,7 @@ import cn.dreampie.route.invocation.Invocation;
  */
 public class TransactionInterceptor implements Interceptor {
 
-  private DsTransactionExcutor[] excutors;
+  private InterceptorTransactionExcutor[] excutors;
   private int index = 0;
 
   public Object intercept(Invocation ri) {
@@ -19,9 +19,9 @@ public class TransactionInterceptor implements Interceptor {
       if (transactionAnn != null) {
         String[] names = transactionAnn.name();
         int[] levels = transactionAnn.level();
-        excutors = new DsTransactionExcutor[names.length];
+        excutors = new InterceptorTransactionExcutor[names.length];
         for (int i = 0; i < names.length; i++) {
-          excutors[i] = new DsTransactionExcutor(names[i], levels.length == 1 ? levels[0] : levels[i]);
+          excutors[i] = new InterceptorTransactionExcutor(names[i], levels.length == 1 ? levels[0] : levels[i]);
         }
       }
     }

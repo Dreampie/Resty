@@ -15,6 +15,7 @@ import cn.dreampie.util.ParamNamesScaner;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,16 +95,62 @@ public class Route {
     if (!m.matches()) {
       return null;
     }
-
+    //pathParams
     Map<String, String> params = new HashMap<String, String>();
     for (int i = 0; i < m.groupCount() && i < pathParamNames.size(); i++) {
       params.put(pathParamNames.get(i), m.group(i + 1));
     }
+    //otherParams
+    Map<String, List<String>> otherParams = request.getQueryParams();
 
+    if (logger.isInfoEnabled()) {
+      //print route
+      StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
+      sb.append("\nResource    : ").append(resourceClass.getName()).append(".(").append(resourceClass.getSimpleName()).append(".java:1)");
+      sb.append("\nMethod      : ").append(method.getName());
+      sb.append("\nPathPattern : ").append(httpMethod).append(" ").append(pathPattern);
+      //print pathParams
+      sb.append("\nPathParas   : ");
+      if (params.size() > 0) {
+        for (String key : params.keySet()) {
+          sb.append(key).append("=").append(params.get(key));
+          sb.append("  ");
+        }
+      }
+      //print otherParams
+      sb.append("\nOtherParas  : ");
+      if (otherParams != null) {
+        List<String> values;
+        for (String key : otherParams.keySet()) {
+          values = otherParams.get(key);
+          if (values.size() == 1) {
+            sb.append(key).append("=").append(values.get(0));
+          } else {
+            sb.append(key).append("[]={");
+            sb.append(Joiner.on(",").join(values));
+            sb.append("}");
+          }
+          sb.append("  ");
+        }
+      }
+      if (interceptors != null && interceptors.length > 0) {
+        sb.append("\nInterceptor : ");
+        for (int i = 0; i < interceptors.length; i++) {
+          if (i > 0)
+            sb.append("\n              ");
+          Interceptor inter = interceptors[i];
+          Class<? extends Interceptor> ic = inter.getClass();
+          sb.append(ic.getName()).append(".(").append(ic.getSimpleName()).append(".java:1)");
+        }
+        sb.append("\n");
+      }
+      sb.append("--------------------------------------------------------------------------------\n");
+      logger.info(sb.toString());
+    }
     if (render != null) {
-      return new RouteMatch(pathPattern, restPath, render, params, request.getQueryParams());
+      return new RouteMatch(pathPattern, restPath, render, params, otherParams);
     } else {
-      return new RouteMatch(pathPattern, restPath, extension, params, request.getQueryParams());
+      return new RouteMatch(pathPattern, restPath, extension, params, otherParams);
     }
   }
 

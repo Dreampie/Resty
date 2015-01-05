@@ -4,6 +4,7 @@ import cn.dreampie.common.Plugin;
 import cn.dreampie.orm.DataSourceProvider;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
+import com.alibaba.druid.DruidRuntimeException;
 import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.pool.DruidDataSource;
 
@@ -140,7 +141,7 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
       try {
         ds.setFilters(filters);
       } catch (SQLException e) {
-        throw new RuntimeException(e);
+        throw new DruidRuntimeException(e);
       }
 
     addFilterList(ds);

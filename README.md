@@ -22,18 +22,18 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 ```java
   // 在resource里使用事务,也就是controller里，rest的世界认为所以的请求都表示资源，所以这儿叫resource
   @GET("/users")
-  @Transaction(name = {"default", "demo"}) //多数据源的事务，如果你只有一个数据库  直接@Transaction 不需要参数
+  @Transaction(name = {DS.DEFAULT_DS_NAME, "demo"}) //多数据源的事务，如果你只有一个数据库  直接@Transaction 不需要参数
   public User transaction() {
   //TODO 用model执行数据库的操作  只要有操作抛出异常  两个数据源 都会回滚  虽然不是分布式事务  也能保证代码块的数据执行安全
   }
 
   // 如果你需要在service里实现事务，通过java动态代理（必须使用接口，jdk设计就是这样）
   public interface UserService {
-    @Transaction(name = {"default", "demo"})//service里添加多数据源的事务，如果你只有一个数据库  直接@Transaction 不需要参数
+    @Transaction(name = {DS.DEFAULT_DS_NAME, "demo"})//service里添加多数据源的事务，如果你只有一个数据库  直接@Transaction 不需要参数
     public User save(User u);
   }
   // 在resource里使用service层的 事务
-  // @Transaction(name = {"default", "demo"})的注解需要写在service的接口上
+  // @Transaction(name = {DS.DEFAULT_DS_NAME, "demo"})的注解需要写在service的接口上
   // 注意java的自动代理必须存在接口
   // TransactionAspect 是事务切面 ，你也可以实现自己的切面比如日志的Aspect，实现Aspect接口
   // 再private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect(),new LogAspect());

@@ -5,6 +5,7 @@ import cn.dreampie.example.model.User;
 import cn.dreampie.example.model.UserInfo;
 import cn.dreampie.example.service.UserService;
 import cn.dreampie.example.service.UserServiceImpl;
+import cn.dreampie.orm.DS;
 import cn.dreampie.orm.transaction.AspectFactory;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.orm.transaction.TransactionAspect;
@@ -46,7 +47,7 @@ public class UserResource extends Resource {
   }
 
   @GET("/transactions")
-  @Transaction(name = {"default", "demo"})
+  @Transaction(name = {DS.DEFAULT_DS_NAME, "demo"})
   public User transaction() {
     User u = new User().set("username", "test").set("providername", "test").set("password", "123456");
     UserInfo userInfo = null;

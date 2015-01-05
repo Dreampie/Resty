@@ -2,7 +2,6 @@ package cn.dreampie.util;
 
 import cn.dreampie.util.properties.Proper;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 

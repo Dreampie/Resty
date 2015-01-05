@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
+  <contextName>resty-example</contextName>
   <!-- 声明变量 -->
   <substitutionProperty name="log.base" value="./log/resty-example"/>
 
@@ -16,9 +17,10 @@
     <File>${log.base}.log</File>
   </appender>
 
+
   <root level="DEBUG">
     <appender-ref ref="STDOUT"/>
-    <appender-ref ref="FILE"/>
+    <!--<appender-ref ref="FILE" />-->
   </root>
 
 </configuration>

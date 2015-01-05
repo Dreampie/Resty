@@ -11,7 +11,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import static cn.dreampie.util.Checker.checkArgument;
-import static cn.dreampie.util.Checker.checkNotNull;
 
 /**
  * Date: 1/22/13

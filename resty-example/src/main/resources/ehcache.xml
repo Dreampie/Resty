@@ -1,0 +1,23 @@
+<ehcache name="shiro" updateCheck="false" monitoring="autodetect"
+         dynamicConfig="true">
+  <diskStore path="java.io.tmpdir/resty-ehcache"/>
+
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="360"
+      timeToLiveSeconds="360"
+      overflowToDisk="false"
+      diskPersistent="false"
+      diskExpiryThreadIntervalSeconds="120"/>
+
+  <cache name="defaultCache"
+         maxElementsInMemory="10000"
+         eternal="false"
+         timeToIdleSeconds="1200"
+         timeToLiveSeconds="1200"
+         overflowToDisk="false"
+         diskPersistent="false"
+         diskExpiryThreadIntervalSeconds="120"/>
+
+</ehcache>

@@ -2,7 +2,6 @@ package cn.dreampie.orm;
 
 import cn.dreampie.common.Plugin;
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
 import cn.dreampie.util.ClassScaner;
@@ -17,7 +16,7 @@ import java.util.List;
  * ActiveRecord plugin.
  */
 public class ActiveRecordPlugin implements Plugin {
-  private static final Logger logger = LoggerFactory.getLogger(ActiveRecordPlugin.class);
+  private static final Logger logger = Logger.getLogger(ActiveRecordPlugin.class);
 
   private List<Class<? extends Model>> excludeClasses = new ArrayList<Class<? extends Model>>();
   private List<Class<? extends Model>> includeClasses = new ArrayList<Class<? extends Model>>();

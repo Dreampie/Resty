@@ -9,7 +9,10 @@ import cn.dreampie.orm.exception.ModelException;
 import cn.dreampie.util.json.Jsoner;
 
 import java.io.Serializable;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 
 import static cn.dreampie.util.Checker.checkArgument;
@@ -24,10 +27,10 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   private Map<String, Object> attrs = getAttrsMap();
 
-  protected Object getCache(String sql, Object[] paras) {
+  protected <T> T getCache(String sql, Object[] paras) {
     ModelMeta modelMeta = getModelMeta();
     if (modelMeta.cached()) {
-      return QueryCache.instance().getItem(modelMeta.getTableName(), sql, paras);
+      return (T) QueryCache.instance().getItem(modelMeta.getTableName(), sql, paras);
     }
     return null;
   }
@@ -36,6 +39,13 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     ModelMeta modelMeta = getModelMeta();
     if (modelMeta.cached()) {
       QueryCache.instance().addItem(modelMeta.getTableName(), sql, paras, cache);
+    }
+  }
+
+  protected void purgeCache() {
+    ModelMeta modelMeta = getModelMeta();
+    if (modelMeta.cached()) {
+      QueryCache.instance().purgeTableCache(modelMeta.getTableName());
     }
   }
 
@@ -279,10 +289,18 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @return the list of Model
    */
   public List<M> find(String sql, Object... paras) {
+    List<M> result = null;
+    boolean cached = getModelMeta().cached();
+    if (cached) {
+      result = getCache(sql, paras);
+    }
+    if (result != null && result.size() > 0) {
+      return result;
+    }
+
     Class<? extends Base> modelClass = getClass();
     if (Constant.dev_mode)
       checkTableName(modelClass, sql);
-    List<M> result = null;
     try {
       PreparedStatement pst = getPreparedStatement(sql, paras);
       ResultSet rs = pst.executeQuery();
@@ -294,6 +312,9 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       throw new ModelException(e);
     } catch (IllegalAccessException e) {
       throw new ModelException(e);
+    }
+    if (cached) {
+      addCache(sql, paras, result);
     }
     return result;
   }
@@ -394,6 +415,11 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * Save model.
    */
   public boolean save() {
+    //清除缓存
+    if (getModelMeta().cached()) {
+      purgeCache();
+    }
+
 
     DataSourceMeta dsm = getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
@@ -451,25 +477,26 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @return true if delete succeed otherwise false
    */
   public boolean deleteById(Object id) {
-    checkNotNull(id, "id can not be null");
+    checkNotNull(id, "You can't delete model without primaryKey.");
     return deleteById(getModelMeta(), id);
   }
 
   private boolean deleteById(ModelMeta modelMeta, Object id) {
-
-    Connection conn = null;
-    PreparedStatement pst = null;
-    try {
-      String sql = getDialect().delete(modelMeta.getTableName(), modelMeta.getPrimaryKey() + "=?");
-      return getPreparedStatement(sql, new Object[]{id}).executeUpdate() > 0;
-    } catch (SQLException e) {
-      throw new DBException(e);
-    } finally {
-      getDataSourceMeta().close(pst);
+    //清除缓存
+    if (getModelMeta().cached()) {
+      purgeCache();
     }
+    String sql = getDialect().delete(modelMeta.getTableName(), modelMeta.getPrimaryKey() + "=?");
+    int result = update(sql, id);
+    return result > 0;
   }
 
-  public int update(String sql, Object... paras) {
+  //update  base
+  protected int update(String sql, Object... paras) {
+    //清除缓存
+    if (getModelMeta().cached()) {
+      purgeCache();
+    }
     return DS.use(getModelMeta().getDsName()).update(sql, paras);
   }
 
@@ -491,6 +518,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   public boolean update() {
     if (getModifyFlag().isEmpty())
       return false;
+
     ModelMeta modelMeta = getModelMeta();
     Dialect dialect = getDialect();
 
@@ -504,21 +532,12 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       return false;
     }
 
-    // --------
-    PreparedStatement pst = null;
-    try {
-      pst = getPreparedStatement(sql, getModifyValues());
-      int result = pst.executeUpdate();
-      if (result >= 1) {
-        getModifyFlag().clear();
-        return true;
-      }
-      return false;
-    } catch (SQLException e) {
-      throw new DBException(e);
-    } finally {
-      getDataSourceMeta().close(pst);
+    int result = update(sql, getModifyValues());
+    if (result >= 1) {
+      getModifyFlag().clear();
+      return true;
     }
+    return false;
   }
 
 

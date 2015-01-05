@@ -18,7 +18,6 @@ package cn.dreampie.orm;
 
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.orm.exception.DBException;
 
 import java.lang.reflect.InvocationHandler;
@@ -33,7 +32,7 @@ import java.sql.Connection;
 public class SqlPrinter implements InvocationHandler {
 
   private Connection conn;
-  private static final Logger logger = LoggerFactory.getLogger(SqlPrinter.class);
+  private static final Logger logger = Logger.getLogger(SqlPrinter.class);
 
   SqlPrinter(Connection conn) {
     this.conn = conn;

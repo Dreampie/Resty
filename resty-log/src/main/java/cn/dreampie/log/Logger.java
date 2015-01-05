@@ -1,50 +1,71 @@
 package cn.dreampie.log;
 
+import cn.dreampie.log.provider.JdkLoggerProvider;
+import cn.dreampie.log.provider.LoggerProvider;
+import cn.dreampie.log.provider.Slf4jLoggerProvider;
+
 /**
  * Created by ice on 14-12-19.
  */
-public interface Logger {
-  public Logger getLogger(Class clazz);
+public abstract class Logger {
 
-  public Logger getLogger(String clazzName);
+  private static LoggerProvider loggerProvider;
 
-  public void debug(String message);
+  static {
+    try {
+      Class.forName("org.slf4j.Logger");
+      loggerProvider = new Slf4jLoggerProvider();
+    } catch (ClassNotFoundException ex) {
+      loggerProvider = new JdkLoggerProvider();
+    }
+  }
 
-  public void debug(String format, Object... args);
+  public static Logger getLogger(Class clazz) {
+    return loggerProvider.getLogger(clazz);
+  }
 
-  public void debug(String message, Throwable t);
+  public static Logger getLogger(String clazzName) {
+    return loggerProvider.getLogger(clazzName);
+  }
 
-  public void debug(String format, Throwable t, Object... args);
 
-  public void info(String message);
+  public abstract void debug(String message);
 
-  public void info(String format, Object... args);
+  public abstract void debug(String format, Object... args);
 
-  public void info(String message, Throwable t);
+  public abstract void debug(String message, Throwable t);
 
-  public void info(String format, Throwable t, Object... args);
+  public abstract void debug(String format, Throwable t, Object... args);
 
-  public void warn(String message);
+  public abstract void info(String message);
 
-  public void warn(String format, Object... args);
+  public abstract void info(String format, Object... args);
 
-  public void warn(String message, Throwable t);
+  public abstract void info(String message, Throwable t);
 
-  public void warn(String format, Throwable t, Object... args);
+  public abstract void info(String format, Throwable t, Object... args);
 
-  public void error(String message);
+  public abstract void warn(String message);
 
-  public void error(String format, Object... args);
+  public abstract void warn(String format, Object... args);
 
-  public void error(String message, Throwable t);
+  public abstract void warn(String message, Throwable t);
 
-  public void error(String format, Throwable t, Object... args);
+  public abstract void warn(String format, Throwable t, Object... args);
 
-  public boolean isDebugEnabled();
+  public abstract void error(String message);
 
-  public boolean isInfoEnabled();
+  public abstract void error(String format, Object... args);
 
-  public boolean isWarnEnabled();
+  public abstract void error(String message, Throwable t);
 
-  public boolean isErrorEnabled();
+  public abstract void error(String format, Throwable t, Object... args);
+
+  public abstract boolean isDebugEnabled();
+
+  public abstract boolean isInfoEnabled();
+
+  public abstract boolean isWarnEnabled();
+
+  public abstract boolean isErrorEnabled();
 }

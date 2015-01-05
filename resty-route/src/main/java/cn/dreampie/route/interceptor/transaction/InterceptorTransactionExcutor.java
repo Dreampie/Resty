@@ -1,7 +1,6 @@
 package cn.dreampie.route.interceptor.transaction;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.Metadatas;
 import cn.dreampie.orm.exception.DBException;
@@ -15,7 +14,7 @@ import java.sql.SQLException;
  * Created by wangrenhui on 15/1/3.
  */
 public class InterceptorTransactionExcutor {
-  private final static Logger logger = LoggerFactory.getLogger(InterceptorTransactionExcutor.class);
+  private final static Logger logger = Logger.getLogger(InterceptorTransactionExcutor.class);
 
   private String dsName;
   private int level;

@@ -18,7 +18,6 @@ limitations under the License.
 package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.orm.annotation.Table;
 import cn.dreampie.orm.dialect.Dialect;
 
@@ -30,7 +29,7 @@ import static cn.dreampie.util.Checker.checkNotNull;
 
 
 public class ModelMeta implements Serializable {
-  private final static Logger logger = LoggerFactory.getLogger(ModelMeta.class);
+  private final static Logger logger = Logger.getLogger(ModelMeta.class);
 
   private SortedMap<String, ColumnMeta> columnMetadata;
   private final String primaryKey;

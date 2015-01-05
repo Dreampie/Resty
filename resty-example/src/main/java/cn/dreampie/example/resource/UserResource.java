@@ -15,6 +15,7 @@ import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.util.Maper;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,13 +34,18 @@ public class UserResource extends Resource {
     return Maper.of("k1", "v1,name:" + name + ",age:" + age, "k2", "v2");
   }
 
+  @GET("/users")
+  public List<User> findAll() {
+    return User.dao.findAll();
+  }
+
   @POST("/users")
   public User save(User user) {
     userService.save(user);
     return user;
   }
 
-  @GET("/users")
+  @GET("/transactions")
   @Transaction(name = {"default", "demo"})
   public User transaction() {
     User u = new User().set("username", "test").set("providername", "test").set("password", "123456");
@@ -55,8 +61,8 @@ public class UserResource extends Resource {
 
       Role role = new Role().set("name", "test").set("value", "xx");
       role.save();
-      int[] a = new int[0];
-      System.out.println(a[2]);
+//      int[] a = new int[0];
+//      System.out.println(a[2]);  报错 让事务回滚
     }
     return u;
     //service层的事务

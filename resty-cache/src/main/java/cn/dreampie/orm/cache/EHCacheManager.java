@@ -17,7 +17,6 @@ limitations under the License.
 package cn.dreampie.orm.cache;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.Configuration;
@@ -29,7 +28,7 @@ import java.net.URL;
  * EHCacheManager
  */
 public class EHCacheManager extends CacheManager {
-  private static final Logger logger = LoggerFactory.getLogger(EHCacheManager.class);
+  private static final Logger logger = Logger.getLogger(EHCacheManager.class);
   private final net.sf.ehcache.CacheManager cacheManager;
 
   public EHCacheManager() {

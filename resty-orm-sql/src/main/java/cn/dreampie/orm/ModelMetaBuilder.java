@@ -1,7 +1,6 @@
 package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -15,7 +14,7 @@ import java.util.SortedMap;
  */
 public class ModelMetaBuilder {
 
-  private static final Logger logger = LoggerFactory.getLogger(ModelMetaBuilder.class);
+  private static final Logger logger = Logger.getLogger(ModelMetaBuilder.class);
 
   static void build(List<ModelMeta> modelMetas, DataSourceMeta dsm) {
     ModelMeta temp = null;

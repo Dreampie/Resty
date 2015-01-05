@@ -18,7 +18,6 @@ limitations under the License.
 package cn.dreampie.orm.cache;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,7 @@ import java.util.List;
  * Abstract method to be sub-classed by various caching technologies.
  */
 public abstract class CacheManager {
-  private final static Logger logger = LoggerFactory.getLogger(CacheManager.class);
+  private final static Logger logger = Logger.getLogger(CacheManager.class);
 
   List<CacheEventListener> listeners = new ArrayList<CacheEventListener>();
 

@@ -2,7 +2,6 @@ package cn.dreampie.route;
 
 import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.route.config.Config;
 import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.handler.Handler;
@@ -25,7 +24,7 @@ public final class RestyFilter implements Filter {
   private String encoding = Constant.encoding;
   private Config config;
   private static final RestyIniter restyIniter = RestyIniter.instance();
-  private static final Logger logger = LoggerFactory.getLogger(RestyFilter.class);
+  private static final Logger logger = Logger.getLogger(RestyFilter.class);
 
   public void init(FilterConfig filterConfig) throws ServletException {
     createConfig(filterConfig.getInitParameter("configClass"));

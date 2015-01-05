@@ -2,7 +2,6 @@ package cn.dreampie.route;
 
 import cn.dreampie.common.Plugin;
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.route.config.Config;
 import cn.dreampie.route.config.ConstantLoader;
 import cn.dreampie.route.core.RouteBuilder;
@@ -18,7 +17,7 @@ import java.util.List;
  */
 public final class RestyIniter {
 
-  private static final Logger logger = LoggerFactory.getLogger(RestyIniter.class);
+  private static final Logger logger = Logger.getLogger(RestyIniter.class);
 
   private ConstantLoader constantLoader;
   private RouteBuilder routeBuilder;

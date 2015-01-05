@@ -1,19 +1,14 @@
 package cn.dreampie.route.http.exception;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
-import cn.dreampie.route.base.Request;
-import cn.dreampie.route.base.Response;
 import cn.dreampie.route.http.HttpStatus;
-
-import java.io.IOException;
 
 /**
  * Created by ice on 14-12-19.
  * A WebException can be raised to make resty return immediately an HTTP response with a specific HTTP status.
  */
 public class WebException extends RuntimeException {
-  private final static Logger logger = LoggerFactory.getLogger(WebException.class);
+  private final static Logger logger = Logger.getLogger(WebException.class);
 
   private final HttpStatus status;
 
@@ -47,5 +42,5 @@ public class WebException extends RuntimeException {
   public String getContent() {
     return getMessage();
   }
-  
+
 }

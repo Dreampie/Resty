@@ -20,7 +20,6 @@ package cn.dreampie.orm.cache;
 
 import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.util.Joiner;
 
 import java.util.Arrays;
@@ -32,7 +31,7 @@ import java.util.Arrays;
 public enum QueryCache {
   INSTANCE;
 
-  private final static Logger logger = LoggerFactory.getLogger(QueryCache.class);
+  private final static Logger logger = Logger.getLogger(QueryCache.class);
 
   private final boolean enabled = Constant.cache_enabled;
 

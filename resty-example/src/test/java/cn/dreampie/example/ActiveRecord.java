@@ -1,6 +1,5 @@
 package cn.dreampie.example;
 
-import cn.dreampie.example.model.User;
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.druid.DruidPlugin;
 import cn.dreampie.util.properties.Prop;

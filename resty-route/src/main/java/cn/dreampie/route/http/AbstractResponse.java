@@ -1,7 +1,6 @@
 package cn.dreampie.route.http;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.route.base.Response;
 import cn.dreampie.util.HttpTyper;
 import cn.dreampie.util.Joiner;
@@ -22,7 +21,7 @@ import java.util.Map;
  * Time: 20:46
  */
 public abstract class AbstractResponse<R> implements Response {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractResponse.class);
+  private static final Logger logger = Logger.getLogger(AbstractResponse.class);
 
   private final Class<R> responseClass;
   private final R response;

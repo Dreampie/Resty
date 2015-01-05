@@ -499,7 +499,7 @@ public class DS {
   public Page<Record> paginate(int pageNo, int pageSize, String sql) {
     return paginate(pageNo, pageSize, sql, NULL_PARA_ARRAY);
   }
-  
+
 }
 
 

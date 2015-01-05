@@ -18,7 +18,6 @@ limitations under the License.
 package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
@@ -35,7 +34,7 @@ import static cn.dreampie.util.Checker.checkNotNull;
  */
 public class DataSourceMeta {
 
-  private static final Logger logger = LoggerFactory.getLogger(DataSourceMeta.class);
+  private static final Logger logger = Logger.getLogger(DataSourceMeta.class);
 
   private boolean showSql;
   private String dsName;

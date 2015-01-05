@@ -1,7 +1,6 @@
 package cn.dreampie.route.core;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.route.http.exception.WebException;
 import cn.dreampie.route.interceptor.Interceptor;
@@ -18,7 +17,7 @@ import java.util.List;
  */
 public class RouteInvocation implements Invocation {
 
-  private final static Logger logger = LoggerFactory.getLogger(RouteInvocation.class);
+  private final static Logger logger = Logger.getLogger(RouteInvocation.class);
   private Route route;
   private RouteMatch routeMatch;
   private Interceptor[] interceptors;
@@ -51,15 +50,15 @@ public class RouteInvocation implements Invocation {
         route.getMethod().setAccessible(true);
         result = route.getMethod().invoke(resource, args);
       } catch (ClassCastException e) {
-        throw new WebException(e.getMessage());
+        throw new WebException("Argument type convert error: " + e.getMessage());
       } catch (JSONException e) {
-        throw new WebException(e.getMessage());
+        throw new WebException("Argument type convert error: " + e.getMessage());
       } catch (InvocationTargetException e) {
-        logger.error("Route invocation error.", e);
+        throw new WebException("Route invocation error: " + e.getMessage());
       } catch (InstantiationException e) {
-        logger.error("Resource instantiation error.", e);
+        throw new WebException("Resource instantiation error: " + e.getMessage());
       } catch (IllegalAccessException e) {
-        logger.error("Route method access error.", e);
+        throw new WebException("Route method access error: " + e.getMessage());
       }
     }
     return result;

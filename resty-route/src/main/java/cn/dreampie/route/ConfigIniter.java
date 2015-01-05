@@ -3,7 +3,6 @@ package cn.dreampie.route;
 
 import cn.dreampie.common.Plugin;
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.route.config.*;
 
 import java.util.List;
@@ -15,7 +14,7 @@ public class ConfigIniter {
   private static final PluginLoader PLUGIN_LOADER = new PluginLoader();
   private static final InterceptorLoader INTERCEPTOR_LOADER = new InterceptorLoader();
   private static final HandlerLoader HANDLER_LOADER = new HandlerLoader();
-  private static final Logger logger = LoggerFactory.getLogger(ConfigIniter.class);
+  private static final Logger logger = Logger.getLogger(ConfigIniter.class);
 
   // prevent new Config();
   private ConfigIniter() {

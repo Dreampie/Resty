@@ -1,7 +1,6 @@
 package cn.dreampie.route.handler.cors;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.route.handler.Handler;
 import cn.dreampie.route.http.HttpRequest;
 import cn.dreampie.route.http.HttpResponse;
@@ -13,13 +12,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cn.dreampie.util.Checker.checkNotNull;
-
 /**
  * Created by ice on 14-12-22.
  */
 public class CORSHandler extends Handler {
-  private static final Logger logger = LoggerFactory.getLogger(CORSHandler.class);
+  private static final Logger logger = Logger.getLogger(CORSHandler.class);
 
   // Request headers
   private static final String ORIGIN_HEADER = "Origin";

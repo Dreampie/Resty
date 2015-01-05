@@ -3,8 +3,6 @@ package cn.dreampie.example;
 import cn.dreampie.demo.model.Role;
 import cn.dreampie.example.model.User;
 import cn.dreampie.example.model.UserInfo;
-import cn.dreampie.util.Lister;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;

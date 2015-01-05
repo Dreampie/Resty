@@ -1,7 +1,6 @@
 package cn.dreampie.route.render;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.route.base.Render;
 import cn.dreampie.route.http.HttpRequest;
 import cn.dreampie.route.http.HttpResponse;
@@ -15,7 +14,7 @@ import java.io.*;
  * Created by wangrenhui on 15/1/4.
  */
 public class FileRender extends Render {
-  private static final Logger logger = LoggerFactory.getLogger(FileRender.class);
+  private static final Logger logger = Logger.getLogger(FileRender.class);
 
   public void render(HttpRequest request, HttpResponse response, Object out) {
     if (File.class.isAssignableFrom(out.getClass())) {

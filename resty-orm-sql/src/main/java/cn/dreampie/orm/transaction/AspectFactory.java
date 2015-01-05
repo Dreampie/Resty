@@ -2,7 +2,6 @@ package cn.dreampie.orm.transaction;
 
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.util.Joiner;
 
 import java.lang.reflect.Proxy;
@@ -13,7 +12,7 @@ import java.lang.reflect.Proxy;
  */
 public class AspectFactory {
 
-  private static final Logger logger = LoggerFactory.getLogger(AspectFactory.class);
+  private static final Logger logger = Logger.getLogger(AspectFactory.class);
 
   /**
    * 私有构造方法

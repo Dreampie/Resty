@@ -2,13 +2,11 @@ package cn.dreampie.route.core;
 
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.log.LoggerFactory;
 import cn.dreampie.route.base.Render;
 import cn.dreampie.route.base.Request;
 import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.FileRender;
-import cn.dreampie.route.render.JsonRender;
 import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.util.Joiner;
 import cn.dreampie.util.ParamNamesScaner;
@@ -28,7 +26,7 @@ import static cn.dreampie.util.Checker.checkNotNull;
  */
 public class Route {
 
-  private static final Logger logger = LoggerFactory.getLogger(Route.class);
+  private static final Logger logger = Logger.getLogger(Route.class);
   private final String httpMethod;
   private final String pathPattern;
   private final String stdPathPattern;

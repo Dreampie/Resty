@@ -24,27 +24,6 @@
     <resty.version>1.0-SNAPSHOT</resty.version>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>fastjson</artifactId>
-      <version>${fastjson.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>cn.dreampie</groupId>
-      <artifactId>resty-route</artifactId>
-      <version>${resty.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>cn.dreampie</groupId>
-      <artifactId>resty-orm-sql</artifactId>
-      <version>${resty.version}</version>
-    </dependency>
-
-  </dependencies>
-
   <build>
     <finalName>resty</finalName>
   </build>

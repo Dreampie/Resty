@@ -27,7 +27,7 @@ public class AppConfig extends Config {
     //第一个数据库
     DruidPlugin druidPlugin = new DruidPlugin(prop.get("db.default.url"), prop.get("db.default.user"), prop.get("db.default.password"), prop.get("db.default.driver"), prop.get("db.default.dialect"));
     pluginLoader.add(druidPlugin);
-    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin("default", druidPlugin);
+    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
     activeRecordPlugin.addIncludePaths("cn.dreampie.example");
     activeRecordPlugin.setShowSql(true);
     pluginLoader.add(activeRecordPlugin);

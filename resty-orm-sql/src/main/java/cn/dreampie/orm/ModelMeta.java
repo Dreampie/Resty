@@ -40,7 +40,7 @@ public class ModelMeta implements Serializable {
 
   protected ModelMeta(Class<? extends Base> modelClass, String dsName) {
     Table tableAnnotation = modelClass.getAnnotation(Table.class);
-    checkNotNull(tableAnnotation, "Not found @Table Annotation.");
+    checkNotNull(tableAnnotation, "Could not found @Table Annotation.");
     this.modelClass = modelClass;
     this.primaryKey = tableAnnotation.primaryKey();
     this.tableName = tableAnnotation.name();

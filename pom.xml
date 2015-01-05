@@ -21,38 +21,5 @@
   <build>
     <finalName>resty</finalName>
 
-    <plugins>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>jarjar-maven-plugin</artifactId>
-        <version>1.9</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>jarjar</goal>
-            </goals>
-            <configuration>
-              <includes>
-                <include>com.alibaba:fastjson</include>
-                <include>cn.dreampie:resty-route</include>
-                <include>cn.dreampie:resty-orm-sql</include>
-                <include>cn.dreampie:resty-log</include>
-                <include>cn.dreampie:resty-util</include>
-                <include>cn.dreampie:resty-cache</include>
-                <include>cn.dreampie:resty-common</include>
-                <include>cn.dreampie:resty-orm-nosql</include>
-              </includes>
-              <rules>
-                <rule>
-                  <pattern>com.alibaba.fastjson.**</pattern>
-                  <result>cn.dreampie.fastjson.@1</result>
-                </rule>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
   </build>
 </project>

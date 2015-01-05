@@ -50,14 +50,19 @@ public class RouteInvocation implements Invocation {
         route.getMethod().setAccessible(true);
         result = route.getMethod().invoke(resource, args);
       } catch (ClassCastException e) {
+        logger.error("Argument type convert error.", e);
         throw new WebException("Argument type convert error: " + e.getMessage());
       } catch (JSONException e) {
+        logger.error("Argument type convert error.", e);
         throw new WebException("Argument type convert error: " + e.getMessage());
       } catch (InvocationTargetException e) {
+        logger.error("Route invocation error.", e);
         throw new WebException("Route invocation error: " + e.getMessage());
       } catch (InstantiationException e) {
+        logger.error("Resource instantiation error.", e);
         throw new WebException("Resource instantiation error: " + e.getMessage());
       } catch (IllegalAccessException e) {
+        logger.error("Route method access error.", e);
         throw new WebException("Route method access error: " + e.getMessage());
       }
     }

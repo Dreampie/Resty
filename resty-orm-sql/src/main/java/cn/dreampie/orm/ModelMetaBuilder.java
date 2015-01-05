@@ -56,10 +56,10 @@ public class ModelMetaBuilder {
         schema = vals[0];
         tableName = vals[1];
         if (schema.length() == 0 || tableName.length() == 0) {
-          throw new RuntimeException("invalid table name : " + table);
+          throw new RuntimeException("Invalid table name : " + table);
         }
       } else {
-        throw new RuntimeException("invalid table name: " + table);
+        throw new RuntimeException("Invalid table name: " + table);
       }
     } else {
       tableName = table;

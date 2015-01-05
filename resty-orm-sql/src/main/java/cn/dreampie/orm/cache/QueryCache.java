@@ -61,10 +61,14 @@ public enum QueryCache {
    * @param params    - list of parameters for a query.
    * @param cache     object to cache.
    */
-  public void addItem(String tableName, String query, Object[] params, Object cache) {
+  public void addItem(String dsName, String tableName, String query, Object[] params, Object cache) {
     if (enabled) {
-      cacheManager.addCache(tableName, getKey(tableName, query, params), cache);
+      cacheManager.addCache(getGroup(dsName, tableName), getKey(dsName, tableName, query, params), cache);
     }
+  }
+
+  private String getGroup(String dsName, String tableName) {
+    return dsName + "." + tableName;
   }
 
   /**
@@ -75,15 +79,15 @@ public enum QueryCache {
    * @param params    list of query parameters, can be null if no parameters are provided.
    * @return cache object or null if nothing found.
    */
-  public Object getItem(String tableName, String query, Object[] params) {
+  public Object getItem(String dsName, String tableName, String query, Object[] params) {
 
     if (enabled) {
-      String key = getKey(tableName, query, params);
-      Object item = cacheManager.getCache(tableName, key);
+      String key = getKey(dsName, tableName, query, params);
+      Object item = cacheManager.getCache(getGroup(dsName, tableName), key);
       if (item == null) {
-        logAccess(query, params, "MISS");
+        logAccess(getGroup(dsName, tableName), query, params, "Miss");
       } else {
-        logAccess(query, params, "HIT");
+        logAccess(getGroup(dsName, tableName), query, params, "Hit");
       }
       return item;
     } else {
@@ -91,9 +95,9 @@ public enum QueryCache {
     }
   }
 
-  static void logAccess(String query, Object[] params, String access) {
+  static void logAccess(String group, String query, Object[] params, String access) {
     if (logger.isInfoEnabled()) {
-      StringBuilder log = new StringBuilder().append(access).append(", ").append('"').append(query).append('"');
+      StringBuilder log = new StringBuilder().append(access).append(", ").append('"').append(group + "." + query).append('"');
       if (params != null && params.length > 0) {
         log.append(", with parameters: ").append('<');
         Joiner.on(">, <").join(log, params);
@@ -104,8 +108,8 @@ public enum QueryCache {
   }
 
 
-  private String getKey(String tableName, String query, Object[] params) {
-    return tableName + query + (params == null ? null : Arrays.asList(params).toString());
+  private String getKey(String dsName, String tableName, String query, Object[] params) {
+    return dsName + "." + tableName + "." + query + "." + (params == null ? null : Arrays.asList(params).toString());
   }
 
   /**
@@ -114,9 +118,9 @@ public enum QueryCache {
    *
    * @param tableName table name whose caches are to be purged.
    */
-  public void purgeTableCache(String tableName) {
+  public void purgeTableCache(String dsName, String tableName) {
     if (enabled) {
-      cacheManager.flush(new CacheEvent(tableName, getClass().getName()));
+      cacheManager.flush(new CacheEvent(getGroup(dsName, tableName), getClass().getName()));
     }
   }
 

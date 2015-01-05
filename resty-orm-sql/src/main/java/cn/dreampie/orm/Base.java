@@ -30,7 +30,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   protected <T> T getCache(String sql, Object[] paras) {
     ModelMeta modelMeta = getModelMeta();
     if (modelMeta.cached()) {
-      return (T) QueryCache.instance().getItem(modelMeta.getTableName(), sql, paras);
+      return (T) QueryCache.instance().getItem(modelMeta.getDsName(), modelMeta.getTableName(), sql, paras);
     }
     return null;
   }
@@ -38,14 +38,14 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   protected void addCache(String sql, Object[] paras, Object cache) {
     ModelMeta modelMeta = getModelMeta();
     if (modelMeta.cached()) {
-      QueryCache.instance().addItem(modelMeta.getTableName(), sql, paras, cache);
+      QueryCache.instance().addItem(modelMeta.getDsName(), modelMeta.getTableName(), sql, paras, cache);
     }
   }
 
   protected void purgeCache() {
     ModelMeta modelMeta = getModelMeta();
     if (modelMeta.cached()) {
-      QueryCache.instance().purgeTableCache(modelMeta.getTableName());
+      QueryCache.instance().purgeTableCache(modelMeta.getDsName(), modelMeta.getTableName());
     }
   }
 

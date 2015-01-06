@@ -294,7 +294,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     if (cached) {
       result = getCache(sql, paras);
     }
-    if (result != null && result.size() > 0) {
+    if (result != null) {
       return result;
     }
 

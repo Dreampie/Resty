@@ -62,7 +62,7 @@ public class EHCacheManager extends CacheManager {
       Cache c = cacheManager.getCache(group);
       return c.get(key) == null ? null : c.get(key).getObjectValue();
     } catch (Exception e) {
-      logger.warn("{}", e, e);
+      logger.warn("%s", e, e);
       return null;
     }
   }

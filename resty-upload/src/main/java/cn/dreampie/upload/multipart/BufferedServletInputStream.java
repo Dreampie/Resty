@@ -6,6 +6,7 @@ package cn.dreampie.upload.multipart;
 
 import java.io.IOException;
 
+import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 
 /**
@@ -196,6 +197,18 @@ public class BufferedServletInputStream extends ServletInputStream {
     return total;
   }
 
+  @Override
+  public boolean isFinished() {
+    return false;
+  }
 
+  @Override
+  public boolean isReady() {
+    return false;
+  }
 
+  @Override
+  public void setReadListener(ReadListener readListener) {
+
+  }
 }

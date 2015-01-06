@@ -14,7 +14,7 @@
     <module>resty-log</module>
     <module>resty-util</module>
     <module>resty-common</module>
-    <module>resty-file-upload</module>
+    <module>resty-upload</module>
   </modules>
   <name>resty</name>
   <url>http://maven.apache.org</url>

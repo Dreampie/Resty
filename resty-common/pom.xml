@@ -17,6 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <resty.version>${project.parent.version}</resty.version>
+    <servlet.version>3.1.0</servlet.version>
   </properties>
 
   <dependencies>
@@ -28,11 +29,33 @@
     </dependency>
 
     <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>${fastjson.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-cache</artifactId>
       <version>${resty.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${servlet.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--jdk1.6   不支持servlet3.0-->
+    <!--<dependency>-->
+    <!--<groupId>javax.servlet</groupId>-->
+    <!--<artifactId>servlet-api</artifactId>-->
+    <!--<version>2.5</version>-->
+    <!--<scope>provided</scope>-->
+    <!--</dependency>-->
   </dependencies>
 
   <build>

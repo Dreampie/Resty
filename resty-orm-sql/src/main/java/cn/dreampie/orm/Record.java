@@ -17,7 +17,7 @@
 package cn.dreampie.orm;
 
 import cn.dreampie.common.Entity;
-import cn.dreampie.util.json.Jsoner;
+import cn.dreampie.common.util.json.Jsoner;
 
 import java.io.Serializable;
 import java.util.HashMap;

@@ -1,12 +1,12 @@
 package cn.dreampie;
 
 
+import cn.dreampie.common.util.properties.Prop;
+import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.DS;
 import cn.dreampie.orm.Record;
 import cn.dreampie.orm.druid.DruidPlugin;
-import cn.dreampie.util.properties.Prop;
-import cn.dreampie.util.properties.Proper;
 import org.junit.Test;
 
 /**

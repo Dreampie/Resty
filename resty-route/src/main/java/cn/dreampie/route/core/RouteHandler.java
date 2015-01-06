@@ -1,11 +1,11 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.http.HttpRequest;
+import cn.dreampie.common.http.HttpResponse;
+import cn.dreampie.common.http.HttpStatus;
+import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.handler.Handler;
-import cn.dreampie.route.http.HttpRequest;
-import cn.dreampie.route.http.HttpResponse;
-import cn.dreampie.route.http.HttpStatus;
-import cn.dreampie.route.http.exception.WebException;
 
 /**
  * ActionHandler
@@ -26,22 +26,25 @@ public final class RouteHandler extends Handler {
 
     RouteMatch routeMatch = null;
     Route route = null;
-    isHandled[0] = true;
 
     for (Route r : resourceBuilder.getRoutes()) {
-      routeMatch = r.match(request);
+      routeMatch = r.match(request, response);
       if (routeMatch != null) {
         route = r;
         break;
       }
     }
 
+    isHandled[0] = true;
     if (routeMatch != null) {
       response.setStatus(HttpStatus.OK);
       routeMatch.getRender().render(request, response, new RouteInvocation(route, routeMatch).invoke());
     } else {
-      // no route matched
-      throw new WebException(HttpStatus.NOT_FOUND, "No rest route found.");
+      if (!request.getRestPath().equals("/"))
+        // no route matched
+        throw new WebException(HttpStatus.NOT_FOUND, "No rest route found.");
+      else
+        isHandled[0] = false;
     }
   }
 }

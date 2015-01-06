@@ -2,11 +2,11 @@ package cn.dreampie.orm;
 
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.Entity;
+import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.exception.ModelException;
-import cn.dreampie.util.json.Jsoner;
 
 import java.io.Serializable;
 import java.sql.PreparedStatement;
@@ -15,8 +15,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
-import static cn.dreampie.util.Checker.checkArgument;
-import static cn.dreampie.util.Checker.checkNotNull;
+import static cn.dreampie.common.util.Checker.checkArgument;
+import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
  * Created by ice on 14-12-30.

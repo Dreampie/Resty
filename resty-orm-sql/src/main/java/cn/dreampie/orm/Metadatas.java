@@ -3,7 +3,7 @@ package cn.dreampie.orm;
 import java.util.HashMap;
 import java.util.Map;
 
-import static cn.dreampie.util.Checker.checkNotNull;
+import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
  * Created by ice on 14-12-30.

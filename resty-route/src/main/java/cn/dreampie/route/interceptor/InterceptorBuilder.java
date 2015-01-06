@@ -1,6 +1,6 @@
 package cn.dreampie.route.interceptor;
 
-import cn.dreampie.route.core.base.Resource;
+import cn.dreampie.route.core.Resource;
 import cn.dreampie.route.interceptor.annotation.ClearInterceptors;
 import cn.dreampie.route.interceptor.annotation.Interceptors;
 import cn.dreampie.route.interceptor.exception.InterceptorException;

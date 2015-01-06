@@ -12,7 +12,6 @@
     <module>resty-example</module>
     <module>resty-cache</module>
     <module>resty-log</module>
-    <module>resty-util</module>
     <module>resty-common</module>
     <module>resty-upload</module>
   </modules>

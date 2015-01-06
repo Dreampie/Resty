@@ -1,6 +1,6 @@
 package cn.dreampie.route.render;
 
-import cn.dreampie.route.base.Render;
+import cn.dreampie.common.Render;
 
 import java.util.HashMap;
 import java.util.Map;

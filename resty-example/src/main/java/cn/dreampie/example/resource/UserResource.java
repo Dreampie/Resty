@@ -1,5 +1,6 @@
 package cn.dreampie.example.resource;
 
+import cn.dreampie.common.util.Maper;
 import cn.dreampie.demo.model.Role;
 import cn.dreampie.example.model.User;
 import cn.dreampie.example.model.UserInfo;
@@ -9,11 +10,11 @@ import cn.dreampie.orm.DS;
 import cn.dreampie.orm.transaction.AspectFactory;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.orm.transaction.TransactionAspect;
+import cn.dreampie.route.core.Resource;
 import cn.dreampie.route.core.annotation.API;
 import cn.dreampie.route.core.annotation.GET;
 import cn.dreampie.route.core.annotation.POST;
-import cn.dreampie.route.core.base.Resource;
-import cn.dreampie.util.Maper;
+import cn.dreampie.upload.UploadedFile;
 
 import java.io.File;
 import java.util.List;
@@ -70,8 +71,13 @@ public class UserResource extends Resource {
     //return userService.save(new User().set("username", "test").set("providername", "test").set("password", "123456"));
   }
 
-  @GET("/files/{filename}")
-  public File file(String filename) {
-    return new File(this.getClass().getClassLoader().getResource("application.properties").getFile());
+  @GET("/files")
+  public File file() {
+    return new File(getRequest().getRealPath("/") + "upload/resty-v1.0-beta.jar");
+  }
+
+  @POST("/files")
+  public UploadedFile upload() {
+    return getFile();
   }
 }

@@ -56,6 +56,24 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
   }
 ```
 
+下载文件，只需要直接return file
+```java
+ @GET("/files")
+  public File file() {
+    return new File(path);
+  }
+```
+
+上传文件
+```java
+ @GET("/files")
+  public UploadedFile file() {
+    //Hashtable<String, UploadedFile> uploadedFiles=getFiles();
+    return getFile(name);
+  }
+```
+
+
 当然也是支持传统的web开发，你可以自己实现数据解析，在config里添加自定义的解析模板
 
 ```java

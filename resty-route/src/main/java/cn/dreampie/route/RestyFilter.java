@@ -1,13 +1,13 @@
 package cn.dreampie.route;
 
 import cn.dreampie.common.Constant;
+import cn.dreampie.common.http.HttpRequest;
+import cn.dreampie.common.http.HttpResponse;
+import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.config.Config;
 import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.handler.Handler;
-import cn.dreampie.route.http.HttpRequest;
-import cn.dreampie.route.http.HttpResponse;
-import cn.dreampie.route.http.exception.WebException;
 import cn.dreampie.route.render.RenderFactory;
 
 import javax.servlet.*;
@@ -54,7 +54,7 @@ public final class RestyFilter implements Filter {
       response.setStatus(e.getStatus());
       RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getContent());
       if (logger.isErrorEnabled()) {
-        logger.warn("Request \"" + request.getRestPath() + "\" error:" + e.getMessage());
+        logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error:" + e.getMessage());
       }
     } catch (Exception e) {
       if (logger.isErrorEnabled()) {

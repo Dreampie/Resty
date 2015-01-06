@@ -17,6 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <servlet.version>3.1.0</servlet.version>
+    <resty.version>${project.parent.version}</resty.version>
   </properties>
 
   <dependencies>
@@ -28,20 +29,33 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${servlet.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--jdk1.6   不支持servlet3.0-->
     <!--<dependency>-->
     <!--<groupId>javax.servlet</groupId>-->
-    <!--<artifactId>javax.servlet-api</artifactId>-->
-    <!--<version>${servlet.version}</version>-->
+    <!--<artifactId>servlet-api</artifactId>-->
+    <!--<version>2.5</version>-->
     <!--<scope>provided</scope>-->
     <!--</dependency>-->
 
-    <!--jdk1.6   不支持servlet3.0-->
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
-      <scope>provided</scope>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-common</artifactId>
+      <version>${resty.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-log</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>

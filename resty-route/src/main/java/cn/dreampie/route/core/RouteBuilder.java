@@ -51,7 +51,7 @@ public final class RouteBuilder {
     Interceptor[] methodInters;
     Interceptor[] routeInters;
     //addResources
-    for (Class<? extends cn.dreampie.route.core.base.Resource> resourceClazz : resourceLoader.getResources()) {
+    for (Class<? extends Resource> resourceClazz : resourceLoader.getResources()) {
       Interceptor[] resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
       api = resourceClazz.getAnnotation(API.class);
       if (api != null) {

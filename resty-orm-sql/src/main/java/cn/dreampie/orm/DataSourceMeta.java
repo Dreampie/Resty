@@ -27,7 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static cn.dreampie.util.Checker.checkNotNull;
+import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
  * ConnectionAccess

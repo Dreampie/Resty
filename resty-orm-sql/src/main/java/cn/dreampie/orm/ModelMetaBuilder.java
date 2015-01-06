@@ -1,6 +1,7 @@
 package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.exception.DBException;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -29,7 +30,7 @@ public class ModelMetaBuilder {
       }
     } catch (Exception e) {
       if (temp != null)
-        throw new RuntimeException("Could not create Table object, maybe the table " + temp.getTableName() + " is not exists.", e);
+        throw new DBException("Could not create Table object, maybe the table " + temp.getTableName() + " is not exists.", e);
     } finally {
       dsm.close(conn);
     }
@@ -55,10 +56,10 @@ public class ModelMetaBuilder {
         schema = vals[0];
         tableName = vals[1];
         if (schema.length() == 0 || tableName.length() == 0) {
-          throw new RuntimeException("Invalid table name : " + table);
+          throw new DBException("Invalid table name : " + table);
         }
       } else {
-        throw new RuntimeException("Invalid table name: " + table);
+        throw new DBException("Invalid table name: " + table);
       }
     } else {
       tableName = table;
@@ -85,7 +86,7 @@ public class ModelMetaBuilder {
     }
 
     if (columns.size() > 0) {
-      logger.info("Fetched metadata for table: %s", table);
+      logger.debug("Fetched metadata for table: %s", table);
     } else {
       logger.warn("Failed to retrieve metadata for table: '%s'."
               + " Are you sure this table exists? For some databases table name are case sensitive.",

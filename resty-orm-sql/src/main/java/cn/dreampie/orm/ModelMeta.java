@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.SortedMap;
 
-import static cn.dreampie.util.Checker.checkNotNull;
+import static cn.dreampie.common.util.Checker.checkNotNull;
 
 
 public class ModelMeta implements Serializable {

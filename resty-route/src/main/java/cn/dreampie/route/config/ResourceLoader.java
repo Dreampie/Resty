@@ -1,8 +1,8 @@
 package cn.dreampie.route.config;
 
+import cn.dreampie.common.util.ClassScaner;
 import cn.dreampie.log.Logger;
-import cn.dreampie.route.core.base.Resource;
-import cn.dreampie.util.ClassScaner;
+import cn.dreampie.route.core.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +87,7 @@ final public class ResourceLoader {
         continue;
       }
       this.add(resource);
-      logger.info("resources.add(" + resource.getName() + ")");
+      logger.debug("resources.add(" + resource.getName() + ")");
     }
   }
 

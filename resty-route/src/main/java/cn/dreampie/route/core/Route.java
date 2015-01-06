@@ -1,15 +1,15 @@
 package cn.dreampie.route.core;
 
 
+import cn.dreampie.common.Render;
+import cn.dreampie.common.http.HttpRequest;
+import cn.dreampie.common.http.HttpResponse;
+import cn.dreampie.common.util.Joiner;
+import cn.dreampie.common.util.ParamNamesScaner;
 import cn.dreampie.log.Logger;
-import cn.dreampie.route.base.Render;
-import cn.dreampie.route.base.Request;
-import cn.dreampie.route.core.base.Resource;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.FileRender;
 import cn.dreampie.route.render.RenderFactory;
-import cn.dreampie.util.Joiner;
-import cn.dreampie.util.ParamNamesScaner;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -18,8 +18,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static cn.dreampie.util.Checker.checkArgument;
-import static cn.dreampie.util.Checker.checkNotNull;
+import static cn.dreampie.common.util.Checker.checkArgument;
+import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
  * Created by ice on 14-12-19.
@@ -72,7 +72,7 @@ public class Route {
   }
 
 
-  public RouteMatch match(Request request) {
+  public RouteMatch match(HttpRequest request, HttpResponse response) {
     if (!this.httpMethod.equals(request.getHttpMethod())) {
       return null;
     }
@@ -146,9 +146,9 @@ public class Route {
       logger.info(sb.toString());
     }
     if (render != null) {
-      return new RouteMatch(pathPattern, restPath, render, params, otherParams);
+      return new RouteMatch(pathPattern, restPath, render, params, otherParams, request, response);
     } else {
-      return new RouteMatch(pathPattern, restPath, extension, params, otherParams);
+      return new RouteMatch(pathPattern, restPath, extension, params, otherParams, request, response);
     }
   }
 

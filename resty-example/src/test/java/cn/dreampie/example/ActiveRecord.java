@@ -1,9 +1,9 @@
 package cn.dreampie.example;
 
+import cn.dreampie.common.util.properties.Prop;
+import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.druid.DruidPlugin;
-import cn.dreampie.util.properties.Prop;
-import cn.dreampie.util.properties.Proper;
 
 /**
  * Created by wangrenhui on 15/1/1.

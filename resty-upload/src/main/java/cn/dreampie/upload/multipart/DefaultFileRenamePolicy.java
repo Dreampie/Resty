@@ -4,7 +4,8 @@
 
 package cn.dreampie.upload.multipart;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Implements a renaming policy that adds increasing integers to the body of
@@ -14,14 +15,13 @@ import java.io.*;
  * Note that for safety the rename() method creates a zero-length file with
  * the chosen name to act as a marker that the name is taken even before the
  * upload starts writing the bytes.
- * 
+ *
  * @author Jason Hunter
- * @version 1.1, 2002/11/05, making thread safe with createNewFile()
  * @version 1.0, 2002/04/30, initial revision, thanks to Yoonjung Lee
- *                           for this idea
+ *          for this idea
  */
 public class DefaultFileRenamePolicy implements FileRenamePolicy {
-  
+
   // This method does not need to be synchronized because createNewFile()
   // is atomic and used here to mark when a file name is chosen
   public File rename(File f) {
@@ -36,8 +36,7 @@ public class DefaultFileRenamePolicy implements FileRenamePolicy {
     if (dot != -1) {
       body = name.substring(0, dot);
       ext = name.substring(dot);  // includes "."
-    }
-    else {
+    } else {
       body = name;
       ext = "";
     }
@@ -60,8 +59,7 @@ public class DefaultFileRenamePolicy implements FileRenamePolicy {
   private boolean createNewFile(File f) {
     try {
       return f.createNewFile();
-    }
-    catch (IOException ignored) {
+    } catch (IOException ignored) {
       return false;
     }
   }

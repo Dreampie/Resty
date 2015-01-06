@@ -26,8 +26,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cn.dreampie.util.Checker.checkArgument;
-import static cn.dreampie.util.Checker.checkNotNull;
+import static cn.dreampie.common.util.Checker.checkArgument;
+import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
  * DS. Professional database query and update tool.

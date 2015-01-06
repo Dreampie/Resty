@@ -1,11 +1,10 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
-import cn.dreampie.route.core.base.Resource;
-import cn.dreampie.route.http.exception.WebException;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.invocation.Invocation;
-import cn.dreampie.util.json.Jsoner;
 import com.alibaba.fastjson.JSONException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -45,6 +44,7 @@ public class RouteInvocation implements Invocation {
       Resource resource = null;
       try {
         resource = route.getResourceClass().newInstance();
+        resource.setRouteMatch(routeMatch);
         //获取所以参数
         Object[] args = getRouteArgs();
         route.getMethod().setAccessible(true);

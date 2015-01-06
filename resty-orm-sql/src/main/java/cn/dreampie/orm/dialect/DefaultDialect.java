@@ -18,7 +18,7 @@ limitations under the License.
 package cn.dreampie.orm.dialect;
 
 
-import cn.dreampie.util.Joiner;
+import cn.dreampie.common.util.Joiner;
 
 
 /**

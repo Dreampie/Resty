@@ -16,8 +16,8 @@
 
 package cn.dreampie.route.handler;
 
-import cn.dreampie.route.http.HttpRequest;
-import cn.dreampie.route.http.HttpResponse;
+import cn.dreampie.common.http.HttpRequest;
+import cn.dreampie.common.http.HttpResponse;
 
 /**
  * Handler.

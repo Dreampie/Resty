@@ -1,13 +1,13 @@
 package cn.dreampie.orm;
 
 import cn.dreampie.common.Plugin;
+import cn.dreampie.common.util.ClassScaner;
+import cn.dreampie.common.util.json.Jsoner;
+import cn.dreampie.common.util.json.ModelDeserializer;
+import cn.dreampie.common.util.json.ModelSerializer;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
-import cn.dreampie.util.ClassScaner;
-import cn.dreampie.util.json.Jsoner;
-import cn.dreampie.util.json.ModelDeserializer;
-import cn.dreampie.util.json.ModelSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +105,7 @@ public class ActiveRecordPlugin implements Plugin {
       //add modelMeta
       modelMeta = new ModelMeta(modelClass, dsName);
       modelMetas.add(modelMeta);
-      logger.debug("addMapping(" + modelMeta.getTableName() + ", " + modelClass.getName() + ")");
+      logger.info("addMapping(" + modelMeta.getTableName() + ", " + modelClass.getName() + ")");
 
       //json  config
       Jsoner.addConfig(modelClass, ModelSerializer.instance(), ModelDeserializer.instance());

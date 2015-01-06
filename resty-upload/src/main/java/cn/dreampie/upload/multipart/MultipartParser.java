@@ -4,12 +4,13 @@
 
 package cn.dreampie.upload.multipart;
 
+import cn.dreampie.common.http.HttpRequest;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletInputStream;
 
 /**
  * A utility class to handle <code>multipart/form-data</code> requests,
@@ -89,7 +90,7 @@ public class MultipartParser {
    * @param req     the servlet request.
    * @param maxSize the maximum size of the POST content.
    */
-  public MultipartParser(HttpServletRequest req,
+  public MultipartParser(HttpRequest req,
                          int maxSize) throws IOException {
     this(req, maxSize, true, true);
   }
@@ -108,7 +109,7 @@ public class MultipartParser {
    *                    the request's input stream to prevent trying to
    *                    read past the end of the stream.
    */
-  public MultipartParser(HttpServletRequest req, int maxSize, boolean buffer,
+  public MultipartParser(HttpRequest req, int maxSize, boolean buffer,
                          boolean limitLength) throws IOException {
     this(req, maxSize, buffer, limitLength, null);
   }
@@ -128,7 +129,7 @@ public class MultipartParser {
    *                    read past the end of the stream.
    * @param encoding    the encoding to use for parsing, default is ISO-8859-1.
    */
-  public MultipartParser(HttpServletRequest req, int maxSize, boolean buffer,
+  public MultipartParser(HttpRequest req, int maxSize, boolean buffer,
                          boolean limitLength, String encoding)
       throws IOException {
     // First make sure we know the encoding to handle chars correctly.
@@ -173,19 +174,18 @@ public class MultipartParser {
       throw new IOException("Separation boundary was not specified");
     }
 
-    ServletInputStream in = req.getInputStream();
+    InputStream inStream = req.getContentStream();
 
     // If required, wrap the real input stream with classes that 
     // "enhance" its behaviour for performance and stability
     if (buffer) {
-      in = new BufferedServletInputStream(in);
+      in = new BufferedServletInputStream(inStream);
     }
     if (limitLength) {
-      in = new LimitedServletInputStream(in, length);
+      in = new LimitedServletInputStream(inStream, length);
     }
 
     // Save our values for later
-    this.in = in;
     this.boundary = boundary;
 
     // Read until we hit the boundary
@@ -225,7 +225,6 @@ public class MultipartParser {
    * <code>null</code> if there are no more parts to read.
    * @throws java.io.IOException if an input or output exception has occurred.
    * @see FilePart
-   * @see ParamPart
    */
   public Part readNextPart() throws IOException {
     // Make sure the last file was entirely read from the input
@@ -302,19 +301,15 @@ public class MultipartParser {
     }
 
     // Now, finally, we read the content (end after reading the boundary)
-    if (filename == null) {
-      // This is a parameter, add it to the vector of values
-      // The encoding is needed to help parse the value
-      return new ParamPart(name, in, boundary, encoding);
-    } else {
+    if (filename != null) {
       // This is a file
       if (filename.equals("")) {
         filename = null; // empty filename, probably an "empty" file param
       }
       lastFilePart = new FilePart(name, in, boundary,
           contentType, filename, origname);
-      return lastFilePart;
     }
+    return lastFilePart;
   }
 
   /**

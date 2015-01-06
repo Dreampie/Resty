@@ -1,8 +1,8 @@
 package cn.dreampie.route.config;
 
 import cn.dreampie.common.Constant;
+import cn.dreampie.common.Render;
 import cn.dreampie.orm.cache.CacheManager;
-import cn.dreampie.route.base.Render;
 import cn.dreampie.route.render.RenderFactory;
 
 /**
@@ -14,10 +14,12 @@ final public class ConstantLoader {
     Constant.dev_mode = devMode;
   }
 
+  //encoding
   public void setDefaultEncoding(String defaultEncoding) {
     Constant.encoding = defaultEncoding;
   }
 
+  //render
   public void addRender(String extension, Render render) {
     RenderFactory.add(extension, render);
   }
@@ -26,6 +28,8 @@ final public class ConstantLoader {
     RenderFactory.add(extension, render, isDefault);
   }
 
+
+  //cache
   public void setCacheManager(CacheManager cacheManager) {
     Constant.cacheManager = cacheManager;
   }
@@ -37,6 +41,20 @@ final public class ConstantLoader {
 
   public void setCacheEnable(boolean cacheEnable) {
     Constant.cache_enabled = cacheEnable;
+  }
+
+  //upload
+  public void setUploadDirectory(String uploadDirectory, int uploadMaxSize) {
+    Constant.uploadDirectory = uploadDirectory;
+    Constant.uploadMaxSize = uploadMaxSize;
+  }
+
+  public void setUploadDirectory(String uploadDirectory) {
+    Constant.uploadDirectory = uploadDirectory;
+  }
+
+  public void setUploadMaxSize(int uploadMaxSize) {
+    Constant.uploadMaxSize = uploadMaxSize;
   }
 }
 

@@ -1,11 +1,13 @@
 package cn.dreampie.route.handler.cors;
 
+import cn.dreampie.common.http.HttpRequest;
+import cn.dreampie.common.http.HttpResponse;
+import cn.dreampie.common.http.HttpStatus;
+import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.util.Joiner;
+import cn.dreampie.common.util.Lister;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.handler.Handler;
-import cn.dreampie.route.http.HttpRequest;
-import cn.dreampie.route.http.HttpResponse;
-import cn.dreampie.util.Joiner;
-import cn.dreampie.util.Lister;
 
 import java.util.Enumeration;
 import java.util.List;
@@ -88,7 +90,7 @@ public class CORSHandler extends Handler {
           if (chainPreflight)
             logger.debug("Preflight cross-origin request to %s forwarded to application", request.getRestPath());
           else
-            return;
+            throw new WebException(HttpStatus.FORBIDDEN, "Unauthorized CORS request");
         } else {
           logger.debug("Cross-origin request to %s is a non-simple cross-origin request", request.getRestPath());
           handleSimpleResponse(request, response, origin);
@@ -179,7 +181,7 @@ public class CORSHandler extends Handler {
       response.addHeader("Vary", ORIGIN_HEADER);
     if (allowCredentials)
       response.setHeader(ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, "true");
-    if (!exposedHeaders.isEmpty())
+    if (exposedHeaders != null && !exposedHeaders.isEmpty())
       response.setHeader(ACCESS_CONTROL_EXPOSE_HEADERS_HEADER, Joiner.on(",").join(exposedHeaders));
   }
 

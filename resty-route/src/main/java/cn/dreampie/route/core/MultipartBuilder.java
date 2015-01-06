@@ -18,11 +18,13 @@ import java.util.Hashtable;
 public class MultipartBuilder {
   private String saveDirectory = Constant.uploadDirectory;
   private int maxPostSize = Constant.uploadMaxSize;
+  public static String[] uploadDenieds = Constant.uploadDenieds;
   private String encoding = Constant.encoding;
   private FileRenamePolicy fileRenamePolicy = new DefaultFileRenamePolicy();
   private HttpRequest request;
   private MultipartRequest multipartRequest;
   private Hashtable<String, UploadedFile> uploadedFiles = new Hashtable<String, UploadedFile>();
+
 
   public MultipartBuilder(HttpRequest request, String saveDirectory, int maxPostSize, String encoding, FileRenamePolicy fileRenamePolicy) {
     if (request == null)
@@ -78,7 +80,7 @@ public class MultipartBuilder {
       }
 
       try {
-        multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamePolicy);
+        multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamePolicy, uploadDenieds);
         uploadedFiles = multipartRequest.getFiles();
       } catch (IOException e) {
         throw new WebException("Could not init multipartRequest for upload file.");

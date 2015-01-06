@@ -71,18 +71,6 @@
     </dependency>
 
     <dependency>
-      <groupId>cn.dreampie</groupId>
-      <artifactId>resty-common</artifactId>
-      <version>${resty.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>cn.dreampie</groupId>
-      <artifactId>resty-util</artifactId>
-      <version>${resty.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>druid</artifactId>
       <version>${druid.version}</version>

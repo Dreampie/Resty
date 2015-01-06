@@ -14,5 +14,6 @@ public final class Constant {
   public static boolean cache_enabled = false;
   public static CacheManager cacheManager = new EHCacheManager();
   public static String uploadDirectory = File.separator + "upload" + File.separator;
-  public static int uploadMaxSize = 1024 * 1024 * 10;// 1 Meg
+  public static int uploadMaxSize = 1024 * 1024 * 10;// 10 Meg
+  public static String[] uploadDenieds = new String[]{};
 }

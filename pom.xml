@@ -14,14 +14,13 @@
     <module>resty-log</module>
     <module>resty-common</module>
     <module>resty-upload</module>
+    <module>resty-security</module>
   </modules>
   <name>resty</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <fastjson.version>1.1.41</fastjson.version>
-    <resty.version>1.0-SNAPSHOT</resty.version>
   </properties>
 
   <build>

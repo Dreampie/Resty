@@ -56,6 +56,11 @@ final public class ConstantLoader {
   public void setUploadMaxSize(int uploadMaxSize) {
     Constant.uploadMaxSize = uploadMaxSize;
   }
+
+  public void setUploadDenieds(String... uploadDenieds) {
+    Constant.uploadDenieds = uploadDenieds;
+  }
+
 }
 
 

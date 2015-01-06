@@ -66,7 +66,7 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
 上传文件
 ```java
- @GET("/files")
+ @POST("/files")
   public UploadedFile file() {
     //Hashtable<String, UploadedFile> uploadedFiles=getFiles();
     return getFile(name);

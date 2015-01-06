@@ -68,7 +68,7 @@ public enum QueryCache {
   }
 
   private String getGroup(String dsName, String tableName) {
-    return dsName + "." + tableName;
+    return dsName + "#" + tableName;
   }
 
   /**
@@ -97,7 +97,7 @@ public enum QueryCache {
 
   static void logAccess(String group, String query, Object[] params, String access) {
     if (logger.isInfoEnabled()) {
-      StringBuilder log = new StringBuilder().append(access).append(", ").append('"').append(group + "." + query).append('"');
+      StringBuilder log = new StringBuilder().append(access).append(" ").append(group).append("#").append(query).append('"');
       if (params != null && params.length > 0) {
         log.append(", with parameters: ").append('<');
         Joiner.on(">, <").join(log, params);
@@ -109,7 +109,7 @@ public enum QueryCache {
 
 
   private String getKey(String dsName, String tableName, String query, Object[] params) {
-    return dsName + "." + tableName + "." + query + "." + (params == null ? null : Arrays.asList(params).toString());
+    return getGroup(dsName, tableName) + "#" + query + "#" + (params == null ? null : Arrays.asList(params).toString());
   }
 
   /**

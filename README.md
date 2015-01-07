@@ -40,6 +40,34 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
   private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect());
 
 ```
+极简的权限设计，你只需要实现一个简单接口和添加一个拦截器，即可实现基于url的权限设计
+```java
+public void configInterceptor(InterceptorLoader interceptorLoader) {
+  //权限拦截器 放在第一位 第一时间判断 避免执行不必要的代码
+  interceptorLoader.add(new SecurityInterceptor(new MyAuthenticateService()));
+}
+
+//实现接口
+public class MyAuthenticateService implements AuthenticateService {
+  //登陆时 通过name获取用户的密码和权限信息
+  public Principal findByName(String name) {
+    DefaultPasswordService defaultPasswordService = new DefaultPasswordService();
+
+    Principal principal = new Principal(name, defaultPasswordService.hash("123"), new HashSet<String>() {{
+      add("api");
+    }});
+    return principal;
+  }
+  //基础的权限总表  所以的url权限都放在这儿  你可以通过 文件或者数据库或者直接代码 来设置所有权限
+  public Set<Permission> loadAllPermissions() {
+    Set<Permission> permissions = new HashSet<Permission>();
+    permissions.add(new Permission("GET", "/api/transactions**", "api"));
+    return permissions;
+  }
+}
+
+```
+
 
 极简的缓存设计，可扩展，非常简单即可启用model的自动缓存功能
 

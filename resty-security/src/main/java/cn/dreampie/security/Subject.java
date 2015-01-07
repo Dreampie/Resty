@@ -44,7 +44,7 @@ public class Subject {
    */
   public static Session login(String username, String password, boolean rememberMe) {
     if (authenticateService != null) {
-      Principal principal = authenticateService.findByName(username);
+      Principal principal = authenticateService.findByUsername(username);
       if (principal != null && passwordService.match(password, principal.getPasswordHash())) {
         //清理已经登陆的对象
         Session.current().clearPrincipal();

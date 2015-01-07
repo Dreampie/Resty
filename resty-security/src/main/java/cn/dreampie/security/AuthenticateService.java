@@ -7,7 +7,7 @@ import java.util.Set;
  */
 public interface AuthenticateService {
 
-  public Principal findByName(String name);
+  public Principal findByUsername(String username);
 
   public Set<Permission> loadAllPermissions();
 }

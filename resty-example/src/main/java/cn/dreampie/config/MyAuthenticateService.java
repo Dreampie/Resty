@@ -13,10 +13,10 @@ import java.util.Set;
  */
 public class MyAuthenticateService implements AuthenticateService {
 
-  public Principal findByName(String name) {
+  public Principal findByUsername(String username) {
     DefaultPasswordService defaultPasswordService = new DefaultPasswordService();
 
-    Principal principal = new Principal(name, defaultPasswordService.hash("123"), new HashSet<String>() {{
+    Principal principal = new Principal(username, defaultPasswordService.hash("123"), new HashSet<String>() {{
       add("api");
     }});
     return principal;

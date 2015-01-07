@@ -114,7 +114,7 @@ public class SessionBuilder {
       Principal principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
       //cache 已经失效  从接口获取用户数据
       if (principal == null) {
-        principal = authenticateService.findByName(principalName);
+        principal = authenticateService.findByUsername(principalName);
       }
       //检测用户数据
       checkNotNull(principal, "FindByName not get user data.");

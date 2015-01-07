@@ -12,13 +12,23 @@ import cn.dreampie.security.*;
 public class SecurityInterceptor implements Interceptor {
 
   private final SessionBuilder sessionBuilder;
+  private static final int rememberDay = 7;
+  private static final int limit = 500;
 
   public SecurityInterceptor(AuthenticateService authenticateService) {
-    this(500, 7, authenticateService, null);
+    this(limit, rememberDay, authenticateService);
   }
 
   public SecurityInterceptor(AuthenticateService authenticateService, PasswordService passwordService) {
-    this(500, 7, authenticateService, passwordService);
+    this(limit, rememberDay, authenticateService, passwordService);
+  }
+
+  public SecurityInterceptor(int rememberDay, AuthenticateService authenticateService) {
+    this(limit, rememberDay, authenticateService, null);
+  }
+
+  public SecurityInterceptor(int limit, int rememberDay, AuthenticateService authenticateService) {
+    this(limit, rememberDay, authenticateService, null);
   }
 
   public SecurityInterceptor(int limit, int rememberDay, AuthenticateService authenticateService, PasswordService passwordService) {

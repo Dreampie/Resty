@@ -14,6 +14,7 @@ import cn.dreampie.route.core.Resource;
 import cn.dreampie.route.core.annotation.API;
 import cn.dreampie.route.core.annotation.GET;
 import cn.dreampie.route.core.annotation.POST;
+import cn.dreampie.security.Subject;
 import cn.dreampie.upload.UploadedFile;
 
 import java.io.File;
@@ -30,14 +31,16 @@ public class UserResource extends Resource {
   // 注意java的自动代理必须存在接口
   private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect());
 
-  @GET("/users/:name/:age")
-  public Map find(String name, int age) {
+  @GET("/users/:name/:password")
+  public Map find(String name, String password) {
 //    return Lister.of(name);
-    return Maper.of("k1", "v1,name:" + name + ",age:" + age, "k2", "v2");
+    Subject.login(name, password);
+    return Maper.of("k1", "v1,name:" + name + ",password:" + password, "k2", "v2");
   }
 
   @GET("/users")
   public List<User> findAll() {
+    Subject.logout();
     return User.dao.findAll();
   }
 

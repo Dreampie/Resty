@@ -84,6 +84,11 @@ public class EHCacheManager extends CacheManager {
     cacheManager.getCache(group).put(new Element(key, cache));
   }
 
+  public void removeCache(String group, String key) {
+    if (cacheManager.getCache(group) != null) {
+      cacheManager.getCache(group).remove(key);
+    }
+  }
 
   public void doFlush(CacheEvent event) {
 

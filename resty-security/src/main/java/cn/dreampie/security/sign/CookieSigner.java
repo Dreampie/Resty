@@ -16,12 +16,10 @@ public class CookieSigner implements Signer {
     this.signatureKey = signatureKey;
   }
 
-  @Override
   public String sign(String cookie) {
     return Cryptoer.sign(cookie, signatureKey.getKey());
   }
 
-  @Override
   public boolean verify(String cookie, String signedCookie) {
     return sign(cookie).equals(signedCookie);
   }

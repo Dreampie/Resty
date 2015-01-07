@@ -7,6 +7,10 @@ import java.util.Map;
  * Created by ice on 14-12-29.
  */
 public class Maper {
+  public static <K, V> Map<K, V> of() {
+    return new HashMap<K, V>();
+  }
+
   public static <K, V> Map<K, V> of(final K k1, final V v1) {
     return new HashMap<K, V>() {{
       put(k1, v1);
@@ -45,5 +49,11 @@ public class Maper {
       put(k4, v4);
       put(k5, v5);
     }};
+  }
+
+  public static <K, V> Map<K, V> copyOf(Map<K, V> maps) {
+    Map<K, V> map = new HashMap<K, V>();
+    map.putAll(maps);
+    return map;
   }
 }

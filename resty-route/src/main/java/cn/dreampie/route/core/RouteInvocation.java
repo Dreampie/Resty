@@ -4,8 +4,6 @@ import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
-import cn.dreampie.route.invocation.Invocation;
-import com.alibaba.fastjson.JSONException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,7 +12,7 @@ import java.util.List;
 /**
  * ActionInvocation invoke the action
  */
-public class RouteInvocation implements Invocation {
+public class RouteInvocation {
 
   private final static Logger logger = Logger.getLogger(RouteInvocation.class);
   private Route route;
@@ -50,20 +48,21 @@ public class RouteInvocation implements Invocation {
         route.getMethod().setAccessible(true);
         result = route.getMethod().invoke(resource, args);
       } catch (ClassCastException e) {
-        logger.error("Argument type convert error.", e);
-        throw new WebException("Argument type convert error: " + e.getMessage());
-      } catch (JSONException e) {
-        logger.error("Argument type convert error.", e);
-        throw new WebException("Argument type convert error: " + e.getMessage());
+        logger.warn("Argument type convert error - " + e.getMessage());
+        throw new WebException("Argument type convert error - " + e.getMessage());
       } catch (InvocationTargetException e) {
-        logger.error("Route invocation error.", e);
-        throw new WebException("Route invocation error: " + e.getMessage());
+        if (e.getTargetException() instanceof WebException) {
+          throw (WebException) e.getTargetException();
+        } else {
+          logger.error("Route invocation error.", e);
+          throw new WebException("Route invocation error - " + e.getMessage());
+        }
       } catch (InstantiationException e) {
         logger.error("Resource instantiation error.", e);
-        throw new WebException("Resource instantiation error: " + e.getMessage());
+        throw new WebException("Resource instantiation error - " + e.getMessage());
       } catch (IllegalAccessException e) {
         logger.error("Route method access error.", e);
-        throw new WebException("Route method access error: " + e.getMessage());
+        throw new WebException("Route method access error - " + e.getMessage());
       }
     }
     return result;
@@ -103,5 +102,9 @@ public class RouteInvocation implements Invocation {
 
   public Method getMethod() {
     return route.getMethod();
+  }
+
+  public RouteMatch getRouteMatch() {
+    return routeMatch;
   }
 }

@@ -6,6 +6,8 @@ import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.druid.DruidPlugin;
 import cn.dreampie.route.config.*;
 import cn.dreampie.route.handler.cors.CORSHandler;
+import cn.dreampie.route.handler.resource.SkipHandler;
+import cn.dreampie.route.interceptor.security.SecurityInterceptor;
 import cn.dreampie.route.interceptor.transaction.TransactionInterceptor;
 import com.alibaba.druid.filter.stat.StatFilter;
 import com.alibaba.druid.wall.WallFilter;
@@ -69,6 +71,8 @@ public class AppConfig extends Config {
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {
+    //权限拦截器
+    interceptorLoader.add(new SecurityInterceptor(new MyAuthenticateService()));
     //事务的拦截器 @Transaction
     interceptorLoader.add(new TransactionInterceptor());
   }
@@ -76,5 +80,6 @@ public class AppConfig extends Config {
   public void configHandler(HandlerLoader handlerLoader) {
     //跨域
     handlerLoader.add(new CORSHandler());
+    handlerLoader.add(new SkipHandler(""));
   }
 }

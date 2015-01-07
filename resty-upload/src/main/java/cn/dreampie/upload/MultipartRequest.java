@@ -5,7 +5,6 @@
 package cn.dreampie.upload;
 
 import cn.dreampie.common.http.HttpRequest;
-import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.Lister;
 import cn.dreampie.log.Logger;
 import cn.dreampie.upload.multipart.FilePart;
@@ -13,15 +12,13 @@ import cn.dreampie.upload.multipart.FileRenamePolicy;
 import cn.dreampie.upload.multipart.MultipartParser;
 import cn.dreampie.upload.multipart.Part;
 
-import java.util.List;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * A utility class to handle <code>multipart/form-data</code> requests,

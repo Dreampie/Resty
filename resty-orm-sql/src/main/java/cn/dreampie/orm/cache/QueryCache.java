@@ -61,9 +61,10 @@ public enum QueryCache {
    * @param params    - list of parameters for a query.
    * @param cache     object to cache.
    */
-  public void addItem(String dsName, String tableName, String query, Object[] params, Object cache) {
+  public void add(String dsName, String tableName, String query, Object[] params, Object cache) {
     if (enabled) {
-      cacheManager.addCache(getGroup(dsName, tableName), getKey(dsName, tableName, query, params), cache);
+      String group = getGroup(dsName, tableName);
+      cacheManager.addCache(group, getKey(group, query, params), cache);
     }
   }
 
@@ -79,20 +80,20 @@ public enum QueryCache {
    * @param params    list of query parameters, can be null if no parameters are provided.
    * @return cache object or null if nothing found.
    */
-  public Object getItem(String dsName, String tableName, String query, Object[] params) {
+  public <T> T get(String dsName, String tableName, String query, Object[] params) {
 
     if (enabled) {
-      String key = getKey(dsName, tableName, query, params);
+      String group = getGroup(dsName, tableName);
+      String key = getKey(group, query, params);
       Object item = cacheManager.getCache(getGroup(dsName, tableName), key);
       if (item == null) {
-        logAccess(getGroup(dsName, tableName), query, params, "Miss");
+        logAccess(group, query, params, "Miss");
       } else {
-        logAccess(getGroup(dsName, tableName), query, params, "Hit");
+        logAccess(group, query, params, "Hit");
+        return (T) item;
       }
-      return item;
-    } else {
-      return null;
     }
+    return null;
   }
 
   static void logAccess(String group, String query, Object[] params, String access) {
@@ -107,9 +108,19 @@ public enum QueryCache {
     }
   }
 
+  private String getKey(String group, String query, Object[] params) {
+    return group + "#" + query + "#" + (params == null ? null : Arrays.asList(params).toString());
+  }
 
   private String getKey(String dsName, String tableName, String query, Object[] params) {
     return getGroup(dsName, tableName) + "#" + query + "#" + (params == null ? null : Arrays.asList(params).toString());
+  }
+
+  public void remove(String dsName, String tableName, String query, Object[] params) {
+    if (enabled) {
+      String group = getGroup(dsName, tableName);
+      cacheManager.removeCache(group, getKey(group, query, params));
+    }
   }
 
   /**
@@ -118,7 +129,7 @@ public enum QueryCache {
    *
    * @param tableName table name whose caches are to be purged.
    */
-  public void purgeTableCache(String dsName, String tableName) {
+  public void purge(String dsName, String tableName) {
     if (enabled) {
       cacheManager.flush(new CacheEvent(getGroup(dsName, tableName), getClass().getName()));
     }

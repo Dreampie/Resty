@@ -13,9 +13,9 @@ final public class InterceptorLoader {
 
   private final List<Interceptor> interceptorList = new ArrayList<Interceptor>();
 
-  public InterceptorLoader add(Interceptor globalInterceptor) {
-    if (globalInterceptor != null)
-      this.interceptorList.add(globalInterceptor);
+  public InterceptorLoader add(Interceptor interceptor) {
+    if (interceptor != null)
+      this.interceptorList.add(interceptor);
     return this;
   }
 

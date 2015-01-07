@@ -37,7 +37,7 @@ public abstract class CacheManager {
    * @param key   key of the item.
    * @return a cached item. Can return null if not found.
    */
-  public abstract Object getCache(String group, String key);
+  public abstract <T> T getCache(String group, String key);
 
   /**
    * Adds item to cache.
@@ -48,6 +48,13 @@ public abstract class CacheManager {
    */
   public abstract void addCache(String group, String key, Object cache);
 
+  /**
+   * remove item from cache.
+   *
+   * @param group group name of cache.
+   * @param key   key of the item.
+   */
+  public abstract void removeCache(String group, String key);
 
   public abstract void doFlush(CacheEvent event);
 

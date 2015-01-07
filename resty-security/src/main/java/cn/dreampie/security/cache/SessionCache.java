@@ -15,16 +15,13 @@ limitations under the License.
 */
 
 
-package cn.dreampie.security;
+package cn.dreampie.security.cache;
 
 
 import cn.dreampie.common.Constant;
-import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.cache.CacheEvent;
 import cn.dreampie.orm.cache.CacheManager;
-
-import java.util.Arrays;
 
 
 /**
@@ -59,69 +56,59 @@ public enum SessionCache {
    * Adds an item to cache. Expected some lists of objects returned from "select" queries.
    *
    * @param defKey - name of cache type  principal or  session.
-   * @param name  -  name of  cache
-   * @param cache  object to cache.
+   * @param name   -  name of  cache
+   * @param value  object to cache.
    */
-  public void addItem(String defKey, String name, Object cache) {
+  public void add(String defKey, String name, Object value) {
     if (enabled) {
-      cacheManager.addCache(defKey, name, cache);
+      cacheManager.addCache(defKey, name, value);
     }
   }
 
-  private String getGroup(String dsName, String tableName) {
-    return dsName + "#" + tableName;
-  }
 
   /**
    * Returns an item from cache, or null if nothing found.
    *
-   * @param tableName name of table.
-   * @param query     query text.
-   * @param params    list of query parameters, can be null if no parameters are provided.
+   * @param defKey - name of cache type  principal or  session.
+   * @param name   -  name of  cache
    * @return cache object or null if nothing found.
    */
-  public Object getItem(String dsName, String tableName, String query, Object[] params) {
+  public <T> T get(String defKey, String name) {
 
     if (enabled) {
-      String key = getKey(dsName, tableName, query, params);
-      Object item = cacheManager.getCache(getGroup(dsName, tableName), key);
+      Object item = cacheManager.getCache(defKey, name);
       if (item == null) {
-        logAccess(getGroup(dsName, tableName), query, params, "Miss");
+        logAccess(defKey, name, "Miss");
       } else {
-        logAccess(getGroup(dsName, tableName), query, params, "Hit");
+        logAccess(defKey, name, "Hit");
+        return (T) item;
       }
-      return item;
-    } else {
-      return null;
     }
+    return null;
   }
 
-  static void logAccess(String group, String query, Object[] params, String access) {
+  static void logAccess(String defKey, String name, String access) {
     if (logger.isInfoEnabled()) {
-      StringBuilder log = new StringBuilder().append(access).append(" ").append(group).append("#").append(query).append('"');
-      if (params != null && params.length > 0) {
-        log.append(", with parameters: ").append('<');
-        Joiner.on(">, <").join(log, params);
-        log.append('>');
-      }
-      logger.info(log.toString());
+      logger.info(access + " " + defKey + "#" + name + '"');
     }
   }
 
-
-  private String getKey(String dsName, String tableName, String query, Object[] params) {
-    return getGroup(dsName, tableName) + "#" + query + "#" + (params == null ? null : Arrays.asList(params).toString());
+  public void remove(String defKey, String name) {
+    if (enabled) {
+      cacheManager.removeCache(defKey, name);
+    }
   }
+
 
   /**
    * This method purges (removes) all caches associated with a table, if caching is enabled and
    * a corresponding model is marked cached.
    *
-   * @param tableName table name whose caches are to be purged.
+   * @param defKey name whose caches are to be purged.
    */
-  public void purgeTableCache(String dsName, String tableName) {
+  public void flush(String defKey) {
     if (enabled) {
-      cacheManager.flush(new CacheEvent(getGroup(dsName, tableName), getClass().getName()));
+      cacheManager.flush(new CacheEvent(defKey, getClass().getName()));
     }
   }
 

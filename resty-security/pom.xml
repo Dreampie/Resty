@@ -19,6 +19,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <resty.version>1.0-SNAPSHOT</resty.version>
+    <servlet.version>3.1.0</servlet.version>
   </properties>
 
   <dependencies>
@@ -44,6 +45,13 @@
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-cache</artifactId>
       <version>${resty.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>${servlet.version}</version>
       <scope>provided</scope>
     </dependency>
 

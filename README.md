@@ -1,13 +1,15 @@
+
 resty 一款restful的轻量级的web框架
 ===========
 
-拥有jfinal，activejdbc一样的activerecord的简洁设计，使用极其简单
+拥有jfinal，activejdbc一样的activerecord的简洁设计，使用更简单的restful框架
 
-
-独有优点：
 restful的api设计，是作为restful的服务端最佳选择（使用场景：客户端和服务端解藕，用于对静态的html客户端（mvvm等），ios，andriod等提供服务端的api接口）
 
-极简的route设计:
+独有优点：
+
+1.极简的route设计:
+
 ```java
   @GET("/users/:name")  在路径中自定义解析的参数 如果有其他符合 也可以用 /users/{name}
   // 参数名就是方法变量名  除路径参数之外的参数也可以放在方法参数里  传递方式 user={json字符串}
@@ -17,7 +19,7 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
   }
 ```
 
-支持多数据源和嵌套事务（使用场景：需要访问多个数据库的应用，或者作为公司内部的数据中间件向客户端提供数据访问api等）
+2.支持多数据源和嵌套事务（使用场景：需要访问多个数据库的应用，或者作为公司内部的数据中间件向客户端提供数据访问api等）
 
 ```java
   // 在resource里使用事务,也就是controller里，rest的世界认为所以的请求都表示资源，所以这儿叫resource
@@ -38,9 +40,10 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
   // TransactionAspect 是事务切面 ，你也可以实现自己的切面比如日志的Aspect，实现Aspect接口
   // 再private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect(),new LogAspect());
   private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect());
-
 ```
-极简的权限设计，你只需要实现一个简单接口和添加一个拦截器，即可实现基于url的权限设计
+
+3.极简的权限设计，你只需要实现一个简单接口和添加一个拦截器，即可实现基于url的权限设计
+
 ```java
 public void configInterceptor(InterceptorLoader interceptorLoader) {
   //权限拦截器 放在第一位 第一时间判断 避免执行不必要的代码
@@ -65,18 +68,16 @@ public class MyAuthenticateService implements AuthenticateService {
     return permissions;
   }
 }
-
 ```
 
-
-极简的缓存设计，可扩展，非常简单即可启用model的自动缓存功能
+4.极简的缓存设计，可扩展，非常简单即可启用model的自动缓存功能
 
 ```java
   public void configConstant(ConstantLoader constantLoader) {
     //启用缓存并在要自动使用缓存的model上  开启缓存@Table(name = "sec_user", cached = true)
     constantLoader.setCacheEnable(true);
   }
-  
+
   @Table(name = "sec_user", cached = true)
   public class User extends Model<User> {
     public static User dao = new User();
@@ -84,7 +85,8 @@ public class MyAuthenticateService implements AuthenticateService {
   }
 ```
 
-下载文件，只需要直接return file
+5.下载文件，只需要直接return file
+
 ```java
  @GET("/files")
   public File file() {
@@ -92,7 +94,8 @@ public class MyAuthenticateService implements AuthenticateService {
   }
 ```
 
-上传文件
+6.上传文件，通过getFiles，getFile把文件写到服务器
+
 ```java
  @POST("/files")
   public UploadedFile file() {
@@ -101,8 +104,7 @@ public class MyAuthenticateService implements AuthenticateService {
   }
 ```
 
-
-当然也是支持传统的web开发，你可以自己实现数据解析，在config里添加自定义的解析模板
+7.当然也是支持传统的web开发，你可以自己实现数据解析，在config里添加自定义的解析模板
 
 ```java
   public void configConstant(ConstantLoader constantLoader) {

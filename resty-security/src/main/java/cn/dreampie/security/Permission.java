@@ -5,8 +5,8 @@ package cn.dreampie.security;
  */
 public class Permission {
 
-  public static final String PERMISSION_DEF_KEY = "permissionGroup";
-  public static final String PERMISSION_ALL_KEY = "allPermission";
+  public static final String PERMISSION_DEF_KEY = "_permission";
+  public static final String PERMISSION_ALL_KEY = "_allPermission";
 
   private String method;
   private String antPath;

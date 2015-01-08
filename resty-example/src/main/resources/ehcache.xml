@@ -11,11 +11,10 @@
       diskPersistent="false"
       diskExpiryThreadIntervalSeconds="120"/>
 
-  <cache name="defaultCache"
+  <cache name="_premission"
          maxElementsInMemory="10000"
          eternal="false"
          timeToIdleSeconds="1200"
-         timeToLiveSeconds="1200"
          overflowToDisk="false"
          diskPersistent="false"
          diskExpiryThreadIntervalSeconds="120"/>

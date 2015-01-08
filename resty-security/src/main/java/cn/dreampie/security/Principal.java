@@ -8,7 +8,7 @@ import java.util.Set;
  * Time: 6:30 PM
  */
 public class Principal {
-  public static final String PRINCIPAL_DEF_KEY = "principalGroup";
+  public static final String PRINCIPAL_DEF_KEY = "_principal";
   private String username;
   private String passwordHash;
   private Set<String> permissions;

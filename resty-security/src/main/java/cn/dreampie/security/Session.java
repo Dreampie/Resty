@@ -8,7 +8,7 @@ import java.util.Map;
  * Created by wangrenhui on 14/12/23.
  */
 public class Session {
-  public static final String SESSION_DEF_KEY = "sessionGroup";
+  public static final String SESSION_DEF_KEY = "_session";
   private final Map<String, String> values;
   private final Principal principal;
   private final int expires;

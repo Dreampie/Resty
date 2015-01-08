@@ -16,6 +16,8 @@ import com.alibaba.druid.wall.WallFilter;
  * Created by ice on 14-12-29.
  */
 public class AppConfig extends Config {
+  private static Prop prop = Proper.use("application.properties");
+
   public void configConstant(ConstantLoader constantLoader) {
     //通过后缀来返回不同的数据类型  你可以自定义自己的  render  如：FreemarkerRender
     //constantLoader.addRender("json", new JsonRender());
@@ -29,7 +31,6 @@ public class AppConfig extends Config {
   }
 
   public void configPlugin(PluginLoader pluginLoader) {
-    Prop prop = Proper.use("application.properties");
     //第一个数据库
     DruidPlugin druidPlugin = new DruidPlugin(prop.get("db.default.url"), prop.get("db.default.user"), prop.get("db.default.password"), prop.get("db.default.driver"), prop.get("db.default.dialect"));
     // StatFilter提供JDBC层的统计信息

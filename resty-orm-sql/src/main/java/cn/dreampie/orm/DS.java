@@ -17,6 +17,7 @@
 package cn.dreampie.orm;
 
 
+import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
@@ -39,15 +40,21 @@ public class DS {
   public static final Object[] NULL_PARA_ARRAY = new Object[0];
 
   private DataSourceMeta dataSourceMeta;
+  private boolean cached = false;
 
   public static DS use() {
-    return DS.use(DEFAULT_DS_NAME);
+    return DS.use(DEFAULT_DS_NAME, false);
   }
 
-  public static DS use(String dbName) {
+  public static DS use(String dsName) {
+    return DS.use(dsName, false);
+  }
+
+  public static DS use(String dsName, boolean cached) {
     DS ds = new DS();
-    ds.dataSourceMeta = Metadatas.getDataSourceMeta(dbName);
-    checkNotNull(ds.dataSourceMeta, "Could not found dbName " + dbName + ".");
+    ds.dataSourceMeta = Metadatas.getDataSourceMeta(dsName);
+    checkNotNull(ds.dataSourceMeta, "Could not found dsName " + dsName + ".");
+    ds.cached = cached;
     return ds;
   }
 
@@ -246,6 +253,11 @@ public class DS {
    */
   public int update(String sql, Object... paras) {
     int result = -1;
+    //remove cache
+    if (cached) {
+      QueryCache.instance().remove(dataSourceMeta.getDsName(), sql, paras);
+    }
+
     try {
       PreparedStatement pst = getPreparedStatement(sql, paras);
       result = pst.executeUpdate();
@@ -280,6 +292,14 @@ public class DS {
 
   public List<Record> find(String sql, Object... paras) {
     List<Record> result = null;
+    //hit cache
+    if (cached) {
+      result = QueryCache.instance().get(dataSourceMeta.getDsName(), sql, paras);
+    }
+    if (result != null) {
+      return result;
+    }
+
     try {
       PreparedStatement pst = getPreparedStatement(sql, paras);
       ResultSet rs = pst.executeQuery();
@@ -287,6 +307,10 @@ public class DS {
       dataSourceMeta.close(rs, pst);
     } catch (SQLException e) {
       throw new DBException(e);
+    }
+    //添加缓存
+    if (cached) {
+      QueryCache.instance().add(dataSourceMeta.getDsName(), sql, paras, result);
     }
     return result;
   }
@@ -345,20 +369,6 @@ public class DS {
   }
 
   /**
-   * Find record by id.
-   * Example: Record user = DbPro.use().findById("user", "user_id", 15);
-   *
-   * @param tableName  the table name of the table
-   * @param primaryKey the primary key of the table
-   * @param idValue    the id value of the record
-   */
-  public Record findById(String tableName, String primaryKey, Number idValue) {
-    String sql = dataSourceMeta.getDialect().select(tableName, primaryKey + "=?");
-    List<Record> result = find(sql, idValue);
-    return result.size() > 0 ? result.get(0) : null;
-  }
-
-  /**
    * Find record by id. Fetch the specific columns only.
    * Example: Record user = DbPro.use().findById("user", "user_id", 15, "name, age");
    *
@@ -373,17 +383,6 @@ public class DS {
     return result.size() > 0 ? result.get(0) : null;
   }
 
-  /**
-   * Delete record by id.
-   * Example: boolean succeed = DbPro.use().deleteById("user", 15);
-   *
-   * @param tableName the table name of the table
-   * @param id        the id value of the record
-   * @return true if delete succeed otherwise false
-   */
-  public boolean deleteById(String tableName, Object id) {
-    return deleteById(tableName, DEFAULT_PRIMARY_KAY, id);
-  }
 
   /**
    * Delete record by id.
@@ -399,6 +398,18 @@ public class DS {
 
     String sql = dataSourceMeta.getDialect().delete(tableName, primaryKey + "=?");
     return update(sql, id) >= 1;
+  }
+
+  /**
+   * Delete record by id.
+   * Example: boolean succeed = DbPro.use().deleteById("user", 15);
+   *
+   * @param tableName the table name of the table
+   * @param id        the id value of the record
+   * @return true if delete succeed otherwise false
+   */
+  public boolean deleteById(String tableName, Object id) {
+    return deleteById(tableName, DEFAULT_PRIMARY_KAY, id);
   }
 
   /**
@@ -426,9 +437,14 @@ public class DS {
   boolean save(String tableName, String primaryKey, Record record) {
     String sql = dataSourceMeta.getDialect().insert(tableName, record.getColumnNames());
     int result = -1;
+    Object[] params = record.getColumnValues();
+    //remove cache
+    if (cached) {
+      QueryCache.instance().remove(dataSourceMeta.getDsName(), sql, params);
+    }
     PreparedStatement pst = null;
     try {
-      pst = getPreparedStatement(sql, record.getColumnValues());
+      pst = getPreparedStatement(sql, params);
       result = pst.executeUpdate();
       record.set(primaryKey, getGeneratedKey(pst));
     } catch (SQLException e) {
@@ -465,7 +481,15 @@ public class DS {
     return update(tableName, DEFAULT_PRIMARY_KAY, record);
   }
 
-
+  /**
+   * 分页查询Record
+   *
+   * @param pageNo   页码
+   * @param pageSize 页大小
+   * @param sql      sql
+   * @param paras    参数
+   * @return page
+   */
   public Page<Record> paginate(int pageNo, int pageSize, String sql, Object... paras) {
     checkArgument(pageNo >= 1 || pageSize >= 1, "pageNo and pageSize must be more than 0");
 

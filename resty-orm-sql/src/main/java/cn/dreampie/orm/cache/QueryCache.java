@@ -56,6 +56,19 @@ public enum QueryCache {
   /**
    * Adds an item to cache. Expected some lists of objects returned from "select" queries.
    *
+   * @param query  query text
+   * @param params - list of parameters for a query.
+   * @param cache  object to cache.
+   */
+  public void add(String dsName, String query, Object[] params, Object cache) {
+    if (enabled) {
+      cacheManager.addCache(dsName, getKey(dsName, query, params), cache);
+    }
+  }
+
+  /**
+   * Adds an item to cache. Expected some lists of objects returned from "select" queries.
+   *
    * @param tableName - name of table.
    * @param query     query text
    * @param params    - list of parameters for a query.
@@ -75,6 +88,28 @@ public enum QueryCache {
   /**
    * Returns an item from cache, or null if nothing found.
    *
+   * @param query  query text.
+   * @param params list of query parameters, can be null if no parameters are provided.
+   * @return cache object or null if nothing found.
+   */
+  public <T> T get(String dsName, String query, Object[] params) {
+
+    if (enabled) {
+      String key = getKey(dsName, query, params);
+      Object item = cacheManager.getCache(dsName, key);
+      if (item == null) {
+        logAccess(dsName, query, params, "Miss");
+      } else {
+        logAccess(dsName, query, params, "Hit");
+        return (T) item;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns an item from cache, or null if nothing found.
+   *
    * @param tableName name of table.
    * @param query     query text.
    * @param params    list of query parameters, can be null if no parameters are provided.
@@ -85,7 +120,7 @@ public enum QueryCache {
     if (enabled) {
       String group = getGroup(dsName, tableName);
       String key = getKey(group, query, params);
-      Object item = cacheManager.getCache(getGroup(dsName, tableName), key);
+      Object item = cacheManager.getCache(group, key);
       if (item == null) {
         logAccess(group, query, params, "Miss");
       } else {
@@ -120,6 +155,23 @@ public enum QueryCache {
     if (enabled) {
       String group = getGroup(dsName, tableName);
       cacheManager.removeCache(group, getKey(group, query, params));
+    }
+  }
+
+  public void remove(String dsName, String query, Object[] params) {
+    if (enabled) {
+      cacheManager.removeCache(dsName, getKey(dsName, query, params));
+    }
+  }
+
+  /**
+   * Record in cache  not use  table
+   *
+   * @param dsName
+   */
+  public void purge(String dsName) {
+    if (enabled) {
+      cacheManager.flush(new CacheEvent(dsName, getClass().getName()));
     }
   }
 

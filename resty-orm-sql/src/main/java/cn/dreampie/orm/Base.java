@@ -291,6 +291,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   public List<M> find(String sql, Object... paras) {
     List<M> result = null;
     boolean cached = getModelMeta().cached();
+    //hit cache
     if (cached) {
       result = getCache(sql, paras);
     }
@@ -298,13 +299,12 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       return result;
     }
 
-    Class<? extends Base> modelClass = getClass();
     if (Constant.dev_mode)
-      checkTableName(modelClass, sql);
+      checkTableName(getModelMeta(), sql);
     try {
       PreparedStatement pst = getPreparedStatement(sql, paras);
       ResultSet rs = pst.executeQuery();
-      result = ModelBuilder.build(rs, modelClass);
+      result = ModelBuilder.build(rs, getClass());
       getDataSourceMeta().close(rs, pst);
     } catch (SQLException e) {
       throw new DBException(e);
@@ -313,6 +313,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     } catch (IllegalAccessException e) {
       throw new ModelException(e);
     }
+    //add cache
     if (cached) {
       addCache(sql, paras, result);
     }
@@ -420,7 +421,6 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       purgeCache();
     }
 
-
     DataSourceMeta dsm = getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
     ModelMeta modelMeta = getModelMeta();
@@ -459,6 +459,17 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
 
+  //update  base
+  protected int update(String sql, Object... paras) {
+    //清除缓存
+    if (getModelMeta().cached()) {
+      purgeCache();
+    }
+    if (Constant.dev_mode)
+      checkTableName(getModelMeta(), sql);
+    return DS.use(getModelMeta().getDsName()).update(sql, paras);
+  }
+
   /**
    * Delete model.
    */
@@ -482,22 +493,9 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
   private boolean deleteById(ModelMeta modelMeta, Object id) {
-    //清除缓存
-    if (getModelMeta().cached()) {
-      purgeCache();
-    }
     String sql = getDialect().delete(modelMeta.getTableName(), modelMeta.getPrimaryKey() + "=?");
     int result = update(sql, id);
     return result > 0;
-  }
-
-  //update  base
-  protected int update(String sql, Object... paras) {
-    //清除缓存
-    if (getModelMeta().cached()) {
-      purgeCache();
-    }
-    return DS.use(getModelMeta().getDsName()).update(sql, paras);
   }
 
   public int update(String columns) {
@@ -544,8 +542,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   /**
    * Check the table name. The table name must in sql.
    */
-  private void checkTableName(Class<? extends Base> modelClass, String sql) {
-    ModelMeta modelMeta = getModelMeta();
+  private void checkTableName(ModelMeta modelMeta, String sql) {
     if (!sql.toLowerCase().contains(modelMeta.getTableName().toLowerCase()))
       throw new DBException("The table name: " + modelMeta.getTableName() + " not in your sql.");
   }

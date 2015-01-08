@@ -103,8 +103,8 @@ public class SessionBuilder {
       }
       Map<String, String> entries = readEntries(cookie);
       String expiresCookie = entries.remove(EXPIRES);
-      //没有失效时间
-      if (expiresCookie != null && "".equals(expiresCookie.trim())) {
+      //失效时间
+      if (expiresCookie != null && !"".equals(expiresCookie.trim())) {
         Date expires = new Date(Long.parseLong(expiresCookie));
         if (expires.getTime() < System.currentTimeMillis()) {
           return emptySession;

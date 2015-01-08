@@ -19,8 +19,8 @@ public class Session {
     this.expires = expires;
   }
 
-  Session setExpires(int duration) {
-    return updateCurrent(new Session(values, principal, duration));
+  Session setExpires(int expires) {
+    return updateCurrent(new Session(values, principal, expires));
   }
 
   public int getExpires() {

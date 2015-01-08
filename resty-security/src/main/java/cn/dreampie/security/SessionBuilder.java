@@ -30,14 +30,15 @@ public class SessionBuilder {
   private final SessionCookieDescriptor sessionCookieDescriptor;
   private final Session emptySession;
   private final AuthenticateService authenticateService;
+  private final int expires;
 
-  public SessionBuilder(int limit, int rememberDay, AuthenticateService authenticateService) {
-    this(limit, rememberDay, authenticateService, new DefaultPasswordService());
+  public SessionBuilder(int expires, int limit, int rememberDay, AuthenticateService authenticateService) {
+    this(expires, limit, rememberDay, authenticateService, new DefaultPasswordService());
   }
 
-
-  public SessionBuilder(int limit, int rememberDay, AuthenticateService authenticateService, PasswordService passwordService) {
+  public SessionBuilder(int expires, int limit, int rememberDay, AuthenticateService authenticateService, PasswordService passwordService) {
     Subject.init(rememberDay, authenticateService, passwordService);
+    this.expires = expires;
     this.sessions = new Sessions(limit);
     this.signer = new CookieSigner();
     this.sessionCookieDescriptor = new SessionCookieDescriptor();
@@ -101,27 +102,33 @@ public class SessionBuilder {
         return emptySession;
       }
       Map<String, String> entries = readEntries(cookie);
-      Date expires = new Date(Long.parseLong(entries.remove(EXPIRES)));
-      if (expires.getTime() < System.currentTimeMillis()) {
+      String expiresCookie = entries.remove(EXPIRES);
+      //没有失效时间
+      if (expiresCookie != null && "".equals(expiresCookie.trim())) {
+        Date expires = new Date(Long.parseLong(expiresCookie));
+        if (expires.getTime() < System.currentTimeMillis()) {
+          return emptySession;
+        }
+
+        Date now = new Date();
+        int expiration = req.isPersistentCookie(sessionCookieName) ? (int) (now.getTime() - expires.getTime()) : -1;
+        Map<String, String> cookieValues = Maper.copyOf(entries);
+        String principalName = cookieValues.get(Principal.PRINCIPAL_DEF_KEY);
+        Principal principal = null;
+        if (principalName != null && !"".equals(principalName.trim())) {
+          //通过cache 来获取对象相关的值
+          principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
+          //cache 已经失效  从接口获取用户数据
+          if (principal == null) {
+            principal = authenticateService.findByUsername(principalName);
+          }
+          //检测用户数据
+          checkNotNull(principal, "FindByName not get user data.");
+        }
+        return new Session(cookieValues, principal, expiration);
+      } else {
         return emptySession;
       }
-
-      Date now = new Date();
-      int expiration = req.isPersistentCookie(sessionCookieName) ? (int) (now.getTime() - expires.getTime()) : -1;
-      Map<String, String> cookieValues = Maper.copyOf(entries);
-      String principalName = cookieValues.get(Principal.PRINCIPAL_DEF_KEY);
-      Principal principal = null;
-      if (principalName != null && !"".equals(principalName.trim())) {
-        //通过cache 来获取对象相关的值
-        principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
-        //cache 已经失效  从接口获取用户数据
-        if (principal == null) {
-          principal = authenticateService.findByUsername(principalName);
-        }
-        //检测用户数据
-        checkNotNull(principal, "FindByName not get user data.");
-      }
-      return new Session(cookieValues, principal, expiration);
     }
   }
 
@@ -147,11 +154,14 @@ public class SessionBuilder {
       return Maper.of();
     } else {
       Map<String, String> map = Maper.copyOf(sessionMap);
-
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(new Date());
-      cal.add(Calendar.DATE, 30);
-      map.put(EXPIRES, Long.toString(cal.getTimeInMillis()));
+      long expiresReal = session.getExpires();
+      if (session.getExpires() == -1) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.SECOND, expires);
+        expiresReal = cal.getTimeInMillis();
+      }
+      map.put(EXPIRES, Long.toString(expiresReal));
       String sessionJson = Jsoner.toJSONString(map);
       return Maper.of(sessionCookieDescriptor.getCookieName(), sessionJson,
           sessionCookieDescriptor.getCookieSignatureName(), signer.sign(sessionJson));

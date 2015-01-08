@@ -40,7 +40,7 @@ public class EHCacheManager extends CacheManager {
   }
 
   public EHCacheManager(String configurationFileName) {
-    this.cacheManager = net.sf.ehcache.CacheManager.create(configurationFileName);
+    this(EHCacheManager.class.getResourceAsStream(configurationFileName));
   }
 
   public EHCacheManager(URL configurationFileURL) {

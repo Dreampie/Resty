@@ -8,7 +8,7 @@ import java.util.List;
  */
 public abstract class Model<M extends Model> extends Base<M> {
 
-  protected static String deleteKey;
+  protected static String deleteKey = "deleted_at";
 
   public List<M> findAll() {
     return find(getDialect().select(getModelMeta().getTableName()));
@@ -43,14 +43,12 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public boolean deleteAll() {
-    if (deleteKey != null)
-      this.set(deleteKey, new Date());
+    this.set(deleteKey, new Date());
     return update(deleteKey) > 0;
   }
 
   public boolean deleteBy(String where, Object... paras) {
-    if (deleteKey != null)
-      this.set(deleteKey, new Date());
+    this.set(deleteKey, new Date());
     return update(deleteKey, where, paras) > 0;
   }
 

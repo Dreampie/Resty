@@ -20,7 +20,7 @@ public class JsonTest {
     user.put("test", "test");
     String json = Jsoner.toJSONString(user);
     System.out.println(json);
-    User t = (User) Jsoner.parseObject("{\"key\":\"value\"}", User.class);
+    User t = Jsoner.parseObject("{\"key\":\"value\"}", User.class);
     System.out.println(t.get("key"));
   }
 }

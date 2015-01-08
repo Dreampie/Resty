@@ -126,8 +126,6 @@ public class MyAuthenticateService implements AuthenticateService {
 
 注意:推荐idea作为开发ide，使用分模块的多module开发
 
-License
-
-[MIT](http://opensource.org/licenses/MIT)
+License [MIT](http://opensource.org/licenses/MIT)
 
 

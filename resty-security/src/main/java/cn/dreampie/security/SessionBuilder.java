@@ -110,14 +110,17 @@ public class SessionBuilder {
       int expiration = req.isPersistentCookie(sessionCookieName) ? (int) (now.getTime() - expires.getTime()) : -1;
       Map<String, String> cookieValues = Maper.copyOf(entries);
       String principalName = cookieValues.get(Principal.PRINCIPAL_DEF_KEY);
-      //通过cache 来获取对象相关的值
-      Principal principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
-      //cache 已经失效  从接口获取用户数据
-      if (principal == null) {
-        principal = authenticateService.findByUsername(principalName);
+      Principal principal = null;
+      if (principalName != null && !"".equals(principalName.trim())) {
+        //通过cache 来获取对象相关的值
+        principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
+        //cache 已经失效  从接口获取用户数据
+        if (principal == null) {
+          principal = authenticateService.findByUsername(principalName);
+        }
+        //检测用户数据
+        checkNotNull(principal, "FindByName not get user data.");
       }
-      //检测用户数据
-      checkNotNull(principal, "FindByName not get user data.");
       return new Session(cookieValues, principal, expiration);
     }
   }

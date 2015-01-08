@@ -3,7 +3,6 @@ package cn.dreampie.config;
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.orm.ActiveRecordPlugin;
-import cn.dreampie.orm.cache.EHCacheManager;
 import cn.dreampie.orm.druid.DruidPlugin;
 import cn.dreampie.route.config.*;
 import cn.dreampie.route.handler.cors.CORSHandler;

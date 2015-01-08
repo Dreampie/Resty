@@ -106,7 +106,7 @@ public class Sessions {
     SessionData updatedSessionData;
     do {
       SessionData sessionData;
-      sessionData = sessions.get(key);
+      sessionData = sessions.size() > 0 ? sessions.get(key) : null;
       if (sessionData != null) {
         updatedSessionData = sessionData.touch(metadata);
       } else {

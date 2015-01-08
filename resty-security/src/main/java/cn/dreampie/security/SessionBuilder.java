@@ -111,7 +111,8 @@ public class SessionBuilder {
         }
 
         Date now = new Date();
-        int expiration = req.isPersistentCookie(sessionCookieName) ? (int) (now.getTime() - expires.getTime()) : -1;
+        int expiration = (int) (expires.getTime() - now.getTime());
+        expiration = req.isPersistentCookie(sessionCookieName) ? (expiration > this.expires ? expiration : -1) : -1;
         Map<String, String> cookieValues = Maper.copyOf(entries);
         String principalName = cookieValues.get(Principal.PRINCIPAL_DEF_KEY);
         Principal principal = null;
@@ -158,7 +159,7 @@ public class SessionBuilder {
       if (session.getExpires() == -1) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
-        cal.add(Calendar.SECOND, expires);
+        cal.add(Calendar.MILLISECOND, expires);
         expiresReal = cal.getTimeInMillis();
       }
       map.put(EXPIRES, Long.toString(expiresReal));

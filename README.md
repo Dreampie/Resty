@@ -1,5 +1,5 @@
 
-resty 一款restful的轻量级的web框架
+resty 一款极简的restful轻量级的web框架
 ===========
 
 拥有jfinal，activejdbc一样的activerecord的简洁设计，使用更简单的restful框架

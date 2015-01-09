@@ -1,5 +1,7 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.log.Logger;
+
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +9,7 @@ import java.util.List;
  * Created by wangrenhui on 2014/7/1.
  */
 public abstract class Model<M extends Model> extends Base<M> {
+  private static final Logger logger = Logger.getLogger(Model.class);
 
   protected static String deleteKey = "deleted_at";
 
@@ -35,6 +38,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public boolean updateAll(String columns) {
+    logger.warn("You must ensure that \"updateAll\" method of safety.");
     return update(columns) > 0;
   }
 
@@ -43,6 +47,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public boolean deleteAll() {
+    logger.warn("You must ensure that \"deleteAll\" method of safety.");
     this.set(deleteKey, new Date());
     return update(deleteKey) > 0;
   }
@@ -53,6 +58,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public boolean dropAll() {
+    logger.warn("You must ensure that \"dropAll\" method of safety.");
     return update(getDialect().delete(getModelMeta().getTableName())) > 0;
   }
 

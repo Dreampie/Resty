@@ -15,6 +15,7 @@
     <module>resty-common</module>
     <module>resty-upload</module>
     <module>resty-security</module>
+    <module>resty-client</module>
   </modules>
   <name>resty</name>
   <url>http://maven.apache.org</url>

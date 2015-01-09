@@ -77,7 +77,7 @@ public class SessionBuilder {
   public void out(Session session, HttpResponse response) {
 
     Session newSession = Session.current();
-    if (newSession != session) {
+    if (newSession.getExpires() == -1 || newSession != session) {
       updateSessionInClient(response, newSession);
     }
   }

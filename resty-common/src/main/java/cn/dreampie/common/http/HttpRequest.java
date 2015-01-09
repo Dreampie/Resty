@@ -39,10 +39,15 @@ public class HttpRequest extends AbstractRequest {
 
   public String getRestPath() {
     String basepath = getBasePath();
+    String requestURI = request.getRequestURI();
     if (basepath.length() > 0)
-      return request.getRequestURI().substring(basepath.length());
-    else
-      return request.getRequestURI();
+      requestURI = request.getRequestURI().substring(basepath.length());
+
+    int index = requestURI.toLowerCase().indexOf(";jsessionid=");
+    if (index != -1) {
+      requestURI = requestURI.substring(0, index);
+    }
+    return requestURI;
   }
 
   public String getRealPath(String path) {

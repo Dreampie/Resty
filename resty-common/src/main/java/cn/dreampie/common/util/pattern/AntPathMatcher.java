@@ -10,10 +10,10 @@ import java.util.StringTokenizer;
  */
 public class AntPathMatcher implements PatternMatcher {
 
-  private static AntPathMatcher antPathMatcher = new AntPathMatcher();
+  private final static AntPathMatcher ANTPATHMATCHER = new AntPathMatcher();
 
   public static AntPathMatcher instance() {
-    return antPathMatcher;
+    return ANTPATHMATCHER;
   }
 
   //TODO - complete JavaDoc

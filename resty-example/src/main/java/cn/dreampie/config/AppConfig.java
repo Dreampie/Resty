@@ -6,7 +6,6 @@ import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.druid.DruidPlugin;
 import cn.dreampie.route.config.*;
 import cn.dreampie.route.handler.cors.CORSHandler;
-import cn.dreampie.route.handler.resource.SkipHandler;
 import cn.dreampie.route.interceptor.security.SecurityInterceptor;
 import cn.dreampie.route.interceptor.transaction.TransactionInterceptor;
 import com.alibaba.druid.filter.stat.StatFilter;
@@ -81,6 +80,5 @@ public class AppConfig extends Config {
   public void configHandler(HandlerLoader handlerLoader) {
     //跨域
     handlerLoader.add(new CORSHandler());
-    handlerLoader.add(new SkipHandler(""));
   }
 }

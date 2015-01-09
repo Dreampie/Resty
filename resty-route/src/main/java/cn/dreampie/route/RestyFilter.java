@@ -4,6 +4,7 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.util.pattern.ServletPathMatcher;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.config.Config;
 import cn.dreampie.route.exception.InitException;
@@ -14,6 +15,9 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Resty framework filter
@@ -23,17 +27,40 @@ public final class RestyFilter implements Filter {
   private Handler handler;
   private String encoding = Constant.encoding;
   private Config config;
+  public static final String PARAM_NAME_CONFIGCLASS = "configClass";
+  public static final String PARAM_NAME_EXCLUSIONS = "exclusions";
+  private Set<String> excludesPattern;
+
   private static final RestyIniter restyIniter = RestyIniter.instance();
   private static final Logger logger = Logger.getLogger(RestyFilter.class);
 
   public void init(FilterConfig filterConfig) throws ServletException {
-    createConfig(filterConfig.getInitParameter("configClass"));
+    {
+      String exclusions = filterConfig.getInitParameter(PARAM_NAME_EXCLUSIONS);
+      if (exclusions != null && exclusions.trim().length() != 0) {
+        excludesPattern = new HashSet<String>(Arrays.asList(exclusions.split("\\s*,\\s*")));
+      }
+    }
+    createConfig(filterConfig.getInitParameter(PARAM_NAME_CONFIGCLASS));
 
     if (!restyIniter.init(config, filterConfig.getServletContext()))
       throw new InitException("Resty init error!");
 
     handler = restyIniter.getHandler();
+  }
 
+  public boolean isExclusion(String requestURI) {
+    if (excludesPattern == null) {
+      return false;
+    }
+
+    for (String pattern : excludesPattern) {
+      if (ServletPathMatcher.instance().matches(pattern, requestURI)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
@@ -45,6 +72,12 @@ public final class RestyFilter implements Filter {
     HttpRequest request = new HttpRequest((HttpServletRequest) servletRequest);
     HttpResponse response = new HttpResponse((HttpServletResponse) servletResponse, (HttpServletRequest) servletRequest);
     request.setCharacterEncoding(encoding);
+
+    //排除的参数
+    if (isExclusion(request.getRestUri())) {
+      chain.doFilter(servletRequest, servletResponse);
+      return;
+    }
 
     boolean[] isHandled = {false};
 

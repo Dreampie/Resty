@@ -5,10 +5,7 @@ import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.pattern.AntPathMatcher;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -26,8 +23,16 @@ public class Subject {
     Subject.passwordService = passwordService;
   }
 
-  public static Session current() {
-    return Session.current();
+  public int getExpires() {
+    return Session.current().getExpires();
+  }
+
+  public Principal getPrincipal() {
+    return Session.current().getPrincipal();
+  }
+
+  public Map<String, String> getValues() {
+    return Session.current().getValues();
   }
 
   public static Session login(String username, String password) {

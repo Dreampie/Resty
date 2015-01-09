@@ -1,5 +1,6 @@
 package cn.dreampie.example.resource;
 
+import cn.dreampie.ApiResource;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.demo.model.Role;
 import cn.dreampie.example.model.User;
@@ -24,8 +25,7 @@ import java.util.Map;
 /**
  * Created by ice on 14-12-29.
  */
-@API("/api")
-public class UserResource extends Resource {
+public class UserResource extends ApiResource {
   //用于使用service层的 事务
   // @Transaction(name = {"default", "demo"})的注解需要写在service的接口上
   // 注意java的自动代理必须存在接口

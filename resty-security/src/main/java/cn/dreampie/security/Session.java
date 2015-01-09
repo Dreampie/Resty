@@ -23,15 +23,15 @@ public class Session {
     return updateCurrent(new Session(values, principal, expires));
   }
 
-  public int getExpires() {
+  int getExpires() {
     return expires;
   }
 
-  public Principal getPrincipal() {
+  Principal getPrincipal() {
     return principal;
   }
 
-  public Map<String, String> getValues() {
+  Map<String, String> getValues() {
     return values;
   }
 

@@ -4,8 +4,6 @@ import cn.dreampie.common.util.Maper;
 import cn.dreampie.common.util.json.Jsoner;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class ClientTest {
 
   @Test

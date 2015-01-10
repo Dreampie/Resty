@@ -8,6 +8,7 @@ public class ClientTest {
 
   @Test
   public void ask() {
+    //启动resty-example项目，即可测试客户端
     String basUrl = "http://localhost:8081/api/v1.0";
 
     //get
@@ -25,7 +26,6 @@ public class ClientTest {
 
     //put
     ClientRequest putRequest = new ClientRequest(basUrl + "/tests/x", HttpMethod.PUT);
-//    putRequest.addParameter("b", "x");
     Client putClient = Client.newInstance(putRequest);
     String putResult = putClient.ask();
     System.out.println(putResult);

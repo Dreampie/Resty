@@ -38,7 +38,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public boolean updateAll(String columns) {
-    logger.warn("You must ensure that \"updateAll\" method of safety.");
+    logger.warn("You must ensure that \"updateAll()\" method of safety.");
     return update(columns) > 0;
   }
 
@@ -47,7 +47,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public boolean deleteAll() {
-    logger.warn("You must ensure that \"deleteAll\" method of safety.");
+    logger.warn("You must ensure that \"deleteAll()\" method of safety.");
     this.set(deleteKey, new Date());
     return update(deleteKey) > 0;
   }
@@ -58,7 +58,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public boolean dropAll() {
-    logger.warn("You must ensure that \"dropAll\" method of safety.");
+    logger.warn("You must ensure that \"dropAll()\" method of safety.");
     return update(getDialect().delete(getModelMeta().getTableName())) > 0;
   }
 

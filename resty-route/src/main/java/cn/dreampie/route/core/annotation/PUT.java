@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation used to mark a resource method that responds to HTTP PUT requests.
+ *  PUT 用于更新某个资源较完整的内容，比如说用户要重填完整表单更新所有信息，后台处理更新时可能只是保留内部记录 ID 不
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

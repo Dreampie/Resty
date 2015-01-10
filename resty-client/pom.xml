@@ -17,6 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <resty.version>1.0-SNAPSHOT</resty.version>
+    <fastjson.version>1.1.41</fastjson.version>
   </properties>
 
   <dependencies>
@@ -31,6 +32,19 @@
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-common</artifactId>
       <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-log</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>${fastjson.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

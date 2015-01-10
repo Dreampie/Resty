@@ -1,19 +1,21 @@
 package cn.dreampie.client;
 
 import cn.dreampie.client.exception.ClientException;
+import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.log.Logger;
 
 import javax.net.ssl.*;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by wangrenhui on 15/1/10.
@@ -77,14 +79,49 @@ public class ClientConnection {
       conn = openHttpURLConnection(_url, method);
 
       conn.setDoOutput(true);
+      //是上传文件
+      Map<String, String> uploadFiles = clientRequest.getUploadFiles();
+      if (uploadFiles != null && uploadFiles.size() > 0) {
 
-      String requestParameters = clientRequest.getEncodedParameters();
-      logger.debug("Request out method " + method + ",out parameters " + requestParameters);
+        String boundary = "---------------------------" + getRandomString(13); //boundary就是request头和上传文件内容的分隔符
+        conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
 
-      DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
-      writer.writeBytes(requestParameters);
-      writer.flush();
-      writer.close();
+        // params
+        Map<String, String> params = clientRequest.getParameters();
+
+        DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
+        if (params != null && params.size() > 0) {
+          StringBuilder builder = new StringBuilder();
+
+          String value = null;
+          for (String key : params.keySet()) {
+            value = params.get(key);
+            if (value == null) continue;
+            builder.append("\r\n").append("--").append(boundary).append("\r\n");
+            builder.append("Content-Disposition: form-data; name=\"" + key + "\"\r\n\r\n");
+            builder.append(URLEncoder.encode(value, clientRequest.getEncoding()));
+          }
+          writer.write(builder.toString().getBytes());
+        }
+        //上传文件
+        writeUploadFiles(boundary, clientRequest.getUploadFiles(), writer);
+
+        byte[] endData = ("\r\n--" + boundary + "--\r\n").getBytes();
+        writer.write(endData);
+        writer.flush();
+        writer.close();
+      } else {
+        //没有文件上传
+        String requestParameters = clientRequest.getEncodedParameters();
+        if (requestParameters != null && !"".equals(requestParameters)) {
+          DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
+          logger.debug("Request out method " + method + ",out parameters " + requestParameters);
+
+          writer.writeBytes(requestParameters);
+          writer.flush();
+          writer.close();
+        }
+      }
     } else {
       _url = new URL(clientRequest.getEncodedUrl());
       conn = openHttpURLConnection(_url, method);
@@ -103,16 +140,74 @@ public class ClientConnection {
     return conn;
   }
 
+  /**
+   * 写入文件到  服务器
+   *
+   * @param boundary 分隔符
+   * @param params   文件集合
+   * @param writer   写入对象
+   * @throws IOException
+   */
+  private void writeUploadFiles(String boundary, Map<String, String> params, DataOutputStream writer) throws IOException {
+    // file
+    String value = null;
+    for (String key : params.keySet()) {
+      value = params.get(key);
+      if (value == null) continue;
+      File file = new File(value);
+      if (!file.exists())
+        throw new FileNotFoundException("File not found " + file.getPath());
+
+      String filename = file.getName();
+      String contentType = HttpTyper.getContentTypeFromExtension(filename);
+      StringBuilder builder = new StringBuilder();
+      builder.append("\r\n").append("--").append(boundary).append("\r\n");
+      builder.append("Content-Disposition: form-data; name=\"" + key + "\"; filename=\"" + filename + "\"\r\n");
+      builder.append("Content-Type:" + contentType + "\r\n\r\n");
+
+      writer.write(builder.toString().getBytes());
+
+      DataInputStream in = new DataInputStream(new FileInputStream(file));
+      int bytes = 0;
+      byte[] bufferOut = new byte[1024];
+      while ((bytes = in.read(bufferOut)) != -1) {
+        writer.write(bufferOut, 0, bytes);
+      }
+      in.close();
+    }
+  }
+
   private HttpURLConnection openHttpURLConnection(URL _url, String method) throws IOException {
     HttpURLConnection conn;
     conn = (HttpURLConnection) _url.openConnection();
     conn.setRequestMethod(method);
 
+    String downloadFile = clientRequest.getDownloadFile();
+    if (downloadFile != null) {
+      File file = new File(downloadFile);
+      if (file.exists()) {
+        //设置下载区间
+        conn.setRequestProperty("RANGE", "bytes=" + file.length() + "-");
+      }
+    }
     Map<String, String> headers = clientRequest.getHeaders();
     if (headers != null && !headers.isEmpty())
       for (Map.Entry<String, String> entry : headers.entrySet())
         conn.setRequestProperty(entry.getKey(), entry.getValue());
     return conn;
   }
+
+
+  public static String getRandomString(int length) { //length表示生成字符串的长度
+    String base = "abcdefghijklmnopqrstuvwxyz0123456789";
+    Random random = new Random();
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < length; i++) {
+      int number = random.nextInt(base.length());
+      sb.append(base.charAt(number));
+    }
+    return sb.toString();
+  }
+
 
 }

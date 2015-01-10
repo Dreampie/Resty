@@ -5,7 +5,9 @@ import cn.dreampie.route.core.annotation.DELETE;
 import cn.dreampie.route.core.annotation.GET;
 import cn.dreampie.route.core.annotation.POST;
 import cn.dreampie.route.core.annotation.PUT;
+import cn.dreampie.upload.UploadedFile;
 
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -36,5 +38,18 @@ public class TestResource extends ApiResource {
     map.remove(key);
     return map;
   }
+
+  //上传文件
+  @POST("/tests/:filename")
+  public UploadedFile upload(String filename) {
+    return getFile(filename);
+  }
+
+  //下载文件
+  @GET("/tests/file")
+  public File download() {
+    return new File(getRequest().getRealPath("/") + "upload/resty.jar");
+  }
+
 
 }

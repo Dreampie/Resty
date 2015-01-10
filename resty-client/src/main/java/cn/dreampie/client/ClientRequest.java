@@ -11,10 +11,12 @@ public class ClientRequest {
   private String restUrl;
   private String method;
   private String encoding;
-  private Map<String, String> parameters;
-  private Map<String, String> headers;
+  private Map<String, String> parameters = Maper.of();
+  private Map<String, String> headers = Maper.of();
   private int connectTimeOut = 5000;
   private int readTimeOut = 5000;
+  private String downloadFile;
+  private Map<String, String> uploadFiles = Maper.of();
 
   public ClientRequest(String restUrl, String method) {
     this(restUrl, method, "UTF-8");
@@ -77,9 +79,17 @@ public class ClientRequest {
     return this;
   }
 
+  public void setParameters(Map<String, String> parameters) {
+    this.parameters = parameters;
+  }
+
   public ClientRequest addHeader(String headerKey, String headerValue) {
     this.headers.put(headerKey, headerValue);
     return this;
+  }
+
+  public void setHeaders(Map<String, String> headers) {
+    this.headers = headers;
   }
 
   public ClientRequest setEncoding(String encoding) {
@@ -103,17 +113,42 @@ public class ClientRequest {
     this.readTimeOut = readTimeOut;
   }
 
+  public void setDownloadFile(String downloadFile) {
+    this.downloadFile = downloadFile;
+  }
+
+  public String getDownloadFile() {
+    return downloadFile;
+  }
+
+  public Map<String, String> getUploadFiles() {
+    return uploadFiles;
+  }
+
+
+  public void addUploadFiles(String name, String filepath) {
+    this.uploadFiles.put(name, filepath);
+  }
+
+
+  public void setUploadFiles(Map<String, String> uploadFiles) {
+    this.uploadFiles = uploadFiles;
+  }
+
   public String getEncodedParameters() throws UnsupportedEncodingException {
     String encodedParameters = "";
     if (!this.parameters.isEmpty()) {
       Set<String> parameterKeys = this.parameters.keySet();
       boolean isFirstParameter = true;
+      String value = null;
       for (String key : parameterKeys) {
+        value = this.parameters.get(key);
+        if (value == null) continue;
         if (isFirstParameter) {
-          encodedParameters += key + "=" + URLEncoder.encode(this.parameters.get(key), this.getEncoding());
+          encodedParameters += key + "=" + URLEncoder.encode(value, this.getEncoding());
           isFirstParameter = false;
         } else {
-          encodedParameters += "&" + key + "=" + URLEncoder.encode(this.parameters.get(key), this.getEncoding());
+          encodedParameters += "&" + key + "=" + URLEncoder.encode(value, this.getEncoding());
         }
       }
     }
@@ -126,12 +161,15 @@ public class ClientRequest {
     if (!this.parameters.isEmpty()) {
       Set<String> parameterKeys = this.parameters.keySet();
       boolean isFirstParameter = true;
+      String value = null;
       for (String key : parameterKeys) {
+        value = this.parameters.get(key);
+        if (value == null) continue;
         if (isFirstParameter) {
-          parameters += key + "=" + this.parameters.get(key);
+          parameters += key + "=" + value;
           isFirstParameter = false;
         } else {
-          parameters += "&" + key + "=" + this.parameters.get(key);
+          parameters += "&" + key + "=" + value;
         }
       }
     }
@@ -145,12 +183,15 @@ public class ClientRequest {
       encodedUrl += "?";
       Set<String> parameterKeys = this.parameters.keySet();
       boolean isFirstParameter = true;
+      String value = null;
       for (String key : parameterKeys) {
+        value = this.parameters.get(key);
+        if (value == null) continue;
         if (isFirstParameter) {
-          encodedUrl += key + "=" + URLEncoder.encode(this.parameters.get(key), this.getEncoding());
+          encodedUrl += key + "=" + URLEncoder.encode(value, this.getEncoding());
           isFirstParameter = false;
         } else {
-          encodedUrl += "&" + key + "=" + URLEncoder.encode(this.parameters.get(key), this.getEncoding());
+          encodedUrl += "&" + key + "=" + URLEncoder.encode(value, this.getEncoding());
         }
       }
     }
@@ -163,12 +204,15 @@ public class ClientRequest {
       url += "?";
       Set<String> parameterKeys = this.parameters.keySet();
       boolean isFirstParameter = true;
+      String value = null;
       for (String key : parameterKeys) {
+        value = this.parameters.get(key);
+        if (value == null) continue;
         if (isFirstParameter) {
-          url += key + "=" + this.parameters.get(key);
+          url += key + "=" + value;
           isFirstParameter = false;
         } else {
-          url += "&" + key + "=" + this.parameters.get(key);
+          url += "&" + key + "=" + value;
         }
       }
     }

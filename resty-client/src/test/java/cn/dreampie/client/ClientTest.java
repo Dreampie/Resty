@@ -18,7 +18,7 @@ public class ClientTest {
 
     //post
     ClientRequest postRequest = new ClientRequest(basUrl + "/tests", HttpMethod.POST);
-    postRequest.addParameter("test", Jsoner.toJSONString(Maper.of("a", "1")));
+    postRequest.addParameter("test", Jsoner.toJSONString(Maper.of("a", "谔谔")));
     Client postClient = Client.newInstance(postRequest);
     String postResult = postClient.ask();
     System.out.println(postResult);
@@ -36,6 +36,22 @@ public class ClientTest {
     Client deleteClient = Client.newInstance(deleteRequest);
     String deleteResult = deleteClient.ask();
     System.out.println(deleteResult);
+
+
+    //upload
+    ClientRequest uploadRequest = new ClientRequest(basUrl + "/tests/resty", HttpMethod.POST);
+    uploadRequest.addUploadFiles("resty", ClientTest.class.getResource("/resty.jar").getFile());
+    Client uploadClient = Client.newInstance(uploadRequest);
+    String uploadResult = uploadClient.ask();
+    System.out.println(uploadResult);
+
+
+    //download  支持断点续传
+    ClientRequest downloadRequest = new ClientRequest(basUrl + "/tests/file", HttpMethod.GET);
+    downloadRequest.setDownloadFile(ClientTest.class.getResource("/resty.jar").getFile().replace(".jar", "x.jar"));
+    Client downloadClient = Client.newInstance(downloadRequest);
+    String downloadResult = downloadClient.ask();
+    System.out.println(downloadResult);
 
   }
 }

@@ -45,7 +45,7 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
   User.dao.paginateAll(pageNumber,pageSize);
 ```
 
-3.极简的客户端设计，支持各种请求，文件上传和文件下载
+3.极简的客户端设计，支持各种请求，文件上传和文件下载（支持断点续传）
 
 ```java
   String basUrl = "http://localhost:8081/api/v1.0";
@@ -197,7 +197,7 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
 2.在本地mysql数据库里创建demo,example数据库，对应application.properties的数据库配置
 
-3.运行resty-example下的pom.xml->flyway-maven-plugin:migration，自动更具resources下db目录下的数据库文件生成数据库表结构
+3.运行resty-example下的pom.xml->flyway-maven-plugin:migration，自动根具resources下db目录下的数据库文件生成数据库表结构
 
 4.运行resty-example下的pom.xml->tomcat7-maven-plugin:run,启动example程序
 

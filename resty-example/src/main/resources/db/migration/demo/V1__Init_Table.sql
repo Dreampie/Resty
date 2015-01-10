@@ -11,10 +11,7 @@ CREATE TABLE sec_role (
   left_code  BIGINT                                         DEFAULT 0
   COMMENT '数据左边码',
   right_code BIGINT                                         DEFAULT 0
-  COMMENT '数据右边码',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP   NOT NULL,
-  updated_at TIMESTAMP                             NULL ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMP                             NULL
+  COMMENT '数据右边码'
 )
   ENGINE =InnoDB
   DEFAULT CHARSET =utf8

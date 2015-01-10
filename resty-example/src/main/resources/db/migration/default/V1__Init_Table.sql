@@ -12,10 +12,7 @@ CREATE TABLE sec_user (
   avatar_url   VARCHAR(255) COMMENT '头像',
   first_name   VARCHAR(10) COMMENT '名字',
   last_name    VARCHAR(10) COMMENT '姓氏',
-  full_name    VARCHAR(20) COMMENT '全名',
-  created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP   NOT NULL,
-  updated_at   TIMESTAMP                             NULL ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at   TIMESTAMP                             NULL
+  full_name    VARCHAR(20) COMMENT '全名'
 )
   ENGINE =InnoDB
   DEFAULT CHARSET =utf8
@@ -34,10 +31,7 @@ CREATE TABLE sec_user_info (
   city_id     BIGINT COMMENT '市id',
   county_id   BIGINT COMMENT '县id',
   street      VARCHAR(500) COMMENT '街道',
-  zip_code    VARCHAR(50) COMMENT '邮编',
-  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP   NOT NULL,
-  updated_at  TIMESTAMP                             NULL ON UPDATE CURRENT_TIMESTAMP,
-  deleted_at  TIMESTAMP                             NULL
+  zip_code    VARCHAR(50) COMMENT '邮编'
 )
   ENGINE =InnoDB
   DEFAULT CHARSET =utf8

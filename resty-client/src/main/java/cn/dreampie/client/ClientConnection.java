@@ -18,13 +18,13 @@ import java.util.Map;
 /**
  * Created by wangrenhui on 15/1/10.
  */
-public class ConnectionBuilder {
-  private static final Logger logger = Logger.getLogger(ConnectionBuilder.class);
+public class ClientConnection {
+  private static final Logger logger = Logger.getLogger(ClientConnection.class);
 
 
   protected ClientRequest clientRequest;
 
-  protected ConnectionBuilder(ClientRequest clientRequest) {
+  protected ClientConnection(ClientRequest clientRequest) {
     super();
     this.clientRequest = clientRequest;
   }
@@ -74,8 +74,7 @@ public class ConnectionBuilder {
     //使用OutPutStream输出参数
     if (HttpMethod.OUT_METHODS.contains(method)) {
       _url = new URL(clientRequest.getRestUrl());
-      conn = (HttpURLConnection) _url.openConnection();
-      conn.setRequestMethod(method);
+      conn = openHttpURLConnection(_url, method);
 
       conn.setDoOutput(true);
 
@@ -86,13 +85,10 @@ public class ConnectionBuilder {
       writer.writeBytes(requestParameters);
       writer.flush();
       writer.close();
-
     } else {
       _url = new URL(clientRequest.getEncodedUrl());
-      conn = (HttpURLConnection) _url.openConnection();
-      conn.setRequestMethod(method);
+      conn = openHttpURLConnection(_url, method);
     }
-
 
     //ssl判断
     if (conn instanceof HttpsURLConnection) {
@@ -103,11 +99,19 @@ public class ConnectionBuilder {
     conn.setConnectTimeout(clientRequest.getConnectTimeOut());
     conn.setReadTimeout(clientRequest.getReadTimeOut());
 
+
+    return conn;
+  }
+
+  private HttpURLConnection openHttpURLConnection(URL _url, String method) throws IOException {
+    HttpURLConnection conn;
+    conn = (HttpURLConnection) _url.openConnection();
+    conn.setRequestMethod(method);
+
     Map<String, String> headers = clientRequest.getHeaders();
     if (headers != null && !headers.isEmpty())
       for (Map.Entry<String, String> entry : headers.entrySet())
         conn.setRequestProperty(entry.getKey(), entry.getValue());
-
     return conn;
   }
 

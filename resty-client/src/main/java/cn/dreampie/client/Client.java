@@ -1,7 +1,6 @@
 package cn.dreampie.client;
 
 import cn.dreampie.client.exception.ClientException;
-import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
 
 import java.io.BufferedReader;
@@ -10,14 +9,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 
 /**
  * Resty  client
  */
-public class Client extends ConnectionBuilder {
+public class Client extends ClientConnection {
 
   private static final Logger logger = Logger.getLogger(Client.class);
 

@@ -24,6 +24,7 @@ import cn.dreampie.orm.exception.DBException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,8 +59,13 @@ public class DS {
     return ds;
   }
 
-  private PreparedStatement getPreparedStatement(String sql, Object[] paras) throws SQLException {
+  private PreparedStatement getPreparedStatement(String primaryKey, String sql, Object[] paras) throws SQLException {
     PreparedStatement pst = dataSourceMeta.getConnection().prepareStatement(sql);
+    if (dataSourceMeta.getDialect().getDbType().equalsIgnoreCase("oracle")) {
+      pst = dataSourceMeta.getConnection().prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
+    } else {
+      pst = dataSourceMeta.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+    }
     for (int i = 0; i < paras.length; i++) {
       pst.setObject(i + 1, paras[i]);
     }
@@ -71,7 +77,7 @@ public class DS {
     List result = new ArrayList();
     try {
 
-      PreparedStatement pst = getPreparedStatement(sql, paras);
+      PreparedStatement pst = getPreparedStatement(DEFAULT_PRIMARY_KAY, sql, paras);
       ResultSet rs = pst.executeQuery();
       int colAmount = rs.getMetaData().getColumnCount();
       if (colAmount > 1) {
@@ -259,7 +265,7 @@ public class DS {
     }
 
     try {
-      PreparedStatement pst = getPreparedStatement(sql, paras);
+      PreparedStatement pst = getPreparedStatement(DEFAULT_PRIMARY_KAY, sql, paras);
       result = pst.executeUpdate();
       dataSourceMeta.close(pst);
     } catch (SQLException e) {
@@ -277,18 +283,6 @@ public class DS {
     return update(sql, NULL_PARA_ARRAY);
   }
 
-  /**
-   * Get id after insert method getGeneratedKey().
-   */
-  private Object getGeneratedKey(PreparedStatement pst) throws SQLException {
-    ResultSet rs = pst.getGeneratedKeys();
-    Object id = null;
-    if (rs.next())
-      id = rs.getObject(1);
-    rs.close();
-    return id;
-  }
-
 
   public List<Record> find(String sql, Object... paras) {
     List<Record> result = null;
@@ -301,7 +295,7 @@ public class DS {
     }
 
     try {
-      PreparedStatement pst = getPreparedStatement(sql, paras);
+      PreparedStatement pst = getPreparedStatement(DEFAULT_PRIMARY_KAY, sql, paras);
       ResultSet rs = pst.executeQuery();
       result = RecordBuilder.build(dataSourceMeta, rs);
       dataSourceMeta.close(rs, pst);
@@ -444,7 +438,7 @@ public class DS {
     }
     PreparedStatement pst = null;
     try {
-      pst = getPreparedStatement(sql, params);
+      pst = getPreparedStatement(DEFAULT_PRIMARY_KAY, sql, params);
       result = pst.executeUpdate();
       record.set(primaryKey, getGeneratedKey(pst));
     } catch (SQLException e) {
@@ -455,6 +449,17 @@ public class DS {
     return result >= 1;
   }
 
+  /**
+   * Get id after insert method getGeneratedKey().
+   */
+  private Object getGeneratedKey(PreparedStatement pst) throws SQLException {
+    ResultSet rs = pst.getGeneratedKeys();
+    Object id = null;
+    if (rs.next())
+      id = rs.getObject(1);
+    rs.close();
+    return id;
+  }
 
   /**
    * @see #save(String, String, Record)

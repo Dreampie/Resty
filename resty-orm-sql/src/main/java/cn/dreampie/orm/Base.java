@@ -386,7 +386,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
     long totalRow = 0;
     int totalPage = 0;
-    List result = find(dialect.countWith(sql), paras);
+    List result = DS.use(getDataSourceMeta().getDsName()).query(dialect.countWith(sql), paras);
     int size = result.size();
     if (size == 1)
       totalRow = ((Number) result.get(0)).longValue();    // totalRow = (Long)result.get(0);

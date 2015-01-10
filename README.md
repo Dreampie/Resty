@@ -2,7 +2,7 @@
 resty 一款极简的restful轻量级的web框架
 ===========
 
-拥有jfinal，activejdbc一样的activerecord的简洁设计，使用更简单的restful框架
+拥有jfinal/activejdbc一样的activerecord的简洁设计，使用更简单的restful框架
 
 restful的api设计，是作为restful的服务端最佳选择（使用场景：客户端和服务端解藕，用于对静态的html客户端（mvvm等），ios，andriod等提供服务端的api接口）
 

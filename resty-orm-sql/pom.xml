@@ -21,6 +21,7 @@
     <druid.version>1.0.12</druid.version>
     <ehcache.version>2.6.6</ehcache.version>
     <mysql.version>5.1.34</mysql.version>
+    <logback.version>1.1.2</logback.version>
   </properties>
 
   <dependencies>
@@ -84,6 +85,14 @@
       <version>${mysql.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 
   <build>

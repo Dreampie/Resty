@@ -18,6 +18,7 @@
     <junit.version>4.11</junit.version>
     <resty.version>1.0-SNAPSHOT</resty.version>
     <fastjson.version>1.1.41</fastjson.version>
+    <logback.version>1.1.2</logback.version>
   </properties>
 
   <dependencies>
@@ -38,6 +39,13 @@
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-log</artifactId>
       <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>${logback.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

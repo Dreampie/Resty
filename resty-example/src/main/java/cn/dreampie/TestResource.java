@@ -1,6 +1,7 @@
 package cn.dreampie;
 
 import cn.dreampie.common.util.Maper;
+import cn.dreampie.example.model.User;
 import cn.dreampie.route.core.annotation.DELETE;
 import cn.dreampie.route.core.annotation.GET;
 import cn.dreampie.route.core.annotation.POST;

@@ -25,21 +25,31 @@ public class SqlTest {
 
   @Test
   public void testSave() {
-    User u = new User().set("username", "test").set("providername", "test").set("password", "123456");
+    User u = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456");
+    u.save();
+    User u1 = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456");
+    User u2 = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456");
     UserInfo userInfo = null;
     if (u.get("user_info") == null) {
       userInfo = new UserInfo().set("gender", 0);
     } else {
       userInfo = u.get("user_info");
     }
-    if (u.save()) {
+    if (User.dao.save(u1, u2)) {
+      System.out.println(u.get("id") + "/" + u1.get("id"));
       userInfo.set("user_id", u.get("id"));
       userInfo.save();
 
       Role role = new Role().set("name", "test").set("value", "xx");
       role.save();
     }
-    DS.use().save("sec_user", new Record().set("username", "test").set("providername", "test").set("password", "123456"));
+
+
+    DS.use().save("sec_user", new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456"));
+    Record r1 = new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456");
+    Record r2 = new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456");
+
+    DS.use().save("sec_user", r1, r2);
   }
 
   @Test
@@ -75,8 +85,15 @@ public class SqlTest {
     for (User user : users) {
       user.set("username", "testupdate");
     }
-    DS.use().update("UPDATE sec_user SET username='a'");
+    DS.use().update("UPDATE sec_user SET username='c' WHERE username='a'");
   }
+
+  @Test
+  public void testExcute() {
+    //批量执行sql语句
+    DS.use().excute("UPDATE sec_user SET username='b' WHERE username='c'", "UPDATE sec_user SET username='x' WHERE username='test'");
+  }
+
 
   @Test
   public void testDelete() {

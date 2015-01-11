@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS sec_user;
 CREATE TABLE sec_user (
-  id           BIGINT       NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  id           BIGINT       NOT NULL AUTO_INCREMENT,
+  sid          BIGINT       NOT NULL,
   username     VARCHAR(50)  NOT NULL
   COMMENT '登录名',
   providername VARCHAR(50)  NOT NULL
@@ -12,7 +13,8 @@ CREATE TABLE sec_user (
   avatar_url   VARCHAR(255) COMMENT '头像',
   first_name   VARCHAR(10) COMMENT '名字',
   last_name    VARCHAR(10) COMMENT '姓氏',
-  full_name    VARCHAR(20) COMMENT '全名'
+  full_name    VARCHAR(20) COMMENT '全名',
+  PRIMARY KEY (id, sid)
 )
   ENGINE =InnoDB
   DEFAULT CHARSET =utf8

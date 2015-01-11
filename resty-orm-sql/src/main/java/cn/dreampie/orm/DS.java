@@ -1,15 +1,15 @@
 package cn.dreampie.orm;
 
 
+import cn.dreampie.common.util.Joiner;
+import cn.dreampie.log.Logger;
 import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static cn.dreampie.common.util.Checker.checkArgument;
@@ -19,7 +19,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  * DS. Professional database query and update tool.
  */
 public class DS {
-
+  private static final Logger logger = Logger.getLogger(DS.class);
   public static final String DEFAULT_DS_NAME = "default";
   public static final String DEFAULT_PRIMARY_KAY = "id";
   public static final Object[] NULL_PARA_ARRAY = new Object[0];
@@ -48,17 +48,53 @@ public class DS {
   }
 
   private PreparedStatement getPreparedStatement(String primaryKey, String sql, Object[] paras) throws SQLException {
-    PreparedStatement pst = dataSourceMeta.getConnection().prepareStatement(sql);
-    if (dataSourceMeta.getDialect().getDbType().equalsIgnoreCase("oracle")) {
-      pst = dataSourceMeta.getConnection().prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
-    } else {
-      pst = dataSourceMeta.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-    }
+    PreparedStatement pst = dataSourceMeta.getConnection().prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
+
     for (int i = 0; i < paras.length; i++) {
       pst.setObject(i + 1, paras[i]);
     }
     return pst;
   }
+
+
+  private PreparedStatement getPreparedStatement(Connection connection, String primaryKey, String sql, Object[][] paras) throws SQLException {
+    PreparedStatement pst = null;
+    String key = primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey;
+    String[] returnKeys = new String[paras.length];
+    for (int i = 0; i < paras.length; i++) {
+      returnKeys[i] = key;
+    }
+    pst = connection.prepareStatement(sql, returnKeys);
+    final int batchSize = 1000;
+    int count = 0;
+    for (int i = 0; i < paras.length; i++) {
+      for (int j = 0; j < paras[i].length; j++) {
+        pst.setObject(j + 1, paras[i][j]);
+      }
+      pst.addBatch();
+      if (++count % batchSize == 0) {
+        pst.executeBatch();
+      }
+    }
+    return pst;
+  }
+
+  private Statement getPreparedStatement(Connection connection, List<String> sql) throws SQLException {
+    Statement stmt = null;
+
+    stmt = connection.createStatement();
+    final int batchSize = 1000;
+    int count = 0;
+    int size = sql.size();
+    for (int i = 0; i < size; i++) {
+      stmt.addBatch(sql.get(i));
+      if (++count % batchSize == 0) {
+        stmt.executeBatch();
+      }
+    }
+    return stmt;
+  }
+
 
   <T> List<T> query(String sql, Object... paras) {
 
@@ -249,7 +285,7 @@ public class DS {
     int result = -1;
     //remove cache
     if (cached) {
-      QueryCache.instance().remove(dataSourceMeta.getDsName(), sql, paras);
+      QueryCache.instance().purge(dataSourceMeta.getDsName());
     }
 
     try {
@@ -382,6 +418,13 @@ public class DS {
     return update(sql, id) >= 1;
   }
 
+  public boolean deleteByIds(String tableName, String[] primaryKeys, Object... ids) {
+    checkNotNull(ids, "You can't delete model without Primary Key.");
+
+    String sql = dataSourceMeta.getDialect().delete(tableName, Joiner.on("=?, ").join(ids));
+    return update(sql, ids) >= 1;
+  }
+
   /**
    * Delete record by id.
    * Example: boolean succeed = DbPro.use().deleteById("user", 15);
@@ -417,18 +460,18 @@ public class DS {
   }
 
   boolean save(String tableName, String primaryKey, Record record) {
-    String sql = dataSourceMeta.getDialect().insert(tableName, record.getColumnNames());
+    String sql = dataSourceMeta.getDialect().insert(tableName, record.getAttrNames());
     int result = -1;
-    Object[] params = record.getColumnValues();
+    Object[] params = record.getAttrValues();
     //remove cache
     if (cached) {
-      QueryCache.instance().remove(dataSourceMeta.getDsName(), sql, params);
+      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableName);
     }
     PreparedStatement pst = null;
     try {
-      pst = getPreparedStatement(DEFAULT_PRIMARY_KAY, sql, params);
+      pst = getPreparedStatement(primaryKey, sql, params);
       result = pst.executeUpdate();
-      record.set(primaryKey, getGeneratedKey(pst));
+      getGeneratedKey(pst, primaryKey, record);
     } catch (SQLException e) {
       throw new DBException(e);
     } finally {
@@ -437,16 +480,93 @@ public class DS {
     return result >= 1;
   }
 
+  boolean save(String tableName, String primaryKey, Record... records) {
+    return save(tableName, primaryKey, Arrays.asList(records));
+  }
+
+  /**
+   * 批量保存record
+   *
+   * @param tableName
+   * @param primaryKey
+   * @param records
+   * @return
+   */
+  boolean save(String tableName, String primaryKey, List<Record> records) {
+    if (records == null || records.size() <= 0) {
+      logger.warn("Cloud not found records to save.");
+      return false;
+    }
+    Record firstRecord = records.get(0);
+    //清除models缓存
+    if (cached) {
+      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableName);
+    }
+
+    String[] columns = firstRecord.getAttrNames();
+    String sql = dataSourceMeta.getDialect().insert(tableName, columns);
+    //参数
+    Object[][] paras = new Object[records.size()][columns.length];
+
+    for (int i = 0; i < paras.length; i++) {
+      for (int j = 0; j < paras[i].length; j++) {
+        paras[i][j] = records.get(i).get(columns[j]);
+      }
+    }
+
+    // --------
+    PreparedStatement pst = null;
+    int[] result = null;
+    Connection connection = null;
+    Boolean autoCommit = null;
+    try {
+      connection = dataSourceMeta.getConnection();
+      autoCommit = connection.getAutoCommit();
+      if (autoCommit)
+        connection.setAutoCommit(false);
+
+      pst = getPreparedStatement(connection, primaryKey, sql, paras);
+      result = pst.executeBatch();
+      getGeneratedKey(pst, primaryKey, records);
+      //没有事务的情况下 手动提交
+      if (dataSourceMeta.getCurrentConnection() == null)
+        connection.commit();
+      connection.setAutoCommit(autoCommit);
+
+      for (int r : result) {
+        if (r < 1) {
+          return false;
+        }
+      }
+      return true;
+    } catch (SQLException e) {
+      throw new DBException(e);
+    } finally {
+      dataSourceMeta.close(pst);
+      dataSourceMeta.close(connection);
+    }
+  }
+
   /**
    * Get id after insert method getGeneratedKey().
    */
-  private Object getGeneratedKey(PreparedStatement pst) throws SQLException {
+  private void getGeneratedKey(PreparedStatement pst, String primaryKey, Record record) throws SQLException {
     ResultSet rs = pst.getGeneratedKeys();
-    Object id = null;
     if (rs.next())
-      id = rs.getObject(1);
+      record.set(primaryKey, rs.getObject(1));
     rs.close();
-    return id;
+  }
+
+  private void getGeneratedKey(PreparedStatement pst, String primaryKey, List<Record> records) throws SQLException {
+    ResultSet rs = pst.getGeneratedKeys();
+    for (Record record : records) {
+      if (record.get(primaryKey) == null) {
+        if (rs.next()) {
+          record.set(primaryKey, rs.getObject(1));
+        }
+      }
+    }
+    rs.close();
   }
 
   /**
@@ -456,13 +576,18 @@ public class DS {
     return save(tableName, DEFAULT_PRIMARY_KAY, record);
   }
 
+
+  public boolean save(String tableName, Record... records) {
+    return save(tableName, DEFAULT_PRIMARY_KAY, records);
+  }
+
   boolean update(String tableName, String primaryKey, Record record) {
     Object id = record.get(primaryKey);
     checkNotNull(id, "You can't update model without Primary Key.");
 
-    String sql = dataSourceMeta.getDialect().update(tableName, primaryKey, record.getColumnNames());
+    String sql = dataSourceMeta.getDialect().update(tableName, primaryKey, record.getAttrNames());
 
-    return update(sql, record.getColumnValues()) >= 1;
+    return update(sql, record.getAttrValues()) >= 1;
   }
 
   /**
@@ -517,6 +642,53 @@ public class DS {
     return paginate(pageNo, pageSize, sql, NULL_PARA_ARRAY);
   }
 
+
+  public boolean excute(String... sqls) {
+    return excute(Arrays.asList(sqls));
+  }
+
+  /**
+   * Execute a batch of SQL INSERT, UPDATE, or DELETE queries.
+   * Example:
+   * <pre>
+   * int[] result = DbPro.use().batch("myConfig", sqlList, 500);
+   * </pre>
+   *
+   * @param sqls The SQL list to execute.
+   * @return The number of rows updated per statement
+   */
+  public boolean excute(List<String> sqls) {
+
+    Statement stmt = null;
+    int[] result = null;
+    Connection connection = null;
+    Boolean autoCommit = null;
+    try {
+      connection = dataSourceMeta.getConnection();
+      autoCommit = connection.getAutoCommit();
+      if (autoCommit)
+        connection.setAutoCommit(false);
+
+      stmt = getPreparedStatement(connection, sqls);
+      result = stmt.executeBatch();
+      //没有事务的情况下 手动提交
+      if (dataSourceMeta.getCurrentConnection() == null)
+        connection.commit();
+      connection.setAutoCommit(autoCommit);
+
+      for (int r : result) {
+        if (r < 1) {
+          return false;
+        }
+      }
+      return true;
+    } catch (SQLException e) {
+      throw new DBException(e);
+    } finally {
+      dataSourceMeta.close(stmt);
+      dataSourceMeta.close(connection);
+    }
+  }
 }
 
 

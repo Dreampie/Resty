@@ -13,7 +13,9 @@ import java.lang.annotation.Target;
 public @interface Table {
   String name();
 
-  String primaryKey() default "id";
+  String primaryKey() default "id";//多主键策略 1自增主键+n其他主键  自增主键放在第一位
+
+  boolean lockKey() default false;//锁定主键策略，当1自增主键+n其他主键时，锁定主键表示增删改查都必须检测主键的完整性
 
   boolean cached() default false;
 }

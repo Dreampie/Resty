@@ -276,7 +276,7 @@ public class Record extends Entity<Record> implements Serializable {
   /**
    * Return column name of this record.
    */
-  public String[] getColumnNames() {
+  public String[] getAttrNames() {
     Set<String> attrNameSet = getAttrs().keySet();
     return attrNameSet.toArray(new String[attrNameSet.size()]);
   }
@@ -284,7 +284,7 @@ public class Record extends Entity<Record> implements Serializable {
   /**
    * Return column values of this record.
    */
-  public Object[] getColumnValues() {
+  public Object[] getAttrValues() {
     java.util.Collection<Object> attrValueCollection = getAttrs().values();
     return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
   }

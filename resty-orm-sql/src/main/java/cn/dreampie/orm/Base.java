@@ -2,18 +2,18 @@ package cn.dreampie.orm;
 
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.Entity;
+import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.json.Jsoner;
+import cn.dreampie.log.Logger;
 import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.exception.ModelException;
 
 import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 import static cn.dreampie.common.util.Checker.checkArgument;
 import static cn.dreampie.common.util.Checker.checkNotNull;
@@ -22,6 +22,8 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  * Created by ice on 14-12-30.
  */
 public abstract class Base<M extends Base> extends Entity<Base> implements Serializable {
+
+  private static final Logger logger = Logger.getLogger(Base.class);
   /**
    * Attributes of this model
    */
@@ -29,7 +31,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
   protected <T> T getCache(String sql, Object[] paras) {
     ModelMeta modelMeta = getModelMeta();
-    if (modelMeta.cached()) {
+    if (modelMeta.isCached()) {
       return (T) QueryCache.instance().get(modelMeta.getDsName(), modelMeta.getTableName(), sql, paras);
     }
     return null;
@@ -37,14 +39,14 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
   protected void addCache(String sql, Object[] paras, Object cache) {
     ModelMeta modelMeta = getModelMeta();
-    if (modelMeta.cached()) {
+    if (modelMeta.isCached()) {
       QueryCache.instance().add(modelMeta.getDsName(), modelMeta.getTableName(), sql, paras, cache);
     }
   }
 
   protected void purgeCache() {
     ModelMeta modelMeta = getModelMeta();
-    if (modelMeta.cached()) {
+    if (modelMeta.isCached()) {
       QueryCache.instance().purge(modelMeta.getDsName(), modelMeta.getTableName());
     }
   }
@@ -262,13 +264,44 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
   private PreparedStatement getPreparedStatement(DataSourceMeta dsm, String sql, Object[] paras) throws SQLException {
     PreparedStatement pst = null;
-    if (dsm.getDialect().getDbType().equalsIgnoreCase("oracle")) {
-      pst = dsm.getConnection().prepareStatement(sql, new String[]{getModelMeta().getPrimaryKey()});
-    } else {
-      pst = dsm.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-    }
+    pst = dsm.getConnection().prepareStatement(sql, new String[]{getModelMeta().getPrimaryKey()});
+
     for (int i = 0; i < paras.length; i++) {
       pst.setObject(i + 1, paras[i]);
+    }
+    return pst;
+  }
+
+
+  private PreparedStatement getPreparedStatement(String sql, Object[][] paras) throws SQLException {
+    DataSourceMeta dsm = getDataSourceMeta();
+    return getPreparedStatement(dsm, dsm.getConnection(), sql, paras);
+  }
+
+  private PreparedStatement getPreparedStatement(String dsName, String sql, Object[][] paras) throws SQLException {
+    if (dsName == null) return getPreparedStatement(sql, paras);
+    DataSourceMeta dsm = Metadatas.getDataSourceMeta(dsName);
+    return getPreparedStatement(dsm, dsm.getConnection(), sql, paras);
+  }
+
+  private PreparedStatement getPreparedStatement(DataSourceMeta dsm, Connection connection, String sql, Object[][] paras) throws SQLException {
+    PreparedStatement pst = null;
+    String key = getModelMeta().getPrimaryKey();
+    String[] returnKeys = new String[paras.length];
+    for (int i = 0; i < paras.length; i++) {
+      returnKeys[i] = key;
+    }
+    pst = connection.prepareStatement(sql, returnKeys);
+    final int batchSize = 1000;
+    int count = 0;
+    for (int i = 0; i < paras.length; i++) {
+      for (int j = 0; j < paras[i].length; j++) {
+        pst.setObject(j + 1, paras[i][j]);
+      }
+      pst.addBatch();
+      if (++count % batchSize == 0) {
+        pst.executeBatch();
+      }
     }
     return pst;
   }
@@ -290,7 +323,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public List<M> find(String sql, Object... paras) {
     List<M> result = null;
-    boolean cached = getModelMeta().cached();
+    boolean cached = getModelMeta().isCached();
     //hit cache
     if (cached) {
       result = getCache(sql, paras);
@@ -355,19 +388,29 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @param id the id value of the model
    */
   public M findById(Object id) {
-    return findById(id, "*");
+    return findById("*", id);
+  }
+
+  public M findByIds(Object... ids) {
+    return findByIds("*", ids);
   }
 
   /**
    * Find model by id. Fetch the specific columns only.
    * Example: User user = User.dao.findById(15, "name, age");
    *
-   * @param id      the id value of the model
    * @param columns the specific columns
+   * @param id      the id value of the model
    */
-  public M findById(Object id, String columns) {
+  public M findById(String columns, Object id) {
     String sql = getDialect().select(getModelMeta().getTableName(), getModelMeta().getPrimaryKey() + "=?", columns.split(","));
     List<M> result = find(sql, id);
+    return result.size() > 0 ? result.get(0) : null;
+  }
+
+  public M findByIds(String columns, Object... ids) {
+    String sql = getDialect().select(getModelMeta().getTableName(), Joiner.on("=?, ").join(getModelMeta().getPrimaryKeys()), columns.split(","));
+    List<M> result = find(sql, ids);
     return result.size() > 0 ? result.get(0) : null;
   }
 
@@ -417,7 +460,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public boolean save() {
     //清除缓存
-    if (getModelMeta().cached()) {
+    if (getModelMeta().isCached()) {
       purgeCache();
     }
 
@@ -444,11 +487,87 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     }
   }
 
+  public boolean save(M... models) {
+    return save(Arrays.asList(models));
+  }
+
+  /**
+   * 批量保存model
+   *
+   * @param models model集合
+   * @return
+   */
+  public boolean save(List<M> models) {
+    if (models == null || models.size() <= 0) {
+      logger.warn("Cloud not found models to save.");
+      return false;
+    }
+
+    M firstModel = models.get(0);
+    //清除models缓存
+    if (firstModel.getModelMeta().isCached()) {
+      firstModel.purgeCache();
+    }
+
+    DataSourceMeta dsm = firstModel.getDataSourceMeta();
+    Dialect dialect = dsm.getDialect();
+    ModelMeta modelMeta = firstModel.getModelMeta();
+
+    String[] columns = firstModel.getAttrNames();
+    String sql = dialect.insert(modelMeta.getTableName(), columns);
+
+    //参数
+    Object[][] paras = new Object[models.size()][columns.length];
+
+    for (int i = 0; i < paras.length; i++) {
+      for (int j = 0; j < paras[i].length; j++) {
+        paras[i][j] = models.get(i).get(columns[j]);
+      }
+    }
+
+    // --------
+    PreparedStatement pst = null;
+    int[] result = null;
+    Connection connection = null;
+    Boolean autoCommit = null;
+    try {
+      connection = dsm.getConnection();
+      autoCommit = connection.getAutoCommit();
+      if (autoCommit)
+        connection.setAutoCommit(false);
+
+      pst = getPreparedStatement(dsm, connection, sql, paras);
+      result = pst.executeBatch();
+      getGeneratedKey(pst, modelMeta, models);
+      //没有事务的情况下 手动提交
+      if (dsm.getCurrentConnection() == null)
+        connection.commit();
+      connection.setAutoCommit(autoCommit);
+      for (M model : models) {
+        model.getModifyFlag().clear();
+      }
+
+      for (int r : result) {
+        if (r < 1) {
+          return false;
+        }
+      }
+      return true;
+    } catch (SQLException e) {
+      throw new DBException(e);
+    } finally {
+      dsm.close(pst);
+      dsm.close(connection);
+    }
+  }
+
+
   /**
    * Get id after save method.
    */
   private void getGeneratedKey(PreparedStatement pst, ModelMeta modelMeta) throws SQLException {
     String pKey = modelMeta.getPrimaryKey();
+
     if (get(pKey) == null) {
       ResultSet rs = pst.getGeneratedKeys();
       if (rs.next()) {
@@ -458,11 +577,24 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     }
   }
 
+  private void getGeneratedKey(PreparedStatement pst, ModelMeta modelMeta, List<M> models) throws SQLException {
+    ResultSet rs = pst.getGeneratedKeys();
+    String pKey = null;
+    for (M model : models) {
+      pKey = model.getModelMeta().getPrimaryKey();
+      if (model.get(pKey) == null) {
+        if (rs.next()) {
+          model.set(pKey, rs.getObject(1));
+        }
+      }
+    }
+    rs.close();
+  }
 
   //update  base
   protected int update(String sql, Object... paras) {
     //清除缓存
-    if (getModelMeta().cached()) {
+    if (getModelMeta().isCached()) {
       purgeCache();
     }
     if (Constant.dev_mode)
@@ -475,10 +607,25 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public boolean delete() {
     ModelMeta modelMeta = getModelMeta();
+
+
     Object id = attrs.get(modelMeta.getPrimaryKey());
-    if (id == null)
-      throw new ModelException("You can't delete model without primaryKey.");
-    return deleteById(id);
+    checkNotNull(id, "You can't delete model without primaryKey " + modelMeta.getPrimaryKey() + ".");
+
+    //锁定主键 删除的时候 使用所有主键作为条件
+    if (modelMeta.isLockKey()) {
+      String[] pkeys = modelMeta.getPrimaryKeys();
+      Object[] ids = new Object[pkeys.length];
+      ids[0] = id;
+      int i = 1;
+      for (String idKey : pkeys) {
+        ids[i] = attrs.get(idKey);
+        i++;
+      }
+      return deleteByIds(ids);
+    } else {
+      return deleteById(id);
+    }
   }
 
   /**
@@ -492,8 +639,20 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     return deleteById(getModelMeta(), id);
   }
 
+  public boolean deleteByIds(Object... ids) {
+    checkNotNull(ids, "You can't delete model without primaryKey.");
+    return deleteByIds(getModelMeta(), ids);
+  }
+
   private boolean deleteById(ModelMeta modelMeta, Object id) {
     String sql = getDialect().delete(modelMeta.getTableName(), modelMeta.getPrimaryKey() + "=?");
+    int result = update(sql, id);
+    return result > 0;
+  }
+
+  private boolean deleteByIds(ModelMeta modelMeta, Object... id) {
+
+    String sql = getDialect().delete(modelMeta.getTableName(), Joiner.on("=?, ").join(modelMeta.getPrimaryKeys()));
     int result = update(sql, id);
     return result > 0;
   }
@@ -522,15 +681,37 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
     String pKey = modelMeta.getPrimaryKey();
     Object id = attrs.get(pKey);
-    checkNotNull(id, "You can't update model without Primary Key.");
+    checkNotNull(id, "You can't update model without Primary Key " + pKey + ".");
 
-    String sql = dialect.update(modelMeta.getTableName(), pKey + "=?", getModifyNames());
+    String where = null;
+    Object[] paras = null;
+    Object[] modifys = getModifyValues();
+    //锁定主键 更新的时候 使用所有主键作为条件
+    if (modelMeta.isLockKey()) {
+      String[] pkeys = modelMeta.getPrimaryKeys();
+      Object[] ids = new Object[pkeys.length];
+      ids[0] = id;
+      int i = 1;
+      for (String idKey : pkeys) {
+        ids[i] = attrs.get(idKey);
+        i++;
+      }
+      paras = new Object[ids.length + modifys.length];
+      System.arraycopy(ids, 0, paras, 0, ids.length);
+      System.arraycopy(modifys, 0, paras, ids.length, modifys.length);
+      where = Joiner.on("=?,").join(modelMeta.getPrimaryKeys());
+    } else {
+      paras = modifys;
+      where = pKey + "=?";
+    }
+
+    String sql = dialect.update(modelMeta.getTableName(), where, getModifyNames());
 
     if (getModifyNames().length <= 0) {  // Needn't update
       return false;
     }
 
-    int result = update(sql, getModifyValues());
+    int result = update(sql, paras);
     if (result >= 1) {
       getModifyFlag().clear();
       return true;

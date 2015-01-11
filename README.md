@@ -20,26 +20,35 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
   }
 ```
 
-2.极简的activerecord设计，数据操作只需短短的一行
+2.极简的activerecord设计，数据操作只需短短的一行,支持批量保存对象
 
 ```java
-  //设置属性并保存
+  //批量保存
+  User u1 = new User().set("username", "test").set("providername", "test").set("password", "123456");
+  User u2 = new User().set("username", "test").set("providername", "test").set("password", "123456");
+  User.dao.save(u1,u2);
+
+  //普通保存
   User u = new User().set("username", "test").set("providername", "test").set("password", "123456");
   u.save();
+
   //更新
   u.update();
-  //条件删除
+  //条件更新
   User.dao.updateBy(where,paras);
   User.dao.updateAll(columns，where,paras);
+
   //删除
   u.deleted();
   //条件删除
   User.dao.deleteBy(where,paras);
   User.dao.deleteAll();
+
   //查询
   User.dao.findById(id);
   User.dao.findBy(where,paras);
   User.dao.findAll();
+
   //分页
   User.dao.paginateBy(pageNumber,pageSize,where,paras);
   User.dao.paginateAll(pageNumber,pageSize);

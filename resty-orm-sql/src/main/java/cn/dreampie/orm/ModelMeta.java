@@ -16,6 +16,8 @@ public class ModelMeta implements Serializable {
 
   private SortedMap<String, ColumnMeta> columnMetadata;
   private final String primaryKey;
+  private final String[] primaryKeys;
+  private final boolean lockKey;
   private final String tableName, dsName;
   private final Class<? extends Base> modelClass;
   private final boolean cached;
@@ -24,7 +26,17 @@ public class ModelMeta implements Serializable {
     Table tableAnnotation = modelClass.getAnnotation(Table.class);
     checkNotNull(tableAnnotation, "Could not found @Table Annotation.");
     this.modelClass = modelClass;
-    this.primaryKey = tableAnnotation.primaryKey();
+    String key = tableAnnotation.primaryKey();
+
+    if (key.contains(",")) {
+      primaryKeys = key.split(",");
+      lockKey = tableAnnotation.lockKey();
+      this.primaryKey = primaryKeys[0];
+    } else {
+      primaryKeys = null;
+      lockKey = false;
+      this.primaryKey = key;
+    }
     this.tableName = tableAnnotation.name();
     this.cached = tableAnnotation.cached();
     this.dsName = dsName;
@@ -34,7 +46,7 @@ public class ModelMeta implements Serializable {
     return dsName;
   }
 
-  public boolean cached() {
+  public boolean isCached() {
     return cached;
   }
 
@@ -57,6 +69,14 @@ public class ModelMeta implements Serializable {
 
   public String getPrimaryKey() {
     return primaryKey;
+  }
+
+  public String[] getPrimaryKeys() {
+    return primaryKeys;
+  }
+
+  public boolean isLockKey() {
+    return lockKey;
   }
 
   public String getDbType() {

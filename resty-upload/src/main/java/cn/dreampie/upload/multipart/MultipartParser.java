@@ -1,7 +1,3 @@
-// Copyright (C) 1998-2001 by Jason Hunter <jhunter_AT_acm_DOT_org>.
-// All rights reserved.  Use of this class is limited.
-// Please see the LICENSE for more information.
-
 package cn.dreampie.upload.multipart;
 
 import cn.dreampie.common.http.HttpRequest;
@@ -18,16 +14,16 @@ import java.util.Vector;
  * "pull" model where the reading of incoming files and parameters is
  * controlled by the client code, which allows incoming files to be stored
  * into any <code>OutputStream</code>.  If you wish to use an API which
- * resembles <code>HttpServletRequest</code>, use the "push" model
+ * resembles <code>HttpRequest</code>, use the "push" model
  * <code>MultipartRequest</code> instead.  It's an easy-to-use wrapper
  * around this class.
- * <p/>
+ * <p>
  * This class can receive arbitrarily large files (up to an artificial limit
  * you can set), and fairly efficiently too.
  * It cannot handle nested data (multipart content within multipart content).
  * It <b>can</b> now with the latest release handle internationalized content
  * (such as non Latin-1 filenames).
- * <p/>
+ * <p>
  * It also optionally includes enhanced buffering and Content-Length
  * limitation.  Buffering is only required if your servlet container is
  * poorly implemented (many are, including Tomcat 3.2),
@@ -37,48 +33,54 @@ import java.util.Vector;
  * that your servlet is hanging trying to read the input stram from the POST,
  * and it is similarly recommended because it only has a minimal impact on
  * performance.
- * <p/>
+ * <p>
  * See the included upload.war for an example of how to use this class.
- * <p/>
+ * <p>
  * The full file upload specification is contained in experimental RFC 1867,
  * available at <a href="http://www.ietf.org/rfc/rfc1867.txt">
  * http://www.ietf.org/rfc/rfc1867.txt</a>.
  *
+ * @see cn.dreampie.upload.MultipartRequest
+ *
  * @author Jason Hunter
  * @author Geoff Soutter
+ * @version 1.11, 2002/11/01, added constructor that takes an encoding, to
+ *                            make sure chars are always read correctly
+ * @version 1.10, 2002/11/01, added support for a preamble before the first
+ *                            boundary marker
+ * @version 1.9, 2002/11/01, added support to parse odd Opera Content-Type
+ * @version 1.8, 2002/11/01, added support for lynx with unquoted param vals
+ * @version 1.7, 2002/04/30, fixed bug if a line was '\n' alone
+ * @version 1.6, 2002/04/30, added better internationalization support, thanks
+ *                           to Changshin Lee
+ * @version 1.5, 2002/04/30, added Opera header fix, thanks to Nic Ferrier
+ * @version 1.4, 2001/03/23, added IE5 bug workaround supporting \n as line
+ *                           ending, thanks to Michael Alyn Miller
+ * @version 1.3, 2001/01/22, added support for boundaries surrounded by quotes
+ *                           and content-disposition after content-type,
+ *                           thanks to Scott Stark
+ * @version 1.2, 2001/01/22, getFilePath() support thanks to Stefan Eissing
+ * @version 1.1, 2000/10/29, integrating old WebSphere fix
  * @version 1.0, 2000/10/27, initial revision
- * @see cn.dreampie.upload.MultipartRequest
  */
 public class MultipartParser {
 
-  /**
-   * input stream to read parts from
-   */
+  /** input stream to read parts from */
   private ServletInputStream in;
 
-  /**
-   * MIME boundary that delimits parts
-   */
+  /** MIME boundary that delimits parts */
   private String boundary;
 
-  /**
-   * reference to the last file part we returned
-   */
+  /** reference to the last file part we returned */
   private FilePart lastFilePart;
 
-  /**
-   * buffer for readLine method
-   */
+  /** buffer for readLine method */
   private byte[] buf = new byte[8 * 1024];
 
-  /**
-   * default encoding
-   */
+  /** default encoding */
   private static String DEFAULT_ENCODING = "ISO-8859-1";
 
-  /**
-   * preferred encoding
-   */
+  /** preferred encoding */
   private String encoding = DEFAULT_ENCODING;
 
   /**
@@ -87,7 +89,7 @@ public class MultipartParser {
    * performance and prevent attempts to read past the amount specified
    * by the Content-Length.
    *
-   * @param req     the servlet request.
+   * @param req   the servlet request.
    * @param maxSize the maximum size of the POST content.
    */
   public MultipartParser(HttpRequest req,
@@ -101,10 +103,10 @@ public class MultipartParser {
    * buffers for performance and prevents attempts to read past the amount
    * specified by the Content-Length.
    *
-   * @param req         the servlet request.
-   * @param maxSize     the maximum size of the POST content.
-   * @param buffer      whether to do internal buffering or let the server buffer,
-   *                    useful for servers that don't buffer
+   * @param req   the servlet request.
+   * @param maxSize the maximum size of the POST content.
+   * @param buffer whether to do internal buffering or let the server buffer,
+   *               useful for servers that don't buffer
    * @param limitLength boolean flag to indicate if we need to filter
    *                    the request's input stream to prevent trying to
    *                    read past the end of the stream.
@@ -120,18 +122,18 @@ public class MultipartParser {
    * buffers for performance and prevents attempts to read past the amount
    * specified by the Content-Length, and with a specified encoding.
    *
-   * @param req         the servlet request.
-   * @param maxSize     the maximum size of the POST content.
-   * @param buffer      whether to do internal buffering or let the server buffer,
-   *                    useful for servers that don't buffer
+   * @param req   the servlet request.
+   * @param maxSize the maximum size of the POST content.
+   * @param buffer whether to do internal buffering or let the server buffer,
+   *               useful for servers that don't buffer
    * @param limitLength boolean flag to indicate if we need to filter
    *                    the request's input stream to prevent trying to
    *                    read past the end of the stream.
-   * @param encoding    the encoding to use for parsing, default is ISO-8859-1.
+   * @param encoding the encoding to use for parsing, default is ISO-8859-1.
    */
   public MultipartParser(HttpRequest req, int maxSize, boolean buffer,
                          boolean limitLength, String encoding)
-      throws IOException {
+                                                throws IOException {
     // First make sure we know the encoding to handle chars correctly.
     // Thanks to Andreas Granzer, andreas.granzer@wave-solutions.com,
     // for pointing out the need to have this in the constructor.
@@ -147,7 +149,8 @@ public class MultipartParser {
     // If one value is null, choose the other value
     if (type1 == null && type2 != null) {
       type = type2;
-    } else if (type2 == null && type1 != null) {
+    }
+    else if (type2 == null && type1 != null) {
       type = type1;
     }
     // If neither value is null, choose the longer value
@@ -164,7 +167,7 @@ public class MultipartParser {
     int length = req.getContentLength();
     if (length > maxSize) {
       throw new IOException("Posted content length of " + length +
-          " exceeds limit of " + maxSize);
+                            " exceeds limit of " + maxSize);
     }
 
     // Get the boundary string; it's included in the content type.
@@ -174,15 +177,15 @@ public class MultipartParser {
       throw new IOException("Separation boundary was not specified");
     }
 
-    InputStream inStream = req.getContentStream();
+    InputStream is = req.getContentStream();
 
     // If required, wrap the real input stream with classes that 
     // "enhance" its behaviour for performance and stability
     if (buffer) {
-      in = new BufferedServletInputStream(inStream);
+      in = new BufferedServletInputStream(is);
     }
     if (limitLength) {
-      in = new LimitedServletInputStream(inStream, length);
+      in = new LimitedServletInputStream(is, length);
     }
 
     // Save our values for later
@@ -211,9 +214,9 @@ public class MultipartParser {
    *
    * @param encoding The encoding to use for parsing
    */
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
+   public void setEncoding(String encoding) {
+     this.encoding = encoding;
+   }
 
   /**
    * Read the next part arriving in the stream. Will be either a
@@ -222,9 +225,11 @@ public class MultipartParser {
    * corresponds to the order of the form elements in the submitted form.
    *
    * @return either a <code>FilePart</code>, a <code>ParamPart</code> or
-   * <code>null</code> if there are no more parts to read.
-   * @throws java.io.IOException if an input or output exception has occurred.
+   *        <code>null</code> if there are no more parts to read.
+   * @exception java.io.IOException	if an input or output exception has occurred.
+   *
    * @see FilePart
+   * @see ParamPart
    */
   public Part readNextPart() throws IOException {
     // Make sure the last file was entirely read from the input
@@ -243,7 +248,8 @@ public class MultipartParser {
     if (line == null) {
       // No parts left, we're done
       return null;
-    } else if (line.length() == 0) {
+    }
+    else if (line.length() == 0) {
       // IE4 on Mac sends an empty line at the end; treat that as the end.
       // Thanks to Daniel Lemire and Henri Tourigny for this fix.
       return null;
@@ -260,9 +266,10 @@ public class MultipartParser {
         nextLine = readLine();
         if (nextLine != null
             && (nextLine.startsWith(" ")
-            || nextLine.startsWith("\t"))) {
+      	  || nextLine.startsWith("\t"))) {
           line = line + nextLine;
-        } else {
+        }
+        else {
           getNextLine = false;
         }
       }
@@ -291,7 +298,8 @@ public class MultipartParser {
         name = dispInfo[1];
         filename = dispInfo[2];
         origname = dispInfo[3];
-      } else if (headerline.toLowerCase().startsWith("content-type:")) {
+      }
+      else if (headerline.toLowerCase().startsWith("content-type:")) {
         // Get the content type, or null if none specified
         String type = extractContentType(headerline);
         if (type != null) {
@@ -301,15 +309,19 @@ public class MultipartParser {
     }
 
     // Now, finally, we read the content (end after reading the boundary)
-    if (filename != null) {
+    if (filename == null) {
+      // This is a parameter, add it to the vector of values
+      // The encoding is needed to help parse the value
+      return new ParamPart(name, in, boundary, encoding);
+    }
+    else {
       // This is a file
       if (filename.equals("")) {
         filename = null; // empty filename, probably an "empty" file param
       }
-      lastFilePart = new FilePart(name, in, boundary,
-          contentType, filename, origname);
+      lastFilePart = new FilePart(name, in, boundary,contentType, filename, origname);
+      return lastFilePart;
     }
-    return lastFilePart;
   }
 
   /**
@@ -342,7 +354,7 @@ public class MultipartParser {
    * array with elements: disposition, name, filename.
    *
    * @return String[] of elements: disposition, name, filename.
-   * @throws java.io.IOException if the line is malformatted.
+   * @exception  java.io.IOException if the line is malformatted.
    */
   private String[] extractDispositionInfo(String line) throws IOException {
     // Return the line's data as an array: disposition, name, filename
@@ -375,7 +387,8 @@ public class MultipartParser {
       end = line.indexOf(";", start + 6);
       if (start == -1) {
         throw new IOException("Content disposition corrupt: " + origline);
-      } else if (end == -1) {
+      }
+      else if (end == -1) {
         end = line.length();
       }
       startOffset = 5;  // without quotes we have one fewer char to skip
@@ -392,7 +405,7 @@ public class MultipartParser {
       origname = filename;
       // The filename may contain a full path.  Cut to just the filename.
       int slash =
-          Math.max(filename.lastIndexOf('/'), filename.lastIndexOf('\\'));
+        Math.max(filename.lastIndexOf('/'), filename.lastIndexOf('\\'));
       if (slash > -1) {
         filename = filename.substring(slash + 1);  // past last slash
       }
@@ -412,7 +425,7 @@ public class MultipartParser {
    * line was empty.
    *
    * @return content type, or null if line was empty.
-   * @throws java.io.IOException if the line is malformatted.
+   * @exception  java.io.IOException if the line is malformatted.
    */
   private static String extractContentType(String line) throws IOException {
     // Convert the line to a lowercase string
@@ -433,9 +446,9 @@ public class MultipartParser {
   /**
    * Read the next line of input.
    *
-   * @return a String containing the next line of input from the stream,
-   * or null to indicate the end of the stream.
-   * @throws java.io.IOException if an input or output exception has occurred.
+   * @return     a String containing the next line of input from the stream,
+   *        or null to indicate the end of the stream.
+   * @exception java.io.IOException	if an input or output exception has occurred.
    */
   private String readLine() throws IOException {
     StringBuffer sbuf = new StringBuffer();
@@ -459,7 +472,8 @@ public class MultipartParser {
     int len = sbuf.length();
     if (len >= 2 && sbuf.charAt(len - 2) == '\r') {
       sbuf.setLength(len - 2);  // cut \r\n
-    } else if (len >= 1 && sbuf.charAt(len - 1) == '\n') {
+    }
+    else if (len >= 1 && sbuf.charAt(len - 1) == '\n') {
       sbuf.setLength(len - 1);  // cut \n
     }
     return sbuf.toString();

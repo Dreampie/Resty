@@ -1,10 +1,12 @@
 package cn.dreampie.client;
 
 import cn.dreampie.client.exception.ClientException;
+import cn.dreampie.common.util.Maper;
 import cn.dreampie.log.Logger;
 
 import java.io.*;
-import java.net.ConnectException;
+import java.net.HttpCookie;
+import java.util.*;
 import java.net.HttpURLConnection;
 
 /**
@@ -14,16 +16,23 @@ public class Client extends ClientConnection {
 
   private static final Logger logger = Logger.getLogger(Client.class);
 
-  protected Client(ClientRequest clientRequest) {
-    super(clientRequest);
+  public Client(String apiUrl) {
+    super(apiUrl);
   }
 
-  public static Client newInstance(ClientRequest clientRequest) {
-    return new Client(clientRequest);
+  public Client(String apiUrl, String loginApi, String username, String password) {
+    super(apiUrl, new ClientRequest(loginApi, HttpMethod.POST, Maper.of("username", username, "password", password)));
+    //login
+    login(null);
+  }
+
+  public Client build(ClientRequest clientRequest) {
+    this.clientRequest = clientRequest;
+    return this;
   }
 
 
-  public String ask() {
+  public ResponseData ask() {
     HttpURLConnection conn = null;
     try {
       conn = getHttpConnection();
@@ -38,33 +47,46 @@ public class Client extends ClientConnection {
     }
   }
 
+  private ResponseData login(ClientRequest clientRequest) {
+    //login
+    ResponseData result = this.build(loginRequest).ask();
+    if (result.getHttpCode() != 200) {
+      logger.warn(result.getData());
+    }
+    if (clientRequest != null)
+      result = this.build(clientRequest).ask();
+    return result;
+  }
 
-  private String readResponse(HttpURLConnection conn) throws IOException {
-    logger.debug("Connection done. The server's response code is: %s", conn.getResponseCode());
+  private ResponseData readResponse(HttpURLConnection conn) throws IOException {
+    int httpCode = conn.getResponseCode();
+    logger.debug("Connection done. The server's response code is: %s", httpCode);
     InputStream is = null;
     try {
-      if (conn.getResponseCode() == HttpURLConnection.HTTP_OK || conn.getResponseCode() == HttpURLConnection.HTTP_PARTIAL) {
-        logger.debug("Reading an OK (%s) response", conn.getResponseCode());
+      if (httpCode == HttpURLConnection.HTTP_OK || httpCode == HttpURLConnection.HTTP_PARTIAL) {
+        logger.debug("Reading an OK (%s) response", httpCode);
         is = conn.getInputStream();
-      } else if (conn.getResponseCode() == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-        logger.debug("Reading an Error (%s) response", conn.getResponseCode());
-        is = conn.getErrorStream();
-      } else if (conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-        logger.debug("Reading a Not Found (%s) response", conn.getResponseCode());
-        throw new ClientException("Page or Resource Not Found", conn.getResponseCode());
-      } else if (conn.getResponseCode() == HttpURLConnection.HTTP_NO_CONTENT) {
-        logger.debug("Returning a No Content (null) (%s) response", conn.getResponseCode());
+      } else if (httpCode == HttpURLConnection.HTTP_NOT_FOUND) {
+        logger.debug("Reading a Not Found (%s) response", httpCode);
+        throw new ClientException("Page or Resource Not Found", httpCode);
+      } else if (httpCode == HttpURLConnection.HTTP_NO_CONTENT) {
+        logger.debug("Returning a No Content (null) (%s) response", httpCode);
         return null;
+      } else if (loginRequest != null && httpCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+        logger.info("Relogin to server.");
+        return login(clientRequest);
       }
       if (is == null) {
-        logger.warn("InputStream is null!!");
-        throw new ConnectException("Can't connect to server");
+        is = conn.getErrorStream();
+        if (is == null) {
+          logger.warn("Api " + clientRequest.getRestUrl() + " response is null!!");
+        }
       }
       //是否是下载文件
       if (clientRequest.getDownloadFile() != null) {
-        return readFile(is, conn.getContentLength());//服务器端在这种下载的情况下  返回总是大1 未知原因
+        return new ResponseData(httpCode, readFile(is, conn.getContentLength()));//服务器端在这种下载的情况下  返回总是大1 未知原因
       } else {
-        return readString(is);
+        return new ResponseData(httpCode, readString(is));
       }
     } finally {
       if (is != null) {
@@ -72,6 +94,7 @@ public class Client extends ClientConnection {
       }
     }
   }
+
 
   private String readString(InputStream is) throws IOException {
     BufferedReader rd = new BufferedReader(new InputStreamReader(is));

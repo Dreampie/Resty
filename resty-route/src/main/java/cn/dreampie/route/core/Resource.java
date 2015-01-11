@@ -86,6 +86,17 @@ public abstract class Resource {
     return uploadFiles.get(filename);
   }
 
+  public Hashtable<String, List<String>> getParameters() {
+    if (multipartBuilder == null)
+      getFiles();//默认的上传文件
+    return multipartBuilder.getParameters();
+  }
+
+  public List<String> getParameters(String param) {
+    Hashtable<String, List<String>> parameters = getParameters();
+    return parameters.get(param);
+  }
+
 }
 
 

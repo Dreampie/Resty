@@ -11,6 +11,7 @@ import cn.dreampie.upload.multipart.FileRenamePolicy;
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * Created by ice on 15-1-6.
@@ -24,6 +25,7 @@ public class MultipartBuilder {
   private HttpRequest request;
   private MultipartRequest multipartRequest;
   private Hashtable<String, UploadedFile> uploadedFiles = new Hashtable<String, UploadedFile>();
+  protected Hashtable<String, List<String>> parameters = new Hashtable<String, List<String>>();  // name - Vector of values
 
 
   public MultipartBuilder(HttpRequest request, String saveDirectory, int maxPostSize, String encoding, FileRenamePolicy fileRenamePolicy) {
@@ -70,7 +72,16 @@ public class MultipartBuilder {
   }
 
   public Hashtable<String, UploadedFile> getFiles() {
+    readContentStream();
+    return uploadedFiles;
+  }
 
+  public Hashtable<String, List<String>> getParameters() {
+    readContentStream();
+    return parameters;
+  }
+
+  private void readContentStream() {
     if (multipartRequest == null) {
       File saveDir = new File(request.getRealPath("/") + saveDirectory);
       if (!saveDir.exists()) {
@@ -82,10 +93,10 @@ public class MultipartBuilder {
       try {
         multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamePolicy, uploadDenieds);
         uploadedFiles = multipartRequest.getFiles();
+        parameters = multipartRequest.getParameters();
       } catch (IOException e) {
         throw new WebException("Could not init multipartRequest for upload file.");
       }
     }
-    return uploadedFiles;
   }
 }

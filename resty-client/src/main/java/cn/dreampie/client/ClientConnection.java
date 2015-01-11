@@ -6,9 +6,7 @@ import cn.dreampie.log.Logger;
 
 import javax.net.ssl.*;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -23,12 +21,27 @@ import java.util.Random;
 public class ClientConnection {
   private static final Logger logger = Logger.getLogger(ClientConnection.class);
 
-
+  protected ClientRequest loginRequest;
   protected ClientRequest clientRequest;
+  protected CookieManager cookieManager = new CookieManager();
 
-  protected ClientConnection(ClientRequest clientRequest) {
-    super();
+  protected String apiUrl;
+
+  protected ClientConnection(String apiUrl) {
+    this(apiUrl, null);
+  }
+
+  protected ClientConnection(String apiUrl, ClientRequest loginRequest) {
+    this(apiUrl, loginRequest, null);
+  }
+
+  protected ClientConnection(String apiUrl, ClientRequest loginRequest, ClientRequest clientRequest) {
+    this.apiUrl = apiUrl;
+    this.loginRequest = loginRequest;
     this.clientRequest = clientRequest;
+    //add cookieManager
+    cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+    CookieHandler.setDefault(cookieManager);
   }
 
   /**
@@ -75,7 +88,7 @@ public class ClientConnection {
     String method = clientRequest.getMethod();
     //使用OutPutStream输出参数
     if (HttpMethod.OUT_METHODS.contains(method)) {
-      _url = new URL(clientRequest.getRestUrl());
+      _url = new URL(apiUrl + clientRequest.getRestUrl());
       conn = openHttpURLConnection(_url, method);
 
       conn.setDoOutput(true);
@@ -99,7 +112,7 @@ public class ClientConnection {
             if (value == null) continue;
             builder.append("\r\n").append("--").append(boundary).append("\r\n");
             builder.append("Content-Disposition: form-data; name=\"" + key + "\"\r\n\r\n");
-            builder.append(URLEncoder.encode(value, clientRequest.getEncoding()));
+            builder.append(value);
           }
           writer.write(builder.toString().getBytes());
         }
@@ -123,7 +136,7 @@ public class ClientConnection {
         }
       }
     } else {
-      _url = new URL(clientRequest.getEncodedUrl());
+      _url = new URL(apiUrl + clientRequest.getEncodedUrl());
       conn = openHttpURLConnection(_url, method);
     }
 
@@ -177,7 +190,18 @@ public class ClientConnection {
     }
   }
 
+  /**
+   * open a  Connection
+   *
+   * @param _url
+   * @param method
+   * @return
+   * @throws IOException
+   */
   private HttpURLConnection openHttpURLConnection(URL _url, String method) throws IOException {
+    logger.info("Open connection for api " + _url.getPath());
+
+    HttpURLConnection.setFollowRedirects(true);
     HttpURLConnection conn;
     conn = (HttpURLConnection) _url.openConnection();
     conn.setRequestMethod(method);
@@ -194,6 +218,7 @@ public class ClientConnection {
     if (headers != null && !headers.isEmpty())
       for (Map.Entry<String, String> entry : headers.entrySet())
         conn.setRequestProperty(entry.getKey(), entry.getValue());
+
     return conn;
   }
 

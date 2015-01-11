@@ -17,14 +17,14 @@ public class MyAuthenticateService implements AuthenticateService {
     DefaultPasswordService defaultPasswordService = new DefaultPasswordService();
 
     Principal principal = new Principal(username, defaultPasswordService.hash("123"), new HashSet<String>() {{
-      add("api");
+      add("users");
     }});
     return principal;
   }
 
   public Set<Permission> loadAllPermissions() {
     Set<Permission> permissions = new HashSet<Permission>();
-    permissions.add(new Permission("GET", "/api/transactions**", "api"));
+    permissions.add(new Permission("GET", "/api/v1.0/users**", "users"));
     return permissions;
   }
 }

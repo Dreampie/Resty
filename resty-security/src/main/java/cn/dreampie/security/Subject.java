@@ -23,15 +23,15 @@ public class Subject {
     Subject.passwordService = passwordService;
   }
 
-  public int getExpires() {
+  public static int getExpires() {
     return Session.current().getExpires();
   }
 
-  public Principal getPrincipal() {
+  public static Principal getPrincipal() {
     return Session.current().getPrincipal();
   }
 
-  public Map<String, String> getValues() {
+  public static Map<String, String> getValues() {
     return Session.current().getValues();
   }
 

@@ -7,10 +7,7 @@ package cn.dreampie.upload;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.util.Lister;
 import cn.dreampie.log.Logger;
-import cn.dreampie.upload.multipart.FilePart;
-import cn.dreampie.upload.multipart.FileRenamePolicy;
-import cn.dreampie.upload.multipart.MultipartParser;
-import cn.dreampie.upload.multipart.Part;
+import cn.dreampie.upload.multipart.*;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +16,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * A utility class to handle <code>multipart/form-data</code> requests,
@@ -56,6 +54,7 @@ public class MultipartRequest {
   private static final Logger logger = Logger.getLogger(MultipartRequest.class);
   private static final int DEFAULT_MAX_POST_SIZE = 1024 * 1024;  // 1 Meg
 
+  protected Hashtable<String, List<String>> parameters = new Hashtable<String, List<String>>();  // name - Vector of values
   protected Hashtable<String, UploadedFile> files = new Hashtable<String, UploadedFile>();       // name - UploadedFile
 
   /**
@@ -233,10 +232,21 @@ public class MultipartRequest {
     List<String> mimeTypes = Lister.of(denieds);
     boolean checkType = mimeTypes.size() > 0;
 
+
     Part part;
     while ((part = parser.readNextPart()) != null) {
       String name = part.getName();
-      if (part.isFile()) {
+      if (part.isParam()) {
+        // It's a parameter part, add it to the vector of values
+        ParamPart paramPart = (ParamPart) part;
+        String value = paramPart.getStringValue();
+        Vector existingValues = (Vector) parameters.get(name);
+        if (existingValues == null) {
+          existingValues = new Vector();
+          parameters.put(name, existingValues);
+        }
+        existingValues.addElement(value);
+      } else if (part.isFile()) {
         // It's a file part
         FilePart filePart = (FilePart) part;
 
@@ -377,6 +387,16 @@ public class MultipartRequest {
    */
   public Hashtable<String, UploadedFile> getFiles() {
     return files;
+  }
+
+  /**
+   * Returns all Param objects for the specified param saved on the server's
+   * filesystem
+   *
+   * @return a Param objects.
+   */
+  public Hashtable<String, List<String>> getParameters() {
+    return parameters;
   }
 }
 

@@ -57,49 +57,55 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 3.极简的客户端设计，支持各种请求，文件上传和文件下载（支持断点续传）
 
 ```java
-  String basUrl = "http://localhost:8081/api/v1.0";
+  Client client=null;//创建客户端对象
+  //启动resty-example项目，即可测试客户端
+  String apiUrl = "http://localhost:8081/api/v1.0";
+  //如果不需要 使用账号登陆
+  //client = new Client(apiUrl);
+  //如果有账号权限限制  需要登陆
+  client = new Client(apiUrl, "/tests/login", "u", "123");
+
+  //该请求必须  登陆之后才能访问  未登录时返回 401  未认证
+  ClientRequest authRequest = new ClientRequest("/users", HttpMethod.GET);
+  ResponseData authResult = client.build(authRequest).ask();
+  System.out.println(authResult.getData());
 
   //get
-  ClientRequest getRequest = new ClientRequest(basUrl + "/tests", HttpMethod.GET);
-  Client getClient = Client.newInstance(getRequest);
-  String getResult = getClient.ask();
-  System.out.println(getResult);
+  ClientRequest getRequest = new ClientRequest("/tests", HttpMethod.GET);
+  ResponseData getResult = client.build(getRequest).ask();
+  System.out.println(getResult.getData());
 
   //post
-  ClientRequest postRequest = new ClientRequest(basUrl + "/tests", HttpMethod.POST);
+  ClientRequest postRequest = new ClientRequest("/tests", HttpMethod.POST);
   postRequest.addParameter("test", Jsoner.toJSONString(Maper.of("a", "谔谔")));
-  Client postClient = Client.newInstance(postRequest);
-  String postResult = postClient.ask();
-  System.out.println(postResult);
+  ResponseData postResult = client.build(postRequest).ask();
+  System.out.println(postResult.getData());
 
   //put
-  ClientRequest putRequest = new ClientRequest(basUrl + "/tests/x", HttpMethod.PUT);
-  Client putClient = Client.newInstance(putRequest);
-  String putResult = putClient.ask();
-  System.out.println(putResult);
+  ClientRequest putRequest = new ClientRequest("/tests/x", HttpMethod.PUT);
+  ResponseData putResult = client.build(putRequest).ask();
+  System.out.println(putResult.getData());
 
 
   //delete
-  ClientRequest deleteRequest = new ClientRequest(basUrl + "/tests/a", HttpMethod.DELETE);
-  Client deleteClient = Client.newInstance(deleteRequest);
-  String deleteResult = deleteClient.ask();
-  System.out.println(deleteResult);
+  ClientRequest deleteRequest = new ClientRequest("/tests/a", HttpMethod.DELETE);
+  ResponseData deleteResult = client.build(deleteRequest).ask();
+  System.out.println(deleteResult.getData());
 
 
   //upload
-  ClientRequest uploadRequest = new ClientRequest(basUrl + "/tests/resty", HttpMethod.POST);
+  ClientRequest uploadRequest = new ClientRequest("/tests/resty", HttpMethod.POST);
   uploadRequest.addUploadFiles("resty", ClientTest.class.getResource("/resty.jar").getFile());
-  Client uploadClient = Client.newInstance(uploadRequest);
-  String uploadResult = uploadClient.ask();
-  System.out.println(uploadResult);
+  uploadRequest.addParameter("des", "test file  paras  测试笔");
+  ResponseData uploadResult = client.build(uploadRequest).ask();
+  System.out.println(uploadResult.getData());
 
 
   //download  支持断点续传
-  ClientRequest downloadRequest = new ClientRequest(basUrl + "/tests/file", HttpMethod.GET);
+  ClientRequest downloadRequest = new ClientRequest("/tests/file", HttpMethod.GET);
   downloadRequest.setDownloadFile(ClientTest.class.getResource("/resty.jar").getFile().replace(".jar", "x.jar"));
-  Client downloadClient = Client.newInstance(downloadRequest);
-  String downloadResult = downloadClient.ask();
-  System.out.println(downloadResult);
+  ResponseData downloadResult = client.build(downloadRequest).ask();
+  System.out.println(downloadResult.getData());
 ```
 
 

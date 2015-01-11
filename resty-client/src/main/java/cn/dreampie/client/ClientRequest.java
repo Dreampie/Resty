@@ -13,8 +13,8 @@ public class ClientRequest {
   private String encoding;
   private Map<String, String> parameters = Maper.of();
   private Map<String, String> headers = Maper.of();
-  private int connectTimeOut = 5000;
-  private int readTimeOut = 5000;
+  private int connectTimeOut = 10000;
+  private int readTimeOut = 10000;
   private String downloadFile;
   private Map<String, String> uploadFiles = Maper.of();
 

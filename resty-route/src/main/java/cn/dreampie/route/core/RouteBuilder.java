@@ -8,6 +8,8 @@ import cn.dreampie.route.interceptor.InterceptorBuilder;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -103,6 +105,19 @@ public final class RouteBuilder {
         }
       }
     }
+    //对routes排序
+    Collections.sort(routes, new Comparator() {
+      public int compare(Object a, Object b) {
+        String one = ((Route) a).getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
+        String two = ((Route) b).getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
+        int result = two.length() - one.length();
+        if (result == 0) {
+          return one.compareTo(two);
+        }
+        return result;
+      }
+    });
+
   }
 
   public List<Route> getRoutes() {

@@ -68,11 +68,13 @@ public class HttpRequest extends AbstractRequest {
     return request.getParameter(param);
   }
 
-
   public List<String> getQueryParams(String param) {
-    return Arrays.asList(request.getParameterValues(param));
+    String[] values = request.getParameterValues(param);
+    if (values != null)
+      return Arrays.asList(values);
+    else
+      return null;
   }
-
 
   public Map<String, List<String>> getQueryParams() {
     if (queryParams == null) {

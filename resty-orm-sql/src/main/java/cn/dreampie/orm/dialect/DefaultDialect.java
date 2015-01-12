@@ -98,7 +98,7 @@ public abstract class DefaultDialect implements Dialect {
   }
 
   public String countWith(String sql) {
-    return "SELECT COUNT(*) FROM (" + sql + ") temp";
+    return "SELECT COUNT(*) FROM (" + sql + ") count_alias";
   }
 
 

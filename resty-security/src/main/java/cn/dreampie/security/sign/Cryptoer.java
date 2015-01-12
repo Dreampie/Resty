@@ -1,7 +1,7 @@
 package cn.dreampie.security.sign;
 
 import cn.dreampie.common.http.Charsets;
-import sun.misc.BASE64Encoder;
+import cn.dreampie.security.encode.BASE64Encoder;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

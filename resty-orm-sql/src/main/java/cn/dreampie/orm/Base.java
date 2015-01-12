@@ -11,9 +11,11 @@ import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.exception.ModelException;
 
 import java.io.Serializable;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
-import java.util.Date;
 
 import static cn.dreampie.common.util.Checker.checkArgument;
 import static cn.dreampie.common.util.Checker.checkNotNull;

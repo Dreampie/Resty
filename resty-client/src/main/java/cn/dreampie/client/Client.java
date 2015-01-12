@@ -5,8 +5,6 @@ import cn.dreampie.common.util.Maper;
 import cn.dreampie.log.Logger;
 
 import java.io.*;
-import java.net.HttpCookie;
-import java.util.*;
 import java.net.HttpURLConnection;
 
 /**

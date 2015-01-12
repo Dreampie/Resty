@@ -36,7 +36,7 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
   u.update();
   //条件更新
   User.dao.updateBy(where,paras);
-  User.dao.updateAll(columns，where,paras);
+  User.dao.updateAll(columns,where,paras);
 
   //删除
   u.deleted();

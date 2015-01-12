@@ -5,7 +5,16 @@ import cn.dreampie.common.util.Joiner;
 
 
 /**
- * @author Igor Polevoy
+ * 数据库	validationQuery
+ * Oracle	select 1 from dual
+ * DB2	select 1 from sysibm.sysdummy1
+ * mysql	select 1
+ * microsoft sql	select 1
+ * hsqldb	select 1 from INFORMATION_SCHEMA.SYSTEM_USERS
+ * postgresql	select version();
+ * ingres	select 1
+ * derby	select 1
+ * H2	select 1
  */
 public abstract class DefaultDialect implements Dialect {
 

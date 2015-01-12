@@ -8,7 +8,12 @@ import java.util.Map;
  */
 public class DialectFactory {
   private static Map<String, Dialect> dialectMap = new HashMap<String, Dialect>() {{
+    put("h2", new H2Dialect());
+    put("mssql", new MSSQLDialect());
     put("mysql", new MySQLDialect());
+    put("oracle", new OracleDialect());
+    put("postgreSQL", new PostgreSQLDialect());
+    put("sqlite", new SQLiteDialect());
   }};
 
   public static Map<String, Dialect> getDialectMap() {

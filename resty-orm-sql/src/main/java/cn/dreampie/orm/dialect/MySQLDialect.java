@@ -3,7 +3,7 @@ package cn.dreampie.orm.dialect;
 /**
  * MySQLDialect
  */
-public class MySQLDialect extends DefaultDialect {
+public class MySQLDialect extends PostgreSQLDialect {
 
   public String getDbType() {
     return "mysql";
@@ -13,8 +13,4 @@ public class MySQLDialect extends DefaultDialect {
     return "SELECT 1";
   }
 
-  public String paginateWith(int pageNo, int pageSize, String sql) {
-    int offset = pageSize * (pageNo - 1);
-    return sql + " limit " + offset + ", " + pageSize;
-  }
 }

@@ -22,8 +22,6 @@ public class Client extends ClientConnection {
 
   public Client(String apiUrl, String loginApi, String username, String password) {
     super(apiUrl, new ClientRequest(loginApi, HttpMethod.POST, Maper.of("username", username, "password", password)));
-    //login
-    login(null);
   }
 
   public Client build(ClientRequest clientRequest) {
@@ -39,6 +37,8 @@ public class Client extends ClientConnection {
       conn.connect();
       return readResponse(conn);
     } catch (Exception e) {
+      if (e instanceof ClientException)
+        throw (ClientException) e;
       throw new ClientException(e);
     } finally {
       if (conn != null) {
@@ -49,12 +49,13 @@ public class Client extends ClientConnection {
 
   private ResponseData login(ClientRequest clientRequest) {
     //login
-    ResponseData result = this.build(loginRequest).ask();
+    ResponseData result = build(loginRequest).ask();
     if (result.getHttpCode() != 200) {
-      logger.warn(result.getData());
+      throw new ClientException("Login error " + result.getHttpCode() + " " + result.getData());
+    } else {
+      if (clientRequest != null)
+        result = build(clientRequest).ask();
     }
-    if (clientRequest != null)
-      result = this.build(clientRequest).ask();
     return result;
   }
 
@@ -74,7 +75,8 @@ public class Client extends ClientConnection {
         return null;
       } else if (loginRequest != null && httpCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
         logger.info("Relogin to server.");
-        return login(clientRequest);
+        if (!clientRequest.equals(loginRequest))
+          return login(clientRequest);
       }
       if (is == null) {
         is = conn.getErrorStream();

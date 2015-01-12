@@ -19,4 +19,11 @@ public class ResponseData {
   public String getData() {
     return data;
   }
+
+  public String toString() {
+    return "ResponseData{" +
+        "httpCode=" + httpCode +
+        ", data='" + data + '\'' +
+        '}';
+  }
 }

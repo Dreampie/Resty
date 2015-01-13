@@ -7,10 +7,10 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <version>${project.parent.version}</version>
-  <artifactId>resty-orm-nosql</artifactId>
+  <artifactId>resty-nosql</artifactId>
   <packaging>jar</packaging>
 
-  <name>resty-orm-nosql</name>
+  <name>resty-nosql</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -36,16 +36,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.mongodb</groupId>
-      <artifactId>mongo-java-driver</artifactId>
-      <version>${mongodb.version}</version>
-      <scope>provided</scope>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-log</artifactId>
+      <version>${resty.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>redis.clients</groupId>
-      <artifactId>jedis</artifactId>
-      <version>${jedis.version}</version>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongo-java-driver</artifactId>
+      <version>${mongodb.version}</version>
       <scope>provided</scope>
     </dependency>
 

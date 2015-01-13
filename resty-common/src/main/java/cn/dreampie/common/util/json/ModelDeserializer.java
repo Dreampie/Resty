@@ -25,7 +25,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
 
     Class<?> clazz = (Class<?>) type;
     if (clazz.isInterface()) {
-      throw new JSONException("unsupport type " + type);
+      throw new JSONException("Unsupport type " + type);
     }
 
 
@@ -33,7 +33,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
       Entity<T> e = (Entity<T>) clazz.newInstance();
       return e.putAttrs(json);
     } catch (Exception e) {
-      throw new JSONException("unsupport type " + type, e);
+      throw new JSONException("Unsupport type " + type, e);
     }
   }
 

@@ -1,6 +1,5 @@
 package cn.dreampie.orm.dialect;
 
-import cn.dreampie.common.util.Joiner;
 import cn.dreampie.orm.exception.DBException;
 
 import java.util.regex.Matcher;

@@ -3,6 +3,7 @@ package cn.dreampie.route.config;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.Render;
 import cn.dreampie.orm.cache.CacheManager;
+import cn.dreampie.orm.cache.EHCacheManager;
 import cn.dreampie.route.render.RenderFactory;
 
 /**
@@ -31,7 +32,7 @@ final public class ConstantLoader {
 
   //cache
   public void setCacheManager(CacheManager cacheManager) {
-    Constant.cacheManager = cacheManager;
+    setCacheManager(cacheManager, true);
   }
 
   public void setCacheManager(CacheManager cacheManager, boolean cacheEnable) {
@@ -40,7 +41,7 @@ final public class ConstantLoader {
   }
 
   public void setCacheEnable(boolean cacheEnable) {
-    Constant.cache_enabled = cacheEnable;
+    setCacheManager(new EHCacheManager(), cacheEnable);
   }
 
   //upload

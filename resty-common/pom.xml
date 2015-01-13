@@ -22,6 +22,7 @@
   </properties>
 
   <dependencies>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -30,16 +31,21 @@
     </dependency>
 
     <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>fastjson</artifactId>
-      <version>${fastjson.version}</version>
-      <scope>provided</scope>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-log</artifactId>
+      <version>${resty.version}</version>
     </dependency>
 
     <dependency>
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-cache</artifactId>
       <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>${fastjson.version}</version>
       <scope>provided</scope>
     </dependency>
 

@@ -8,7 +8,7 @@
   <modules>
     <module>resty-route</module>
     <module>resty-orm-sql</module>
-    <module>resty-orm-nosql</module>
+    <module>resty-nosql</module>
     <module>resty-example</module>
     <module>resty-cache</module>
     <module>resty-log</module>
@@ -33,7 +33,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.18.1</version>
         <configuration>
-          <skipTests>true</skipTests>
+          <skipTests>false</skipTests>
         </configuration>
       </plugin>
     </plugins>

@@ -9,6 +9,11 @@ import cn.dreampie.common.util.HttpTyper;
  * Created by ice on 14-12-29.
  */
 public class TextRender extends Render {
+
+  public Render newInstance() {
+    return new TextRender();
+  }
+
   public void render(HttpRequest request, HttpResponse response, Object out) {
     response.setContentType(HttpTyper.ContentType.TEXT.toString());
     if (out == null) {

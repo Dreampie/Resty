@@ -3,9 +3,13 @@ package cn.dreampie.route.core;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.HttpStatus;
+import cn.dreampie.common.http.WebResult;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.handler.Handler;
+import cn.dreampie.route.render.FileRender;
+
+import java.io.File;
 
 /**
  * ActionHandler
@@ -37,8 +41,22 @@ public final class RouteHandler extends Handler {
 
     isHandled[0] = true;
     if (routeMatch != null) {
-      response.setStatus(HttpStatus.OK);
-      routeMatch.getRender().render(request, response, new RouteInvocation(route, routeMatch).invoke());
+      Object invokeResult = new RouteInvocation(route, routeMatch).invoke();
+      Object result;
+      //通过特定的webresult返回并携带状态码
+      if (invokeResult instanceof WebResult) {
+        WebResult webResult = (WebResult) invokeResult;
+        response.setStatus(webResult.getStatus());
+        result = webResult.getResult();
+      } else {
+        result = invokeResult;
+      }
+      //file render
+      if (result instanceof File) {
+        new FileRender().render(request, response, result);
+      } else {
+        routeMatch.getRender().render(request, response, result);
+      }
     } else {
       if (!request.getRestPath().equals("/"))
         // no route matched

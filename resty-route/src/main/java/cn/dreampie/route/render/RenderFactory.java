@@ -18,21 +18,27 @@ public class RenderFactory {
   }};
 
   public static void add(String extension, Render render) {
-    if (!FileRender.class.isAssignableFrom(render.getClass()))
+    if (!(render instanceof FileRender))
       renderMap.put(extension, render);
   }
 
   public static void add(String extension, Render render, boolean isDefault) {
-    if (!FileRender.class.isAssignableFrom(render.getClass())) {
+    if (!(render instanceof FileRender)) {
       renderMap.put(extension, render);
       if (isDefault) defaultExtension = extension;
     }
   }
 
+  /**
+   * 返回新的render对象
+   *
+   * @param extension 扩展名
+   * @return
+   */
   public static Render get(String extension) {
     Render render = renderMap.get(extension);
     if (render == null) {
-      render = renderMap.get(defaultExtension);
+      render = renderMap.get(defaultExtension).newInstance();
     }
     return render;
   }

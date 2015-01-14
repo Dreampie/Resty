@@ -15,8 +15,12 @@ import java.io.*;
 public class FileRender extends Render {
   private static final Logger logger = Logger.getLogger(FileRender.class);
 
+  public Render newInstance() {
+    return new FileRender();
+  }
+
   public void render(HttpRequest request, HttpResponse response, Object outFile) {
-    if (File.class.isAssignableFrom(outFile.getClass())) {
+    if (outFile instanceof File) {
       File file = (File) outFile;
       BufferedInputStream bis = null;
       try {
@@ -120,6 +124,8 @@ public class FileRender extends Render {
         logger.error(e.getMessage(), e);
       }
 
+    } else {
+      throw new WebException("File render error.");
     }
   }
 }

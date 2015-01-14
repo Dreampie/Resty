@@ -1,17 +1,14 @@
 package cn.dreampie.route.core;
 
 
-import cn.dreampie.common.Render;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.ParamNamesScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
-import cn.dreampie.route.render.FileRender;
 import cn.dreampie.route.render.RenderFactory;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -43,19 +40,11 @@ public class Route {
 
   private final Interceptor[] interceptors;
 
-  private final Render render;
-
   public Route(Class<? extends Resource> resourceClass, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors) {
     this.resourceClass = resourceClass;
     this.httpMethod = checkNotNull(httpMethod);
     this.pathPattern = checkNotNull(pathPattern);
     this.method = method;
-    //文件类型
-    if (File.class.isAssignableFrom(method.getReturnType())) {
-      render = new FileRender();
-    } else {
-      render = null;
-    }
 
     this.interceptors = interceptors;
 
@@ -147,11 +136,8 @@ public class Route {
       sb.append("--------------------------------------------------------------------------------\n");
       logger.info(sb.toString());
     }
-    if (render != null) {
-      return new RouteMatch(pathPattern, restPath, render, params, otherParams, request, response);
-    } else {
-      return new RouteMatch(pathPattern, restPath, extension, params, otherParams, request, response);
-    }
+
+    return new RouteMatch(pathPattern, restPath, extension, params, otherParams, request, response);
   }
 
 

@@ -11,6 +11,14 @@ import java.io.PrintWriter;
  * Created by ice on 14-12-29.
  */
 public abstract class Render {
+
+  /**
+   * 必须实现该方法 来创建一个新的render实例  以保证线程安全
+   *
+   * @return render
+   */
+  public abstract Render newInstance();
+
   /**
    * Render to client
    */

@@ -4,7 +4,7 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.WebException;
-import cn.dreampie.common.util.pattern.ServletPathMatcher;
+import cn.dreampie.common.util.pattern.AntPathMatcher;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.config.Config;
 import cn.dreampie.route.exception.InitException;
@@ -55,11 +55,10 @@ public final class RestyFilter implements Filter {
     }
 
     for (String pattern : excludesPattern) {
-      if (ServletPathMatcher.instance().matches(pattern, requestURI)) {
+      if (AntPathMatcher.instance().matches(pattern, requestURI)) {
         return true;
       }
     }
-
     return false;
   }
 

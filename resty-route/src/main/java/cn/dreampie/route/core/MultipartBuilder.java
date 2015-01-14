@@ -86,7 +86,7 @@ public class MultipartBuilder {
       File saveDir = new File(request.getRealPath("/") + saveDirectory);
       if (!saveDir.exists()) {
         if (!saveDir.mkdirs()) {
-          throw new RuntimeException("Directory " + saveDirectory + " not exists and can not create directory.");
+          throw new WebException("Directory " + saveDirectory + " not exists and can not create directory.");
         }
       }
 
@@ -95,7 +95,7 @@ public class MultipartBuilder {
         uploadedFiles = multipartRequest.getFiles();
         parameters = multipartRequest.getParameters();
       } catch (IOException e) {
-        throw new WebException("Could not init multipartRequest for upload file.");
+        throw new WebException(e.getMessage());
       }
     }
   }

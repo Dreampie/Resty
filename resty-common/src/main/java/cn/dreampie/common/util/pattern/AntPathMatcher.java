@@ -419,7 +419,7 @@ public class AntPathMatcher implements PatternMatcher {
   public static void main(String[] args) {
     AntPathMatcher antPathMatcher = new AntPathMatcher();
 
-    System.out.println(antPathMatcher.match("/*/api", "/dadasdsa/api"));
+    System.out.println(antPathMatcher.match("/*.jpg", "/dadasdsa/api.jpg"));
   }
 
 }

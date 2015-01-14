@@ -1,5 +1,7 @@
 package cn.dreampie;
 
+import cn.dreampie.common.http.HttpStatus;
+import cn.dreampie.common.http.WebResult;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.route.core.annotation.DELETE;
 import cn.dreampie.route.core.annotation.GET;
@@ -25,8 +27,9 @@ public class TestResource extends ApiResource {
   }
 
   @GET("/tests")
-  public Map get() {
-    return Maper.of("a", "1", "b", "2");
+  public WebResult get() {
+    //如果需要返回请求状态  new WebResult
+    return new WebResult(HttpStatus.OK, Maper.of("a", "1", "b", "2"));
   }
 
   @POST("/tests")

@@ -38,9 +38,10 @@ public class RenderFactory {
   public static Render get(String extension) {
     Render render = renderMap.get(extension);
     if (render == null) {
-      render = renderMap.get(defaultExtension).newInstance();
+      return renderMap.get(defaultExtension).newInstance();
+    } else {
+      return render.newInstance();
     }
-    return render;
   }
 
   public static Render getByUrl(String url) {
@@ -56,6 +57,6 @@ public class RenderFactory {
   }
 
   public static Render getDefaultRender() {
-    return renderMap.get(defaultExtension);
+    return get(defaultExtension);
   }
 }

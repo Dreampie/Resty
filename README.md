@@ -208,7 +208,7 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 二、运行example示例：
 -----------------
 
-1.运行根目录下的pom.xml->install （把相关的插件安装到本地，功能完善之后发布到maven就不需要这样了）
+1.运行根目录下的pom.xml->install （命令行： mvn clean install -Dmaven.test.skip=true ，install时跳过测试，因为测试需要连接数据库，没有数据库会失败，把相关的插件安装到本地，功能完善之后发布到maven就不需要这样了）
 
 2.在本地mysql数据库里创建demo,example数据库，对应application.properties的数据库配置
 

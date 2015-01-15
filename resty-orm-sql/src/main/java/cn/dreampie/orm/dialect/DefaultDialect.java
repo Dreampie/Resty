@@ -23,11 +23,7 @@ public abstract class DefaultDialect implements Dialect {
   }
 
   public String select(String table, String... columns) {
-    StringBuilder query = new StringBuilder().append("SELECT ");
-    query.append(Joiner.on(", ").join(columns));
-    query.append(" FROM ");
-    query.append(table);
-    return query.toString();
+    return "SELECT " + Joiner.on(", ").join(columns) + " FROM " + table;
   }
 
 
@@ -38,10 +34,7 @@ public abstract class DefaultDialect implements Dialect {
   public String select(String table, String where, String... columns) {
     if (where == null) return select(table, columns);
     if (columns == null || columns.length <= 0) return select(table, where);
-    StringBuilder query = new StringBuilder().append("SELECT ");
-    query.append(Joiner.on(", ").join(columns));
-    query.append(" FROM " + table + " WHERE " + where);
-    return query.toString();
+    return "SELECT " + Joiner.on(", ").join(columns) + " FROM " + table + " WHERE " + where;
   }
 
   protected void appendQuestions(StringBuilder query, int count) {
@@ -74,17 +67,12 @@ public abstract class DefaultDialect implements Dialect {
 
 
   public String update(String table, String... columns) {
-    StringBuilder query = new StringBuilder().append("UPDATE ").append(table).append(" SET ");
-    query.append(Joiner.on("=?, ").join(columns));
-    return query.toString();
+    return "UPDATE " + table + " SET " + Joiner.on("=?, ").join(columns);
   }
 
   public String update(String table, String where, String... columns) {
     if (where == null) return update(table, columns);
-    StringBuilder query = new StringBuilder().append("UPDATE ").append(table).append(" SET ");
-    query.append(Joiner.on("=?, ").join(columns));
-    query.append(" WHERE " + where);
-    return query.toString();
+    return "UPDATE " + table + " SET " + Joiner.on("=?, ").join(columns) + " WHERE " + where;
   }
 
 

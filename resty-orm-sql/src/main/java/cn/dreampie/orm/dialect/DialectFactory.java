@@ -1,5 +1,7 @@
 package cn.dreampie.orm.dialect;
 
+import cn.dreampie.orm.exception.DBException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +23,11 @@ public class DialectFactory {
   }
 
   public static Dialect get(String dialectName) {
-    return dialectMap.get(dialectName);
+    Dialect dialect = dialectMap.get(dialectName);
+    if (dialect == null) {
+      throw new DBException("Dialect could not found for name " + dialectName + ".only support like this:" + dialectMap.keySet().toString());
+    }
+    return dialect;
   }
 
   public static void setDialectMap(Map<String, Dialect> dialectMap) {

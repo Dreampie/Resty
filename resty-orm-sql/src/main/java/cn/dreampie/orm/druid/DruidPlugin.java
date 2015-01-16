@@ -71,6 +71,10 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
   private DruidDataSource ds;
   private Dialect dialect;
 
+  public DruidPlugin(String url, String username, String password) {
+    this(url, username, password, null);
+  }
+
   public DruidPlugin(String url, String username, String password, String dialect) {
     this(url, username, password, null, dialect);
   }

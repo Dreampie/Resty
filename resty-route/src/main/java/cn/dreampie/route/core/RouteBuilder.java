@@ -1,5 +1,6 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.util.Lister;
 import cn.dreampie.route.config.InterceptorLoader;
 import cn.dreampie.route.config.ResourceLoader;
 import cn.dreampie.route.core.annotation.*;
@@ -61,8 +62,8 @@ public final class RouteBuilder {
       } else {
         apiPath = "";
       }
-
-      Method[] methods = resourceClazz.getMethods();
+      //自己的方法
+      Method[] methods = resourceClazz.getDeclaredMethods();
       for (Method method : methods) {
 
         methodInters = interceptorBuilder.buildMethodInterceptors(method);

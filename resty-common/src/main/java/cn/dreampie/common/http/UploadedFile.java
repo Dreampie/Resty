@@ -1,4 +1,4 @@
-package cn.dreampie.upload;
+package cn.dreampie.common.http;
 
 import java.io.File;
 
@@ -13,7 +13,7 @@ public class UploadedFile {
   private String original;
   private String type;
 
-  UploadedFile(String dir, String filename, String original, String type) {
+  public UploadedFile(String dir, String filename, String original, String type) {
     this.dir = dir;
     this.filename = filename;
     this.original = original;

@@ -99,8 +99,10 @@ public class Subject {
       permissions = authenticateService.loadAllPermissions();
     }
     checkNotNull(permissions, "LoadAllPermissions not get permissions data.");
+    String method;
     for (Permission permission : permissions) {
-      if (permission.getMethod().equals(httpMethod)
+      method = permission.getMethod();
+      if ((method.equals("*") || method.equals(httpMethod))
           && AntPathMatcher.instance().match(permission.getAntPath(), path)) {
         return permission.getValue();
       }

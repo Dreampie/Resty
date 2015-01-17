@@ -14,7 +14,7 @@ import cn.dreampie.orm.transaction.TransactionAspect;
 import cn.dreampie.route.core.annotation.GET;
 import cn.dreampie.route.core.annotation.POST;
 import cn.dreampie.security.Subject;
-import cn.dreampie.upload.UploadedFile;
+import cn.dreampie.common.http.UploadedFile;
 
 import java.io.File;
 import java.util.List;

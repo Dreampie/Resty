@@ -74,8 +74,8 @@ public class ClientRequest {
     return this;
   }
 
-  public ClientRequest addParameter(String headerKey, String headerValue) {
-    this.parameters.put(headerKey, headerValue);
+  public ClientRequest addParameter(String name, String value) {
+    this.parameters.put(name, value);
     return this;
   }
 
@@ -83,8 +83,8 @@ public class ClientRequest {
     this.parameters = parameters;
   }
 
-  public ClientRequest addHeader(String headerKey, String headerValue) {
-    this.headers.put(headerKey, headerValue);
+  public ClientRequest addHeader(String key, String value) {
+    this.headers.put(key, value);
     return this;
   }
 

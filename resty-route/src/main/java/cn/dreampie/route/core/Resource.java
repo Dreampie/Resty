@@ -3,7 +3,7 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.upload.UploadedFile;
+import cn.dreampie.common.http.UploadedFile;
 
 import java.util.Hashtable;
 import java.util.List;

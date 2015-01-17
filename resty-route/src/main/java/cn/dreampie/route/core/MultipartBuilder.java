@@ -4,7 +4,7 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.upload.MultipartRequest;
-import cn.dreampie.upload.UploadedFile;
+import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.upload.multipart.DefaultFileRenamePolicy;
 import cn.dreampie.upload.multipart.FileRenamePolicy;
 

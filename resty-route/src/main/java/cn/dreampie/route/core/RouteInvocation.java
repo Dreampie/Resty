@@ -51,11 +51,12 @@ public class RouteInvocation {
         logger.warn("Argument type convert error - " + e.getMessage());
         throw new WebException("Argument type convert error - " + e.getMessage());
       } catch (InvocationTargetException e) {
-        if (e.getTargetException() instanceof WebException) {
+        Throwable target = e.getTargetException();
+        if (target instanceof WebException) {
           throw (WebException) e.getTargetException();
         } else {
           logger.error("Route invocation error.", e);
-          throw new WebException("Route invocation error - " + e.getMessage());
+          throw new WebException("Route invocation error - " + target.getMessage());
         }
       } catch (InstantiationException e) {
         logger.error("Resource instantiation error.", e);

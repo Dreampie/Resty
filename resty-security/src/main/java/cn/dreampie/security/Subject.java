@@ -86,6 +86,20 @@ public class Subject {
     Session.current().set(Session.SESSION_DEF_KEY, null);
   }
 
+
+  public static String get(String key) {
+    return Session.current().get(key);
+  }
+
+  public static Session set(String key, String value) {
+    return Session.current().set(key, value);
+  }
+
+  public static String remove(String key) {
+    return Session.current().remove(key);
+  }
+
+
   /**
    * 当前的路径需要的权限值
    *
@@ -99,8 +113,10 @@ public class Subject {
       permissions = authenticateService.loadAllPermissions();
     }
     checkNotNull(permissions, "LoadAllPermissions not get permissions data.");
+    String method;
     for (Permission permission : permissions) {
-      if (permission.getMethod().equals(httpMethod)
+      method = permission.getMethod();
+      if ((method.equals("*") || method.equals(httpMethod))
           && AntPathMatcher.instance().match(permission.getAntPath(), path)) {
         return permission.getValue();
       }

@@ -9,6 +9,7 @@ import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +28,6 @@ public class ActiveRecordPlugin implements Plugin {
   private String dsName;
   private List<ModelMeta> modelMetas;
   private boolean showSql = false;
-
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
     this(DS.DEFAULT_DS_NAME, dataSourceProvider);
@@ -93,7 +93,7 @@ public class ActiveRecordPlugin implements Plugin {
       if (excludeClassPaths.size() > 0) {
         for (String excludepath : excludeClassPaths) {
           if (modelClass.getName().startsWith(excludepath)) {
-            logger.debug("exclude model:" + modelClass.getName());
+            logger.debug("Exclude model:" + modelClass.getName());
             isexclude = true;
             break;
           }
@@ -105,7 +105,7 @@ public class ActiveRecordPlugin implements Plugin {
       //add modelMeta
       modelMeta = new ModelMeta(modelClass, dsName);
       modelMetas.add(modelMeta);
-      logger.info("addMapping(" + modelMeta.getTableName() + ", " + modelClass.getName() + ")");
+      logger.info("AddMapping(" + modelMeta.getTableName() + ", " + modelClass.getName() + ")");
 
       //json  config
       Jsoner.addConfig(modelClass, ModelSerializer.instance(), ModelDeserializer.instance());

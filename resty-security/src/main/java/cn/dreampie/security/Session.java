@@ -74,6 +74,10 @@ public class Session {
     return updateCurrent(new Session(Maper.copyOf(newValues), principal, expires));
   }
 
+  String remove(String key) {
+    return values.remove(key);
+  }
+
   Session authenticateAs(Principal principal) {
     return updateCurrent(new Session(values, principal, expires)).set(Principal.PRINCIPAL_DEF_KEY, principal.getUsername());
   }

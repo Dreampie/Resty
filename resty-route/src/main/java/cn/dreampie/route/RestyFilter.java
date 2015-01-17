@@ -72,29 +72,26 @@ public final class RestyFilter implements Filter {
     HttpResponse response = new HttpResponse((HttpServletResponse) servletResponse, (HttpServletRequest) servletRequest);
     request.setCharacterEncoding(encoding);
 
-    //排除的参数
-    if (isExclusion(request.getRestUri())) {
-      chain.doFilter(servletRequest, servletResponse);
-      return;
-    }
 
     boolean[] isHandled = {false};
+    //排除的参数
+    if (!isExclusion(request.getRestUri())) {
 
-    try {
-      handler.handle(request, response, isHandled);
-    } catch (WebException e) {
-      response.setStatus(e.getStatus());
-      RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getContent());
-      if (logger.isErrorEnabled()) {
-        logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error:" + e.getMessage());
-      }
-    } catch (Exception e) {
-      RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getMessage());
-      if (logger.isErrorEnabled()) {
-        logger.error(request.getRestPath(), e);
+      try {
+        handler.handle(request, response, isHandled);
+      } catch (WebException e) {
+        response.setStatus(e.getStatus());
+        RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getContent());
+        if (logger.isErrorEnabled()) {
+          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error:" + e.getMessage());
+        }
+      } catch (Exception e) {
+        RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getMessage());
+        if (logger.isErrorEnabled()) {
+          logger.error(request.getRestPath(), e);
+        }
       }
     }
-
     if (!isHandled[0])
       chain.doFilter(servletRequest, servletResponse);
   }

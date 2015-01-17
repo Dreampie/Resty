@@ -9,7 +9,7 @@ import cn.dreampie.route.core.annotation.POST;
 import cn.dreampie.route.core.annotation.PUT;
 import cn.dreampie.security.Principal;
 import cn.dreampie.security.Subject;
-import cn.dreampie.upload.UploadedFile;
+import cn.dreampie.common.http.UploadedFile;
 
 import java.io.File;
 import java.util.Map;

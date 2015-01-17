@@ -2,7 +2,6 @@ package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,7 +11,6 @@ public abstract class Model<M extends Model> extends Base<M> {
   private static final Logger logger = Logger.getLogger(Model.class);
 
   protected String alias;
-  protected String deleteColumn = "deleted_at";
 
   public List<M> findAll() {
     return find(getDialect().select(getModelMeta().getTableName()));
@@ -49,21 +47,10 @@ public abstract class Model<M extends Model> extends Base<M> {
 
   public boolean deleteAll() {
     logger.warn("You must ensure that \"deleteAll()\" method of safety.");
-    this.set(deleteColumn, new Date());
-    return updateAll(deleteColumn);
-  }
-
-  public boolean deleteBy(String where, Object... paras) {
-    this.set(deleteColumn, new Date());
-    return updateBy(deleteColumn, where, paras);
-  }
-
-  public boolean dropAll() {
-    logger.warn("You must ensure that \"dropAll()\" method of safety.");
     return update(getDialect().delete(getModelMeta().getTableName())) > 0;
   }
 
-  public boolean dropBy(String where, Object... paras) {
+  public boolean deleteBy(String where, Object... paras) {
     return update(getDialect().delete(getModelMeta().getTableName(), where), paras) > 0;
   }
 
@@ -88,15 +75,6 @@ public abstract class Model<M extends Model> extends Base<M> {
 
   public M setAlias(String alias) {
     this.alias = alias;
-    return (M) this;
-  }
-
-  public String getDeleteColumn() {
-    return deleteColumn;
-  }
-
-  public M setDeleteColumn(String deleteColumn) {
-    this.deleteColumn = deleteColumn;
     return (M) this;
   }
 }

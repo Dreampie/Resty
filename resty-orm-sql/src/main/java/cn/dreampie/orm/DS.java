@@ -396,7 +396,7 @@ public class DS {
    * @param columns    the specific columns separate with comma character ==> ","
    */
   public Record findById(String tableName, String primaryKey, Object idValue, String... columns) {
-    String sql = dataSourceMeta.getDialect().select(tableName, primaryKey + "=?", columns);
+    String sql = dataSourceMeta.getDialect().select(tableName, "", primaryKey + "=?", columns);
     List<Record> result = find(sql, idValue);
     return result.size() > 0 ? result.get(0) : null;
   }
@@ -585,9 +585,23 @@ public class DS {
     Object id = record.get(primaryKey);
     checkNotNull(id, "You can't update model without Primary Key.");
 
-    String sql = dataSourceMeta.getDialect().update(tableName, primaryKey, record.getAttrNames());
+    String[] attrs = record.getAttrNames();
+    String[] columns = new String[attrs.length - 1];
+    Object[] paras = new Object[attrs.length];
+    int i = 0;
+    for (String attr : attrs) {
+      if (attr.equals(primaryKey)) {
+        continue;
+      }
+      columns[i] = attr;
+      paras[i] = record.get(attr);
+      i++;
+    }
+    paras[i] = id;
 
-    return update(sql, record.getAttrValues()) >= 1;
+    String sql = dataSourceMeta.getDialect().update(tableName, "", primaryKey + "=?", columns);
+
+    return update(sql, paras) >= 1;
   }
 
   /**

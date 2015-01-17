@@ -22,37 +22,62 @@ public abstract class DefaultDialect implements Dialect {
     return "SELECT * FROM " + table;
   }
 
+  protected String getAlias(String alias) {
+    if (null != alias && !"".equals(alias.trim())) {
+      alias = " " + alias;
+    } else {
+      alias = "";
+    }
+    return alias;
+  }
+
+  protected String[] getPrefix(String alias, String... columns) {
+    if (null != alias && !"".equals(alias.trim()) && null != columns && columns.length > 0) {
+      int i = 0;
+      for (String column : columns) {
+        if (column.contains(".")) {
+          break;
+        } else {
+          columns[i] = alias + "." + column;
+        }
+        i++;
+      }
+    }
+    return columns;
+  }
+
+
   public String select(String table, String... columns) {
     return "SELECT " + Joiner.on(", ").join(columns) + " FROM " + table;
   }
 
 
-  public String select(String table, String where) {
-    return where != null ? "SELECT * FROM " + table + " WHERE " + where : select(table);
+  public String select(String table, String alias, String where) {
+    return where != null ? "SELECT * FROM " + table + getAlias(alias) + " WHERE " + where : select(table, alias);
   }
 
-  public String select(String table, String where, String... columns) {
+  public String select(String table, String alias, String where, String... columns) {
     if (where == null) return select(table, columns);
-    if (columns == null || columns.length <= 0) return select(table, where);
-    return "SELECT " + Joiner.on(", ").join(columns) + " FROM " + table + " WHERE " + where;
+    if (columns == null || columns.length <= 0) return select(table, alias, where);
+    return "SELECT " + Joiner.on(", ").join(getPrefix(alias, columns)) + " FROM " + table + getAlias(alias) + " WHERE " + where;
   }
 
-  protected void appendQuestions(StringBuilder query, int count) {
+  protected void appendQuestions(StringBuilder sql, int count) {
     for (int i = 0; i < count; i++) {
       if (i == 0)
-        query.append("?");
+        sql.append("?");
       else
-        query.append(",?");
+        sql.append(",?");
     }
   }
 
   public String insert(String table, String... columns) {
-    StringBuilder query = new StringBuilder().append("INSERT INTO ").append(table).append(" (");
-    query.append(Joiner.on(", ").join(columns));
-    query.append(") VALUES (");
-    appendQuestions(query, columns.length);
-    query.append(')');
-    return query.toString();
+    StringBuilder sql = new StringBuilder().append("INSERT INTO ").append(table).append(" (");
+    sql.append(Joiner.on(", ").join(columns));
+    sql.append(") VALUES (");
+    appendQuestions(sql, columns.length);
+    sql.append(')');
+    return sql.toString();
   }
 
 
@@ -67,12 +92,12 @@ public abstract class DefaultDialect implements Dialect {
 
 
   public String update(String table, String... columns) {
-    return "UPDATE " + table + " SET " + Joiner.on("=?, ").join(columns);
+    return "UPDATE " + table + " SET " + Joiner.on("=?, ").join(columns) + "=?";
   }
 
-  public String update(String table, String where, String... columns) {
+  public String update(String table, String alias, String where, String... columns) {
     if (where == null) return update(table, columns);
-    return "UPDATE " + table + " SET " + Joiner.on("=?, ").join(columns) + " WHERE " + where;
+    return "UPDATE " + table + getAlias(alias) + " SET " + Joiner.on("=?, ").join(getPrefix(alias, columns)) + "=? WHERE " + where;
   }
 
 
@@ -81,8 +106,8 @@ public abstract class DefaultDialect implements Dialect {
   }
 
 
-  public String count(String table, String where) {
-    return "SELECT COUNT(*) FROM " + table + " WHERE " + where;
+  public String count(String table, String alias, String where) {
+    return "SELECT COUNT(*) FROM " + table + getAlias(alias) + " WHERE " + where;
   }
 
   public String countWith(String sql) {
@@ -98,11 +123,12 @@ public abstract class DefaultDialect implements Dialect {
     return paginateWith(pageNo, pageSize, select(table, columns));
   }
 
-  public String paginate(int pageNo, int pageSize, String table, String where) {
-    return paginateWith(pageNo, pageSize, select(table, where));
+  public String paginate(int pageNo, int pageSize, String table, String alias, String where) {
+    return paginateWith(pageNo, pageSize, select(table, alias, where));
   }
 
-  public String paginate(int pageNo, int pageSize, String table, String where, String... columns) {
-    return paginateWith(pageNo, pageSize, select(table, where, columns));
+  public String paginate(int pageNo, int pageSize, String table, String alias, String where, String... columns) {
+    return paginateWith(pageNo, pageSize, select(table, alias, where, columns));
   }
+
 }

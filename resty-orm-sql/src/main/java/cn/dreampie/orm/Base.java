@@ -405,13 +405,13 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @param id      the id value of the model
    */
   public M findById(String columns, Object id) {
-    String sql = getDialect().select(getModelMeta().getTableName(), getModelMeta().getPrimaryKey() + "=?", columns.split(","));
+    String sql = getDialect().select(getModelMeta().getTableName(),"", getModelMeta().getPrimaryKey() + "=?", columns.split(","));
     List<M> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }
 
   public M findByIds(String columns, Object... ids) {
-    String sql = getDialect().select(getModelMeta().getTableName(), Joiner.on("=?, ").join(getModelMeta().getPrimaryKeys()), columns.split(","));
+    String sql = getDialect().select(getModelMeta().getTableName(),"", Joiner.on("=?, ").join(getModelMeta().getPrimaryKeys()), columns.split(","));
     List<M> result = find(sql, ids);
     return result.size() > 0 ? result.get(0) : null;
   }
@@ -665,10 +665,10 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     return update(dialect.update(modelMeta.getTableName(), columns.split(",")), DS.NULL_PARA_ARRAY);
   }
 
-  public int update(String columns, String where, Object... paras) {
+  public int update(String alias, String columns, String where, Object... paras) {
     ModelMeta modelMeta = getModelMeta();
     Dialect dialect = getDialect();
-    return update(dialect.update(modelMeta.getTableName(), where, columns.split(",")), paras);
+    return update(dialect.update(modelMeta.getTableName(), alias, where, columns.split(",")), paras);
   }
 
   /**
@@ -707,7 +707,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       where = pKey + "=?";
     }
 
-    String sql = dialect.update(modelMeta.getTableName(), where, getModifyNames());
+    String sql = dialect.update(modelMeta.getTableName(),"", where, getModifyNames());
 
     if (getModifyNames().length <= 0) {  // Needn't update
       return false;

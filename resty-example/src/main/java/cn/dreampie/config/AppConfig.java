@@ -22,6 +22,7 @@ public class AppConfig extends Config {
     //constantLoader.addRender("json", new JsonRender());
     //启用缓存并在要自动使用缓存的model上  开启缓存@Table(name = "sec_user", cached = true)
     constantLoader.setCacheEnable(true);
+    constantLoader.setDevMode(prop.getBoolean("devMode", false));
   }
 
   public void configResource(ResourceLoader resourceLoader) {

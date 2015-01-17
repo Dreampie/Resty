@@ -11,23 +11,23 @@ import java.util.List;
 public abstract class Model<M extends Model> extends Base<M> {
   private static final Logger logger = Logger.getLogger(Model.class);
 
-  protected String modelName;
-  protected String deleteKey = "deleted_at";
+  protected String alias;
+  protected String deleteColumn = "deleted_at";
 
   public List<M> findAll() {
     return find(getDialect().select(getModelMeta().getTableName()));
   }
 
   public List<M> findBy(String where, Object... paras) {
-    return find(getDialect().select(getModelMeta().getTableName(), getModelName(), where), paras);
+    return find(getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras);
   }
 
   public List<M> findTopBy(int topNumber, String where, Object... paras) {
-    return paginate(1, topNumber, getDialect().select(getModelMeta().getTableName(), getModelName(), where), paras).getList();
+    return paginate(1, topNumber, getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras).getList();
   }
 
   public M findFirstBy(String where, Object... paras) {
-    return findFirst(getDialect().select(getModelMeta().getTableName(), getModelName(), where), paras);
+    return findFirst(getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras);
   }
 
   public Page<M> paginateAll(int pageNumber, int pageSize) {
@@ -35,7 +35,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public Page<M> paginateBy(int pageNumber, int pageSize, String where, Object... paras) {
-    return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), getModelName(), where), paras);
+    return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras);
   }
 
   public boolean updateAll(String columns) {
@@ -44,18 +44,18 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public boolean updateBy(String columns, String where, Object... paras) {
-    return update(getDialect().update(getModelMeta().getTableName(), getModelName(), where, columns.split(",")), paras) > 0;
+    return update(getDialect().update(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras) > 0;
   }
 
   public boolean deleteAll() {
     logger.warn("You must ensure that \"deleteAll()\" method of safety.");
-    this.set(deleteKey, new Date());
-    return updateAll(deleteKey);
+    this.set(deleteColumn, new Date());
+    return updateAll(deleteColumn);
   }
 
   public boolean deleteBy(String where, Object... paras) {
-    this.set(deleteKey, new Date());
-    return updateBy(deleteKey, where, paras);
+    this.set(deleteColumn, new Date());
+    return updateBy(deleteColumn, where, paras);
   }
 
   public boolean dropAll() {
@@ -72,18 +72,31 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   public Long countBy(String where, Object... paras) {
-    return count(getDialect().count(getModelMeta().getTableName(), getModelName(), where), paras);
+    return count(getDialect().count(getModelMeta().getTableName(), getAlias(), where), paras);
   }
 
 
-  public String getModelName() {
-    if (modelName == null) {
+  public String getAlias() {
+    if (alias == null) {
       Class clazz = getClass();
       byte[] items = clazz.getSimpleName().getBytes();
       items[0] = (byte) ((char) items[0] + ('a' - 'A'));
-      modelName = new String(items);
+      alias = new String(items);
     }
-    return modelName;
+    return alias;
   }
 
+  public M setAlias(String alias) {
+    this.alias = alias;
+    return (M) this;
+  }
+
+  public String getDeleteColumn() {
+    return deleteColumn;
+  }
+
+  public M setDeleteColumn(String deleteColumn) {
+    this.deleteColumn = deleteColumn;
+    return (M) this;
+  }
 }

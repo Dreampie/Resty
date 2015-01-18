@@ -45,7 +45,7 @@ public class MSSQLDialect extends DefaultDialect {
     StringBuilder querySql = new StringBuilder();
     querySql.append("SELECT paginate_alias.* FROM (SELECT ROW_NUMBER() OVER (ORDER BY ");
     querySql.append(orderBys);
-    querySql.append(") AS rownumber,");
+    querySql.append(") rownumber,");
 
     Matcher sm = selectPattern.matcher(sql);
     if (sm.find()) {
@@ -55,7 +55,7 @@ public class MSSQLDialect extends DefaultDialect {
     }
 
     // T-SQL offset starts with 1, not like MySQL with 0;
-    querySql.append(") AS paginate_alias WHERE rownumber BETWEEN ").append(offset + 1)
+    querySql.append(") paginate_alias WHERE rownumber BETWEEN ").append(offset + 1)
         .append(" AND ").append(pageSize + offset);
 
     return querySql.toString();

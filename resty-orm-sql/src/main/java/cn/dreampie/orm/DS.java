@@ -8,9 +8,7 @@ import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static cn.dreampie.common.util.Checker.checkArgument;
 import static cn.dreampie.common.util.Checker.checkNotNull;
@@ -96,7 +94,7 @@ public class DS {
   }
 
 
-  <T> List<T> query(String sql, Object... paras) {
+  public <T> List<T> query(String sql, Object... paras) {
 
     List result = new ArrayList();
     try {

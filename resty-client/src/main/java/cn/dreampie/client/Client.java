@@ -14,12 +14,17 @@ public class Client extends ClientConnection {
 
   private static final Logger logger = Logger.getLogger(Client.class);
 
+
   public Client(String apiUrl) {
     super(apiUrl);
   }
 
   public Client(String apiUrl, String loginApi, String username, String password) {
     super(apiUrl, new ClientRequest(loginApi, HttpMethod.POST, Maper.of("username", username, "password", password)));
+  }
+
+  public Client(String apiUrl, String loginApi, String usernamePara, String username, String passwordPara, String password) {
+    super(apiUrl, new ClientRequest(loginApi, HttpMethod.POST, Maper.of(usernamePara, username, passwordPara, password)));
   }
 
   public Client build(ClientRequest clientRequest) {

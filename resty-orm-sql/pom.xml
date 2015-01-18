@@ -18,7 +18,7 @@
     <junit.version>4.11</junit.version>
     <fastjson.version>1.1.41</fastjson.version>
     <resty.version>${project.parent.version}</resty.version>
-    <druid.version>1.0.12</druid.version>
+    <druid.version>1.0.11</druid.version>
     <ehcache.version>2.6.6</ehcache.version>
     <mysql.version>5.1.34</mysql.version>
     <logback.version>1.1.2</logback.version>

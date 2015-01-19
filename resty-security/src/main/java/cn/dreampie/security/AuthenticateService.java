@@ -9,5 +9,5 @@ public interface AuthenticateService {
 
   public Principal findByUsername(String username);
 
-  public Set<Credential> loadAllPermissions();
+  public Set<Credential> loadAllCredentials();
 }

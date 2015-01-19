@@ -45,7 +45,7 @@ public class SessionBuilder {
     this.emptySession = new Session(Maper.<String, String>of(), null, -1);
     this.authenticateService = authenticateService;
     //load  all  cache
-    SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, authenticateService.loadAllPermissions());
+    SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, authenticateService.loadAllCredentials());
   }
 
   /**

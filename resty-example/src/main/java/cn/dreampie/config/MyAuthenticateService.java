@@ -22,7 +22,7 @@ public class MyAuthenticateService implements AuthenticateService {
     return principal;
   }
 
-  public Set<Credential> loadAllPermissions() {
+  public Set<Credential> loadAllCredentials() {
     Set<Credential> credentials = new HashSet<Credential>();
     credentials.add(new Credential("GET", "/api/v1.0/users**", "users"));
     return credentials;

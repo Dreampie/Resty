@@ -110,7 +110,7 @@ public class Subject {
   public static String need(String httpMethod, String path) {
     Set<Credential> permissions = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
     if (permissions == null) {
-      permissions = authenticateService.loadAllPermissions();
+      permissions = authenticateService.loadAllCredentials();
     }
     checkNotNull(permissions, "LoadAllPermissions not get permissions data.");
     String method;

@@ -6,7 +6,7 @@ package cn.dreampie.security;
 public class Credential {
 
   public static final String CREDENTIAL_DEF_KEY = "_credential";
-  public static final String CREDENTIAL_ALL_KEY = "_allCredential";
+  public static final String CREDENTIAL_ALL_KEY = "_allCredentials";
 
   private String method;
   private String antPath;

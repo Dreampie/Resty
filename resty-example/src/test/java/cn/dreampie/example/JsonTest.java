@@ -22,5 +22,7 @@ public class JsonTest {
     System.out.println(json);
     User t = Jsoner.parseObject("{\"key\":\"value\"}", User.class);
     System.out.println(t.get("key"));
+
+    String[] a = Jsoner.parseObject(Jsoner.toJSONString(new String[]{"a", "b", "c"}), String[].class);
   }
 }

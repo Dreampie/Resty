@@ -1,8 +1,8 @@
 package cn.dreampie.config;
 
 import cn.dreampie.security.AuthenticateService;
-import cn.dreampie.security.DefaultPasswordService;
 import cn.dreampie.security.Credential;
+import cn.dreampie.security.DefaultPasswordService;
 import cn.dreampie.security.Principal;
 
 import java.util.HashSet;

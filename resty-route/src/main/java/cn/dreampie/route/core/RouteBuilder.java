@@ -1,6 +1,5 @@
 package cn.dreampie.route.core;
 
-import cn.dreampie.common.util.Lister;
 import cn.dreampie.route.config.InterceptorLoader;
 import cn.dreampie.route.config.ResourceLoader;
 import cn.dreampie.route.core.annotation.*;

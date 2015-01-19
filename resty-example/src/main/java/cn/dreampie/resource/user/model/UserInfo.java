@@ -1,4 +1,4 @@
-package cn.dreampie.example.model;
+package cn.dreampie.resource.user.model;
 
 import cn.dreampie.orm.Model;
 import cn.dreampie.orm.annotation.Table;

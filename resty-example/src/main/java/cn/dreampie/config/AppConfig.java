@@ -21,13 +21,14 @@ public class AppConfig extends Config {
     //通过后缀来返回不同的数据类型  你可以自定义自己的  render  如：FreemarkerRender
     //constantLoader.addRender("json", new JsonRender());
     //启用缓存并在要自动使用缓存的model上  开启缓存@Table(name = "sec_user", cached = true)
-    constantLoader.setCacheEnable(true);
-    constantLoader.setDevMode(prop.getBoolean("devMode", false));
+    boolean devMode = prop.getBoolean("devMode", false);
+    constantLoader.setCacheEnable(!devMode);//开发模式下不开启缓存
+    constantLoader.setDevMode(devMode);
   }
 
   public void configResource(ResourceLoader resourceLoader) {
     //设置resource的目录  减少启动扫描目录
-    resourceLoader.addIncludePaths("cn.dreampie");
+    resourceLoader.addIncludePaths("cn.dreampie.resource");
   }
 
   public void configPlugin(PluginLoader pluginLoader) {
@@ -46,29 +47,12 @@ public class AppConfig extends Config {
 
     pluginLoader.add(druidPlugin);
     ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
-    activeRecordPlugin.addIncludePaths("cn.dreampie.example");
+    activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
     activeRecordPlugin.setShowSql(true);
 
 
     pluginLoader.add(activeRecordPlugin);
-    //第二个数据库
-    DruidPlugin demoPlugin = new DruidPlugin(prop.get("db.demo.url"), prop.get("db.demo.user"), prop.get("db.demo.password"), prop.get("db.demo.driver"), prop.get("db.demo.dialect"));
-    // StatFilter提供JDBC层的统计信息
-    demoPlugin.addFilter(new StatFilter());
-    // WallFilter的功能是防御SQL注入攻击
-    WallFilter wallDemo = new WallFilter();
-    wallDemo.setDbType("mysql");
-    demoPlugin.addFilter(wallDemo);
 
-    demoPlugin.setInitialSize(prop.getInt("db.default.poolInitialSize"));
-    demoPlugin.setMaxPoolPreparedStatementPerConnectionSize(prop.getInt("db.default.poolMaxSize"));
-    demoPlugin.setTimeBetweenConnectErrorMillis(prop.getInt("db.default.connectionTimeoutMillis"));
-
-    pluginLoader.add(demoPlugin);
-    ActiveRecordPlugin demoRecordPlugin = new ActiveRecordPlugin("demo", demoPlugin);
-    demoRecordPlugin.addIncludePaths("cn.dreampie.demo");
-    demoRecordPlugin.setShowSql(true);
-    pluginLoader.add(demoRecordPlugin);
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {

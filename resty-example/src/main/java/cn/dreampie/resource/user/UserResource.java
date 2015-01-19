@@ -1,24 +1,21 @@
-package cn.dreampie.example.resource;
+package cn.dreampie.resource.user;
 
-import cn.dreampie.ApiResource;
-import cn.dreampie.common.util.Maper;
-import cn.dreampie.demo.model.Role;
-import cn.dreampie.example.model.User;
-import cn.dreampie.example.model.UserInfo;
-import cn.dreampie.example.service.UserService;
-import cn.dreampie.example.service.UserServiceImpl;
 import cn.dreampie.orm.DS;
+import cn.dreampie.orm.Page;
 import cn.dreampie.orm.transaction.AspectFactory;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.orm.transaction.TransactionAspect;
+import cn.dreampie.resource.ApiResource;
+import cn.dreampie.resource.user.model.User;
+import cn.dreampie.resource.user.model.UserInfo;
+import cn.dreampie.resource.user.service.UserService;
+import cn.dreampie.resource.user.service.UserServiceImpl;
+import cn.dreampie.route.core.annotation.DELETE;
 import cn.dreampie.route.core.annotation.GET;
 import cn.dreampie.route.core.annotation.POST;
-import cn.dreampie.security.Subject;
-import cn.dreampie.common.http.UploadedFile;
+import cn.dreampie.route.core.annotation.PUT;
 
-import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ice on 14-12-29.
@@ -29,27 +26,53 @@ public class UserResource extends ApiResource {
   // 注意java的自动代理必须存在接口
   private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect());
 
-  @GET("/users/:name/:password")
-  public Map find(String name, String password) {
-//    return Lister.of(name);
-    Subject.login(name, password);
-    return Maper.of("k1", "v1,name:" + name + ",password:" + password, "k2", "v2");
-  }
-
+  //查询集合
   @GET("/users")
   public List<User> findAll() {
-    Subject.logout();
     return User.dao.findAll();
   }
 
+  //查询单个user对象
+  @GET("/users/:id")
+  public User find(String id) {
+    return User.dao.findById(id);
+  }
+
+  //全部对象分页 http://localhost:8081/api/v1.0/users/1/10
+  @GET("/users/:pageNumber/:pageSize")
+  public Page<User> paginate(int pageNumber, int pageSize) {
+    return User.dao.paginateAll(pageNumber, pageSize);
+  }
+
+  //按条件分页 http://localhost:8081/api/v1.0/users/1/10/x
+  @GET("/users/:pageNumber/:pageSize/:term")
+  public Page<User> paginate(int pageNumber, int pageSize, String term) {
+    return User.dao.paginateBy(pageNumber, pageSize, "username=?", term);
+  }
+
+  //更新
+  @PUT("/users")
+  public User put(User user) {
+    user.update();
+    return user;
+  }
+
+  //保存
   @POST("/users")
   public User save(User user) {
     userService.save(user);
     return user;
   }
 
+  //删除
+  @DELETE("/users/:id")
+  public boolean put(String id) {
+    return User.dao.deleteById(id);
+  }
+
+
   @GET("/transactions")
-  @Transaction(name = {DS.DEFAULT_DS_NAME, "demo"})
+  @Transaction(name = {DS.DEFAULT_DS_NAME})
   public User transaction() {
     User u = new User().set("username", "test").set("providername", "test").set("password", "123456");
     UserInfo userInfo = null;
@@ -62,8 +85,6 @@ public class UserResource extends ApiResource {
       userInfo.set("user_id", u.get("id"));
       userInfo.save();
 
-      Role role = new Role().set("name", "test").set("value", "xx");
-      role.save();
 //      int[] a = new int[0];
 //      System.out.println(a[2]);  报错 让事务回滚
     }
@@ -71,16 +92,5 @@ public class UserResource extends ApiResource {
     //service层的事务
     //return userService.save(new User().set("username", "test").set("providername", "test").set("password", "123456"));
   }
-
-  @GET("/files")
-  public File file() {
-    return new File(getRequest().getRealPath("/") + "upload/resty-v1.0-beta.jar");
-  }
-
-  @POST("/files")
-  public UploadedFile upload() {
-    return getFile();
-  }
-
 
 }

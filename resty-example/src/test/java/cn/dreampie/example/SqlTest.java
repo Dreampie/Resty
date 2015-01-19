@@ -1,11 +1,10 @@
 package cn.dreampie.example;
 
-import cn.dreampie.demo.model.Role;
-import cn.dreampie.example.model.User;
-import cn.dreampie.example.model.UserInfo;
 import cn.dreampie.orm.DS;
 import cn.dreampie.orm.Page;
 import cn.dreampie.orm.Record;
+import cn.dreampie.resource.user.model.User;
+import cn.dreampie.resource.user.model.UserInfo;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -39,9 +38,6 @@ public class SqlTest {
       System.out.println(u.get("id") + "/" + u1.get("id"));
       userInfo.set("user_id", u.get("id"));
       userInfo.save();
-
-      Role role = new Role().set("name", "test").set("value", "xx");
-      role.save();
     }
 
 

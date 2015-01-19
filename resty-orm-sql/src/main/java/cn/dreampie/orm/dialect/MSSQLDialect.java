@@ -24,8 +24,8 @@ public class MSSQLDialect extends DefaultDialect {
     return "select 1";
   }
 
-  public String paginateWith(int pageNo, int pageSize, String sql) {
-    int offset = pageSize * (pageNo - 1);
+  public String paginateWith(int pageNumber, int pageSize, String sql) {
+    int offset = pageSize * (pageNumber - 1);
 
     String orderBys = null;
     Matcher om = orderPattern.matcher(sql);

@@ -1,8 +1,7 @@
-package cn.dreampie.example.service;
+package cn.dreampie.resource.user.service;
 
-import cn.dreampie.demo.model.Role;
-import cn.dreampie.example.model.User;
-import cn.dreampie.example.model.UserInfo;
+import cn.dreampie.resource.user.model.User;
+import cn.dreampie.resource.user.model.UserInfo;
 
 /**
  * Created by wangrenhui on 15/1/2.
@@ -19,11 +18,6 @@ public class UserServiceImpl implements UserService {
     if (u.save()) {
       userInfo.set("user_id", u.get("id"));
       userInfo.save();
-
-      Role role = new Role().set("name", "test").set("value", "xx");
-      role.save();
-      int[] a = new int[0];
-      System.out.println(a[2]);
     }
     return u;
   }

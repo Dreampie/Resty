@@ -13,8 +13,8 @@ public class PostgreSQLDialect extends DefaultDialect {
     return "SELECT VERSION();";
   }
 
-  public String paginateWith(int pageNo, int pageSize, String sql) {
-    int offset = pageSize * (pageNo - 1);
+  public String paginateWith(int pageNumber, int pageSize, String sql) {
+    int offset = pageSize * (pageNumber - 1);
     return sql + " LIMIT " + pageSize + " OFFSET " + offset;
   }
 }

@@ -32,13 +32,13 @@ public interface Dialect {
 
   public String countWith(String sql);
 
-  public String paginate(int pageNo, int pageSize, String table);
+  public String paginate(int pageNumber, int pageSize, String table);
 
-  public String paginate(int pageNo, int pageSize, String table, String... columns);
+  public String paginate(int pageNumber, int pageSize, String table, String... columns);
 
-  public String paginate(int pageNo, int pageSize, String table, String alias, String where);
+  public String paginate(int pageNumber, int pageSize, String table, String alias, String where);
 
-  public String paginate(int pageNo, int pageSize, String table, String alias, String where, String... columns);
+  public String paginate(int pageNumber, int pageSize, String table, String alias, String where, String... columns);
 
-  public String paginateWith(int pageNo, int pageSize, String sql);
+  public String paginateWith(int pageNumber, int pageSize, String sql);
 }

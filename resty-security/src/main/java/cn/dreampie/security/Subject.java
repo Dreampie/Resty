@@ -3,6 +3,7 @@ package cn.dreampie.security;
 import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.pattern.AntPathMatcher;
+import cn.dreampie.log.Logger;
 import cn.dreampie.security.cache.SessionCache;
 
 import java.util.*;
@@ -13,6 +14,8 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  * Created by wangrenhui on 14/12/23.
  */
 public class Subject {
+  private static final Logger logger = Logger.getLogger(Subject.class);
+
   private static AuthenticateService authenticateService;
   private static PasswordService passwordService;
   private static int rememberDay;
@@ -35,8 +38,8 @@ public class Subject {
     return Session.current().getValues();
   }
 
-  public static Session login(String username, String password) {
-    return login(username, password, false);
+  public static void login(String username, String password) {
+    login(username, password, false);
   }
 
   /**
@@ -47,7 +50,7 @@ public class Subject {
    * @param rememberMe
    * @return
    */
-  public static Session login(String username, String password, boolean rememberMe) {
+  public static void login(String username, String password, boolean rememberMe) {
     if (authenticateService != null) {
       Principal principal = authenticateService.findByUsername(username);
       if (principal != null && passwordService.match(password, principal.getPasswordHash())) {
@@ -69,7 +72,7 @@ public class Subject {
         Session.current().set(Session.SESSION_DEF_KEY, sessionKey);
         //add cache
         SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, username, principal);
-        return Session.current();
+        logger.info("Session authentication as " + username);
       } else
         throw new WebException(HttpStatus.UNAUTHORIZED);
     } else {
@@ -80,8 +83,10 @@ public class Subject {
   public static void logout() {
     //add cache
     Principal principal = Session.current().getPrincipal();
-    if (principal != null)
+    if (principal != null) {
       SessionCache.instance().remove(Principal.PRINCIPAL_DEF_KEY, principal.getUsername());
+      logger.info("Session leave authentication " + principal.getUsername());
+    }
     Session.current().clearPrincipal();
     Session.current().set(Session.SESSION_DEF_KEY, null);
   }

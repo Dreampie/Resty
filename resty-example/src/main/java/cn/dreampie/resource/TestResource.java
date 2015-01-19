@@ -1,6 +1,7 @@
-package cn.dreampie;
+package cn.dreampie.resource;
 
 import cn.dreampie.common.http.HttpStatus;
+import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.WebResult;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.route.core.annotation.DELETE;
@@ -9,7 +10,6 @@ import cn.dreampie.route.core.annotation.POST;
 import cn.dreampie.route.core.annotation.PUT;
 import cn.dreampie.security.Principal;
 import cn.dreampie.security.Subject;
-import cn.dreampie.common.http.UploadedFile;
 
 import java.io.File;
 import java.util.Map;
@@ -65,6 +65,5 @@ public class TestResource extends ApiResource {
   public File download() {
     return new File(getRequest().getRealPath("/") + "upload/resty.jar");
   }
-
 
 }

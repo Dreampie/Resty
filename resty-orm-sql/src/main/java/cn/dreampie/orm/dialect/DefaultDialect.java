@@ -115,20 +115,20 @@ public abstract class DefaultDialect implements Dialect {
   }
 
 
-  public String paginate(int pageNo, int pageSize, String table) {
-    return paginateWith(pageNo, pageSize, select(table));
+  public String paginate(int pageNumber, int pageSize, String table) {
+    return paginateWith(pageNumber, pageSize, select(table));
   }
 
-  public String paginate(int pageNo, int pageSize, String table, String... columns) {
-    return paginateWith(pageNo, pageSize, select(table, columns));
+  public String paginate(int pageNumber, int pageSize, String table, String... columns) {
+    return paginateWith(pageNumber, pageSize, select(table, columns));
   }
 
-  public String paginate(int pageNo, int pageSize, String table, String alias, String where) {
-    return paginateWith(pageNo, pageSize, select(table, alias, where));
+  public String paginate(int pageNumber, int pageSize, String table, String alias, String where) {
+    return paginateWith(pageNumber, pageSize, select(table, alias, where));
   }
 
-  public String paginate(int pageNo, int pageSize, String table, String alias, String where, String... columns) {
-    return paginateWith(pageNo, pageSize, select(table, alias, where, columns));
+  public String paginate(int pageNumber, int pageSize, String table, String alias, String where, String... columns) {
+    return paginateWith(pageNumber, pageSize, select(table, alias, where, columns));
   }
 
 }

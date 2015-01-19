@@ -8,7 +8,9 @@ import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static cn.dreampie.common.util.Checker.checkArgument;
 import static cn.dreampie.common.util.Checker.checkNotNull;
@@ -614,14 +616,14 @@ public class DS {
   /**
    * 分页查询Record
    *
-   * @param pageNo   页码
-   * @param pageSize 页大小
-   * @param sql      sql
-   * @param paras    参数
+   * @param pageNumber 页码
+   * @param pageSize   页大小
+   * @param sql        sql
+   * @param paras      参数
    * @return page
    */
-  public Page<Record> paginate(int pageNo, int pageSize, String sql, Object... paras) {
-    checkArgument(pageNo >= 1 || pageSize >= 1, "pageNo and pageSize must be more than 0");
+  public Page<Record> paginate(int pageNumber, int pageSize, String sql, Object... paras) {
+    checkArgument(pageNumber >= 1 || pageSize >= 1, "pageNumber and pageSize must be more than 0");
 
     Dialect dialect = dataSourceMeta.getDialect();
 
@@ -634,7 +636,7 @@ public class DS {
     else if (size > 1)
       totalRow = result.size();
     else
-      return new Page<Record>(new ArrayList<Record>(0), pageNo, pageSize, 0, 0);
+      return new Page<Record>(new ArrayList<Record>(0), pageNumber, pageSize, 0, 0);
 
     totalPage = (int) (totalRow / pageSize);
     if (totalRow % pageSize != 0) {
@@ -642,16 +644,16 @@ public class DS {
     }
 
     // --------
-    List<Record> list = find(dialect.paginateWith(pageNo, pageSize, sql), paras);
-    return new Page<Record>(list, pageNo, pageSize, totalPage, (int) totalRow);
+    List<Record> list = find(dialect.paginateWith(pageNumber, pageSize, sql), paras);
+    return new Page<Record>(list, pageNumber, pageSize, totalPage, (int) totalRow);
   }
 
 
   /**
    * @see #paginate(int, int, String, Object...)
    */
-  public Page<Record> paginate(int pageNo, int pageSize, String sql) {
-    return paginate(pageNo, pageSize, sql, NULL_PARA_ARRAY);
+  public Page<Record> paginate(int pageNumber, int pageSize, String sql) {
+    return paginate(pageNumber, pageSize, sql, NULL_PARA_ARRAY);
   }
 
 

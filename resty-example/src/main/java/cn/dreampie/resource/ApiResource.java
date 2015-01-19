@@ -1,4 +1,4 @@
-package cn.dreampie;
+package cn.dreampie.resource;
 
 import cn.dreampie.route.core.Resource;
 import cn.dreampie.route.core.annotation.API;

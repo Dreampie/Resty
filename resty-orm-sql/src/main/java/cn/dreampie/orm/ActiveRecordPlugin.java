@@ -9,7 +9,6 @@ import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 

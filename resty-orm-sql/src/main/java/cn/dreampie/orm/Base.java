@@ -405,26 +405,26 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @param id      the id value of the model
    */
   public M findById(String columns, Object id) {
-    String sql = getDialect().select(getModelMeta().getTableName(),"", getModelMeta().getPrimaryKey() + "=?", columns.split(","));
+    String sql = getDialect().select(getModelMeta().getTableName(), "", getModelMeta().getPrimaryKey() + "=?", columns.split(","));
     List<M> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }
 
   public M findByIds(String columns, Object... ids) {
-    String sql = getDialect().select(getModelMeta().getTableName(),"", Joiner.on("=?, ").join(getModelMeta().getPrimaryKeys()), columns.split(","));
+    String sql = getDialect().select(getModelMeta().getTableName(), "", Joiner.on("=?, ").join(getModelMeta().getPrimaryKeys()), columns.split(","));
     List<M> result = find(sql, ids);
     return result.size() > 0 ? result.get(0) : null;
   }
 
   /**
-   * @param pageNo   页码
-   * @param pageSize 每页数量
-   * @param sql      sql语句
-   * @param paras    参数
+   * @param pageNumber 页码
+   * @param pageSize   每页数量
+   * @param sql        sql语句
+   * @param paras      参数
    * @return
    */
-  public Page<M> paginate(int pageNo, int pageSize, String sql, Object... paras) {
-    checkArgument(pageNo >= 1 && pageSize >= 1, "pageNo and pageSize must be more than 0");
+  public Page<M> paginate(int pageNumber, int pageSize, String sql, Object... paras) {
+    checkArgument(pageNumber >= 1 && pageSize >= 1, "pageNumber and pageSize must be more than 0");
 
     DataSourceMeta dsm = getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
@@ -438,7 +438,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     else if (size > 1)
       totalRow = result.size();
     else
-      return new Page<M>(new ArrayList<M>(0), pageNo, pageSize, 0, 0);  // totalRow = 0;
+      return new Page<M>(new ArrayList<M>(0), pageNumber, pageSize, 0, 0);  // totalRow = 0;
 
     totalPage = (int) (totalRow / pageSize);
     if (totalRow % pageSize != 0) {
@@ -446,15 +446,15 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     }
 
     // --------
-    List<M> list = find(dialect.paginateWith(pageNo, pageSize, sql), paras);
-    return new Page<M>(list, pageNo, pageSize, totalPage, (int) totalRow);
+    List<M> list = find(dialect.paginateWith(pageNumber, pageSize, sql), paras);
+    return new Page<M>(list, pageNumber, pageSize, totalPage, (int) totalRow);
   }
 
   /**
    * @see #paginate(int, int, String, Object...)
    */
-  public Page<M> paginate(int pageNo, int pageSize, String sql) {
-    return paginate(pageNo, pageSize, sql, DS.NULL_PARA_ARRAY);
+  public Page<M> paginate(int pageNumber, int pageSize, String sql) {
+    return paginate(pageNumber, pageSize, sql, DS.NULL_PARA_ARRAY);
   }
 
   /**
@@ -707,7 +707,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       where = pKey + "=?";
     }
 
-    String sql = dialect.update(modelMeta.getTableName(),"", where, getModifyNames());
+    String sql = dialect.update(modelMeta.getTableName(), "", where, getModifyNames());
 
     if (getModifyNames().length <= 0) {  // Needn't update
       return false;

@@ -652,24 +652,18 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     return result > 0;
   }
 
-  private boolean deleteByIds(ModelMeta modelMeta, Object... id) {
+  private boolean deleteByIds(ModelMeta modelMeta, Object... ids) {
 
-    String sql = getDialect().delete(modelMeta.getTableName(), Joiner.on("=?, ").join(modelMeta.getPrimaryKeys()));
-    int result = update(sql, id);
+    String sql = getDialect().delete(modelMeta.getTableName(), Joiner.on("=?, ").join(modelMeta.getPrimaryKeys()) + "=?");
+    int result = update(sql, ids);
     return result > 0;
   }
 
-  public int update(String columns) {
-    ModelMeta modelMeta = getModelMeta();
-    Dialect dialect = getDialect();
-    return update(dialect.update(modelMeta.getTableName(), columns.split(",")), DS.NULL_PARA_ARRAY);
-  }
-
-  public int update(String alias, String columns, String where, Object... paras) {
-    ModelMeta modelMeta = getModelMeta();
-    Dialect dialect = getDialect();
-    return update(dialect.update(modelMeta.getTableName(), alias, where, columns.split(",")), paras);
-  }
+//  protected int update(String alias, String columns, String where, Object... paras) {
+//    ModelMeta modelMeta = getModelMeta();
+//    Dialect dialect = getDialect();
+//    return update(dialect.update(modelMeta.getTableName(), alias, where, columns.split(",")), paras);
+//  }
 
   /**
    * Update model.

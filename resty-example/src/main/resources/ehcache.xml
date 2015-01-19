@@ -11,7 +11,7 @@
       diskPersistent="false"
       diskExpiryThreadIntervalSeconds="120"/>
 
-  <cache name="_premission"
+  <cache name="_credential"
          maxElementsInMemory="10000"
          eternal="false"
          timeToIdleSeconds="1200"

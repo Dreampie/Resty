@@ -108,13 +108,13 @@ public class Subject {
    * @return
    */
   public static String need(String httpMethod, String path) {
-    Set<Permission> permissions = SessionCache.instance().get(Permission.PERMISSION_DEF_KEY, Permission.PERMISSION_ALL_KEY);
+    Set<Credential> permissions = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
     if (permissions == null) {
       permissions = authenticateService.loadAllPermissions();
     }
     checkNotNull(permissions, "LoadAllPermissions not get permissions data.");
     String method;
-    for (Permission permission : permissions) {
+    for (Credential permission : permissions) {
       method = permission.getMethod();
       if ((method.equals("*") || method.equals(httpMethod))
           && AntPathMatcher.instance().match(permission.getAntPath(), path)) {

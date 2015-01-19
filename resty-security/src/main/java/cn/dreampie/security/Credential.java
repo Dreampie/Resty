@@ -3,16 +3,16 @@ package cn.dreampie.security;
 /**
  * Created by ice on 14-12-24.
  */
-public class Permission {
+public class Credential {
 
-  public static final String PERMISSION_DEF_KEY = "_permission";
-  public static final String PERMISSION_ALL_KEY = "_allPermission";
+  public static final String CREDENTIAL_DEF_KEY = "_credential";
+  public static final String CREDENTIAL_ALL_KEY = "_allCredential";
 
   private String method;
   private String antPath;
   private String value;
 
-  public Permission(String method, String antPath, String value) {
+  public Credential(String method, String antPath, String value) {
     this.method = method.toUpperCase();
     this.antPath = antPath;
     this.value = value;

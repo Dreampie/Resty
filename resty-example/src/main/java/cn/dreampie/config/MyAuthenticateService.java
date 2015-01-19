@@ -2,7 +2,7 @@ package cn.dreampie.config;
 
 import cn.dreampie.security.AuthenticateService;
 import cn.dreampie.security.DefaultPasswordService;
-import cn.dreampie.security.Permission;
+import cn.dreampie.security.Credential;
 import cn.dreampie.security.Principal;
 
 import java.util.HashSet;
@@ -22,9 +22,9 @@ public class MyAuthenticateService implements AuthenticateService {
     return principal;
   }
 
-  public Set<Permission> loadAllPermissions() {
-    Set<Permission> permissions = new HashSet<Permission>();
-    permissions.add(new Permission("GET", "/api/v1.0/users**", "users"));
-    return permissions;
+  public Set<Credential> loadAllPermissions() {
+    Set<Credential> credentials = new HashSet<Credential>();
+    credentials.add(new Credential("GET", "/api/v1.0/users**", "users"));
+    return credentials;
   }
 }

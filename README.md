@@ -152,10 +152,10 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
       return principal;
     }
     //基础的权限总表  所以的url权限都放在这儿  你可以通过 文件或者数据库或者直接代码 来设置所有权限
-    public Set<Permission> loadAllPermissions() {
-      Set<Permission> permissions = new HashSet<Permission>();
-      permissions.add(new Permission("GET", "/api/transactions**", "api"));
-      return permissions;
+    public Set<Credential> loadAllPermissions() {
+      Set<Credential> credentials = new HashSet<Credential>();
+      credentials.add(new Credential("GET", "/api/v1.0/users**", "users"));
+      return credentials;
     }
   }
 ```

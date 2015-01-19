@@ -34,4 +34,9 @@ public class ClientTest {
     System.out.println(client.build(request).ask());
   }
 
+  @Test
+  public void testDelete() {
+    ClientRequest request = new ClientRequest("/users/1", HttpMethod.DELETE);
+    System.out.println(client.build(request).ask());
+  }
 }

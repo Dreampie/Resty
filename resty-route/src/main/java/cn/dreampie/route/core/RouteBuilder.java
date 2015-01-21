@@ -41,7 +41,6 @@ public final class RouteBuilder {
     Interceptor[] defaultInters = interceptorLoader.getInterceptorArray();
     interceptorBuilder.addToInterceptorsMap(defaultInters);
 
-    API api = null;
     DELETE delete = null;
     GET get = null;
     POST post = null;
@@ -55,12 +54,7 @@ public final class RouteBuilder {
     //addResources
     for (Class<? extends Resource> resourceClazz : resourceLoader.getResources()) {
       Interceptor[] resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
-      api = resourceClazz.getAnnotation(API.class);
-      if (api != null) {
-        apiPath = api.value();
-      } else {
-        apiPath = "";
-      }
+      apiPath = getApi(resourceClazz);
       //自己的方法
       Method[] methods = resourceClazz.getDeclaredMethods();
       for (Method method : methods) {
@@ -118,6 +112,20 @@ public final class RouteBuilder {
       }
     });
 
+  }
+
+  private String getApi(Class<? extends Resource> resourceClazz) {
+    API api;
+    String apiPath = "";
+    api = resourceClazz.getAnnotation(API.class);
+    if (api != null) {
+      apiPath = api.value();
+    }
+    Class<?> superClazz = resourceClazz.getSuperclass();
+    if (Resource.class.isAssignableFrom(superClazz)) {
+      apiPath = getApi((Class<? extends Resource>) superClazz) + apiPath;
+    }
+    return apiPath;
   }
 
   public List<Route> getRoutes() {

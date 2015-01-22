@@ -15,6 +15,10 @@ final public class ConstantLoader {
     Constant.dev_mode = devMode;
   }
 
+  public void setShowRoute(boolean showRoute) {
+    Constant.show_route = showRoute;
+  }
+
   //encoding
   public void setDefaultEncoding(String defaultEncoding) {
     Constant.encoding = defaultEncoding;

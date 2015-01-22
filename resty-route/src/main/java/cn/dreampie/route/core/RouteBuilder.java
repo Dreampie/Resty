@@ -1,5 +1,7 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.util.analysis.ParamAttribute;
+import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.route.config.InterceptorLoader;
 import cn.dreampie.route.config.ResourceLoader;
 import cn.dreampie.route.core.annotation.*;
@@ -7,10 +9,7 @@ import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.interceptor.InterceptorBuilder;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * ActionMapping
@@ -50,51 +49,63 @@ public final class RouteBuilder {
     String apiPath = "";
 
     Interceptor[] methodInters;
+    //当前路由所有的拦截器 包括resource的和method的
     Interceptor[] routeInters;
+    //resource的拦截器
+    Interceptor[] resourceInters;
+    //获取参数
+    Map<String, ParamAttribute> classParamNames;
+    //当前resource的方法
+    Method[] methods;
+    //当前方法的参数属性
+    ParamAttribute paramAttribute;
     //addResources
     for (Class<? extends Resource> resourceClazz : resourceLoader.getResources()) {
-      Interceptor[] resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
+      resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
+      classParamNames = ParamNamesScaner.getParamNames(resourceClazz);
+
       apiPath = getApi(resourceClazz);
       //自己的方法
-      Method[] methods = resourceClazz.getDeclaredMethods();
+      methods = resourceClazz.getDeclaredMethods();
       for (Method method : methods) {
 
+        paramAttribute = ParamNamesScaner.getParamNames(method, classParamNames);
         methodInters = interceptorBuilder.buildMethodInterceptors(method);
         routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
 
         delete = method.getAnnotation(DELETE.class);
         if (delete != null) {
-          addRoute(new Route(resourceClazz, "DELETE", apiPath + delete.value(), method, routeInters, delete.des()));
+          addRoute(new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters, delete.des()));
           continue;
         }
 
         get = method.getAnnotation(GET.class);
         if (get != null) {
-          addRoute(new Route(resourceClazz, "GET", apiPath + get.value(), method, routeInters, get.des()));
+          addRoute(new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters, get.des()));
           continue;
         }
 
         post = method.getAnnotation(POST.class);
         if (post != null) {
-          addRoute(new Route(resourceClazz, "POST", apiPath + post.value(), method, routeInters, post.des()));
+          addRoute(new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters, post.des()));
           continue;
         }
 
         put = method.getAnnotation(PUT.class);
         if (put != null) {
-          addRoute(new Route(resourceClazz, "PUT", apiPath + put.value(), method, routeInters, put.des()));
+          addRoute(new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters, put.des()));
           continue;
         }
 
         head = method.getAnnotation(HEAD.class);
         if (head != null) {
-          addRoute(new Route(resourceClazz, "HEAD", apiPath + head.value(), method, routeInters, head.des()));
+          addRoute(new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters, head.des()));
           continue;
         }
 
         patch = method.getAnnotation(PATCH.class);
         if (patch != null) {
-          addRoute(new Route(resourceClazz, "PATCH", apiPath + patch.value(), method, routeInters, patch.des()));
+          addRoute(new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters, patch.des()));
           continue;
         }
       }

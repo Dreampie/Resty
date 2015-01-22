@@ -15,6 +15,6 @@ public final class Constant {
   public static int uploadMaxSize = 1024 * 1024 * 10;// 10 Meg
   public static String[] uploadDenieds = new String[]{};
   public static CacheManager cacheManager;
-
+  public static boolean show_route = false;
 
 }

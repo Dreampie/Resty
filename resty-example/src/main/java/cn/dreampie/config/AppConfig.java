@@ -24,6 +24,7 @@ public class AppConfig extends Config {
     boolean devMode = prop.getBoolean("devMode", false);
     constantLoader.setCacheEnable(!devMode);//开发模式下不开启缓存
     constantLoader.setDevMode(devMode);
+    constantLoader.setShowRoute(devMode);//请求时打印route信息
   }
 
   public void configResource(ResourceLoader resourceLoader) {

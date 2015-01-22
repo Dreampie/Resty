@@ -1,10 +1,12 @@
 package cn.dreampie.route.core;
 
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.util.Joiner;
-import cn.dreampie.common.util.ParamNamesScaner;
+import cn.dreampie.common.util.analysis.ParamAttribute;
+import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
@@ -36,11 +38,13 @@ public class Route {
   private final Class<? extends Resource> resourceClass;
   private final Method method;
   private final List<String> allParamNames;
+  private final int[] allLineNumbers;
   private final List<Class<?>> allParamTypes;
 
   private final Interceptor[] interceptors;
+  private final int[][] interceptorsLineNumbers;
 
-  public Route(Class<? extends Resource> resourceClass, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des) {
+  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des) {
     this.resourceClass = resourceClass;
     this.httpMethod = checkNotNull(httpMethod);
     this.pathPattern = checkNotNull(pathPattern);
@@ -48,21 +52,38 @@ public class Route {
 
     this.interceptors = interceptors;
 
-    allParamNames = ParamNamesScaner.getParamNames(method);
-    allParamTypes = Arrays.asList(method.getParameterTypes());
-
-
+    this.allParamNames = paramAttribute.getNames();
+    this.allLineNumbers = paramAttribute.getLines();
+    this.allParamTypes = Arrays.asList(method.getParameterTypes());
+    //获取拦截器的行号
+    if (Constant.show_route) {
+      this.interceptorsLineNumbers = new int[interceptors.length][];
+      //获取参数
+      ParamAttribute interAttr;
+      int i = 0;
+      for (Interceptor interceptor : interceptors) {
+        try {
+          interAttr = ParamNamesScaner.getParamNames(interceptor.getClass().getMethod("intercept", RouteInvocation.class));
+        } catch (NoSuchMethodException e) {
+          throw new RuntimeException(e);
+        }
+        this.interceptorsLineNumbers[i] = interAttr.getLines();
+        i++;
+      }
+    } else {
+      this.interceptorsLineNumbers = null;
+    }
     PathPatternParser s = new PathPatternParser(pathPattern);
     s.parse();
 
-    pattern = Pattern.compile(s.patternBuilder.toString());
-    stdPathPattern = s.stdPathPatternBuilder.toString();
-    pathParamNames = s.pathParamNames;
+    this.pattern = Pattern.compile(s.patternBuilder.toString());
+    this.stdPathPattern = s.stdPathPatternBuilder.toString();
+    this.pathParamNames = s.pathParamNames;
 
     if (logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nBuild route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
-      sb.append("\nResource     : ").append(resourceClass.getName()).append(" (").append(resourceClass.getSimpleName()).append(".java:1)");
+      sb.append("\nResource     : ").append(resourceClass.getName()).append(" (").append(resourceClass.getSimpleName()).append(".java:" + allLineNumbers[0] + ")");
       sb.append("\nMethod       : ").append(method.getName());
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
       //print params
@@ -119,10 +140,10 @@ public class Route {
     //otherParams
     Map<String, List<String>> otherParams = request.getQueryParams();
 
-    if (logger.isInfoEnabled()) {
+    if (Constant.show_route && logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
-      sb.append("\nResource     : ").append(resourceClass.getName()).append(" (").append(resourceClass.getSimpleName()).append(".java:1)");
+      sb.append("\nResource     : ").append(resourceClass.getName()).append(" (").append(resourceClass.getSimpleName()).append(".java:" + allLineNumbers[0] + ")");
       sb.append("\nMethod       : ").append(method.getName());
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
       //print pathParams
@@ -151,12 +172,13 @@ public class Route {
       }
       if (interceptors != null && interceptors.length > 0) {
         sb.append("\nInterceptor  : ");
-        for (int i = 0; i < interceptors.length; i++) {
+        int i = 0;
+        for (Interceptor interceptor : interceptors) {
           if (i > 0)
-            sb.append("\n              ");
-          Interceptor inter = interceptors[i];
-          Class<? extends Interceptor> ic = inter.getClass();
-          sb.append(ic.getName()).append(" (").append(ic.getSimpleName()).append(".java:1)");
+            sb.append("\n               ");
+          Class<? extends Interceptor> ic = interceptor.getClass();
+          sb.append(ic.getName()).append(" (").append(ic.getSimpleName()).append(".java:").append(interceptorsLineNumbers[i][0]).append(")");
+          i++;
         }
         sb.append("\n");
       }

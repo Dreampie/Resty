@@ -1,4 +1,4 @@
-package cn.dreampie.common.util;
+package cn.dreampie.common.util.analysis;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -19,15 +19,27 @@ public class ParamNamesScaner {
    * @param method 需要解析的方法
    * @return 形参名称列表, 如果没有调试信息, 将返回null
    */
-  public static List<String> getParamNames(Method method) {
+  public static ParamAttribute getParamNames(Method method) {
+    return getParamNames(method, getParamNames(method.getDeclaringClass()));
+  }
+
+  /**
+   * 获取Method的形参名称列表
+   *
+   * @param method          需要解析的方法
+   * @param classParamNames class所有的参数信息
+   * @return 形参名称列表, 如果没有调试信息, 将返回null
+   */
+  public static ParamAttribute getParamNames(Method method, Map<String, ParamAttribute> classParamNames) {
     try {
+
+      ParamAttribute paramAttribute = classParamNames.get(getKey(method));
       int size = method.getParameterTypes().length;
       if (size == 0)
-        return new ArrayList<String>(0);
-      List<String> list = getParamNames(method.getDeclaringClass()).get(getKey(method));
-      if (list != null && list.size() != size)
-        return list.subList(0, size);
-      return list;
+        paramAttribute.setNames(new ArrayList<String>(0));
+      else
+        paramAttribute.setNames(paramAttribute.getNames().subList(0, size));
+      return paramAttribute;
     } catch (Throwable e) {
       throw new RuntimeException(e);
     }
@@ -39,16 +51,27 @@ public class ParamNamesScaner {
    * @param constructor 需要解析的构造函数
    * @return 形参名称列表, 如果没有调试信息, 将返回null
    */
-  public static List<String> getParamNames(Constructor<?> constructor) {
+  public static ParamAttribute getParamNames(Constructor<?> constructor) {
+    return getParamNames(constructor, getParamNames(constructor.getDeclaringClass()));
+  }
+
+  /**
+   * 获取Constructor的形参名称列表
+   *
+   * @param constructor     需要解析的构造函数
+   * @param classParamNames class所有的参数信息
+   * @return 形参名称列表, 如果没有调试信息, 将返回null
+   */
+  public static ParamAttribute getParamNames(Constructor<?> constructor, Map<String, ParamAttribute> classParamNames) {
     try {
+      ParamAttribute paramAttribute = classParamNames.get(getKey(constructor));
+
       int size = constructor.getParameterTypes().length;
       if (size == 0)
-        return new ArrayList<String>(0);
-      List<String> list = getParamNames(constructor.getDeclaringClass())
-          .get(getKey(constructor));
-      if (list != null && list.size() != size)
-        return list.subList(0, size);
-      return list;
+        paramAttribute.setNames(new ArrayList<String>(0));
+      else
+        paramAttribute.setNames(paramAttribute.getNames().subList(0, size));
+      return paramAttribute;
     } catch (Throwable e) {
       throw new RuntimeException(e);
     }
@@ -58,22 +81,25 @@ public class ParamNamesScaner {
 
   /**
    * 获取一个类的所有方法/构造方法的形参名称Map
+   * 如果有任何IO异常,不应该有,如果是本地文件,那100%遇到bug了
    *
-   * @param klass 需要解析的类
+   * @param clazz 需要解析的类
    * @return 所有方法/构造方法的形参名称Map
-   * @throws java.io.IOException 如果有任何IO异常,不应该有,如果是本地文件,那100%遇到bug了
    */
-  public static Map<String, List<String>> getParamNames(Class<?> klass)
-      throws IOException {
-    InputStream in = klass.getResourceAsStream("/"
-        + klass.getName().replace('.', '/') + ".class");
-    return getParamNames(in);
+  public static Map<String, ParamAttribute> getParamNames(Class<?> clazz) {
+    InputStream in = clazz.getResourceAsStream("/" + clazz.getName().replace('.', '/') + ".class");
+    try {
+      return getParamNames(in);
+    } catch (Throwable e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  public static Map<String, List<String>> getParamNames(InputStream in)
+  public static Map<String, ParamAttribute> getParamNames(InputStream in)
       throws IOException {
     DataInputStream dis = new DataInputStream(new BufferedInputStream(in));
     Map<String, List<LocalVariable>> names = new HashMap<String, List<LocalVariable>>();
+    Map<String, int[]> lines = new HashMap<String, int[]>();
     Map<Integer, String> strs = new HashMap<Integer, String>();
     dis.skipBytes(4);// Magic
     dis.skipBytes(2);// 副版本号
@@ -194,6 +220,14 @@ public class ParamNamesScaner {
                       varName));
               }
               names.put(methodName + "," + descriptor, varNames);
+            } else if ("LineNumberTable".equals(codeAttrName)) {
+              int n = dis.readUnsignedShort();
+              int[] lineNumberTable = new int[n];
+              for (int m = 0; m < n; m++) {
+                dis.readUnsignedShort();     // start_pc
+                lineNumberTable[m] = dis.readUnsignedShort(); // line_number
+              }
+              lines.put(methodName + "," + descriptor, lineNumberTable);
             } else
               dis.skipBytes(code_attribute_length);
           }
@@ -204,7 +238,7 @@ public class ParamNamesScaner {
     dis.close();
 
     Set<String> set = names.keySet();
-    Map<String, List<String>> reMap = new HashMap<String, List<String>>();
+    Map<String, ParamAttribute> reMap = new HashMap<String, ParamAttribute>();
     for (String key : set) {
       LocalVariable[] tmpArr = names.get(key).toArray(
           new LocalVariable[0]);
@@ -213,7 +247,7 @@ public class ParamNamesScaner {
       for (LocalVariable var : tmpArr) {
         list.add(var.name);
       }
-      reMap.put(key, list);
+      reMap.put(key, new ParamAttribute(list, lines.get(key)));
     }
     return reMap;
   }

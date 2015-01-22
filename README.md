@@ -6,6 +6,8 @@ resty 一款极简的restful轻量级的web框架
 
 restful的api设计，是作为restful的服务端最佳选择（使用场景：客户端和服务端解藕，用于对静态的html客户端（mvvm等），ios，andriod等提供服务端的api接口）
 
+提醒：因框架还在开发第一个正式项目，所以会有细微调整，更新提醒频繁，您可以在个人设置->Notification center->Watching->Email 关闭邮件提醒，感谢您的理解和支持
+
 一、独有优点：
 -----------
 

@@ -66,7 +66,7 @@ public class Route {
       sb.append("\nResource     : ").append(resourceClass.getName()).append(" (").append(resourceClass.getSimpleName()).append(".java:1)");
       sb.append("\nMethod       : ").append(method.getName());
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
-      //print pathParams
+      //print params
       StringBuilder sbPath = new StringBuilder("\nPathParas    : ");
       StringBuilder sbOther = new StringBuilder("\nOtherParas   : ");
       int pSize = allParamNames.size();

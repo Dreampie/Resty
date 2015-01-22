@@ -64,37 +64,37 @@ public final class RouteBuilder {
 
         delete = method.getAnnotation(DELETE.class);
         if (delete != null) {
-          addRoute(new Route(resourceClazz, "DELETE", apiPath + delete.value(), method, routeInters,delete.des()));
+          addRoute(new Route(resourceClazz, "DELETE", apiPath + delete.value(), method, routeInters, delete.des()));
           continue;
         }
 
         get = method.getAnnotation(GET.class);
         if (get != null) {
-          addRoute(new Route(resourceClazz, "GET", apiPath + get.value(), method, routeInters,get.des()));
+          addRoute(new Route(resourceClazz, "GET", apiPath + get.value(), method, routeInters, get.des()));
           continue;
         }
 
         post = method.getAnnotation(POST.class);
         if (post != null) {
-          addRoute(new Route(resourceClazz, "POST", apiPath + post.value(), method, routeInters,post.des()));
+          addRoute(new Route(resourceClazz, "POST", apiPath + post.value(), method, routeInters, post.des()));
           continue;
         }
 
         put = method.getAnnotation(PUT.class);
         if (put != null) {
-          addRoute(new Route(resourceClazz, "PUT", apiPath + put.value(), method, routeInters,put.des()));
+          addRoute(new Route(resourceClazz, "PUT", apiPath + put.value(), method, routeInters, put.des()));
           continue;
         }
 
         head = method.getAnnotation(HEAD.class);
         if (head != null) {
-          addRoute(new Route(resourceClazz, "HEAD", apiPath + head.value(), method, routeInters,head.des()));
+          addRoute(new Route(resourceClazz, "HEAD", apiPath + head.value(), method, routeInters, head.des()));
           continue;
         }
 
         patch = method.getAnnotation(PATCH.class);
         if (patch != null) {
-          addRoute(new Route(resourceClazz, "PATCH", apiPath + patch.value(), method, routeInters,patch.des()));
+          addRoute(new Route(resourceClazz, "PATCH", apiPath + patch.value(), method, routeInters, patch.des()));
           continue;
         }
       }

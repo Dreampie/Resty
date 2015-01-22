@@ -13,7 +13,7 @@ import java.util.Map;
 public class DemoJob implements Job {
   public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
     Map data = jobExecutionContext.getJobDetail().getJobDataMap();
-    System.out.println("hi,"+data.get("name")+"," + new Date().getTime());
+    System.out.println("hi," + data.get("name") + "," + new Date().getTime());
   }
 }
 

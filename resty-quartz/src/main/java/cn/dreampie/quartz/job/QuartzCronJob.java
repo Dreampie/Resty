@@ -33,7 +33,6 @@ public class QuartzCronJob extends QuartzJob {
   }
 
   /**
-   *
    * @param force 是否强制启动，true 表示  如果存在相同的key值的任务时，停止任务，强制执行新任务
    */
   public void start(boolean force) {

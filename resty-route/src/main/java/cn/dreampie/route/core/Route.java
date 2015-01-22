@@ -1,7 +1,6 @@
 package cn.dreampie.route.core;
 
 
-import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.util.Joiner;

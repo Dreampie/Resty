@@ -16,7 +16,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
-    <resty-log.version>${project.parent.version}</resty-log.version>
+    <resty.version>${project.parent.version}</resty.version>
     <ehcache.version>2.6.6</ehcache.version>
     <slf4j.version>1.7.7</slf4j.version>
     <logback.version>1.1.2</logback.version>
@@ -29,11 +29,13 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-log</artifactId>
-      <version>${resty-log.version}</version>
+      <version>${resty.version}</version>
     </dependency>
+
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>

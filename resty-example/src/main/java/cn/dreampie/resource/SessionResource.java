@@ -13,13 +13,13 @@ import cn.dreampie.security.Subject;
 public class SessionResource extends ApiResource {
 
 
-  @POST
+  @POST(des = "用户登录")
   public Principal login(String username, String password, boolean rememberMe) {
     Subject.login(username, password);
     return Subject.getPrincipal();
   }
 
-  @DELETE
+  @DELETE(des = "用户退出")
   public void logout() {
     Subject.logout();
   }

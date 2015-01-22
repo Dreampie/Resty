@@ -1,23 +1,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <artifactId>resty</artifactId>
     <groupId>cn.dreampie</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-
-  <artifactId>resty-upload</artifactId>
+  <artifactId>resty-quartz</artifactId>
   <packaging>jar</packaging>
-  <version>${project.parent.version}</version>
-  <name>resty-upload</name>
+  <name>resty-quartz</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
-    <servlet.version>3.1.0</servlet.version>
     <resty.version>${project.parent.version}</resty.version>
+    <quartz.version>2.2.1</quartz.version>
   </properties>
 
   <dependencies>
@@ -30,19 +28,10 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>${servlet.version}</version>
-      <scope>provided</scope>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+      <version>${quartz.version}</version>
     </dependency>
-
-    <!--jdk1.6   不支持servlet3.0-->
-    <!--<dependency>-->
-    <!--<groupId>javax.servlet</groupId>-->
-    <!--<artifactId>servlet-api</artifactId>-->
-    <!--<version>2.5</version>-->
-    <!--<scope>provided</scope>-->
-    <!--</dependency>-->
 
     <dependency>
       <groupId>cn.dreampie</groupId>
@@ -51,7 +40,6 @@
     </dependency>
 
   </dependencies>
-
   <build>
     <finalName>${project.name}</finalName>
   </build>

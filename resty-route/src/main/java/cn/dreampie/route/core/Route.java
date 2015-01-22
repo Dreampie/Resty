@@ -1,6 +1,7 @@
 package cn.dreampie.route.core;
 
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.util.Joiner;
@@ -40,7 +41,7 @@ public class Route {
 
   private final Interceptor[] interceptors;
 
-  public Route(Class<? extends Resource> resourceClass, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors) {
+  public Route(Class<? extends Resource> resourceClass, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des) {
     this.resourceClass = resourceClass;
     this.httpMethod = checkNotNull(httpMethod);
     this.pathPattern = checkNotNull(pathPattern);
@@ -59,7 +60,34 @@ public class Route {
     stdPathPattern = s.stdPathPatternBuilder.toString();
     pathParamNames = s.pathParamNames;
 
-    logger.info("Route build " + httpMethod + " " + pathPattern + " -> " + pattern);
+    if (logger.isInfoEnabled()) {
+      //print route
+      StringBuilder sb = new StringBuilder("\n\nBuild route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
+      sb.append("\nResource     : ").append(resourceClass.getName()).append(" (").append(resourceClass.getSimpleName()).append(".java:1)");
+      sb.append("\nMethod       : ").append(method.getName());
+      sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
+      //print pathParams
+      StringBuilder sbPath = new StringBuilder("\nPathParas    : ");
+      StringBuilder sbOther = new StringBuilder("\nOtherParas   : ");
+      int pSize = allParamNames.size();
+      String pName;
+      if (pSize > 0) {
+
+        for (int i = 0; i < pSize; i++) {
+          pName = allParamNames.get(i);
+          if (pathParamNames.contains(pName)) {
+            sbPath.append(pName).append("(").append(allParamTypes.get(i).getSimpleName()).append(")  ");
+          } else {
+            sbOther.append(pName).append("(").append(allParamTypes.get(i).getSimpleName()).append(")  ");
+          }
+        }
+      }
+
+      sb.append(sbPath).append(sbOther);
+      sb.append("\nDescriptions : ").append(des).append("\n");
+      sb.append("--------------------------------------------------------------------------------\n");
+      logger.info(sb.toString());
+    }
   }
 
 
@@ -95,11 +123,11 @@ public class Route {
     if (logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
-      sb.append("\nResource    : ").append(resourceClass.getName()).append(".(").append(resourceClass.getSimpleName()).append(".java:1)");
-      sb.append("\nMethod      : ").append(method.getName());
-      sb.append("\nPathPattern : ").append(httpMethod).append(" ").append(pathPattern);
+      sb.append("\nResource     : ").append(resourceClass.getName()).append(" (").append(resourceClass.getSimpleName()).append(".java:1)");
+      sb.append("\nMethod       : ").append(method.getName());
+      sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
       //print pathParams
-      sb.append("\nPathParas   : ");
+      sb.append("\nPathParas    : ");
       if (params.size() > 0) {
         for (String key : params.keySet()) {
           sb.append(key).append("=").append(params.get(key));
@@ -107,7 +135,7 @@ public class Route {
         }
       }
       //print otherParams
-      sb.append("\nOtherParas  : ");
+      sb.append("\nOtherParas   : ");
       if (otherParams != null) {
         List<String> values;
         for (String key : otherParams.keySet()) {
@@ -123,13 +151,13 @@ public class Route {
         }
       }
       if (interceptors != null && interceptors.length > 0) {
-        sb.append("\nInterceptor : ");
+        sb.append("\nInterceptor  : ");
         for (int i = 0; i < interceptors.length; i++) {
           if (i > 0)
             sb.append("\n              ");
           Interceptor inter = interceptors[i];
           Class<? extends Interceptor> ic = inter.getClass();
-          sb.append(ic.getName()).append(".(").append(ic.getSimpleName()).append(".java:1)");
+          sb.append(ic.getName()).append(" (").append(ic.getSimpleName()).append(".java:1)");
         }
         sb.append("\n");
       }

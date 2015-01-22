@@ -83,7 +83,7 @@ public final class RestyFilter implements Filter {
         response.setStatus(e.getStatus());
         RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getContent());
         if (logger.isErrorEnabled()) {
-          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error:" + e.getMessage());
+          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error - " + e.getMessage());
         }
       } catch (Exception e) {
         RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getMessage());

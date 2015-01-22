@@ -53,12 +53,6 @@
 
     <dependency>
       <groupId>cn.dreampie</groupId>
-      <artifactId>resty-log</artifactId>
-      <version>${resty.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>cn.dreampie</groupId>
       <artifactId>resty-common</artifactId>
       <version>${resty.version}</version>
     </dependency>

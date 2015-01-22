@@ -1,6 +1,9 @@
 package cn.dreampie.route.core.annotation;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Annotation used to mark a resource class.
@@ -11,4 +14,6 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 public @interface API {
   String value();
+
+  String des() default "";
 }

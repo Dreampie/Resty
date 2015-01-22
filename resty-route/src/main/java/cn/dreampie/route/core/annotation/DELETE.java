@@ -27,4 +27,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface DELETE {
   String value() default "";
+
+  String des() default "";
 }

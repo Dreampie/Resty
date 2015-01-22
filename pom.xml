@@ -16,6 +16,7 @@
     <module>resty-upload</module>
     <module>resty-security</module>
     <module>resty-client</module>
+    <module>resty-quartz</module>
   </modules>
   <name>resty</name>
   <url>http://maven.apache.org</url>

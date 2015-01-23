@@ -3,6 +3,8 @@ package cn.dreampie.example;
 import cn.dreampie.client.Client;
 import cn.dreampie.client.ClientRequest;
 import cn.dreampie.client.HttpMethod;
+import cn.dreampie.common.util.json.Jsoner;
+import cn.dreampie.resource.user.model.User;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -37,6 +39,13 @@ public class ClientTest {
   @Test
   public void testDelete() {
     ClientRequest request = new ClientRequest("/users/1", HttpMethod.DELETE);
+    System.out.println(client.build(request).ask());
+  }
+
+  @Test
+  public void testUpdate() {
+    ClientRequest request = new ClientRequest("/users", HttpMethod.PUT);
+    request.addParameter("user", "{\"id\":\"1\",\"username\":\"k\"}");
     System.out.println(client.build(request).ask());
   }
 }

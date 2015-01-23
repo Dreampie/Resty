@@ -693,11 +693,13 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
         i++;
       }
       paras = new Object[ids.length + modifys.length];
-      System.arraycopy(ids, 0, paras, 0, ids.length);
-      System.arraycopy(modifys, 0, paras, ids.length, modifys.length);
+      System.arraycopy(modifys, 0, paras, 0, modifys.length);
+      System.arraycopy(ids, 0, paras, modifys.length, ids.length);
       where = Joiner.on("=?,").join(modelMeta.getPrimaryKeys());
     } else {
-      paras = modifys;
+      paras = new Object[1 + modifys.length];
+      System.arraycopy(modifys, 0, paras, 0, modifys.length);
+      paras[modifys.length] = id;
       where = pKey + "=?";
     }
 

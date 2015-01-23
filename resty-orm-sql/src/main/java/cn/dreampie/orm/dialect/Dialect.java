@@ -1,7 +1,7 @@
 package cn.dreampie.orm.dialect;
 
 /**
- * @author ericbn
+ * @author wangrenhui
  */
 public interface Dialect {
   public String getDbType();

@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation used to mark a resource method that responds to HTTP POST requests.
+ * 向服务器提交数据。这个方法用途广泛，几乎目前所有的提交操作都是靠这个完成。
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

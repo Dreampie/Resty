@@ -87,11 +87,12 @@ public class ClientConnection {
     HttpURLConnection conn = null;
     String method = clientRequest.getMethod();
     //使用OutPutStream输出参数
-    if (HttpMethod.OUT_METHODS.contains(method)) {
+    if (HttpMethod.POST.contains(method)) {
       _url = new URL(apiUrl + clientRequest.getRestUrl());
       conn = openHttpURLConnection(_url, method);
 
       conn.setDoOutput(true);
+      conn.setUseCaches(false);
       //是上传文件
       Map<String, String> uploadFiles = clientRequest.getUploadFiles();
       if (uploadFiles != null && uploadFiles.size() > 0) {
@@ -111,7 +112,7 @@ public class ClientConnection {
             value = params.get(key);
             if (value == null) continue;
             builder.append("\r\n").append("--").append(boundary).append("\r\n");
-            builder.append("Content-Disposition: form-data; name=\"" + key + "\"\r\n\r\n");
+            builder.append("Content-Disposition: form-data; name=\"").append(key).append("\"\r\n\r\n");
             builder.append(value);
           }
           writer.write(builder.toString().getBytes());
@@ -175,8 +176,8 @@ public class ClientConnection {
       String contentType = HttpTyper.getContentTypeFromExtension(filename);
       StringBuilder builder = new StringBuilder();
       builder.append("\r\n").append("--").append(boundary).append("\r\n");
-      builder.append("Content-Disposition: form-data; name=\"" + key + "\"; filename=\"" + filename + "\"\r\n");
-      builder.append("Content-Type:" + contentType + "\r\n\r\n");
+      builder.append("Content-Disposition: form-data; name=\"").append(key).append("\"; filename=\"").append(filename).append("\"\r\n");
+      builder.append("Content-Type:").append(contentType).append("\r\n\r\n");
 
       writer.write(builder.toString().getBytes());
 
@@ -193,8 +194,8 @@ public class ClientConnection {
   /**
    * open a  Connection
    *
-   * @param _url
-   * @param method
+   * @param _url   url
+   * @param method method
    * @return
    * @throws IOException
    */
@@ -226,7 +227,7 @@ public class ClientConnection {
   public static String getRandomString(int length) { //length表示生成字符串的长度
     String base = "abcdefghijklmnopqrstuvwxyz0123456789";
     Random random = new Random();
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (int i = 0; i < length; i++) {
       int number = random.nextInt(base.length());
       sb.append(base.charAt(number));

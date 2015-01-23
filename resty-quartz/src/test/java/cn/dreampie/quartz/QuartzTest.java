@@ -25,7 +25,7 @@ public class QuartzTest {
 //    Thread.sleep(10000);
 //    QuartzKit.stopJob(quartzKey);
 
-    Thread.sleep(1000);
+    Thread.sleep(5000);
   }
 
 }

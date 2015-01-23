@@ -41,15 +41,14 @@ public class QuartzPlugin implements Plugin {
     this.jobs = jobs;
   }
 
-  @Override
   public boolean start() {
     try {
       //加载配置文件
       Properties configProp = Proper.use(config).getProperties();
       //实例化
-      QuartzKit.setSchedulerFactory(new StdSchedulerFactory(configProp));
+      Quartzer.setSchedulerFactory(new StdSchedulerFactory(configProp));
       //获取Scheduler
-      Scheduler sched = QuartzKit.getSchedulerFactory().getScheduler();
+      Scheduler sched = Quartzer.getSchedulerFactory().getScheduler();
       //内存,数据库的任务
       sched.start();
       //属性文件中的任务
@@ -60,11 +59,10 @@ public class QuartzPlugin implements Plugin {
     }
   }
 
-  @Override
   public boolean stop() {
     try {
-      QuartzKit.getSchedulerFactory().getScheduler().shutdown();
-      QuartzKit.setSchedulerFactory(null);
+      Quartzer.getSchedulerFactory().getScheduler().shutdown();
+      Quartzer.setSchedulerFactory(null);
       return true;
     } catch (Exception e) {
       throw new RuntimeException("Can't stop quartz plugin.", e);

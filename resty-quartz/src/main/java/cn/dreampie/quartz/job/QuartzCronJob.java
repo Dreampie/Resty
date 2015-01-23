@@ -1,7 +1,7 @@
 package cn.dreampie.quartz.job;
 
 import cn.dreampie.quartz.QuartzKey;
-import cn.dreampie.quartz.QuartzKit;
+import cn.dreampie.quartz.Quartzer;
 import org.quartz.*;
 
 import java.util.Map;
@@ -18,11 +18,11 @@ public class QuartzCronJob extends QuartzJob {
   private String cron;
 
   public QuartzCronJob(String name, String cron, Class<? extends Job> jobClass) {
-    this(QuartzKit.nextKey(name), cron, jobClass);
+    this(Quartzer.nextKey(name), cron, jobClass);
   }
 
   public QuartzCronJob(String group, String name, String cron, Class<? extends Job> jobClass) {
-    this(QuartzKit.nextKey(group, name), cron, jobClass);
+    this(Quartzer.nextKey(group, name), cron, jobClass);
   }
 
   public QuartzCronJob(QuartzKey quartzKey, String cron, Class<? extends Job> jobClass) {
@@ -37,7 +37,7 @@ public class QuartzCronJob extends QuartzJob {
    */
   public void start(boolean force) {
 
-    QuartzJob quartzJob = QuartzKit.getJob(quartzKey);
+    QuartzJob quartzJob = Quartzer.getJob(quartzKey);
     if (quartzJob != null) {
       if (force) {
         quartzJob.stop();
@@ -49,7 +49,7 @@ public class QuartzCronJob extends QuartzJob {
     long id = quartzKey.getId();
     String name = quartzKey.getName();
     String group = quartzKey.getGroup();
-    SchedulerFactory factory = QuartzKit.getSchedulerFactory();
+    SchedulerFactory factory = Quartzer.getSchedulerFactory();
     try {
       if (factory != null) {
         Scheduler sched = factory.getScheduler();
@@ -73,7 +73,7 @@ public class QuartzCronJob extends QuartzJob {
         this.scheduleTime = sched.scheduleJob(job, trigger);
         sched.start();
         this.state = JobState.STARTED;
-        QuartzKit.addQuartzJob(this);
+        Quartzer.addQuartzJob(this);
       }
     } catch (Exception e) {
       throw new RuntimeException("Can't start cron job.", e);

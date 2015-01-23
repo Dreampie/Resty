@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by wangrenhui on 14-4-21.
  */
-public class QuartzKit {
+public class Quartzer {
 
   private static SchedulerFactory schedulerFactory;
 
@@ -19,7 +19,7 @@ public class QuartzKit {
 
   private static Map<String, Long> quartzKeys = new ConcurrentHashMap<String, Long>();
 
-  private QuartzKit() {
+  private Quartzer() {
   }
 
   public static QuartzKey nextKey(String name) {
@@ -76,7 +76,7 @@ public class QuartzKit {
   }
 
   public static void setSchedulerFactory(SchedulerFactory schedulerFactory) {
-    QuartzKit.schedulerFactory = schedulerFactory;
+    Quartzer.schedulerFactory = schedulerFactory;
   }
 
   public static List<QuartzJob> getQuartzJobs() {
@@ -84,14 +84,14 @@ public class QuartzKit {
   }
 
   public static void setQuartzJobs(List<QuartzJob> quartzJobs) {
-    QuartzKit.quartzJobs = quartzJobs;
+    Quartzer.quartzJobs = quartzJobs;
   }
 
   public static void addQuartzJob(QuartzJob startedJob) {
-    QuartzKit.quartzJobs.add(startedJob);
+    Quartzer.quartzJobs.add(startedJob);
   }
 
   public static void removeQuartzJob(QuartzJob startedJob) {
-    QuartzKit.quartzJobs.remove(startedJob);
+    Quartzer.quartzJobs.remove(startedJob);
   }
 }

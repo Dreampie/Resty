@@ -2,7 +2,7 @@ package cn.dreampie.quartz.job;
 
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.quartz.QuartzKey;
-import cn.dreampie.quartz.QuartzKit;
+import cn.dreampie.quartz.Quartzer;
 import org.quartz.*;
 
 import java.util.Date;
@@ -44,7 +44,7 @@ public abstract class QuartzJob {
     long id = quartzKey.getId();
     String name = quartzKey.getName();
     String group = quartzKey.getGroup();
-    SchedulerFactory factory = QuartzKit.getSchedulerFactory();
+    SchedulerFactory factory = Quartzer.getSchedulerFactory();
 
     try {
       if (factory != null) {
@@ -56,7 +56,7 @@ public abstract class QuartzJob {
           scheduler.unscheduleJob(triggerKey);
           scheduler.deleteJob(trigger.getJobKey());
           this.state = JobState.STOPED;
-          QuartzKit.removeQuartzJob(this);
+          Quartzer.removeQuartzJob(this);
         }
       }
     } catch (Exception e) {
@@ -71,7 +71,7 @@ public abstract class QuartzJob {
     long id = quartzKey.getId();
     String name = quartzKey.getName();
     String group = quartzKey.getGroup();
-    SchedulerFactory factory = QuartzKit.getSchedulerFactory();
+    SchedulerFactory factory = Quartzer.getSchedulerFactory();
     try {
       if (factory != null) {
         Scheduler scheduler = factory.getScheduler();
@@ -94,7 +94,7 @@ public abstract class QuartzJob {
     long id = quartzKey.getId();
     String name = quartzKey.getName();
     String group = quartzKey.getGroup();
-    SchedulerFactory factory = QuartzKit.getSchedulerFactory();
+    SchedulerFactory factory = Quartzer.getSchedulerFactory();
     try {
       if (factory != null) {
         Scheduler scheduler = factory.getScheduler();

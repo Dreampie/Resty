@@ -15,10 +15,20 @@ public abstract class Model<M extends Model> extends Base<M> {
   /**
    * 查询全部的model数据
    *
-   * @return
+   * @return model 集合
    */
   public List<M> findAll() {
     return find(getDialect().select(getModelMeta().getTableName()));
+  }
+
+  /**
+   * 查询全部的model数据
+   *
+   * @param columns 列 用逗号分割
+   * @return model 集合
+   */
+  public List<M> findAll(String columns) {
+    return find(getDialect().select(getModelMeta().getTableName(), columns.split(",")));
   }
 
   /**
@@ -30,6 +40,18 @@ public abstract class Model<M extends Model> extends Base<M> {
    */
   public List<M> findBy(String where, Object... paras) {
     return find(getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras);
+  }
+
+  /**
+   * 根据where条件查询model集合
+   *
+   * @param colums 列 用逗号分割
+   * @param where  条件
+   * @param paras  参数
+   * @return model集合
+   */
+  public List<M> findBy(String colums, String where, Object... paras) {
+    return find(getDialect().select(getModelMeta().getTableName(), getAlias(), where, colums.split(",")), paras);
   }
 
   /**
@@ -45,14 +67,39 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   /**
+   * 根据条件查询 前几位
+   *
+   * @param topNumber 前几位
+   * @param columns   列 用逗号分割
+   * @param where     条件
+   * @param paras     参数
+   * @return list
+   */
+  public List<M> findTopBy(int topNumber, String columns, String where, Object... paras) {
+    return paginate(1, topNumber, getDialect().select(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras).getList();
+  }
+
+  /**
    * 根据条件查询第一个对象
    *
    * @param where 条件
    * @param paras 参数
-   * @return model
+   * @return model对象
    */
   public M findFirstBy(String where, Object... paras) {
     return findFirst(getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras);
+  }
+
+  /**
+   * 根据条件查询第一个对象
+   *
+   * @param columns 列 用逗号分割
+   * @param where   条件
+   * @param paras   参数
+   * @return model对象
+   */
+  public M findFirstBy(String columns, String where, Object... paras) {
+    return findFirst(getDialect().select(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
   }
 
   /**
@@ -71,12 +118,38 @@ public abstract class Model<M extends Model> extends Base<M> {
    *
    * @param pageNumber 页码
    * @param pageSize   每页大小
+   * @param columns    列 用逗号分割
+   * @return 分页对象
+   */
+  public Page<M> paginateAll(int pageNumber, int pageSize, String columns) {
+    return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), columns.split(",")));
+  }
+
+  /**
+   * 分页查询
+   *
+   * @param pageNumber 页码
+   * @param pageSize   每页大小
    * @param where      条件
    * @param paras      参数
    * @return 分页对象
    */
   public Page<M> paginateBy(int pageNumber, int pageSize, String where, Object... paras) {
     return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras);
+  }
+
+  /**
+   * 分页查询
+   *
+   * @param pageNumber 页码
+   * @param pageSize   每页大小
+   * @param columns    列  用逗号分割
+   * @param where      条件
+   * @param paras      参数
+   * @return 分页对象
+   */
+  public Page<M> paginateBy(int pageNumber, int pageSize, String columns, String where, Object... paras) {
+    return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
   }
 
   /**
@@ -153,6 +226,12 @@ public abstract class Model<M extends Model> extends Base<M> {
     return alias;
   }
 
+  /**
+   * 表的别名
+   *
+   * @param alias 别名
+   * @return model
+   */
   public M setAlias(String alias) {
     this.alias = alias;
     return (M) this;

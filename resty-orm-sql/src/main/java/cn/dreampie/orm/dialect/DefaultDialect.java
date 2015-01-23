@@ -32,18 +32,19 @@ public abstract class DefaultDialect implements Dialect {
   }
 
   protected String[] getPrefix(String alias, String... columns) {
-    if (null != alias && !"".equals(alias.trim()) && null != columns && columns.length > 0) {
+    String[] newColumns = new String[columns.length];
+    if (null != alias && !"".equals(alias.trim()) && columns.length > 0) {
       int i = 0;
       for (String column : columns) {
         if (column.contains(".")) {
-          break;
+          return columns;
         } else {
-          columns[i] = alias + "." + column;
+          newColumns[i] = alias + "." + column;
         }
         i++;
       }
     }
-    return columns;
+    return newColumns;
   }
 
 

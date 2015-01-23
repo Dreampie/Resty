@@ -10,8 +10,8 @@ public class QuartzTest {
 
   @org.junit.Before
   public void setUp() throws Exception {
-//    QuartzPlugin quartzPlugin = new QuartzPlugin();
-//    quartzPlugin.start();
+    QuartzPlugin quartzPlugin = new QuartzPlugin();
+    quartzPlugin.start();
   }
 
   @Test

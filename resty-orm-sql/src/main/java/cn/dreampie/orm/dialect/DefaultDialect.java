@@ -32,8 +32,8 @@ public abstract class DefaultDialect implements Dialect {
   }
 
   protected String[] getPrefix(String alias, String... columns) {
-    String[] newColumns = new String[columns.length];
     if (null != alias && !"".equals(alias.trim()) && columns.length > 0) {
+      String[] newColumns = new String[columns.length];
       int i = 0;
       for (String column : columns) {
         if (column.contains(".")) {
@@ -43,20 +43,16 @@ public abstract class DefaultDialect implements Dialect {
         }
         i++;
       }
+      return newColumns;
+    } else {
+      return columns;
     }
-    return newColumns;
   }
 
 
   public String select(String table, String... columns) {
     if (columns == null || columns.length <= 0) return select(table);
-    String queryColumns;
-    if (columns.length == 1) {
-      queryColumns = columns[0];
-    } else {
-      queryColumns = Joiner.on(", ").join(columns);
-    }
-    return "SELECT " + queryColumns + " FROM " + table;
+    return "SELECT " + Joiner.on(", ").join(columns) + " FROM " + table;
   }
 
 
@@ -67,13 +63,7 @@ public abstract class DefaultDialect implements Dialect {
   public String select(String table, String alias, String where, String... columns) {
     if (where == null) return select(table, columns);
     if (columns == null || columns.length <= 0) return select(table, alias, where);
-    String queryColumns;
-    if (columns.length == 1) {
-      queryColumns = columns[0];
-    } else {
-      queryColumns = Joiner.on(", ").join(getPrefix(alias, columns));
-    }
-    return "SELECT " + queryColumns + " FROM " + table + getAlias(alias) + " WHERE " + where;
+    return "SELECT " + Joiner.on(", ").join(getPrefix(alias, columns)) + " FROM " + table + getAlias(alias) + " WHERE " + where;
   }
 
   protected void appendQuestions(StringBuilder sql, int count) {
@@ -106,24 +96,12 @@ public abstract class DefaultDialect implements Dialect {
 
 
   public String update(String table, String... columns) {
-    String setColumns;
-    if (columns.length == 1) {
-      setColumns = columns[0];
-    } else {
-      setColumns = Joiner.on("=?, ").join(columns);
-    }
-    return "UPDATE " + table + " SET " + setColumns + "=?";
+    return "UPDATE " + table + " SET " + Joiner.on("=?, ").join(columns) + "=?";
   }
 
   public String update(String table, String alias, String where, String... columns) {
     if (where == null) return update(table, columns);
-    String setColumns;
-    if (columns.length == 1) {
-      setColumns = columns[0];
-    } else {
-      setColumns = Joiner.on("=?, ").join(getPrefix(alias, columns));
-    }
-    return "UPDATE " + table + getAlias(alias) + " SET " + setColumns + "=? WHERE " + where;
+    return "UPDATE " + table + getAlias(alias) + " SET " + Joiner.on("=?, ").join(getPrefix(alias, columns)) + "=? WHERE " + where;
   }
 
 
@@ -157,4 +135,10 @@ public abstract class DefaultDialect implements Dialect {
     return paginateWith(pageNumber, pageSize, select(table, alias, where, columns));
   }
 
+  public static void main(String[] args) {
+    MySQLDialect mySQLDialect = new MySQLDialect();
+    mySQLDialect.getAlias("");
+    mySQLDialect.getPrefix("", "*");
+    System.out.println(Joiner.on(", ").join(new String[]{"*"}));
+  }
 }

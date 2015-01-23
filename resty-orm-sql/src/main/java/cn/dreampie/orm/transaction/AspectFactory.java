@@ -30,7 +30,7 @@ public class AspectFactory {
     AspectHandler hander = new AspectHandler(instance, aspects);
     Class<?> clazz = instance.getClass();
     if (logger.isDebugEnabled()) {
-      logger.debug("Instance of " + clazz + ",interfaces:" + Joiner.on(",").join(clazz.getInterfaces()));
+      logger.debug("Instance of " + clazz + ", " + Joiner.on(",").join(clazz.getInterfaces()));
     }
     return (T) Proxy.newProxyInstance(clazz.getClassLoader(),
         clazz.getInterfaces(),

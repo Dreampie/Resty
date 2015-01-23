@@ -47,8 +47,8 @@ public class DS {
     return ds;
   }
 
-  private PreparedStatement getPreparedStatement(String primaryKey, String sql, Object[] paras) throws SQLException {
-    PreparedStatement pst = dataSourceMeta.getConnection().prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
+  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[] paras) throws SQLException {
+    PreparedStatement pst = conn.prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
 
     for (int i = 0; i < paras.length; i++) {
       pst.setObject(i + 1, paras[i]);
@@ -99,10 +99,13 @@ public class DS {
   public <T> List<T> query(String sql, Object... paras) {
 
     List result = new ArrayList();
+    Connection conn = null;
+    PreparedStatement pst = null;
+    ResultSet rs = null;
     try {
-
-      PreparedStatement pst = getPreparedStatement(DEFAULT_PRIMARY_KAY, sql, paras);
-      ResultSet rs = pst.executeQuery();
+      conn = dataSourceMeta.getConnection();
+      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
+      rs = pst.executeQuery();
       int colAmount = rs.getMetaData().getColumnCount();
       if (colAmount > 1) {
         while (rs.next()) {
@@ -117,10 +120,10 @@ public class DS {
           result.add(rs.getObject(1));
         }
       }
-      dataSourceMeta.close(rs, pst);
-
     } catch (SQLException e) {
       throw new DBException(e);
+    } finally {
+      dataSourceMeta.close(rs, pst, conn);
     }
     return result;
   }
@@ -287,13 +290,16 @@ public class DS {
     if (cached) {
       QueryCache.instance().purge(dataSourceMeta.getDsName());
     }
-
+    Connection conn = null;
+    PreparedStatement pst = null;
     try {
-      PreparedStatement pst = getPreparedStatement(DEFAULT_PRIMARY_KAY, sql, paras);
+      conn = dataSourceMeta.getConnection();
+      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
       result = pst.executeUpdate();
-      dataSourceMeta.close(pst);
     } catch (SQLException e) {
       throw new DBException(e);
+    } finally {
+      dataSourceMeta.close(pst, conn);
     }
     return result;
   }
@@ -318,13 +324,18 @@ public class DS {
       return result;
     }
 
+    Connection conn = null;
+    PreparedStatement pst = null;
+    ResultSet rs = null;
     try {
-      PreparedStatement pst = getPreparedStatement(DEFAULT_PRIMARY_KAY, sql, paras);
-      ResultSet rs = pst.executeQuery();
+      conn = dataSourceMeta.getConnection();
+      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
+      rs = pst.executeQuery();
       result = RecordBuilder.build(dataSourceMeta, rs);
-      dataSourceMeta.close(rs, pst);
     } catch (SQLException e) {
       throw new DBException(e);
+    } finally {
+      dataSourceMeta.close(rs, pst, conn);
     }
     //添加缓存
     if (cached) {
@@ -467,15 +478,17 @@ public class DS {
     if (cached) {
       QueryCache.instance().purge(dataSourceMeta.getDsName(), tableName);
     }
+    Connection conn = null;
     PreparedStatement pst = null;
     try {
-      pst = getPreparedStatement(primaryKey, sql, params);
+      conn = dataSourceMeta.getConnection();
+      pst = getPreparedStatement(conn, primaryKey, sql, params);
       result = pst.executeUpdate();
       getGeneratedKey(pst, primaryKey, record);
     } catch (SQLException e) {
       throw new DBException(e);
     } finally {
-      dataSourceMeta.close(pst);
+      dataSourceMeta.close(pst, conn);
     }
     return result >= 1;
   }
@@ -487,10 +500,10 @@ public class DS {
   /**
    * 批量保存record
    *
-   * @param tableName
-   * @param primaryKey
-   * @param records
-   * @return
+   * @param tableName  表名
+   * @param primaryKey 主键
+   * @param records    记录
+   * @return boolean
    */
   boolean save(String tableName, String primaryKey, List<Record> records) {
     if (records == null || records.size() <= 0) {
@@ -517,21 +530,21 @@ public class DS {
     // --------
     PreparedStatement pst = null;
     int[] result = null;
-    Connection connection = null;
+    Connection conn = null;
     Boolean autoCommit = null;
     try {
-      connection = dataSourceMeta.getConnection();
-      autoCommit = connection.getAutoCommit();
+      conn = dataSourceMeta.getConnection();
+      autoCommit = conn.getAutoCommit();
       if (autoCommit)
-        connection.setAutoCommit(false);
+        conn.setAutoCommit(false);
 
-      pst = getPreparedStatement(connection, primaryKey, sql, paras);
+      pst = getPreparedStatement(conn, primaryKey, sql, paras);
       result = pst.executeBatch();
       getGeneratedKey(pst, primaryKey, records);
       //没有事务的情况下 手动提交
       if (dataSourceMeta.getCurrentConnection() == null)
-        connection.commit();
-      connection.setAutoCommit(autoCommit);
+        conn.commit();
+      conn.setAutoCommit(autoCommit);
 
       for (int r : result) {
         if (r < 1) {
@@ -542,8 +555,7 @@ public class DS {
     } catch (SQLException e) {
       throw new DBException(e);
     } finally {
-      dataSourceMeta.close(pst);
-      dataSourceMeta.close(connection);
+      dataSourceMeta.close(pst, conn);
     }
   }
 
@@ -675,20 +687,20 @@ public class DS {
 
     Statement stmt = null;
     int[] result = null;
-    Connection connection = null;
+    Connection conn = null;
     Boolean autoCommit = null;
     try {
-      connection = dataSourceMeta.getConnection();
-      autoCommit = connection.getAutoCommit();
+      conn = dataSourceMeta.getConnection();
+      autoCommit = conn.getAutoCommit();
       if (autoCommit)
-        connection.setAutoCommit(false);
+        conn.setAutoCommit(false);
 
-      stmt = getPreparedStatement(connection, sqls);
+      stmt = getPreparedStatement(conn, sqls);
       result = stmt.executeBatch();
       //没有事务的情况下 手动提交
       if (dataSourceMeta.getCurrentConnection() == null)
-        connection.commit();
-      connection.setAutoCommit(autoCommit);
+        conn.commit();
+      conn.setAutoCommit(autoCommit);
 
       for (int r : result) {
         if (r < 1) {
@@ -699,8 +711,7 @@ public class DS {
     } catch (SQLException e) {
       throw new DBException(e);
     } finally {
-      dataSourceMeta.close(stmt);
-      dataSourceMeta.close(connection);
+      dataSourceMeta.close(stmt, conn);
     }
   }
 }

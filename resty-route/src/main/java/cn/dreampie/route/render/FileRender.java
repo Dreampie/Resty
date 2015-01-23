@@ -65,25 +65,21 @@ public class FileRender extends Render {
 
           // 如果设设置了Content-Length，则客户端会自动进行多线程下载。如果不希望支持多线程，则不要设置这个参数。
           // Content-Length: [文件的总大小] - [客户端请求的下载的文件块的开始字节]
-          response.setHeader("Content-Length", new Long(contentLength).toString());
+          response.setHeader("Content-Length", Long.toString(contentLength));
 
           // 断点开始
           // 响应的格式是:
           // Content-Range: bytes [文件块的开始字节]-[文件的总大小 - 1]/[文件的总大小]
           if (rangeSwitch == 1) {
-            String contentRange = new StringBuffer("bytes ").append(new Long(p).toString()).append("-")
-                .append(new Long(fileLength - 1).toString()).append("/")
-                .append(new Long(fileLength).toString()).toString();
+            String contentRange = "bytes " + Long.toString(p) + "-" + Long.toString(fileLength - 1) + "/" + Long.toString(fileLength);
             response.setHeader("Content-Range", contentRange);
             bis.skip(p);
           } else if (rangeSwitch == 2) {
-            String contentRange = range.replace("=", " ") + "/" + new Long(fileLength).toString();
+            String contentRange = range.replace("=", " ") + "/" + Long.toString(fileLength);
             response.setHeader("Content-Range", contentRange);
             bis.skip(p);
           } else {
-            String contentRange = new StringBuffer("bytes ").append("0-")
-                .append(fileLength - 1).append("/")
-                .append(fileLength).toString();
+            String contentRange = "bytes " + "0-" + (fileLength - 1) + "/" + fileLength;
             response.setHeader("Content-Range", contentRange);
           }
 

@@ -2,7 +2,6 @@ package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;
-import cn.dreampie.orm.exception.DBException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -92,7 +91,7 @@ public class DataSourceMeta {
    * Close ResultSet、Statement、Connection
    * ThreadLocal support declare transaction.
    */
-  public final void close(ResultSet rs, Statement st) {
+  public final void close(ResultSet rs, Statement st, Connection conn) {
     if (rs != null) {
       try {
         rs.close();
@@ -100,11 +99,11 @@ public class DataSourceMeta {
         logger.warn("Could not close resultSet!", e);
       }
     }
-
-    close(st);
+    //关闭连接
+    close(st, conn);
   }
 
-  public final void close(Statement st) {
+  public final void close(Statement st, Connection conn) {
     if (st != null) {
       try {
         st.close();
@@ -112,12 +111,8 @@ public class DataSourceMeta {
         logger.warn("Could not close statement!", e);
       }
     }
-
-    try {
-      close(getConnection());
-    } catch (SQLException e) {
-      throw new DBException(e);
-    }
+    //关闭连接
+    close(conn);
   }
 
   public final void close(Connection conn) {

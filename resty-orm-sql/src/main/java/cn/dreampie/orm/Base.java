@@ -255,18 +255,9 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     return (Number) attrs.get(attr);
   }
 
-  private PreparedStatement getPreparedStatement(String sql, Object[] paras) throws SQLException {
-    return getPreparedStatement(getDataSourceMeta(), sql, paras);
-  }
-
-  private PreparedStatement getPreparedStatement(String dsName, String sql, Object[] paras) throws SQLException {
-    if (dsName == null) return getPreparedStatement(sql, paras);
-    return getPreparedStatement(Metadatas.getDataSourceMeta(dsName), sql, paras);
-  }
-
-  private PreparedStatement getPreparedStatement(DataSourceMeta dsm, String sql, Object[] paras) throws SQLException {
+  private PreparedStatement getPreparedStatement(Connection conn, String sql, Object[] paras) throws SQLException {
     PreparedStatement pst = null;
-    pst = dsm.getConnection().prepareStatement(sql, new String[]{getModelMeta().getPrimaryKey()});
+    pst = conn.prepareStatement(sql, new String[]{getModelMeta().getPrimaryKey()});
 
     for (int i = 0; i < paras.length; i++) {
       pst.setObject(i + 1, paras[i]);
@@ -275,18 +266,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
 
-  private PreparedStatement getPreparedStatement(String sql, Object[][] paras) throws SQLException {
-    DataSourceMeta dsm = getDataSourceMeta();
-    return getPreparedStatement(dsm, dsm.getConnection(), sql, paras);
-  }
-
-  private PreparedStatement getPreparedStatement(String dsName, String sql, Object[][] paras) throws SQLException {
-    if (dsName == null) return getPreparedStatement(sql, paras);
-    DataSourceMeta dsm = Metadatas.getDataSourceMeta(dsName);
-    return getPreparedStatement(dsm, dsm.getConnection(), sql, paras);
-  }
-
-  private PreparedStatement getPreparedStatement(DataSourceMeta dsm, Connection connection, String sql, Object[][] paras) throws SQLException {
+  private PreparedStatement getPreparedStatement(Connection connection, String sql, Object[][] paras) throws SQLException {
     PreparedStatement pst = null;
     String key = getModelMeta().getPrimaryKey();
     String[] returnKeys = new String[paras.length];
@@ -336,17 +316,24 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
     if (Constant.dev_mode)
       checkTableName(getModelMeta(), sql);
+
+    DataSourceMeta dsm = getDataSourceMeta();
+    Connection conn = null;
+    PreparedStatement pst = null;
+    ResultSet rs = null;
     try {
-      PreparedStatement pst = getPreparedStatement(sql, paras);
-      ResultSet rs = pst.executeQuery();
+      conn = dsm.getConnection();
+      pst = getPreparedStatement(conn, sql, paras);
+      rs = pst.executeQuery();
       result = ModelBuilder.build(rs, getClass());
-      getDataSourceMeta().close(rs, pst);
     } catch (SQLException e) {
       throw new DBException(e);
     } catch (InstantiationException e) {
       throw new ModelException(e);
     } catch (IllegalAccessException e) {
       throw new ModelException(e);
+    } finally {
+      dsm.close(rs, pst, conn);
     }
     //add cache
     if (cached) {
@@ -473,10 +460,12 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     String sql = dialect.insert(modelMeta.getTableName(), getAttrNames());
 
     // --------
+    Connection conn = null;
     PreparedStatement pst = null;
     int result = 0;
     try {
-      pst = getPreparedStatement(sql, getAttrValues());
+      conn = dsm.getConnection();
+      pst = getPreparedStatement(conn, sql, getAttrValues());
 
       result = pst.executeUpdate();
       getGeneratedKey(pst, modelMeta);
@@ -485,7 +474,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     } catch (SQLException e) {
       throw new DBException(e);
     } finally {
-      dsm.close(pst);
+      dsm.close(pst, conn);
     }
   }
 
@@ -528,23 +517,23 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     }
 
     // --------
+    Connection conn = null;
     PreparedStatement pst = null;
     int[] result = null;
-    Connection connection = null;
     Boolean autoCommit = null;
     try {
-      connection = dsm.getConnection();
-      autoCommit = connection.getAutoCommit();
+      conn = dsm.getConnection();
+      autoCommit = conn.getAutoCommit();
       if (autoCommit)
-        connection.setAutoCommit(false);
+        conn.setAutoCommit(false);
 
-      pst = getPreparedStatement(dsm, connection, sql, paras);
+      pst = getPreparedStatement(conn, sql, paras);
       result = pst.executeBatch();
       getGeneratedKey(pst, modelMeta, models);
       //没有事务的情况下 手动提交
       if (dsm.getCurrentConnection() == null)
-        connection.commit();
-      connection.setAutoCommit(autoCommit);
+        conn.commit();
+      conn.setAutoCommit(autoCommit);
       for (M model : models) {
         model.getModifyFlag().clear();
       }
@@ -558,8 +547,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     } catch (SQLException e) {
       throw new DBException(e);
     } finally {
-      dsm.close(pst);
-      dsm.close(connection);
+      dsm.close(pst, conn);
     }
   }
 

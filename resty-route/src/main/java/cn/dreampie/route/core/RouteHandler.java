@@ -5,7 +5,6 @@ import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.WebResult;
 import cn.dreampie.common.http.exception.WebException;
-import cn.dreampie.log.Logger;
 import cn.dreampie.route.handler.Handler;
 import cn.dreampie.route.render.FileRender;
 
@@ -16,11 +15,10 @@ import java.io.File;
  */
 public final class RouteHandler extends Handler {
 
-  private final RouteBuilder resourceBuilder;
-  private static final Logger logger = Logger.getLogger(RouteHandler.class);
+  private final RouteBuilder routeBuilder;
 
-  public RouteHandler(RouteBuilder resourceBuilder) {
-    this.resourceBuilder = resourceBuilder;
+  public RouteHandler(RouteBuilder routeBuilder) {
+    this.routeBuilder = routeBuilder;
   }
 
   /**
@@ -31,7 +29,7 @@ public final class RouteHandler extends Handler {
     RouteMatch routeMatch = null;
     Route route = null;
 
-    for (Route r : resourceBuilder.getRoutes()) {
+    for (Route r : routeBuilder.getRoutes()) {
       routeMatch = r.match(request, response);
       if (routeMatch != null) {
         route = r;

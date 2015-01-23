@@ -83,7 +83,7 @@ public class Route {
     if (logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nBuild route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
-      sb.append("\nResource     : ").append(resourceClass.getName()).append(" (").append(resourceClass.getSimpleName()).append(".java:" + allLineNumbers[0] + ")");
+      sb.append("\nResource     : ").append(resourceClass.getName()).append("(").append(resourceClass.getSimpleName()).append(".java:" + allLineNumbers[0] + ")");
       sb.append("\nMethod       : ").append(method.getName());
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
       //print params
@@ -143,7 +143,7 @@ public class Route {
     if (Constant.show_route && logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
-      sb.append("\nResource     : ").append(resourceClass.getName()).append(" (").append(resourceClass.getSimpleName()).append(".java:" + allLineNumbers[0] + ")");
+      sb.append("\nResource     : ").append(resourceClass.getName()).append("(").append(resourceClass.getSimpleName()).append(".java:" + allLineNumbers[0] + ")");
       sb.append("\nMethod       : ").append(method.getName());
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
       //print pathParams
@@ -177,7 +177,7 @@ public class Route {
           if (i > 0)
             sb.append("\n               ");
           Class<? extends Interceptor> ic = interceptor.getClass();
-          sb.append(ic.getName()).append(" (").append(ic.getSimpleName()).append(".java:").append(interceptorsLineNumbers[i][0]).append(")");
+          sb.append(ic.getName()).append("(").append(ic.getSimpleName()).append(".java:").append(interceptorsLineNumbers[i][0]).append(")");
           i++;
         }
         sb.append("\n");

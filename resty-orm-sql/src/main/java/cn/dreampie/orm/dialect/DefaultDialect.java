@@ -49,7 +49,14 @@ public abstract class DefaultDialect implements Dialect {
 
 
   public String select(String table, String... columns) {
-    return "SELECT " + Joiner.on(", ").join(columns) + " FROM " + table;
+    if (columns == null || columns.length <= 0) return select(table);
+    String queryColumns;
+    if (columns.length == 1) {
+      queryColumns = columns[0];
+    } else {
+      queryColumns = Joiner.on(", ").join(columns);
+    }
+    return "SELECT " + queryColumns + " FROM " + table;
   }
 
 
@@ -60,7 +67,13 @@ public abstract class DefaultDialect implements Dialect {
   public String select(String table, String alias, String where, String... columns) {
     if (where == null) return select(table, columns);
     if (columns == null || columns.length <= 0) return select(table, alias, where);
-    return "SELECT " + Joiner.on(", ").join(getPrefix(alias, columns)) + " FROM " + table + getAlias(alias) + " WHERE " + where;
+    String queryColumns;
+    if (columns.length == 1) {
+      queryColumns = columns[0];
+    } else {
+      queryColumns = Joiner.on(", ").join(getPrefix(alias, columns));
+    }
+    return "SELECT " + queryColumns + " FROM " + table + getAlias(alias) + " WHERE " + where;
   }
 
   protected void appendQuestions(StringBuilder sql, int count) {
@@ -93,12 +106,24 @@ public abstract class DefaultDialect implements Dialect {
 
 
   public String update(String table, String... columns) {
-    return "UPDATE " + table + " SET " + Joiner.on("=?, ").join(columns) + "=?";
+    String setColumns;
+    if (columns.length == 1) {
+      setColumns = columns[0];
+    } else {
+      setColumns = Joiner.on("=?, ").join(columns);
+    }
+    return "UPDATE " + table + " SET " + setColumns + "=?";
   }
 
   public String update(String table, String alias, String where, String... columns) {
     if (where == null) return update(table, columns);
-    return "UPDATE " + table + getAlias(alias) + " SET " + Joiner.on("=?, ").join(getPrefix(alias, columns)) + "=? WHERE " + where;
+    String setColumns;
+    if (columns.length == 1) {
+      setColumns = columns[0];
+    } else {
+      setColumns = Joiner.on("=?, ").join(getPrefix(alias, columns));
+    }
+    return "UPDATE " + table + getAlias(alias) + " SET " + setColumns + "=? WHERE " + where;
   }
 
 

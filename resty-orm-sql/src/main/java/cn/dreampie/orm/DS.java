@@ -379,10 +379,10 @@ public class DS {
    * Example: Record user = DbPro.use().findById("user", 15);
    *
    * @param tableName the table name of the table
-   * @param idValue   the id value of the record
+   * @param id        the id value of the record
    */
-  public Record findById(String tableName, Object idValue) {
-    return findById(tableName, DEFAULT_PRIMARY_KAY, idValue);
+  public Record findById(String tableName, Object id) {
+    return findById(tableName, DEFAULT_PRIMARY_KAY, id);
   }
 
   /**
@@ -390,11 +390,11 @@ public class DS {
    * Example: Record user = DbPro.use().findById("user", 15, "name, age");
    *
    * @param tableName the table name of the table
-   * @param idValue   the id value of the record
+   * @param id        the id value of the record
    * @param columns   the specific columns
    */
-  public Record findById(String tableName, Number idValue, String... columns) {
-    return findById(tableName, DEFAULT_PRIMARY_KAY, idValue, columns);
+  public Record findById(String tableName, Number id, String... columns) {
+    return findById(tableName, DEFAULT_PRIMARY_KAY, id, columns);
   }
 
   /**
@@ -403,18 +403,31 @@ public class DS {
    *
    * @param tableName  the table name of the table
    * @param primaryKey the primary key of the table
-   * @param idValue    the id value of the record
+   * @param id         the id value of the record
    * @param columns    the specific columns separate with comma character ==> ","
    */
-  public Record findById(String tableName, String primaryKey, Object idValue, String... columns) {
+  public Record findById(String tableName, String primaryKey, Object id, String... columns) {
+    checkNotNull(id, "You can't find model without Primary Key.");
+
     String sql = dataSourceMeta.getDialect().select(tableName, "", primaryKey + "=?", columns);
-    List<Record> result = find(sql, idValue);
+    List<Record> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }
 
-  public Record findByIds(String tableName, String[] primaryKeys, Object[] idValues, String... columns) {
-    String sql = dataSourceMeta.getDialect().select(tableName, "", Joiner.on("=? AND ").join(primaryKeys) + "=?", columns);
-    List<Record> result = find(sql, idValues);
+  /**
+   * Find record by ids. Fetch the specific columns only.
+   * Example: Record user = DbPro.use().findById("user", "user_id", 15, "name, age");
+   *
+   * @param tableName   the table name of the table
+   * @param primaryKeys the primary keys of the table split ,
+   * @param ids         the id values of the record
+   * @param columns     the specific columns separate with comma character ==> ","
+   */
+  public Record findByIds(String tableName, String primaryKeys, Object[] ids, String... columns) {
+    checkNotNull(ids, "You can't find model without Primary Keys.");
+
+    String sql = dataSourceMeta.getDialect().select(tableName, "", Joiner.on("=? AND ").join(primaryKeys.split(",")) + "=?", columns);
+    List<Record> result = find(sql, ids);
     return result.size() > 0 ? result.get(0) : null;
   }
 
@@ -434,10 +447,19 @@ public class DS {
     return update(sql, id) >= 1;
   }
 
-  public boolean deleteByIds(String tableName, String[] primaryKeys, Object... ids) {
-    checkNotNull(ids, "You can't delete model without Primary Key.");
+  /**
+   * Delete record by ids.
+   * Example: boolean succeed = DbPro.use().deleteById("user", "user_id", 15);
+   *
+   * @param tableName   the table name of the table
+   * @param primaryKeys the primary keys of the table split ,
+   * @param ids         the id values of the record
+   * @return true if delete succeed otherwise false
+   */
+  public boolean deleteByIds(String tableName, String primaryKeys, Object... ids) {
+    checkNotNull(ids, "You can't delete model without Primary Keys.");
 
-    String sql = dataSourceMeta.getDialect().delete(tableName, Joiner.on("=? AND ").join(ids) + "=?");
+    String sql = dataSourceMeta.getDialect().delete(tableName, Joiner.on("=? AND ").join(primaryKeys.split(",")) + "=?");
     return update(sql, ids) >= 1;
   }
 

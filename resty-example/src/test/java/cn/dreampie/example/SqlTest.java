@@ -10,6 +10,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,10 +25,10 @@ public class SqlTest {
 
   @Test
   public void testSave() {
-    User u = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456");
+    User u = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456").set("created_at", new Date());
     u.save();
-    User u1 = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456");
-    User u2 = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456");
+    User u1 = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456").set("created_at", new Date());
+    User u2 = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456").set("created_at", new Date());
     UserInfo userInfo = null;
     if (u.get("user_info") == null) {
       userInfo = new UserInfo().set("gender", 0);
@@ -41,9 +42,9 @@ public class SqlTest {
     }
 
 
-    DS.use().save("sec_user", new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456"));
-    Record r1 = new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456");
-    Record r2 = new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456");
+    DS.use().save("sec_user", new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date()));
+    Record r1 = new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
+    Record r2 = new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
 
     DS.use().save("sec_user", r1, r2);
   }

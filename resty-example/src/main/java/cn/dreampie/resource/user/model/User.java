@@ -15,10 +15,10 @@ import java.util.Set;
 public class User extends Model<User> {
   public static User dao = new User();
 
-  // 默认 getXxx 的形式的方法 会被认为是属性  方法会被执行一次
-  // json反转时  如果 getXxx的存在  会按 getXxx的返回值类型 就行转换
-  //  @JSONField(serialize = false) 如果不转为json  使用该注解
-  // 注意属性名和GetXxx一致   如  userInfos的get方法为 getUserInfos
+  // 默认 getXxx 的形式的方法 会被认为是属性 如果userInfos的值不存在 方法会被执行一次
+  // json反转时  如果 getXxx的存在  会按 getXxx的返回值类型 进行转换 如：{userInfos:[{key:value,key1:value1}]} userInfos会被转换为  List<UserInfo>类型
+  //  @JSONField(serialize = false) 如果getXxx的值不转为json  使用该注解
+  // 注意属性名和GetXxx一致   如:属性userInfos的get方法为 getUserInfos
   public List<UserInfo> getUserInfos() {
     if (this.get("userInfos") == null) {
       this.put("userInfos", UserInfo.dao.findBy("user_id=?", this.get("id")));

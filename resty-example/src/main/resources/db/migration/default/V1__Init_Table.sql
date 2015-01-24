@@ -38,3 +38,64 @@ CREATE TABLE sec_user_info (
   ENGINE =InnoDB
   DEFAULT CHARSET =utf8
   COMMENT ='用户信息';
+
+DROP TABLE IF EXISTS sec_role;
+CREATE TABLE sec_role (
+  id         BIGINT      NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name       VARCHAR(50) NOT NULL
+  COMMENT '名称',
+  value      VARCHAR(50) NOT NULL
+  COMMENT '值',
+  intro      VARCHAR(255) COMMENT '简介',
+  pid        BIGINT               DEFAULT 0
+  COMMENT '父级id',
+  created_at DATETIME    NOT NULL,
+  updated_at DATETIME    NULL,
+  deleted_at DATETIME    NULL
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8
+  COMMENT ='角色';
+
+DROP TABLE IF EXISTS sec_user_role;
+CREATE TABLE sec_user_role (
+  id      BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  role_id BIGINT NOT NULL
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8
+  COMMENT ='用户角色';
+
+DROP TABLE IF EXISTS sec_permission;
+CREATE TABLE sec_permission (
+  id         BIGINT      NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name       VARCHAR(50) NOT NULL
+  COMMENT '名称',
+  value      VARCHAR(50) NOT NULL
+  COMMENT '值',
+  method     VARCHAR(10) NOT NULL
+  COMMENT '请求方法',
+  url        VARCHAR(255) COMMENT 'url地址',
+  intro      VARCHAR(255) COMMENT '简介',
+  pid        BIGINT               DEFAULT 0
+  COMMENT '父级id',
+  created_at DATETIME    NOT NULL,
+  updated_at DATETIME    NULL,
+  deleted_at DATETIME    NULL
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8
+  COMMENT ='权限';
+
+
+DROP TABLE IF EXISTS sec_role_permission;
+CREATE TABLE sec_role_permission (
+  id            BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  role_id       BIGINT NOT NULL,
+  permission_id BIGINT NOT NULL
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8
+  COMMENT ='角色权限';
+

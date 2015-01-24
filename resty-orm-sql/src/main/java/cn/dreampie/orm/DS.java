@@ -411,7 +411,12 @@ public class DS {
     List<Record> result = find(sql, idValue);
     return result.size() > 0 ? result.get(0) : null;
   }
-
+  
+  public Record findByIds(String tableName, String[] primaryKeys, Object[] idValues, String... columns) {
+    String sql = dataSourceMeta.getDialect().select(tableName, "", Joiner.on("=? AND ").join(primaryKeys) + "=?", columns);
+    List<Record> result = find(sql, idValues);
+    return result.size() > 0 ? result.get(0) : null;
+  }
 
   /**
    * Delete record by id.
@@ -432,7 +437,7 @@ public class DS {
   public boolean deleteByIds(String tableName, String[] primaryKeys, Object... ids) {
     checkNotNull(ids, "You can't delete model without Primary Key.");
 
-    String sql = dataSourceMeta.getDialect().delete(tableName, Joiner.on("=?, ").join(ids));
+    String sql = dataSourceMeta.getDialect().delete(tableName, Joiner.on("=? AND ").join(ids) + "=?");
     return update(sql, ids) >= 1;
   }
 

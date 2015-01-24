@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.util.Stringer;
 import cn.dreampie.log.Logger;
 
 import java.util.List;
@@ -219,9 +220,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   public String getAlias() {
     if (alias == null) {
       Class clazz = getClass();
-      byte[] items = clazz.getSimpleName().getBytes();
-      items[0] = (byte) ((char) items[0] + ('a' - 'A'));
-      alias = new String(items);
+      alias = Stringer.firstLower(clazz.getSimpleName());
     }
     return alias;
   }

@@ -3,8 +3,6 @@ package cn.dreampie.example;
 import cn.dreampie.client.Client;
 import cn.dreampie.client.ClientRequest;
 import cn.dreampie.client.HttpMethod;
-import cn.dreampie.common.util.json.Jsoner;
-import cn.dreampie.resource.user.model.User;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;

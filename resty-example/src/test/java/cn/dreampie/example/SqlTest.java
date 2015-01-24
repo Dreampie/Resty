@@ -51,7 +51,10 @@ public class SqlTest {
   @Test
   public void testFind() {
     List<User> users = User.dao.findAll();
+    Long id = 1L, sid = 1L;
     for (User user : users) {
+      id = user.getLong("id");
+      sid = user.getLong("sid");
       System.out.println(user.get("username"));
     }
 
@@ -60,6 +63,9 @@ public class SqlTest {
       System.out.println(record.get("username"));
     }
 
+    User u = User.dao.findByIds(id, sid);
+    if (u != null)
+      System.out.println("findByIds," + u.get("id") + "," + u.get("sid"));
   }
 
   @Test
@@ -94,8 +100,16 @@ public class SqlTest {
   @Test
   public void testDelete() {
     List<User> users = User.dao.findAll();
+    Long id = 1L, sid = 1L;
+    int i = 0;
     for (User user : users) {
+      id = user.getLong("id");
+      sid = user.getLong("sid");
+      if (i == 0) {
+        User.dao.deleteByIds(id, sid);
+      }
       user.delete();
+      i++;
     }
 
     DS.use().delete("sec_user", new Record().set("id", "1"));

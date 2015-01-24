@@ -37,7 +37,7 @@ public class Jsoner {
     try {
       return JSON.parseObject(json, clazz);
     } catch (JSONException e) {
-      throw new ClassCastException("Could not cast \"" + json + "\" to " + clazz.getName());
+      throw new ObjectCastException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
     }
   }
 }

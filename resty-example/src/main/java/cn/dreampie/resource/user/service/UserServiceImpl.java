@@ -15,7 +15,7 @@ public class UserServiceImpl implements UserService {
     } else {
       userInfo = u.get("user_info");
     }
-    if (u.set("providername","x").set("password","123").set("sid","2").save()) {
+    if (u.set("providername", "x").set("password", "123").set("sid", "2").save()) {
       userInfo.set("user_id", u.get("id"));
       userInfo.save();
     }

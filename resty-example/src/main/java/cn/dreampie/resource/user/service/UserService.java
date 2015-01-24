@@ -1,6 +1,5 @@
 package cn.dreampie.resource.user.service;
 
-import cn.dreampie.orm.DS;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.resource.user.model.User;
 

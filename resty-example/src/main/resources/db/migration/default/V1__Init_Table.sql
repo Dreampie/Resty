@@ -14,6 +14,9 @@ CREATE TABLE sec_user (
   first_name   VARCHAR(10) COMMENT '名字',
   last_name    VARCHAR(10) COMMENT '姓氏',
   full_name    VARCHAR(20) COMMENT '全名',
+  created_at   DATETIME     NOT NULL,
+  updated_at   DATETIME     NULL,
+  deleted_at   DATETIME     NULL,
   PRIMARY KEY (id, sid)
 )
   ENGINE =InnoDB

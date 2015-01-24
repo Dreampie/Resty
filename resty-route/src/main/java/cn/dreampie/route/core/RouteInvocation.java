@@ -2,6 +2,7 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.json.Jsoner;
+import cn.dreampie.common.util.json.ObjectCastException;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
 
@@ -47,7 +48,7 @@ public class RouteInvocation {
         Object[] args = getRouteArgs();
         route.getMethod().setAccessible(true);
         result = route.getMethod().invoke(resource, args);
-      } catch (ClassCastException e) {
+      } catch (ObjectCastException e) {
         logger.warn("Argument type convert error - " + e.getMessage());
         throw new WebException("Argument type convert error - " + e.getMessage());
       } catch (InvocationTargetException e) {

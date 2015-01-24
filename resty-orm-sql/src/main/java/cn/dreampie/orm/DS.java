@@ -411,7 +411,7 @@ public class DS {
     List<Record> result = find(sql, idValue);
     return result.size() > 0 ? result.get(0) : null;
   }
-  
+
   public Record findByIds(String tableName, String[] primaryKeys, Object[] idValues, String... columns) {
     String sql = dataSourceMeta.getDialect().select(tableName, "", Joiner.on("=? AND ").join(primaryKeys) + "=?", columns);
     List<Record> result = find(sql, idValues);

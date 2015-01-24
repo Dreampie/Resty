@@ -10,7 +10,10 @@ import cn.dreampie.resource.user.model.User;
 import cn.dreampie.resource.user.model.UserInfo;
 import cn.dreampie.resource.user.service.UserService;
 import cn.dreampie.resource.user.service.UserServiceImpl;
-import cn.dreampie.route.core.annotation.*;
+import cn.dreampie.route.core.annotation.DELETE;
+import cn.dreampie.route.core.annotation.GET;
+import cn.dreampie.route.core.annotation.POST;
+import cn.dreampie.route.core.annotation.PUT;
 
 import java.util.List;
 
@@ -71,7 +74,7 @@ public class UserResource extends ApiResource {
   @GET("/transactions")
   @Transaction(name = {DS.DEFAULT_DS_NAME})
   public User transaction() {
-    User u = new User().set("username", "test").set("providername", "test").set("password", "123456").set("sid","1");
+    User u = new User().set("username", "test").set("providername", "test").set("password", "123456").set("sid", "1");
     UserInfo userInfo = null;
     if (u.get("user_info") == null) {
       userInfo = new UserInfo().set("gender", 0);
@@ -85,7 +88,7 @@ public class UserResource extends ApiResource {
 //      int[] a = new int[0];
 //      System.out.println(a[2]);  报错 让事务回滚
     }
-    u.set("id",u.get("id")).set("username", "x").update();
+    u.set("id", u.get("id")).set("username", "x").update();
     return u;
     //service层的事务
     //return userService.save(new User().set("username", "test").set("providername", "test").set("password", "123456"));

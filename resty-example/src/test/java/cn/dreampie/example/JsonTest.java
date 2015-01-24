@@ -2,11 +2,8 @@ package cn.dreampie.example;
 
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.resource.user.model.User;
-import cn.dreampie.resource.user.model.UserInfo;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.HashSet;
 
 /**
  * Created by ice on 14-12-31.
@@ -31,6 +28,6 @@ public class JsonTest {
     String json = Jsoner.toJSONString(user);
     System.out.println(json);
     User u = Jsoner.parseObject(json, User.class);
-    System.out.println(u.getUserInfo());
+    System.out.println("" + u.getRoleId() + u.getUserInfos() + u.getPermissions() + u.getPermissionsSet() + u.getPermissionIds());
   }
 }

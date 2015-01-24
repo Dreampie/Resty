@@ -398,7 +398,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
   public M findByIds(String columns, Object... ids) {
-    String sql = getDialect().select(getModelMeta().getTableName(), "", Joiner.on("=?, ").join(getModelMeta().getPrimaryKeys()), columns.split(","));
+    String sql = getDialect().select(getModelMeta().getTableName(), "", Joiner.on("=? AND ").join(getModelMeta().getPrimaryKeys())+"=?", columns.split(","));
     List<M> result = find(sql, ids);
     return result.size() > 0 ? result.get(0) : null;
   }

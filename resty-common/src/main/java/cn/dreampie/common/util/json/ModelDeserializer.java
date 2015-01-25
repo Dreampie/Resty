@@ -102,7 +102,10 @@ public enum ModelDeserializer implements ObjectDeserializer {
                 } else {
                   newblist = new ArrayList<Object>();
                   for (Object e : blist) {
-                    ((List<Object>) newblist).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
+                    if (e.getClass().isAssignableFrom(returnTypeClass))
+                      ((List<Object>) newblist).add(e);
+                    else
+                      ((List<Object>) newblist).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
                   }
                 }
                 map.put(key, newblist);
@@ -128,7 +131,10 @@ public enum ModelDeserializer implements ObjectDeserializer {
                 } else {
                   newbset = new HashSet<Object>();
                   for (Object e : bset) {
-                    ((Set<Object>) newbset).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
+                    if (e.getClass().isAssignableFrom(returnTypeClass))
+                      ((Set<Object>) newbset).add(e);
+                    else
+                      ((Set<Object>) newbset).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
                   }
                 }
                 map.put(key, newbset);
@@ -148,7 +154,9 @@ public enum ModelDeserializer implements ObjectDeserializer {
   private void deserializer(Map<String, Object> map, Object obj, Class<?> returnType, String key) {
     if (String.class.isAssignableFrom(returnType))
       map.put(key, obj.toString());
-    else
-      map.put(key, JSON.parseObject(JSON.toJSONString(obj), returnType));
+    else {
+      if (!obj.getClass().isAssignableFrom(returnType))
+        map.put(key, JSON.parseObject(JSON.toJSONString(obj), returnType));
+    }
   }
 }

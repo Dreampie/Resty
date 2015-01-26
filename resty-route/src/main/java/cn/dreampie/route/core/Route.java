@@ -77,6 +77,7 @@ public class Route {
       }
       //验证器
       this.validsLineNumbers = new int[valids.length][];
+      i = 0;
       for (Valid valid : valids) {
         try {
           paramAttr = ParamNamesScaner.getParamNames(valid.getClass().getMethod("valid", Params.class));
@@ -203,11 +204,10 @@ public class Route {
           sb.append(ic.getName()).append("(").append(ic.getSimpleName()).append(".java:").append(interceptorsLineNumbers[i][0]).append(")");
           i++;
         }
-        sb.append("\n");
       }
 
       if (valids != null && valids.length > 0) {
-        sb.append("\nValidates  : ");
+        sb.append("\nValidates    : ");
         int i = 0;
         for (Valid valid : valids) {
           if (i > 0)

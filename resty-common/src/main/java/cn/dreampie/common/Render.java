@@ -13,7 +13,7 @@ import java.io.PrintWriter;
 public abstract class Render {
 
   /**
-   * 必须实现该方法 来创建一个新的render实例  以保证线程安全
+   * 必须实现该方法 来创建一个新的render实例  以保证线程安全和自主初始化参数 主动性
    *
    * @return render
    */

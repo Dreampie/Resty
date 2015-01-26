@@ -13,7 +13,7 @@ import cn.dreampie.security.Subject;
 public class SessionResource extends ApiResource {
 
 
-  @POST(des = "用户登录")
+  @POST(des = "用户登录", valid = SigninValid.class)
   public Principal login(String username, String password, boolean rememberMe) {
     Subject.login(username, password);
     return Subject.getPrincipal();

@@ -171,7 +171,7 @@ public class Validator {
   }
 
   /**
-   * @param value 输入大于0的数字
+   * @param value 输入数字
    * @return boolean
    */
   public static boolean isNumber(String value) {
@@ -180,7 +180,7 @@ public class Validator {
   }
 
   /**
-   * @param value 输入大于0的数字
+   * @param value 输入数字
    * @param min   最小长度
    * @param max   最大长度
    * @return boolean
@@ -277,6 +277,12 @@ public class Validator {
     return match(check, Pattern.CASE_INSENSITIVE, value);
   }
 
+  /**
+   * 空值
+   *
+   * @param value 值
+   * @return
+   */
   public static boolean isBlank(Object value) {
     if (value instanceof Collection) {
       return ((Collection) value).isEmpty();

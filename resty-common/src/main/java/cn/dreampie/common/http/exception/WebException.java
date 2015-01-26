@@ -1,30 +1,38 @@
 package cn.dreampie.common.http.exception;
 
 import cn.dreampie.common.http.HttpStatus;
-import cn.dreampie.log.Logger;
 
 /**
  * Created by ice on 14-12-19.
  * A WebException can be raised to make resty return immediately an HTTP response with a specific HTTP status.
  */
 public class WebException extends RuntimeException {
-  private final static Logger logger = Logger.getLogger(WebException.class);
 
   private final HttpStatus status;
+  private final Object result;
 
   public WebException(HttpStatus status) {
-    super(status.getDesc());
-    this.status = status;
+    this(status, status.getDesc());
+  }
+
+  public WebException(String message) {
+    this(HttpStatus.BAD_REQUEST, message);
+  }
+
+  public WebException(Object result) {
+    this(HttpStatus.BAD_REQUEST, result);
   }
 
   public WebException(HttpStatus status, String message) {
     super(message);
     this.status = status;
+    this.result = null;
   }
 
-  public WebException(String message) {
-    super(message);
-    this.status = HttpStatus.BAD_REQUEST;
+  public WebException(HttpStatus status, Object result) {
+    super();
+    this.status = status;
+    this.result = result;
   }
 
   public HttpStatus getStatus() {
@@ -39,8 +47,8 @@ public class WebException extends RuntimeException {
    *
    * @return the content to use in the response.
    */
-  public String getContent() {
-    return getMessage();
+  public Object getContent() {
+    return result != null ? result : getMessage();
   }
 
 }

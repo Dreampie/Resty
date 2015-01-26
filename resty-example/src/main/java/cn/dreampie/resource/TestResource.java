@@ -20,7 +20,7 @@ import java.util.Map;
 public class TestResource extends ApiResource {
 
 
-  @POST("/tests/login")
+  @POST(value = "/tests/login")
   public Principal login(String username, String password) {
     Subject.login(username, password);
     return Subject.getPrincipal();
@@ -66,4 +66,7 @@ public class TestResource extends ApiResource {
     return new File(getRequest().getRealPath("/") + "upload/resty.jar");
   }
 
+  public static void main(String[] args) {
+
+  }
 }

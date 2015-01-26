@@ -10,6 +10,7 @@ import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
+import cn.dreampie.route.valid.Valid;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -44,7 +45,10 @@ public class Route {
   private final Interceptor[] interceptors;
   private final int[][] interceptorsLineNumbers;
 
-  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des) {
+  private final Valid[] valids;
+  private final int[][] validsLineNumbers;
+
+  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Valid[] valids) {
     this.resourceClass = resourceClass;
     this.httpMethod = checkNotNull(httpMethod);
     this.pathPattern = checkNotNull(pathPattern);
@@ -55,22 +59,35 @@ public class Route {
     this.allParamNames = paramAttribute.getNames();
     this.allLineNumbers = paramAttribute.getLines();
     this.allParamTypes = Arrays.asList(method.getParameterTypes());
+    this.valids = valids;
     //获取拦截器的行号
     if (Constant.show_route) {
       this.interceptorsLineNumbers = new int[interceptors.length][];
       //获取参数
-      ParamAttribute interAttr;
+      ParamAttribute paramAttr;
       int i = 0;
       for (Interceptor interceptor : interceptors) {
         try {
-          interAttr = ParamNamesScaner.getParamNames(interceptor.getClass().getMethod("intercept", RouteInvocation.class));
+          paramAttr = ParamNamesScaner.getParamNames(interceptor.getClass().getMethod("intercept", RouteInvocation.class));
         } catch (NoSuchMethodException e) {
           throw new RuntimeException(e);
         }
-        this.interceptorsLineNumbers[i] = interAttr.getLines();
+        this.interceptorsLineNumbers[i] = paramAttr.getLines();
+        i++;
+      }
+      //验证器
+      this.validsLineNumbers = new int[valids.length][];
+      for (Valid valid : valids) {
+        try {
+          paramAttr = ParamNamesScaner.getParamNames(valid.getClass().getMethod("valid", Params.class));
+        } catch (NoSuchMethodException e) {
+          throw new RuntimeException(e);
+        }
+        this.validsLineNumbers[i] = paramAttr.getLines();
         i++;
       }
     } else {
+      this.validsLineNumbers = null;
       this.interceptorsLineNumbers = null;
     }
     PathPatternParser s = new PathPatternParser(pathPattern);
@@ -139,7 +156,13 @@ public class Route {
     }
     //otherParams
     Map<String, List<String>> otherParams = request.getQueryParams();
+    //print match route
+    printMatchRoute(params, otherParams);
 
+    return new RouteMatch(pathPattern, restPath, extension, params, otherParams, request, response);
+  }
+
+  private void printMatchRoute(Map<String, String> params, Map<String, List<String>> otherParams) {
     if (Constant.show_route && logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
@@ -171,7 +194,7 @@ public class Route {
         }
       }
       if (interceptors != null && interceptors.length > 0) {
-        sb.append("\nInterceptor  : ");
+        sb.append("\nInterceptors : ");
         int i = 0;
         for (Interceptor interceptor : interceptors) {
           if (i > 0)
@@ -182,11 +205,22 @@ public class Route {
         }
         sb.append("\n");
       }
+
+      if (valids != null && valids.length > 0) {
+        sb.append("\nValidates  : ");
+        int i = 0;
+        for (Valid valid : valids) {
+          if (i > 0)
+            sb.append("\n               ");
+          Class<? extends Valid> vc = valid.getClass();
+          sb.append(vc.getName()).append("(").append(vc.getSimpleName()).append(".java:").append(validsLineNumbers[i][0]).append(")");
+          i++;
+        }
+        sb.append("\n");
+      }
       sb.append("--------------------------------------------------------------------------------\n");
       logger.info(sb.toString());
     }
-
-    return new RouteMatch(pathPattern, restPath, extension, params, otherParams, request, response);
   }
 
 
@@ -232,6 +266,10 @@ public class Route {
 
   public Interceptor[] getInterceptors() {
     return interceptors;
+  }
+
+  public Valid[] getValids() {
+    return valids;
   }
 
   // here comes the path pattern parsing logic

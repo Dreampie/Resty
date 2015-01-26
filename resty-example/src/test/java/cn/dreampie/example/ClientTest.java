@@ -24,7 +24,7 @@ public class ClientTest {
   @Test
   public void testLogin() {
     ClientRequest request = new ClientRequest("/sessions", HttpMethod.POST);
-    request.addParameter("username", "a").addParameter("password", "123").addParameter("rememberMe", "true");
+    request.addParameter("username", "测试的").addParameter("password", "123").addParameter("rememberMe", "true");
     System.out.println(client.build(request).ask());
   }
 

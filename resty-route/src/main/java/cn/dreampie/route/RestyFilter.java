@@ -67,11 +67,9 @@ public final class RestyFilter implements Filter {
         || !(servletResponse instanceof HttpServletResponse)) {
       throw new ServletException("Resty doesn't support non-HTTP request or response.");
     }
-
+    servletRequest.setCharacterEncoding(encoding);
     HttpRequest request = new HttpRequest((HttpServletRequest) servletRequest);
     HttpResponse response = new HttpResponse((HttpServletResponse) servletResponse, (HttpServletRequest) servletRequest);
-    request.setCharacterEncoding(encoding);
-
 
     boolean[] isHandled = {false};
     //排除的参数

@@ -7,6 +7,7 @@ import cn.dreampie.route.config.ResourceLoader;
 import cn.dreampie.route.core.annotation.*;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.interceptor.InterceptorBuilder;
+import cn.dreampie.route.valid.Valid;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -59,6 +60,10 @@ public final class RouteBuilder {
     Method[] methods;
     //当前方法的参数属性
     ParamAttribute paramAttribute;
+
+    //valid
+    Class<? extends Valid>[] validClasses;
+    Valid[] valids;
     //addResources
     for (Class<? extends Resource> resourceClazz : resourceLoader.getResources()) {
       resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
@@ -75,37 +80,49 @@ public final class RouteBuilder {
 
         delete = method.getAnnotation(DELETE.class);
         if (delete != null) {
-          addRoute(new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters, delete.des()));
+          validClasses = delete.valid();
+          valids = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters, delete.des(), valids));
           continue;
         }
 
         get = method.getAnnotation(GET.class);
         if (get != null) {
-          addRoute(new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters, get.des()));
+          validClasses = get.valid();
+          valids = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters, get.des(), valids));
           continue;
         }
 
         post = method.getAnnotation(POST.class);
         if (post != null) {
-          addRoute(new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters, post.des()));
+          validClasses = post.valid();
+          valids = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters, post.des(), valids));
           continue;
         }
 
         put = method.getAnnotation(PUT.class);
         if (put != null) {
-          addRoute(new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters, put.des()));
+          validClasses = put.valid();
+          valids = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters, put.des(), valids));
           continue;
         }
 
         head = method.getAnnotation(HEAD.class);
         if (head != null) {
-          addRoute(new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters, head.des()));
+          validClasses = head.valid();
+          valids = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters, head.des(), valids));
           continue;
         }
 
         patch = method.getAnnotation(PATCH.class);
         if (patch != null) {
-          addRoute(new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters, patch.des()));
+          validClasses = patch.valid();
+          valids = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters, patch.des(), valids));
           continue;
         }
       }
@@ -125,6 +142,36 @@ public final class RouteBuilder {
 
   }
 
+  /**
+   * 获取所有验证器
+   *
+   * @param validClasses 验证器的class
+   * @return Valid[]
+   */
+  private Valid[] getValids(Class<? extends Valid>[] validClasses) {
+    Valid[] valids = new Valid[validClasses.length];
+    if (validClasses.length > 0) {
+      int i = 0;
+      for (Class<? extends Valid> valid : validClasses) {
+        try {
+          valids[i] = valid.newInstance();
+        } catch (InstantiationException e) {
+          throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+          throw new RuntimeException(e);
+        }
+        i++;
+      }
+    }
+    return valids;
+  }
+
+  /**
+   * 获取api部分
+   *
+   * @param resourceClazz resource class
+   * @return url
+   */
   private String getApi(Class<? extends Resource> resourceClazz) {
     API api;
     String apiPath = "";

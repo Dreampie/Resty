@@ -3,10 +3,14 @@ package cn.dreampie.example;
 import cn.dreampie.client.Client;
 import cn.dreampie.client.ClientRequest;
 import cn.dreampie.client.HttpMethod;
+import cn.dreampie.common.util.json.Jsoner;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import cn.dreampie.resource.user.model.User;
+
+import java.util.HashMap;
 
 /**
  * Created by ice on 15-1-4.
@@ -44,6 +48,18 @@ public class ClientTest {
   public void testUpdate() {
     ClientRequest request = new ClientRequest("/users", HttpMethod.PUT);
     request.addParameter("user", "{\"id\":\"1\",\"username\":\"k\"}");
+    System.out.println(client.build(request).ask());
+  }
+
+  @Test
+  public void testSave() {
+    ClientRequest request = new ClientRequest("/users", HttpMethod.POST);
+    request.addParameter("user", Jsoner.toJSONString(new HashMap<String, Object>() {{
+      put("sid", 2);
+      put("username", "test");
+      put("providername", "test");
+      put("password", "123456");
+    }}));
     System.out.println(client.build(request).ask());
   }
 }

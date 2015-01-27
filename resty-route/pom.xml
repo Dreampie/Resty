@@ -95,6 +95,6 @@
   </dependencies>
 
   <build>
-    <finalName>${project.name}</finalName>
+    <finalName>${project.name}-v${project.version}</finalName>
   </build>
 </project>

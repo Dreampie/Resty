@@ -27,6 +27,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -52,7 +53,7 @@
   </dependencies>
 
   <build>
-    <finalName>${project.name}</finalName>
+    <finalName>${project.name}-v${project.version}</finalName>
   </build>
 
 </project>

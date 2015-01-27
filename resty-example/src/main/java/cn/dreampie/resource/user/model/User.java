@@ -16,9 +16,11 @@ public class User extends Model<User> {
   public static User dao = new User();
 
   // 默认 getXxx 的形式的方法 会被认为是属性 如果userInfos的值不存在 方法会被执行一次
-  // json反转时  如果 getXxx的存在  会按 getXxx的返回值类型 进行转换 如：{userInfos:[{key:value,key1:value1}]}(userInfos也可以使用下划线模式 user_infos全小写) userInfos会被转换为  List<UserInfo>类型
+  // json反转时  如果 getXxx的存在  会按 getXxx的返回值类型 进行转换 如：{userInfos:[{key:value,key1:value1}]} userInfos会被转换为  List<UserInfo>类型
   //  @JSONField(serialize = false) 如果getXxx的值不转为json  使用该注解
   // 注意属性名和GetXxx一致   如:属性userInfos的get方法为 getUserInfos
+  // 支持驼峰和下划线 两种属性名字和驼峰方法的映射 (userInfos也可以使用下划线模式 user_infos全小写 也会映射到getUserInfos()方法)
+  // 个人喜欢数据库和属性 都使用下划线的方式
   public List<UserInfo> getUserInfos() {
     if (this.get("user_infos") == null) {
       this.put("user_infos", UserInfo.dao.findBy("user_id=?", this.get("id")));
@@ -32,13 +34,6 @@ public class User extends Model<User> {
       this.put("role_id", DS.use().queryLong(sql, this.get("id")));
     }
     return this.get("role_id");
-  }
-
-  public Set<String> getPermissionsSet() {
-    if (this.get("permissionsSet") == null) {
-      this.put("permissionsSet", new HashSet<String>(getPermissions()));
-    }
-    return this.get("permissionsSet");
   }
 
   public List<String> getPermissions() {

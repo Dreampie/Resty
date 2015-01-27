@@ -220,7 +220,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   public String getAlias() {
     if (alias == null) {
       Class clazz = getClass();
-      alias = Stringer.firstLower(clazz.getSimpleName());
+      alias = Stringer.underlineCase(clazz.getSimpleName());
     }
     return alias;
   }

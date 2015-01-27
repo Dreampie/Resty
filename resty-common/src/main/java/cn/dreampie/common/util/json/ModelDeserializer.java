@@ -69,7 +69,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
     for (String key : map.keySet()) {
       obj = map.get(key);
       try {
-        method = clazz.getDeclaredMethod("get" + Stringer.firstUpper(key));
+        method = clazz.getDeclaredMethod("get" + Stringer.firstUpperCamelCase(key));
         returnType = method.getReturnType();
         //判断是不是包含 Entity类型
         if (obj instanceof JSONObject) {

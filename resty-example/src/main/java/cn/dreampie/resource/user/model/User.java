@@ -16,22 +16,22 @@ public class User extends Model<User> {
   public static User dao = new User();
 
   // 默认 getXxx 的形式的方法 会被认为是属性 如果userInfos的值不存在 方法会被执行一次
-  // json反转时  如果 getXxx的存在  会按 getXxx的返回值类型 进行转换 如：{userInfos:[{key:value,key1:value1}]} userInfos会被转换为  List<UserInfo>类型
+  // json反转时  如果 getXxx的存在  会按 getXxx的返回值类型 进行转换 如：{userInfos:[{key:value,key1:value1}]}(userInfos也可以使用下划线模式 user_infos全小写) userInfos会被转换为  List<UserInfo>类型
   //  @JSONField(serialize = false) 如果getXxx的值不转为json  使用该注解
   // 注意属性名和GetXxx一致   如:属性userInfos的get方法为 getUserInfos
   public List<UserInfo> getUserInfos() {
-    if (this.get("userInfos") == null) {
-      this.put("userInfos", UserInfo.dao.findBy("user_id=?", this.get("id")));
+    if (this.get("user_infos") == null) {
+      this.put("user_infos", UserInfo.dao.findBy("user_id=?", this.get("id")));
     }
-    return this.get("userInfos");
+    return this.get("user_infos");
   }
 
   public Long getRoleId() {
-    if (this.get("roleId") == null) {
-      String sql = "SELECT userRole.role_id FROM sec_user_role userRole WHERE userRole.user_id=?";
-      this.put("roleId", DS.use().queryLong(sql, this.get("id")));
+    if (this.get("role_id") == null) {
+      String sql = "SELECT user_role.role_id FROM sec_user_role user_role WHERE user_role.user_id=?";
+      this.put("role_id", DS.use().queryLong(sql, this.get("id")));
     }
-    return this.get("roleId");
+    return this.get("role_id");
   }
 
   public Set<String> getPermissionsSet() {
@@ -50,10 +50,10 @@ public class User extends Model<User> {
   }
 
   public List<Long> getPermissionIds() {
-    if (this.get("permissionIds") == null) {
+    if (this.get("permission_ids") == null) {
       String sql = "SELECT permission.id FROM sec_permission permission WHERE permission.id in(SELECT rolePermission.permission_id FROM sec_role_permission rolePermission WHERE rolePermission.role_id=?)";
-      this.put("permissionIds", DS.use().query(sql, getRoleId()));
+      this.put("permission_ids", DS.use().query(sql, getRoleId()));
     }
-    return this.get("permissionIds");
+    return this.get("permission_ids");
   }
 }

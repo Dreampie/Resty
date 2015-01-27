@@ -5,6 +5,7 @@ package cn.dreampie.common.util;
  */
 public class Stringer {
 
+  private static final char SEPARATOR = '_';
 
   /**
    * 首字母转小写
@@ -12,7 +13,7 @@ public class Stringer {
    * @param name 转换前的字符串
    * @return 转换后的字符串
    */
-  public static String firstLower(String name) {
+  public static String firstLowerCase(String name) {
     byte[] items = name.getBytes();
     items[0] = (byte) ((char) items[0] + ('a' - 'A'));
     return new String(items);
@@ -24,72 +25,86 @@ public class Stringer {
    * @param name 转换前的字符串
    * @return 转换后的字符串
    */
-  public static String firstUpper(String name) {
+  public static String firstUpperCase(String name) {
     byte[] items = name.getBytes();
     items[0] = (byte) ((char) items[0] + ('A' - 'a'));
     return new String(items);
   }
 
   /**
-   * 将驼峰式命名的字符串转换为下划线大写方式。如果转换前的驼峰式命名的字符串为空，则返回空字符串。</br>
-   * 例如：HelloWorld->HELLO_WORLD
+   * 将驼峰式命名的字符串转换为下划线方式。如果转换前的驼峰式命名的字符串为空，则返回空字符串。</br>
+   * 例如：HelloWorld->hello_world
    *
    * @param name 转换前的驼峰式命名的字符串
    * @return 转换后下划线大写方式命名的字符串
    */
-  public static String underscoreName(String name) {
-    StringBuilder result = new StringBuilder();
-    if (name != null && name.length() > 0) {
-      // 将第一个字符处理成大写
-      result.append(name.substring(0, 1).toUpperCase());
-      // 循环处理其余字符
-      for (int i = 1; i < name.length(); i++) {
-        String s = name.substring(i, i + 1);
-        // 在大写字母前添加下划线
-        if (s.equals(s.toUpperCase()) && !Character.isDigit(s.charAt(0))) {
-          result.append("_");
-        }
-        // 其他字符直接转成大写
-        result.append(s.toUpperCase());
-      }
+  public static String underlineCase(String name) {
+    if (name == null) {
+      return null;
     }
-    return result.toString();
+    if (name.contains("_")) {
+      return name;
+    } else {
+      StringBuilder sb = new StringBuilder();
+      boolean upperCase = false;
+      for (int i = 0; i < name.length(); i++) {
+        char c = name.charAt(i);
+        boolean nextUpperCase = true;
+        if (i < (name.length() - 1)) {
+          nextUpperCase = Character.isUpperCase(name.charAt(i + 1));
+        }
+        if ((i >= 0) && Character.isUpperCase(c)) {
+          if (!upperCase || !nextUpperCase) {
+            if (i > 0) sb.append(SEPARATOR);
+          }
+          upperCase = true;
+        } else {
+          upperCase = false;
+        }
+        sb.append(Character.toLowerCase(c));
+      }
+      return sb.toString();
+    }
   }
 
   /**
-   * 将下划线大写方式命名的字符串转换为驼峰式。如果转换前的下划线大写方式命名的字符串为空，则返回空字符串。</br>
-   * 例如：HELLO_WORLD->HelloWorld
+   * 将下划线方式命名的字符串转换为驼峰式。如果转换前的下划线大写方式命名的字符串为空，则返回空字符串。</br>
+   * 例如：hello_world->HelloWorld
    *
    * @param name 转换前的下划线大写方式命名的字符串
    * @return 转换后的驼峰式命名的字符串
    */
-  public static String camelName(String name) {
-    StringBuilder result = new StringBuilder();
-    // 快速检查
-    if (name == null || name.isEmpty()) {
-      // 没必要转换
-      return "";
-    } else if (!name.contains("_")) {
-      // 不含下划线，仅将首字母小写
-      return name.substring(0, 1).toLowerCase() + name.substring(1);
+  public static String camelCase(String name) {
+    if (name == null) {
+      return null;
     }
-    // 用下划线将原始字符串分割
-    String camels[] = name.split("_");
-    for (String camel : camels) {
-      // 跳过原始字符串中开头、结尾的下换线或双重下划线
-      if (camel.isEmpty()) {
-        continue;
+    if (name.contains("_")) {
+      name = name.toLowerCase();
+
+      StringBuilder sb = new StringBuilder(name.length());
+      boolean upperCase = false;
+      for (int i = 0; i < name.length(); i++) {
+        char c = name.charAt(i);
+
+        if (c == SEPARATOR) {
+          upperCase = true;
+        } else if (upperCase) {
+          sb.append(Character.toUpperCase(c));
+          upperCase = false;
+        } else {
+          sb.append(c);
+        }
       }
-      // 处理真正的驼峰片段
-      if (result.length() == 0) {
-        // 第一个驼峰片段，全部字母都小写
-        result.append(camel.toLowerCase());
-      } else {
-        // 其他的驼峰片段，首字母大写
-        result.append(camel.substring(0, 1).toUpperCase());
-        result.append(camel.substring(1).toLowerCase());
-      }
+      return sb.toString();
+    } else
+      return name;
+  }
+
+  public static String firstUpperCamelCase(String name) {
+    if (name == null) {
+      return null;
     }
-    return result.toString();
+    name = camelCase(name);
+    return firstUpperCase(name);
   }
 }

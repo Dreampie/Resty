@@ -11,6 +11,7 @@ import com.alibaba.fastjson.serializer.SerializeWriter;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
  * Created by ice on 14-12-31.
@@ -38,7 +39,7 @@ public enum ModelSerializer implements ObjectSerializer {
         fieldAnn = m.getAnnotation(JSONField.class);
         mName = m.getName();
         if ((fieldAnn == null || fieldAnn.serialize()) && mName.startsWith("get")
-            && !((Entity<?>) object).getAttrs().containsKey(Stringer.firstLower(mName.replace("get", "")))) {
+            && !hasMethod((Entity<?>) object, mName)) {
           try {
             m.invoke(object);
           } catch (Exception e) {
@@ -49,5 +50,12 @@ public enum ModelSerializer implements ObjectSerializer {
       serializer.write(((Entity<?>) object).getAttrs());
     }
 
+  }
+
+  private boolean hasMethod(Entity<?> object, String mName) {
+    Map<String, Object> attrs = object.getAttrs();
+    String name = mName.replace("get", "");
+    return attrs.containsKey(Stringer.firstLowerCase(name))
+        || attrs.containsKey(Stringer.underlineCase(name));
   }
 }

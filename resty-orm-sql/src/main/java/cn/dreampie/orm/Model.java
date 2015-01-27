@@ -28,7 +28,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @param columns 列 用逗号分割
    * @return model 集合
    */
-  public List<M> findAll(String columns) {
+  public List<M> findColsAll(String columns) {
     return find(getDialect().select(getModelMeta().getTableName(), columns.split(",")));
   }
 
@@ -51,7 +51,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @param paras  参数
    * @return model集合
    */
-  public List<M> findBy(String colums, String where, Object... paras) {
+  public List<M> findColsBy(String colums, String where, Object... paras) {
     return find(getDialect().select(getModelMeta().getTableName(), getAlias(), where, colums.split(",")), paras);
   }
 
@@ -76,7 +76,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @param paras     参数
    * @return list
    */
-  public List<M> findTopBy(int topNumber, String columns, String where, Object... paras) {
+  public List<M> findColsTopBy(int topNumber, String columns, String where, Object... paras) {
     return paginate(1, topNumber, getDialect().select(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras).getList();
   }
 
@@ -99,7 +99,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @param paras   参数
    * @return model对象
    */
-  public M findFirstBy(String columns, String where, Object... paras) {
+  public M findColsFirstBy(String columns, String where, Object... paras) {
     return findFirst(getDialect().select(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
   }
 
@@ -122,7 +122,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @param columns    列 用逗号分割
    * @return 分页对象
    */
-  public Page<M> paginateAll(int pageNumber, int pageSize, String columns) {
+  public Page<M> paginateColsAll(int pageNumber, int pageSize, String columns) {
     return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), columns.split(",")));
   }
 
@@ -149,7 +149,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @param paras      参数
    * @return 分页对象
    */
-  public Page<M> paginateBy(int pageNumber, int pageSize, String columns, String where, Object... paras) {
+  public Page<M> paginateColsBy(int pageNumber, int pageSize, String columns, String where, Object... paras) {
     return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
   }
 
@@ -160,7 +160,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @param paras   按列名顺序排列参数   "abc",20
    * @return boolean
    */
-  public boolean updateAll(String columns, Object... paras) {
+  public boolean updateColsAll(String columns, Object... paras) {
     logger.warn("You must ensure that \"updateAll()\" method of safety.");
     return update(getDialect().update(getModelMeta().getTableName(), columns.split(",")), paras) > 0;
   }
@@ -173,7 +173,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @param paras   按列名顺序排列参数   "abc",20,12
    * @return boolean
    */
-  public boolean updateBy(String columns, String where, Object... paras) {
+  public boolean updateColsBy(String columns, String where, Object... paras) {
     return update(getDialect().update(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras) > 0;
   }
 

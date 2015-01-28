@@ -220,87 +220,89 @@ public class RouteInvocation {
     List<?> newblist;
     Set<Entity<?>> newset;
     JSONArray bset;
-    Set<?> newbset;//判断参数需要的类型
-    //判断是不是包含 Entity类型
-    try {
-      if (Entity.class.isAssignableFrom(paramType)) {
-        Entity<?> e = (Entity<?>) paramType.newInstance();
-        e.putAttrs(ModelDeserializer.deserialze((Map<String, Object>) obj, paramType));
-        params.set(name, e);
-      } else {
-        if (Collection.class.isAssignableFrom(paramType)) {
-          genericParamType = route.getAllGenericParamTypes().get(i);
-          paramTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[0];
+    Set<?> newbset;
 
-          if (List.class.isAssignableFrom(paramType)) {
-            list = (List<Map<String, Object>>) obj;
-            //Entity类型
-            if (Entity.class.isAssignableFrom(paramTypeClass)) {
-              newlist = new ArrayList<Entity<?>>();
-              for (Map<String, Object> mp : list) {
-                entity = (Entity<?>) paramTypeClass.newInstance();
-                entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
-                newlist.add(entity);
-              }
-              params.set(name, newlist);
-            } else {
-              blist = (JSONArray) obj;
-              if (String.class.isAssignableFrom(paramTypeClass)) {
-                newblist = new ArrayList<String>();
-                for (Object e : blist) {
-                  ((List<String>) newblist).add(e.toString());
-                }
-              } else {
-                newblist = new ArrayList<Object>();
-                for (Object e : blist) {
-                  if (e.getClass().isAssignableFrom(paramTypeClass))
-                    ((List<Object>) newblist).add(e);
-                  else
-                    ((List<Object>) newblist).add(JSON.parseObject(JSON.toJSONString(e), paramTypeClass));
-                }
-              }
-              params.set(name, newblist);
-            }
-          } else if (Set.class.isAssignableFrom(paramType)) {
-            //Entity
-            if (Entity.class.isAssignableFrom(paramTypeClass)) {
-              list = (List<Map<String, Object>>) obj;
-              newset = new HashSet<Entity<?>>();
-              for (Map<String, Object> mp : list) {
-                entity = (Entity<?>) paramTypeClass.newInstance();
-                entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
-                newset.add(entity);
-              }
-              params.set(name, newset);
-            } else {
-              bset = (JSONArray) obj;
-              if (String.class.isAssignableFrom(paramTypeClass)) {
-                newbset = new HashSet<String>();
-                for (Object e : bset) {
-                  ((Set<String>) newbset).add(e.toString());
-                }
-              } else {
-                newbset = new HashSet<Object>();
-                for (Object e : bset) {
-                  if (e.getClass().isAssignableFrom(paramTypeClass))
-                    ((Set<Object>) newbset).add(e);
-                  else
-                    ((Set<Object>) newbset).add(JSON.parseObject(JSON.toJSONString(e), paramTypeClass));
-                }
-              }
-              params.set(name, newbset);
-            }
-          }
+    if (obj.getClass().isAssignableFrom(paramType)) {
+      params.set(name, obj);
+    } else {
+      //判断参数需要的类型
+      //判断是不是包含 Entity类型
+      try {
+        if (Entity.class.isAssignableFrom(paramType)) {
+          Entity<?> e = (Entity<?>) paramType.newInstance();
+          e.putAttrs(ModelDeserializer.deserialze((Map<String, Object>) obj, paramType));
+          params.set(name, e);
         } else {
-          if (obj.getClass().isAssignableFrom(paramType)) {
-            params.set(name, obj);
+          if (Collection.class.isAssignableFrom(paramType)) {
+            genericParamType = route.getAllGenericParamTypes().get(i);
+            paramTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[0];
+
+            if (List.class.isAssignableFrom(paramType)) {
+              list = (List<Map<String, Object>>) obj;
+              //Entity类型
+              if (Entity.class.isAssignableFrom(paramTypeClass)) {
+                newlist = new ArrayList<Entity<?>>();
+                for (Map<String, Object> mp : list) {
+                  entity = (Entity<?>) paramTypeClass.newInstance();
+                  entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
+                  newlist.add(entity);
+                }
+                params.set(name, newlist);
+              } else {
+                blist = (JSONArray) obj;
+                if (String.class.isAssignableFrom(paramTypeClass)) {
+                  newblist = new ArrayList<String>();
+                  for (Object e : blist) {
+                    ((List<String>) newblist).add(e.toString());
+                  }
+                } else {
+                  newblist = new ArrayList<Object>();
+                  for (Object e : blist) {
+                    if (e.getClass().isAssignableFrom(paramTypeClass))
+                      ((List<Object>) newblist).add(e);
+                    else
+                      ((List<Object>) newblist).add(JSON.parseObject(JSON.toJSONString(e), paramTypeClass));
+                  }
+                }
+                params.set(name, newblist);
+              }
+            } else if (Set.class.isAssignableFrom(paramType)) {
+              //Entity
+              if (Entity.class.isAssignableFrom(paramTypeClass)) {
+                list = (List<Map<String, Object>>) obj;
+                newset = new HashSet<Entity<?>>();
+                for (Map<String, Object> mp : list) {
+                  entity = (Entity<?>) paramTypeClass.newInstance();
+                  entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
+                  newset.add(entity);
+                }
+                params.set(name, newset);
+              } else {
+                bset = (JSONArray) obj;
+                if (String.class.isAssignableFrom(paramTypeClass)) {
+                  newbset = new HashSet<String>();
+                  for (Object e : bset) {
+                    ((Set<String>) newbset).add(e.toString());
+                  }
+                } else {
+                  newbset = new HashSet<Object>();
+                  for (Object e : bset) {
+                    if (e.getClass().isAssignableFrom(paramTypeClass))
+                      ((Set<Object>) newbset).add(e);
+                    else
+                      ((Set<Object>) newbset).add(JSON.parseObject(JSON.toJSONString(e), paramTypeClass));
+                  }
+                }
+                params.set(name, newbset);
+              }
+            }
           } else {
             params.set(name, Jsoner.parseObject(Jsoner.toJSONString(obj), paramType));
           }
         }
+      } catch (Exception e) {
+        throw new JSONException("Unconvert type " + paramType, e);
       }
-    } catch (Exception e) {
-      throw new JSONException("Unconvert type " + paramType, e);
     }
   }
 

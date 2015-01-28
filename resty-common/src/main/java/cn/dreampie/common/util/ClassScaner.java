@@ -25,7 +25,7 @@ public class ClassScaner {
       try {
         classInFile = Class.forName(classFile);
       } catch (ClassNotFoundException e) {
-        e.printStackTrace();
+        throw new RuntimeException(e.getMessage(), e);
       }
       if (clazz.isAssignableFrom(classInFile) && clazz != classInFile) {
         classList.add((Class<? extends T>) classInFile);
@@ -55,7 +55,7 @@ public class ClassScaner {
     try {
       baseURLs = ClassScaner.class.getClassLoader().getResources(baseDirName.replaceAll("\\.", "/"));
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e.getMessage(), e);
     }
     URL baseURL = null;
     while (baseURLs.hasMoreElements()) {
@@ -191,7 +191,7 @@ public class ClassScaner {
       try {
         resources = ClassScaner.class.getClassLoader().getResources("");
       } catch (IOException e) {
-        e.printStackTrace();
+        throw new RuntimeException(e.getMessage(), e);
       }
       URL resource = null;
       while (resources.hasMoreElements()) {

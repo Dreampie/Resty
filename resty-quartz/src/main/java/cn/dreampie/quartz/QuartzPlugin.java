@@ -103,7 +103,7 @@ public class QuartzPlugin implements Plugin {
         try {
           clazz = Class.forName(jobClassName);
         } catch (ClassNotFoundException e) {
-          throw new RuntimeException(e);
+          throw new RuntimeException(e.getMessage(), e);
         }
         //启动任务
         if (jobCron != null) {
@@ -122,7 +122,7 @@ public class QuartzPlugin implements Plugin {
               new QuartzOnceJob(keyArr[1], sdf.parse(jobOnce), clazz).start();
             }
           } catch (ParseException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
           }
         } else {
           throw new RuntimeException("This job must has cron or once attribute " + keyArr[1]);

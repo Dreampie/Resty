@@ -78,7 +78,7 @@ public class ClientConnection {
       sslContext.init(null, tm, new java.security.SecureRandom());
       return sslContext.getSocketFactory();
     } catch (Exception e) {
-      throw new ClientException(e);
+      throw new ClientException(e.getMessage(), e);
     }
   }
 

@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.log.Logger;
 import cn.dreampie.orm.exception.ModelException;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.Map;
  * Created by ice on 14-12-30.
  */
 public class ModelBuilder {
+  private static final Logger logger = Logger.getLogger(ModelBuilder.class);
 
   public static <T> List<T> build(ResultSet rs, Class<? extends Base> modelClass) throws SQLException, InstantiationException, IllegalAccessException {
     List<T> result = new ArrayList<T>();
@@ -22,11 +24,15 @@ public class ModelBuilder {
     String[] labelNames = new String[columnCount + 1];
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
+
+    Base ba;
+    Map<String, Object> attrs;
+    Object value;
     while (rs.next()) {
-      Base ar = modelClass.newInstance();
-      Map<String, Object> attrs = ar.getAttrs();
+      ba = modelClass.newInstance();
+      attrs = ba.getAttrs();
       for (int i = 1; i <= columnCount; i++) {
-        Object value;
+
         if (types[i] < Types.BLOB)
           value = rs.getObject(i);
         else if (types[i] == Types.CLOB)
@@ -40,7 +46,7 @@ public class ModelBuilder {
 
         attrs.put(labelNames[i], value);
       }
-      result.add((T) ar);
+      result.add((T) ba);
     }
     return result;
   }
@@ -63,15 +69,15 @@ public class ModelBuilder {
       is.read(data);
       return data;
     } catch (SQLException e) {
-      throw new ModelException(e);
+      throw new ModelException(e.getMessage(), e);
     } catch (IOException e) {
-      throw new ModelException(e);
+      throw new ModelException(e.getMessage(), e);
     } finally {
       try {
         if (is != null)
           is.close();
       } catch (IOException e) {
-        throw new ModelException(e);
+        logger.warn(e.getMessage(), e);
       }
     }
   }
@@ -87,15 +93,15 @@ public class ModelBuilder {
       reader.read(buffer);
       return new String(buffer);
     } catch (SQLException e) {
-      throw new ModelException(e);
+      throw new ModelException(e.getMessage(), e);
     } catch (IOException e) {
-      throw new ModelException(e);
+      throw new ModelException(e.getMessage(), e);
     } finally {
       try {
         if (reader != null)
           reader.close();
       } catch (IOException e) {
-        throw new ModelException(e);
+        logger.warn(e.getMessage(), e);
       }
     }
   }

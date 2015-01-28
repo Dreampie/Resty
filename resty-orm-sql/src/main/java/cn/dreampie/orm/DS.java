@@ -47,6 +47,10 @@ public class DS {
     return ds;
   }
 
+  public DataSourceMeta getDataSourceMeta() {
+    return dataSourceMeta;
+  }
+
   private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[] paras) throws SQLException {
     PreparedStatement pst = conn.prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
 
@@ -121,7 +125,7 @@ public class DS {
         }
       }
     } catch (SQLException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     } finally {
       dataSourceMeta.close(rs, pst, conn);
     }
@@ -297,7 +301,7 @@ public class DS {
       pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
       result = pst.executeUpdate();
     } catch (SQLException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     } finally {
       dataSourceMeta.close(pst, conn);
     }
@@ -331,9 +335,9 @@ public class DS {
       conn = dataSourceMeta.getConnection();
       pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
       rs = pst.executeQuery();
-      result = RecordBuilder.build(dataSourceMeta, rs);
+      result = RecordBuilder.build(rs);
     } catch (SQLException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     } finally {
       dataSourceMeta.close(rs, pst, conn);
     }
@@ -513,7 +517,7 @@ public class DS {
       result = pst.executeUpdate();
       getGeneratedKey(pst, primaryKey, record);
     } catch (SQLException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     } finally {
       dataSourceMeta.close(pst, conn);
     }
@@ -580,7 +584,7 @@ public class DS {
       }
       return true;
     } catch (SQLException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     } finally {
       dataSourceMeta.close(pst, conn);
     }
@@ -696,8 +700,8 @@ public class DS {
   }
 
 
-  public boolean excute(String... sqls) {
-    return excute(Arrays.asList(sqls));
+  public boolean execute(String... sqls) {
+    return execute(Arrays.asList(sqls));
   }
 
   /**
@@ -710,7 +714,7 @@ public class DS {
    * @param sqls The SQL list to execute.
    * @return The number of rows updated per statement
    */
-  public boolean excute(List<String> sqls) {
+  public boolean execute(List<String> sqls) {
 
     Statement stmt = null;
     int[] result = null;
@@ -736,9 +740,35 @@ public class DS {
       }
       return true;
     } catch (SQLException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     } finally {
       dataSourceMeta.close(stmt, conn);
+    }
+  }
+
+  /**
+   * 调用存储过程
+   * int CallableStatement.executeUpdate: 存储过程不返回结果集。
+   * ResultSet CallableStatement.executeQuery: 存储过程返回一个结果集。
+   * Boolean CallableStatement.execute: 存储过程返回多个结果集。
+   * int[] CallableStatement.executeBatch: 提交批处理命令到数据库执行。
+   *
+   * @param sql    存储过程的sql
+   * @param inCall 执行请求  返回结果
+   * @param <T>    返回类型
+   * @return T
+   */
+  public <T> T call(String sql, InCall inCall) {
+    Connection conn = null;
+    CallableStatement cstmt = null;
+    try {
+      conn = dataSourceMeta.getConnection();
+      cstmt = conn.prepareCall(sql);
+      return (T) inCall.call(cstmt);
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage(), e);
+    } finally {
+      dataSourceMeta.close(cstmt, conn);
     }
   }
 }

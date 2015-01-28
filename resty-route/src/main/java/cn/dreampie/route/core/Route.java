@@ -73,7 +73,7 @@ public class Route {
         try {
           paramAttr = ParamNamesScaner.getParamNames(interceptor.getClass().getMethod("intercept", RouteInvocation.class));
         } catch (NoSuchMethodException e) {
-          throw new RuntimeException(e);
+          throw new RuntimeException(e.getMessage(), e);
         }
         this.interceptorsLineNumbers[i] = paramAttr.getLines();
         i++;
@@ -85,7 +85,7 @@ public class Route {
         try {
           paramAttr = ParamNamesScaner.getParamNames(valid.getClass().getMethod("valid", Params.class));
         } catch (NoSuchMethodException e) {
-          throw new RuntimeException(e);
+          throw new RuntimeException(e.getMessage(), e);
         }
         this.validsLineNumbers[i] = paramAttr.getLines();
         i++;

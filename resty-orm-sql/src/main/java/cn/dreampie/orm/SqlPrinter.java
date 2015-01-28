@@ -36,7 +36,7 @@ public class SqlPrinter implements InvocationHandler {
       }
       return method.invoke(conn, args);
     } catch (InvocationTargetException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     }
   }
 }

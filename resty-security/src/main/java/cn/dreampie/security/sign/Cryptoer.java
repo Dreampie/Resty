@@ -33,7 +33,7 @@ public class Cryptoer {
       byte[] result = mac.doFinal(messageBytes);
       return base64Encoder.encode(result);
     } catch (Exception ex) {
-      throw new RuntimeException(ex);
+      throw new RuntimeException(ex.getMessage(), ex);
     }
   }
 }

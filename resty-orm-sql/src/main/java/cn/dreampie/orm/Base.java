@@ -265,7 +265,6 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     return pst;
   }
 
-
   private PreparedStatement getPreparedStatement(Connection connection, String sql, Object[][] paras) throws SQLException {
     PreparedStatement pst = null;
     String key = getModelMeta().getPrimaryKey();
@@ -286,14 +285,6 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       }
     }
     return pst;
-  }
-
-  public Long count(String sql, Object... paras) {
-    return DS.use(getModelMeta().getDsName()).queryFirst(sql, paras);
-  }
-
-  public Long count(String sql) {
-    return DS.use(getModelMeta().getDsName()).queryFirst(sql);
   }
 
   /**
@@ -327,11 +318,11 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       rs = pst.executeQuery();
       result = ModelBuilder.build(rs, getClass());
     } catch (SQLException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     } catch (InstantiationException e) {
-      throw new ModelException(e);
+      throw new ModelException(e.getMessage(), e);
     } catch (IllegalAccessException e) {
-      throw new ModelException(e);
+      throw new ModelException(e.getMessage(), e);
     } finally {
       dsm.close(rs, pst, conn);
     }
@@ -472,7 +463,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       getModifyFlag().clear();
       return result >= 1;
     } catch (SQLException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     } finally {
       dsm.close(pst, conn);
     }
@@ -545,7 +536,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       }
       return true;
     } catch (SQLException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     } finally {
       dsm.close(pst, conn);
     }
@@ -647,12 +638,6 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     return result > 0;
   }
 
-//  protected int update(String alias, String columns, String where, Object... paras) {
-//    ModelMeta modelMeta = getModelMeta();
-//    Dialect dialect = getDialect();
-//    return update(dialect.update(modelMeta.getTableName(), alias, where, columns.split(",")), paras);
-//  }
-
   /**
    * Update model.
    */
@@ -688,10 +673,10 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       paras = new Object[1 + modifys.length];
       System.arraycopy(modifys, 0, paras, 0, modifys.length);
       paras[modifys.length] = id;
-      where = pKey + "=?";
+      where = pKey;
     }
 
-    String sql = dialect.update(modelMeta.getTableName(), "", where, getModifyNames());
+    String sql = dialect.update(modelMeta.getTableName(), "", where + "=?", getModifyNames());
 
     if (getModifyNames().length <= 0) {  // Needn't update
       return false;
@@ -704,7 +689,6 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     }
     return false;
   }
-
 
   /**
    * Check the table name. The table name must in sql.

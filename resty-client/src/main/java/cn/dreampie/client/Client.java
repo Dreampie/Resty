@@ -44,7 +44,7 @@ public class Client extends ClientConnection {
     } catch (Exception e) {
       if (e instanceof ClientException)
         throw (ClientException) e;
-      throw new ClientException(e);
+      throw new ClientException(e.getMessage(), e);
     } finally {
       if (conn != null) {
         conn.disconnect();

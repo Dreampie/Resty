@@ -31,7 +31,7 @@ public class JndiDataSourceProvider implements DataSourceProvider {
         throw new DBException("Jndi could not found error for " + name);
       }
     } catch (NamingException e) {
-      throw new DBException(e);
+      throw new DBException(e.getMessage(), e);
     }
     this.dialect = DialectFactory.get(dialect == null ? "mysql" : dialect);
   }

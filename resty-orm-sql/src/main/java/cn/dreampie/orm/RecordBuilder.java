@@ -12,19 +12,23 @@ import java.util.Map;
  * Created by ice on 14-12-30.
  */
 public class RecordBuilder {
-  public static final List<Record> build(DataSourceMeta dataSourceMeta, ResultSet rs) throws SQLException {
+  public static List<Record> build(ResultSet rs) throws SQLException {
     List<Record> result = new ArrayList<Record>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
     String[] labelNames = new String[columnCount + 1];
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
+
+    Record record;
+    Map<String, Object> columns;
+    Object value;
     while (rs.next()) {
-      Record record = new Record();
+      record = new Record();
       record.putAttrs(new CaseInsensitiveMap<Object>());
-      Map<String, Object> columns = record.getAttrs();
+      columns = record.getAttrs();
       for (int i = 1; i <= columnCount; i++) {
-        Object value;
+
         if (types[i] < Types.BLOB)
           value = rs.getObject(i);
         else if (types[i] == Types.CLOB)
@@ -43,7 +47,7 @@ public class RecordBuilder {
     return result;
   }
 
-  private static final void buildLabelNamesAndTypes(ResultSetMetaData rsmd, String[] labelNames, int[] types) throws SQLException {
+  private static void buildLabelNamesAndTypes(ResultSetMetaData rsmd, String[] labelNames, int[] types) throws SQLException {
     for (int i = 1; i < labelNames.length; i++) {
       labelNames[i] = rsmd.getColumnLabel(i);
       types[i] = rsmd.getColumnType(i);

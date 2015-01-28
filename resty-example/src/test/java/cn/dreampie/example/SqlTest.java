@@ -94,7 +94,7 @@ public class SqlTest {
   @Test
   public void testExcute() {
     //批量执行sql语句
-    DS.use().excute("UPDATE sec_user SET username='b' WHERE username='c'", "UPDATE sec_user SET username='x' WHERE username='test'");
+    DS.use().execute("UPDATE sec_user SET username='b' WHERE username='c'", "UPDATE sec_user SET username='x' WHERE username='test'");
   }
 
 
@@ -115,4 +115,17 @@ public class SqlTest {
 
     DS.use().delete("sec_user", new Record().set("id", "1"));
   }
+
+//  @Test
+//  public void testProcess() {
+//    DS.use().call("{CALL PROCESS(?,?)}", new InCall() {
+//      public Object call(CallableStatement cstmt) throws SQLException {
+//        cstmt.setInt(1, 1);
+//        cstmt.registerOutParameter(2, Types.BIGINT);
+//        cstmt.execute();
+//        int result = cstmt.getInt(1);
+//        return result;
+//      }
+//    });
+//  }
 }

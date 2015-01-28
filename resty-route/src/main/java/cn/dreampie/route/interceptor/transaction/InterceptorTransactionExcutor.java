@@ -36,7 +36,7 @@ public class InterceptorTransactionExcutor {
         }
         return;
       } catch (SQLException e) {
-        throw new DBException(e);
+        throw new DBException(e.getMessage(), e);
       }
     }
 
@@ -55,7 +55,7 @@ public class InterceptorTransactionExcutor {
       } catch (Exception e) {
         logger.error("Could not rollback " + dsName + " connection.", e);
       }
-      throw new DBException(t);
+      throw new DBException(t.getMessage(), t);
     } finally {
       try {
         if (conn != null) {

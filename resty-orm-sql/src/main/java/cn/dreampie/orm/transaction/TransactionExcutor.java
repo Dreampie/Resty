@@ -36,7 +36,7 @@ public class TransactionExcutor {
         }
         return;
       } catch (SQLException e) {
-        throw new TransactionException(e);
+        throw new TransactionException(e.getMessage(), e);
       }
     }
 
@@ -55,7 +55,7 @@ public class TransactionExcutor {
       } catch (SQLException e) {
         logger.error("Could not rollback " + dsName + " connection.", e);
       }
-      throw new TransactionException(t);
+      throw new TransactionException(t.getMessage(), t);
     } finally {
       try {
         if (conn != null) {

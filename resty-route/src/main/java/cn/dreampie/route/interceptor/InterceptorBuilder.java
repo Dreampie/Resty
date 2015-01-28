@@ -107,7 +107,7 @@ public class InterceptorBuilder {
           result[i] = interceptorClasses[i].newInstance();
           intersMap.put(interceptorClasses[i], result[i]);
         } catch (Exception e) {
-          throw new InterceptorException(e);
+          throw new InterceptorException(e.getMessage(), e);
         }
       }
     }

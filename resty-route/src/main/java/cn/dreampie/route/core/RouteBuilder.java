@@ -156,9 +156,9 @@ public final class RouteBuilder {
         try {
           valids[i] = valid.newInstance();
         } catch (InstantiationException e) {
-          throw new RuntimeException(e);
+          throw new RuntimeException(e.getMessage(), e);
         } catch (IllegalAccessException e) {
-          throw new RuntimeException(e);
+          throw new RuntimeException(e.getMessage(), e);
         }
         i++;
       }

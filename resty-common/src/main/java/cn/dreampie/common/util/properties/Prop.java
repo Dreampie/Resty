@@ -1,6 +1,8 @@
 package cn.dreampie.common.util.properties;
 
 
+import cn.dreampie.log.Logger;
+
 import java.io.*;
 import java.util.Properties;
 
@@ -8,6 +10,7 @@ import java.util.Properties;
  * Prop. Prop can load properties file from CLASSPATH or File object.
  */
 public class Prop {
+  private final static Logger logger = Logger.getLogger(Prop.class);
 
   public static final String DEFAULT_ENCODING = "UTF-8";
 
@@ -49,7 +52,7 @@ public class Prop {
       if (inputStream != null) try {
         inputStream.close();
       } catch (IOException e) {
-        e.printStackTrace();
+        logger.warn(e.getMessage(), e);
       }
     }
   }
@@ -76,7 +79,7 @@ public class Prop {
   public Prop(File file, String encoding) {
     if (file == null)
       throw new IllegalArgumentException("File can not be null.");
-    if (file.isFile() == false)
+    if (!file.isFile())
       throw new IllegalArgumentException("Not a file : " + file.getName());
 
     InputStream inputStream = null;
@@ -90,7 +93,7 @@ public class Prop {
       if (inputStream != null) try {
         inputStream.close();
       } catch (IOException e) {
-        e.printStackTrace();
+        logger.warn(e.getMessage(), e);
       }
     }
   }

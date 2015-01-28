@@ -145,7 +145,7 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
       try {
         ds.setFilters(filters);
       } catch (SQLException e) {
-        throw new DruidRuntimeException(e);
+        throw new DruidRuntimeException(e.getMessage(), e);
       }
 
     addFilterList(ds);

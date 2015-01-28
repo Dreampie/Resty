@@ -41,7 +41,7 @@ public class ParamNamesScaner {
         paramAttribute.setNames(paramAttribute.getNames().subList(0, size));
       return paramAttribute;
     } catch (Throwable e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException(e.getMessage(), e);
     }
   }
 
@@ -73,7 +73,7 @@ public class ParamNamesScaner {
         paramAttribute.setNames(paramAttribute.getNames().subList(0, size));
       return paramAttribute;
     } catch (Throwable e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException(e.getMessage(), e);
     }
   }
 
@@ -91,7 +91,7 @@ public class ParamNamesScaner {
     try {
       return getParamNames(in);
     } catch (Throwable e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException(e.getMessage(), e);
     }
   }
 

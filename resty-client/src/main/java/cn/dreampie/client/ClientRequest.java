@@ -12,6 +12,7 @@ public class ClientRequest {
   private String method;
   private String encoding;
   private Map<String, String> parameters = Maper.of();
+  private String jsonParameter;
   private Map<String, String> headers = Maper.of();
   private int connectTimeOut = 10000;
   private int readTimeOut = 10000;
@@ -77,6 +78,14 @@ public class ClientRequest {
   public ClientRequest addParameter(String name, String value) {
     this.parameters.put(name, value);
     return this;
+  }
+
+  public String getJsonParameter() {
+    return jsonParameter;
+  }
+
+  public void setJsonParameter(String jsonParameter) {
+    this.jsonParameter = jsonParameter;
   }
 
   public void setParameters(Map<String, String> parameters) {

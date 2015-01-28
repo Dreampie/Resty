@@ -27,7 +27,8 @@ public class JsonTest {
 
     String json = Jsoner.toJSONString(user);
     System.out.println(json);
-    User u = Jsoner.parseObject(json, User.class);
+    final User u = Jsoner.parseObject(json, User.class);
     System.out.println("" + u.getRoleId() + u.getUserInfos() + u.getPermissions() + u.getPermissionIds());
+
   }
 }

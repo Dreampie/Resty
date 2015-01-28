@@ -13,6 +13,7 @@ import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.Valid;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -41,6 +42,7 @@ public class Route {
   private final List<String> allParamNames;
   private final int[] allLineNumbers;
   private final List<Class<?>> allParamTypes;
+  private final List<Type> allGenericParamTypes;
 
   private final Interceptor[] interceptors;
   private final int[][] interceptorsLineNumbers;
@@ -59,6 +61,7 @@ public class Route {
     this.allParamNames = paramAttribute.getNames();
     this.allLineNumbers = paramAttribute.getLines();
     this.allParamTypes = Arrays.asList(method.getParameterTypes());
+    this.allGenericParamTypes = Arrays.asList(method.getGenericParameterTypes());
     this.valids = valids;
     //获取拦截器的行号
     if (Constant.show_route) {
@@ -157,6 +160,7 @@ public class Route {
     }
     //otherParams
     Map<String, List<String>> otherParams = request.getQueryParams();
+
     //print match route
     printMatchRoute(params, otherParams);
 
@@ -262,6 +266,10 @@ public class Route {
 
   public List<Class<?>> getAllParamTypes() {
     return allParamTypes;
+  }
+
+  public List<Type> getAllGenericParamTypes() {
+    return allGenericParamTypes;
   }
 
   public Interceptor[] getInterceptors() {

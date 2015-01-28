@@ -9,7 +9,9 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ice on 15-1-4.
@@ -27,7 +29,7 @@ public class ClientTest {
   @Test
   public void testLogin() {
     ClientRequest request = new ClientRequest("/sessions", HttpMethod.POST);
-    request.addParameter("username", "测试的").addParameter("password", "123").addParameter("rememberMe", "true");
+    request.addParameter("username", "asdasda").addParameter("password", "123").addParameter("rememberMe", "true");
     System.out.println(client.build(request).ask());
   }
 
@@ -53,12 +55,32 @@ public class ClientTest {
   @Test
   public void testSave() {
     ClientRequest request = new ClientRequest("/users", HttpMethod.POST);
-    request.addParameter("user", Jsoner.toJSONString(new HashMap<String, Object>() {{
-      put("sid", 2);
-      put("username", "test");
-      put("providername", "test");
-      put("password", "123456");
-    }}));
+    request.addHeader("Content-Type", "application/json;charset=utf-8");
+    request.setJsonParameter(Jsoner.toJSONString(
+        new HashMap<String, Object>() {
+          {
+            put("users", new ArrayList<Map>() {
+              {
+                add(new HashMap<String, String>() {{
+                  put("sid", "1");
+                  put("username", "test1");
+                  put("providername", "test1");
+                  put("password", "123456");
+                  put("created_at", "2014-10-11 10:09:12");
+                }});
+
+                add(new HashMap<String, String>() {{
+                  put("sid", "2");
+                  put("username", "test2");
+                  put("providername", "tes2");
+                  put("password", "123456");
+                  put("created_at", "2014-10-12 10:09:12");
+                }});
+              }
+            });
+          }
+        }
+    ));
     System.out.println(client.build(request).ask());
   }
 }

@@ -48,7 +48,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
     return JSONToken.LBRACE;
   }
 
-  public Map<String, Object> deserialze(Map<String, Object> map, Class<?> clazz) {
+  public static Map<String, Object> deserialze(Map<String, Object> map, Class<?> clazz) {
     Object obj = null;
     Method method = null;
     Class<?> returnType = null;
@@ -61,7 +61,6 @@ public enum ModelDeserializer implements ObjectDeserializer {
 
     Class returnTypeClass = null;
 
-    Set<Map<String, Object>> set = null;
     Set<Entity<?>> newset = null;
 
     JSONArray bset = null;
@@ -81,82 +80,80 @@ public enum ModelDeserializer implements ObjectDeserializer {
         } else
           //判断是否是Entity的集合类型
           if (obj instanceof JSONArray) {
-            if (List.class.isAssignableFrom(returnType)) {
+            if (Collection.class.isAssignableFrom(returnType)) {
               returnTypeClass = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
-              if (Entity.class.isAssignableFrom(returnTypeClass)) {
-                list = (List<Map<String, Object>>) obj;
-                newlist = new ArrayList<Entity<?>>();
-                for (Map<String, Object> mp : list) {
-                  Entity<?> e = (Entity<?>) returnTypeClass.newInstance();
-                  e.putAttrs(deserialze(mp, returnTypeClass));
-                  newlist.add(e);
-                }
-                map.put(key, newlist);
-              } else {
-                blist = (JSONArray) obj;
-                if (String.class.isAssignableFrom(returnTypeClass)) {
-                  newblist = new ArrayList<String>();
-                  for (Object e : blist) {
-                    ((List<String>) newblist).add(e.toString());
+              if (List.class.isAssignableFrom(returnType)) {
+                if (Entity.class.isAssignableFrom(returnTypeClass)) {
+                  list = (List<Map<String, Object>>) obj;
+                  newlist = new ArrayList<Entity<?>>();
+                  for (Map<String, Object> mp : list) {
+                    Entity<?> e = (Entity<?>) returnTypeClass.newInstance();
+                    e.putAttrs(deserialze(mp, returnTypeClass));
+                    newlist.add(e);
                   }
+                  map.put(key, newlist);
                 } else {
-                  newblist = new ArrayList<Object>();
-                  for (Object e : blist) {
-                    if (e.getClass().isAssignableFrom(returnTypeClass))
-                      ((List<Object>) newblist).add(e);
-                    else
-                      ((List<Object>) newblist).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
+                  blist = (JSONArray) obj;
+                  if (String.class.isAssignableFrom(returnTypeClass)) {
+                    newblist = new ArrayList<String>();
+                    for (Object e : blist) {
+                      ((List<String>) newblist).add(e.toString());
+                    }
+                  } else {
+                    newblist = new ArrayList<Object>();
+                    for (Object e : blist) {
+                      if (e.getClass().isAssignableFrom(returnTypeClass))
+                        ((List<Object>) newblist).add(e);
+                      else
+                        ((List<Object>) newblist).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
+                    }
                   }
+                  map.put(key, newblist);
                 }
-                map.put(key, newblist);
-              }
-            } else if (Set.class.isAssignableFrom(returnType)) {
-              returnTypeClass = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
-              if (Entity.class.isAssignableFrom(returnTypeClass)) {
-                set = (Set<Map<String, Object>>) obj;
-                newset = new HashSet<Entity<?>>();
-                for (Map<String, Object> mp : set) {
-                  Entity<?> e = (Entity<?>) returnTypeClass.newInstance();
-                  e.putAttrs(deserialze(mp, returnTypeClass));
-                  newset.add(e);
-                }
-                map.put(key, newset);
-              } else {
-                bset = (JSONArray) obj;
-                if (String.class.isAssignableFrom(returnTypeClass)) {
-                  newbset = new HashSet<String>();
-                  for (Object e : bset) {
-                    ((Set<String>) newbset).add(e.toString());
+              } else if (Set.class.isAssignableFrom(returnType)) {
+                if (Entity.class.isAssignableFrom(returnTypeClass)) {
+                  list = (List<Map<String, Object>>) obj;
+                  newset = new HashSet<Entity<?>>();
+                  for (Map<String, Object> mp : list) {
+                    Entity<?> e = (Entity<?>) returnTypeClass.newInstance();
+                    e.putAttrs(deserialze(mp, returnTypeClass));
+                    newset.add(e);
                   }
+                  map.put(key, newset);
                 } else {
-                  newbset = new HashSet<Object>();
-                  for (Object e : bset) {
-                    if (e.getClass().isAssignableFrom(returnTypeClass))
-                      ((Set<Object>) newbset).add(e);
-                    else
-                      ((Set<Object>) newbset).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
+                  bset = (JSONArray) obj;
+                  if (String.class.isAssignableFrom(returnTypeClass)) {
+                    newbset = new HashSet<String>();
+                    for (Object e : bset) {
+                      ((Set<String>) newbset).add(e.toString());
+                    }
+                  } else {
+                    newbset = new HashSet<Object>();
+                    for (Object e : bset) {
+                      if (e.getClass().isAssignableFrom(returnTypeClass))
+                        ((Set<Object>) newbset).add(e);
+                      else
+                        ((Set<Object>) newbset).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
+                    }
                   }
+                  map.put(key, newbset);
                 }
-                map.put(key, newbset);
               }
             }
           } else {
-            deserializer(map, obj, returnType, key);
+            if (String.class.isAssignableFrom(returnType))
+              map.put(key, obj.toString());
+            else {
+              if (!obj.getClass().isAssignableFrom(returnType))
+                map.put(key, JSON.parseObject(JSON.toJSONString(obj), returnType));
+            }
           }
       } catch (NoSuchMethodException e) {
       } catch (Exception e) {
-        throw new JSONException("Unsupport type " + returnType, e);
+        throw new JSONException("Unconvert type " + returnType, e);
       }
     }
     return map;
   }
 
-  private void deserializer(Map<String, Object> map, Object obj, Class<?> returnType, String key) {
-    if (String.class.isAssignableFrom(returnType))
-      map.put(key, obj.toString());
-    else {
-      if (!obj.getClass().isAssignableFrom(returnType))
-        map.put(key, JSON.parseObject(JSON.toJSONString(obj), returnType));
-    }
-  }
 }

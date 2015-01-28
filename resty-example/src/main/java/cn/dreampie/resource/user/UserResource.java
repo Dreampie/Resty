@@ -16,6 +16,7 @@ import cn.dreampie.route.core.annotation.POST;
 import cn.dreampie.route.core.annotation.PUT;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ice on 14-12-29.
@@ -59,9 +60,9 @@ public class UserResource extends ApiResource {
 
   //保存
   @POST("/users")
-  public User save(User user) {
-    userService.save(user);
-    return user;
+  public Set<User> save(Set<User> users) {
+    userService.save(users.iterator().next());
+    return users;
   }
 
   //删除

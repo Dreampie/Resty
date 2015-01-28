@@ -126,7 +126,15 @@ public class ClientConnection {
         writer.close();
       } else {
         //没有文件上传
-        String requestParameters = clientRequest.getEncodedParameters();
+        String contentType = clientRequest.getHeaders().get("Content-Type");
+        String requestParameters;
+        //application/json  传递参数
+        if (contentType != null && contentType.toLowerCase().contains(HttpTyper.ContentType.JSON.value())) {
+          requestParameters = clientRequest.getJsonParameter();
+        } else {
+          requestParameters = clientRequest.getEncodedParameters();
+        }
+        //写入参数
         if (requestParameters != null && !"".equals(requestParameters)) {
           DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
           logger.debug("Request out method " + method + ",out parameters " + requestParameters);

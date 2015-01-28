@@ -438,7 +438,7 @@ public class MultipartParser {
    * @throws java.io.IOException if an input or output exception has occurred.
    */
   private String readLine() throws IOException {
-    StringBuffer sbuf = new StringBuffer();
+    StringBuilder sbuf = new StringBuilder();
     int result;
     String line;
 

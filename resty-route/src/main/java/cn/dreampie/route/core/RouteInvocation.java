@@ -1,18 +1,28 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.Entity;
+import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.json.Jsoner;
+import cn.dreampie.common.util.json.ModelDeserializer;
 import cn.dreampie.common.util.json.ObjectCastException;
+import cn.dreampie.common.util.stream.StreamReader;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.valid.Valid;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * ActionInvocation invoke the action
@@ -49,7 +59,16 @@ public class RouteInvocation {
         resource = route.getResourceClass().newInstance();
         resource.setRouteMatch(routeMatch);
         //获取所有参数
-        Params params = getRouteParams();
+        Params params = null;
+        //if use application/json to post
+        HttpRequest request = routeMatch.getRequest();
+        //判断是否是application/json 传递数据的
+        if (request.getContentType().toLowerCase().contains(HttpTyper.ContentType.JSON.value())) {
+          params = getJsonParams(request);
+        } else {
+          params = getFormParams();
+        }
+
         //数据验证
         valid(params);
         //执行方法
@@ -106,42 +125,183 @@ public class RouteInvocation {
   }
 
   /**
-   * 获取所以的请求参数
+   * 获取所有的请求参数
    *
    * @return 所有参数
    */
-  private Params getRouteParams() {
+  private Params getFormParams() {
     Params params = new Params();
     int i = 0;
-    Class paraType = null;
+    Class paramType = null;
     List<String> valueArr = null;
+    String value = null;
     List<String> allParamNames = route.getAllParamNames();
     List<String> pathParamNames = route.getPathParamNames();
+
+    Object obj = null;
+
     for (String name : allParamNames) {
-      paraType = route.getAllParamTypes().get(i);
+      paramType = route.getAllParamTypes().get(i);
+
       //path里的参数
       if (pathParamNames.contains(name)) {
-        if (paraType == String.class) {
+        if (paramType == String.class) {
           params.set(name, routeMatch.getPathParam(name));
         } else
-          params.set(name, Jsoner.parseObject(routeMatch.getPathParam(name), paraType));
+          params.set(name, Jsoner.parseObject(routeMatch.getPathParam(name), paramType));
       } else {//其他参数
         valueArr = routeMatch.getOtherParam(name);
-        if (valueArr != null) {
-
-          if (valueArr.size() == 1) {
-            if (paraType == String.class) {
-              params.set(name, valueArr.get(0));
-            } else
-              params.set(name, Jsoner.parseObject(valueArr.get(0), paraType));
+        if (valueArr != null && valueArr.size() > 0) {
+          //不支持数组参数
+          value = valueArr.get(0);
+          if (paramType == String.class) {
+            params.set(name, value);
           } else {
-            params.set(name, Jsoner.parseObject(Jsoner.toJSONString(valueArr), paraType));
+            obj = Jsoner.parseObject(value, paramType);
+            //转换为对应的对象类型
+            parse(params, i, paramType, obj, name);
           }
         }
       }
       i++;
     }
     return params;
+  }
+
+  /**
+   * 获取所有以application/json方式提交的数据
+   *
+   * @param request request对象
+   * @return 所有参数
+   */
+  private Params getJsonParams(HttpRequest request) {
+    Params params = new Params();
+    InputStream is = null;
+
+    int i = 0;
+    Class paramType = null;
+    List<String> allParamNames = route.getAllParamNames();
+
+    Object obj = null;
+    String json = "";
+    try {
+      is = request.getContentStream();
+      json = StreamReader.readString(is);
+    } catch (IOException e) {
+      String msg = "Could not read inputStream when contentType is application/json.";
+      logger.error(msg, e);
+      throw new WebException(msg);
+    }
+    if (null != json && !"".equals(json)) {
+      Map<String, Object> paramsMap = Jsoner.parseObject(json, Map.class);
+      for (String name : allParamNames) {
+        paramType = route.getAllParamTypes().get(i);
+        obj = paramsMap.get(name);
+
+        if (paramType == String.class) {
+          params.set(name, obj.toString());
+        } else {
+          //转换对象到指定的类型
+          parse(params, i, paramType, obj, name);
+        }
+        i++;
+      }
+    }
+    return params;
+  }
+
+  private void parse(Params params, int i, Class paramType, Object obj, String name) {
+    Type genericParamType;
+    Class paramTypeClass;
+    List<Map<String, Object>> list;
+    List<Entity<?>> newlist;
+    Entity<?> entity;
+    JSONArray blist;
+    List<?> newblist;
+    Set<Entity<?>> newset;
+    JSONArray bset;
+    Set<?> newbset;//判断参数需要的类型
+    //判断是不是包含 Entity类型
+    try {
+      if (Entity.class.isAssignableFrom(paramType)) {
+        Entity<?> e = (Entity<?>) paramType.newInstance();
+        e.putAttrs(ModelDeserializer.deserialze((Map<String, Object>) obj, paramType));
+        params.set(name, e);
+      } else {
+        if (Collection.class.isAssignableFrom(paramType)) {
+          genericParamType = route.getAllGenericParamTypes().get(i);
+          paramTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[0];
+
+          if (List.class.isAssignableFrom(paramType)) {
+            list = (List<Map<String, Object>>) obj;
+            //Entity类型
+            if (Entity.class.isAssignableFrom(paramTypeClass)) {
+              newlist = new ArrayList<Entity<?>>();
+              for (Map<String, Object> mp : list) {
+                entity = (Entity<?>) paramTypeClass.newInstance();
+                entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
+                newlist.add(entity);
+              }
+              params.set(name, newlist);
+            } else {
+              blist = (JSONArray) obj;
+              if (String.class.isAssignableFrom(paramTypeClass)) {
+                newblist = new ArrayList<String>();
+                for (Object e : blist) {
+                  ((List<String>) newblist).add(e.toString());
+                }
+              } else {
+                newblist = new ArrayList<Object>();
+                for (Object e : blist) {
+                  if (e.getClass().isAssignableFrom(paramTypeClass))
+                    ((List<Object>) newblist).add(e);
+                  else
+                    ((List<Object>) newblist).add(JSON.parseObject(JSON.toJSONString(e), paramTypeClass));
+                }
+              }
+              params.set(name, newblist);
+            }
+          } else if (Set.class.isAssignableFrom(paramType)) {
+            //Entity
+            if (Entity.class.isAssignableFrom(paramTypeClass)) {
+              list = (List<Map<String, Object>>) obj;
+              newset = new HashSet<Entity<?>>();
+              for (Map<String, Object> mp : list) {
+                entity = (Entity<?>) paramTypeClass.newInstance();
+                entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
+                newset.add(entity);
+              }
+              params.set(name, newset);
+            } else {
+              bset = (JSONArray) obj;
+              if (String.class.isAssignableFrom(paramTypeClass)) {
+                newbset = new HashSet<String>();
+                for (Object e : bset) {
+                  ((Set<String>) newbset).add(e.toString());
+                }
+              } else {
+                newbset = new HashSet<Object>();
+                for (Object e : bset) {
+                  if (e.getClass().isAssignableFrom(paramTypeClass))
+                    ((Set<Object>) newbset).add(e);
+                  else
+                    ((Set<Object>) newbset).add(JSON.parseObject(JSON.toJSONString(e), paramTypeClass));
+                }
+              }
+              params.set(name, newbset);
+            }
+          }
+        } else {
+          if (obj.getClass().isAssignableFrom(paramType)) {
+            params.set(name, obj);
+          } else {
+            params.set(name, Jsoner.parseObject(Jsoner.toJSONString(obj), paramType));
+          }
+        }
+      }
+    } catch (Exception e) {
+      throw new JSONException("Unconvert type " + paramType, e);
+    }
   }
 
   public Method getMethod() {

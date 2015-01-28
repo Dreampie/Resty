@@ -12,7 +12,6 @@ import cn.dreampie.common.util.stream.StreamReader;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.valid.Valid;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 
@@ -261,7 +260,7 @@ public class RouteInvocation {
                     if (e.getClass().isAssignableFrom(paramTypeClass))
                       ((List<Object>) newblist).add(e);
                     else
-                      ((List<Object>) newblist).add(JSON.parseObject(JSON.toJSONString(e), paramTypeClass));
+                      ((List<Object>) newblist).add(Jsoner.parseObject(Jsoner.toJSONString(e), paramTypeClass));
                   }
                 }
                 params.set(name, newblist);
@@ -290,7 +289,7 @@ public class RouteInvocation {
                     if (e.getClass().isAssignableFrom(paramTypeClass))
                       ((Set<Object>) newbset).add(e);
                     else
-                      ((Set<Object>) newbset).add(JSON.parseObject(JSON.toJSONString(e), paramTypeClass));
+                      ((Set<Object>) newbset).add(Jsoner.parseObject(Jsoner.toJSONString(e), paramTypeClass));
                   }
                 }
                 params.set(name, newbset);

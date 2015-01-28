@@ -2,7 +2,6 @@ package cn.dreampie.common.util.json;
 
 import cn.dreampie.common.Entity;
 import cn.dreampie.common.util.Stringer;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
@@ -111,7 +110,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                           if (e.getClass().isAssignableFrom(returnTypeClass))
                             ((List<Object>) newblist).add(e);
                           else
-                            ((List<Object>) newblist).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
+                            ((List<Object>) newblist).add(Jsoner.parseObject(Jsoner.toJSONString(e), returnTypeClass));
                         }
                       }
                       map.put(key, newblist);
@@ -139,7 +138,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                           if (e.getClass().isAssignableFrom(returnTypeClass))
                             ((Set<Object>) newbset).add(e);
                           else
-                            ((Set<Object>) newbset).add(JSON.parseObject(JSON.toJSONString(e), returnTypeClass));
+                            ((Set<Object>) newbset).add(Jsoner.parseObject(Jsoner.toJSONString(e), returnTypeClass));
                         }
                       }
                       map.put(key, newbset);
@@ -147,7 +146,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                   }
                 }
               } else {
-                map.put(key, JSON.parseObject(JSON.toJSONString(obj), returnType));
+                map.put(key, Jsoner.parseObject(Jsoner.toJSONString(obj), returnType));
               }
           }
         }

@@ -9,6 +9,7 @@ import java.util.Map;
  */
 public class Session {
   public static final String SESSION_DEF_KEY = "_session";
+  public static final String SESSION_ALL_KEY = "_allSessions";
   private final Map<String, String> values;
   private final Principal principal;
   private final int expires;

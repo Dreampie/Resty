@@ -11,12 +11,12 @@ public class Principal {
   public static final String PRINCIPAL_DEF_KEY = "_principal";
   private String username;
   private String passwordHash;
-  private Set<String> permissions;
+  private Set<String> credentials;
 
-  public Principal(String username, String passwordHash, Set<String> permissions) {
+  public Principal(String username, String passwordHash, Set<String> credentials) {
     this.username = username;
     this.passwordHash = passwordHash;
-    this.permissions = permissions;
+    this.credentials = credentials;
   }
 
   public String getUsername() {
@@ -27,11 +27,11 @@ public class Principal {
     return passwordHash;
   }
 
-  public Set<String> getPermissions() {
-    return permissions;
+  public Set<String> getCredentials() {
+    return credentials;
   }
 
-  public boolean hasPermission(String permission) {
-    return permissions.contains(permission);
+  public boolean hasCredential(String permission) {
+    return credentials.contains(permission);
   }
 }

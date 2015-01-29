@@ -3,6 +3,7 @@ package cn.dreampie.route.interceptor.security;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.route.core.RouteInvocation;
+import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.security.*;
 
@@ -14,9 +15,13 @@ public class SecurityInterceptor implements Interceptor {
   private final SessionBuilder sessionBuilder;
   private static final int expires = 20 * 60 * 1000;
   private static final int rememberDay = 7;
-  private static final int limit = 500;
+  private static final int limit = 100;
 
   public SecurityInterceptor(AuthenticateService authenticateService) {
+    this(expires, limit, rememberDay, authenticateService);
+  }
+
+  public SecurityInterceptor(int limit, AuthenticateService authenticateService) {
     this(expires, limit, rememberDay, authenticateService);
   }
 
@@ -33,6 +38,8 @@ public class SecurityInterceptor implements Interceptor {
   }
 
   public SecurityInterceptor(int expires, int limit, int rememberDay, AuthenticateService authenticateService, PasswordService passwordService) {
+    if (rememberDay > 30)
+      throw new InitException("RememberMe must less than 30 days.");
     if (passwordService != null)
       this.sessionBuilder = new SessionBuilder(expires, limit, rememberDay, authenticateService, passwordService);
     else
@@ -49,7 +56,7 @@ public class SecurityInterceptor implements Interceptor {
     Subject.check(request.getHttpMethod(), request.getRestPath());
     Object result = ri.invoke();
     //把session  写入cookie
-    sessionBuilder.out(session, response);
+    sessionBuilder.out(session, request, response);
     return result;
   }
 

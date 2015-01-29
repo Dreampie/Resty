@@ -11,7 +11,7 @@ public class SessionCookieDescriptor {
   private String cookieSignatureName;
 
   public SessionCookieDescriptor() {
-    this("Session", "SessionSignature");
+    this("Session", "SessionSign");
   }
 
   public SessionCookieDescriptor(String cookieName, String cookieSignatureName) {

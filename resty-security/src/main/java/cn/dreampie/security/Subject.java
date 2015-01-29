@@ -1,5 +1,6 @@
 package cn.dreampie.security;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.pattern.AntPathMatcher;
@@ -113,17 +114,23 @@ public class Subject {
    * @return
    */
   public static String need(String httpMethod, String path) {
-    Set<Credential> permissions = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
-    if (permissions == null) {
-      permissions = authenticateService.loadAllCredentials();
+    Set<Credential> credentials = null;
+    if (Constant.cache_enabled) {
+      credentials = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
+
+      if (credentials == null) {
+        credentials = authenticateService.loadAllCredentials();
+      }
+    } else {
+      credentials = authenticateService.loadAllCredentials();
     }
-    checkNotNull(permissions, "LoadAllPermissions not get permissions data.");
+    checkNotNull(credentials, "LoadAllPermissions not get permissions data.");
     String method;
-    for (Credential permission : permissions) {
-      method = permission.getMethod();
+    for (Credential credential : credentials) {
+      method = credential.getMethod();
       if ((method.equals("*") || method.equals(httpMethod))
-          && AntPathMatcher.instance().match(permission.getAntPath(), path)) {
-        return permission.getValue();
+          && AntPathMatcher.instance().match(credential.getAntPath(), path)) {
+        return credential.getValue();
       }
     }
     return null;
@@ -136,11 +143,11 @@ public class Subject {
    * @param path
    */
   public static void check(String httpMethod, String path) {
-    String needPermisssion = need(httpMethod, path);
-    if (needPermisssion != null) {
+    String needCredential = need(httpMethod, path);
+    if (needCredential != null) {
       Principal principal = Session.current().getPrincipal();
       if (principal != null) {
-        if (!principal.hasPermission(needPermisssion)) {
+        if (!principal.hasCredential(needCredential)) {
           throw new WebException(HttpStatus.FORBIDDEN);
         }
       } else {
@@ -157,11 +164,11 @@ public class Subject {
    * @return
    */
   public static boolean has(String httpMethod, String path) {
-    String needPermisssion = need(httpMethod, path);
-    if (needPermisssion != null) {
+    String needCredential = need(httpMethod, path);
+    if (needCredential != null) {
       Principal principal = Session.current().getPrincipal();
       if (principal != null) {
-        if (principal.hasPermission(needPermisssion)) {
+        if (principal.hasCredential(needCredential)) {
           return true;
         }
       }

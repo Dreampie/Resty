@@ -1,6 +1,7 @@
 package cn.dreampie.security;
 
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.util.Maper;
@@ -10,9 +11,9 @@ import cn.dreampie.security.cache.SessionCache;
 import cn.dreampie.security.sign.CookieSigner;
 import cn.dreampie.security.sign.Signer;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -39,10 +40,10 @@ public class SessionBuilder {
   public SessionBuilder(int expires, int limit, int rememberDay, AuthenticateService authenticateService, PasswordService passwordService) {
     Subject.init(rememberDay, authenticateService, passwordService);
     this.expires = expires;
-    this.sessions = new Sessions(limit);
+    this.sessions = new Sessions(expires, limit);
     this.signer = new CookieSigner();
     this.sessionCookieDescriptor = new SessionCookieDescriptor();
-    this.emptySession = new Session(Maper.<String, String>of(), null, -1);
+    this.emptySession = new Session(Maper.of(Session.SESSION_DEF_KEY, UUID.randomUUID().toString()), null, -1);
     this.authenticateService = authenticateService;
     //load  all  cache
     SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, authenticateService.loadAllCredentials());
@@ -57,15 +58,27 @@ public class SessionBuilder {
   public Session in(HttpRequest request) {
     Session session = build(request);
     Session.setCurrent(session);
-
-    Map<String, String> metadata = prepareSessionStatsMetadata(request);
-    if (session.getPrincipal() != null) {
-      String name = session.getPrincipal().getUsername();
-      sessions.touch(name, metadata);
-    } else {
-      sessions.touch("anonymous@" + request.getClientAddress(), metadata);
-    }
+    //保存session到cache
+    buildSessionMetadata(request, session);
     return session;
+  }
+
+  /**
+   * 保存session 信息
+   *
+   * @param request
+   * @param session
+   */
+  private void buildSessionMetadata(HttpRequest request, Session session) {
+    Map<String, String> metadata = prepareSessionStatsMetadata(request);
+    String sessionKey = session.get(Session.SESSION_DEF_KEY);
+    Principal principal = session.getPrincipal();
+    if (principal != null) {
+      String name = principal.getUsername();
+      sessions.touch(name, sessionKey, metadata, session.getExpires());
+    } else {
+      sessions.touch("anonymous@" + request.getClientAddress(), sessionKey, metadata, session.getExpires());
+    }
   }
 
   /**
@@ -74,11 +87,12 @@ public class SessionBuilder {
    * @param session
    * @param response
    */
-  public void out(Session session, HttpResponse response) {
-
+  public void out(Session session, HttpRequest request, HttpResponse response) {
     Session newSession = Session.current();
-    if (newSession.getExpires() == -1 || newSession != session) {
+    if (newSession != session) {
       updateSessionInClient(response, newSession);
+      //保存session到cache
+      buildSessionMetadata(request, newSession);
     }
   }
 
@@ -86,8 +100,8 @@ public class SessionBuilder {
   private Map<String, String> prepareSessionStatsMetadata(HttpRequest req) {
     String agent = req.getHeader("User-Agent");
     return Maper.of(
-        "clientAddress", req.getClientAddress(),
-        "userAgent", agent == null ? "Unknown" : agent);
+        Sessions.ADDRESS_KEY, req.getClientAddress(),
+        Sessions.AGENT_KEY, agent == null ? "Unknown" : agent);
   }
 
   private Session build(HttpRequest req) {
@@ -98,31 +112,41 @@ public class SessionBuilder {
     } else {
       String sig = req.getCookieValue(sessionCookieDescriptor.getCookieSignatureName());
       if (sig == null || !signer.verify(cookie, sig)) {
-        logger.warn("Invalid  session signature. session was: %s. Ignoring session cookie.", cookie);
+        logger.warn("Invalid session signature. session was: %s. Ignoring session cookie.", cookie);
         return emptySession;
       }
       Map<String, String> entries = readEntries(cookie);
       String expiresCookie = entries.remove(EXPIRES);
       //失效时间
       if (expiresCookie != null && !"".equals(expiresCookie.trim())) {
-        Date expires = new Date(Long.parseLong(expiresCookie));
-        if (expires.getTime() < System.currentTimeMillis()) {
-          return emptySession;
+        int expiration = -1;
+        if (!"-1".equals(expiresCookie)) {
+          Date expires = new Date(Long.parseLong(expiresCookie));
+          Date now = new Date();
+          expiration = (int) (expires.getTime() - now.getTime());
+          expiration = req.isPersistentCookie(sessionCookieName) ? (expiration > this.expires ? expiration : -1) : -1;
         }
-
-        Date now = new Date();
-        int expiration = (int) (expires.getTime() - now.getTime());
-        expiration = req.isPersistentCookie(sessionCookieName) ? (expiration > this.expires ? expiration : -1) : -1;
         Map<String, String> cookieValues = Maper.copyOf(entries);
         String principalName = cookieValues.get(Principal.PRINCIPAL_DEF_KEY);
         Principal principal = null;
         if (principalName != null && !"".equals(principalName.trim())) {
-          //通过cache 来获取对象相关的值
-          principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
-          //cache 已经失效  从接口获取用户数据
-          if (principal == null) {
+          //判断 是否使用了 remeberme 或失效
+          Sessions.SessionDatas sessionDatas = sessions.get(principalName);
+          if (sessionDatas == null || (sessionDatas != null && !sessionDatas.containsSessionKey(cookieValues.get(Session.SESSION_DEF_KEY)))) {
+            return emptySession;
+          }
+          //是否使用cache
+          if (Constant.cache_enabled) {
+            //通过cache 来获取对象相关的值
+            principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
+            //cache 已经失效  从接口获取用户数据
+            if (principal == null) {
+              principal = authenticateService.findByUsername(principalName);
+            }
+          } else {
             principal = authenticateService.findByUsername(principalName);
           }
+
           //检测用户数据
           checkNotNull(principal, "FindByName not get user data.");
         }
@@ -155,14 +179,7 @@ public class SessionBuilder {
       return Maper.of();
     } else {
       Map<String, String> map = Maper.copyOf(sessionMap);
-      long expiresReal = session.getExpires();
-      if (session.getExpires() == -1) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.add(Calendar.MILLISECOND, expires);
-        expiresReal = cal.getTimeInMillis();
-      }
-      map.put(EXPIRES, Long.toString(expiresReal));
+      map.put(EXPIRES, Long.toString(session.getExpires()));
       String sessionJson = Jsoner.toJSONString(map);
       return Maper.of(sessionCookieDescriptor.getCookieName(), sessionJson,
           sessionCookieDescriptor.getCookieSignatureName(), signer.sign(sessionJson));

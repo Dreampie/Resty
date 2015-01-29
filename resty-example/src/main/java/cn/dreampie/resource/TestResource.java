@@ -28,6 +28,7 @@ public class TestResource extends ApiResource {
 
   @GET("/tests")
   public WebResult get() {
+    Subject.login("userq", "123");
     //如果需要返回请求状态  new WebResult
     return new WebResult(HttpStatus.OK, Maper.of("a", "1", "b", "2"));
   }
@@ -66,7 +67,4 @@ public class TestResource extends ApiResource {
     return new File(getRequest().getRealPath("/") + "upload/resty.jar");
   }
 
-  public static void main(String[] args) {
-
-  }
 }

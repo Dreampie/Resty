@@ -135,7 +135,7 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
   private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect());
 ```
 
-5.极简的权限设计，你只需要实现一个简单接口和添加一个拦截器，即可实现基于url的权限设计
+5.极简的权限设计,可以通过cache支持分布式session，你只需要实现一个简单接口和添加一个拦截器，即可实现基于url的权限设计
 
 ```java
   public void configInterceptor(InterceptorLoader interceptorLoader) {

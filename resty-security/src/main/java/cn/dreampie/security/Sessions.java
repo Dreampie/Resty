@@ -1,8 +1,12 @@
 package cn.dreampie.security;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.util.Maper;
+import cn.dreampie.security.cache.SessionCache;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -14,26 +18,87 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  * Time: 16:23
  */
 public class Sessions {
-  public static final class SessionData implements Comparable<SessionData> {
 
+  public static final class SessionDatas {
     private final String key;
-    private final long firstAccess;
-    private final long lastAccess;
-    private final long lastAccessNano;
     private final int count;
-    private final Map<String, String> metadata;
+    private final Map<String, SessionData> sessionMetadatas;
 
-    private SessionData(String key, long firstAccess, long lastAccess, long lastAccessNano, int count, Map<String, String> metadata) {
+    public SessionDatas(String key, int count, Map<String, SessionData> sessionMetadatas) {
       this.key = checkNotNull(key);
-      this.firstAccess = firstAccess;
-      this.lastAccess = lastAccess;
-      this.lastAccessNano = lastAccessNano;
       this.count = count;
-      this.metadata = checkNotNull(metadata);
+      this.sessionMetadatas = checkNotNull(sessionMetadatas);
     }
 
     public String getKey() {
       return key;
+    }
+
+    public int getCount() {
+      return count;
+    }
+
+    public SessionData getSessionData(String sessionKey) {
+      return sessionMetadatas.get(sessionKey);
+    }
+
+    public boolean containsSessionKey(String sessionKey) {
+      return sessionMetadatas.containsKey(sessionKey);
+    }
+
+    public Map<String, SessionData> getSessionMetadatas() {
+      return sessionMetadatas;
+    }
+
+    private SessionDatas touch(String sessionKey, SessionData sessionData) {
+      sessionMetadatas.put(sessionKey, sessionData);
+      return new SessionDatas(key, count + 1, sessionMetadatas);
+    }
+
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      SessionDatas that = (SessionDatas) o;
+      return key.equals(that.key);
+    }
+
+    public int hashCode() {
+      return key.hashCode();
+    }
+
+    public String toString() {
+      return "SessionDatas{" +
+          "key='" + key + '\'' +
+          ", count=" + count +
+          ", sessionMetadatas=" + sessionMetadatas +
+          '}';
+    }
+  }
+
+  public static final class SessionData implements Comparable<SessionData> {
+    private final String sessionKey;
+    private final long expires;
+    private final long firstAccess;
+    private final long lastAccess;
+    private final long lastAccessNano;
+    private final Map<String, String> metadata;
+
+    private SessionData(String sessionKey, long expires, long firstAccess, long lastAccess, long lastAccessNano, Map<String, String> metadata) {
+      this.sessionKey = checkNotNull(sessionKey);
+      this.expires = expires;
+      this.firstAccess = firstAccess;
+      this.lastAccess = lastAccess;
+      this.lastAccessNano = lastAccessNano;
+      this.metadata = checkNotNull(metadata);
+    }
+
+    public String getSessionKey() {
+      return sessionKey;
+    }
+
+    public long getExpires() {
+      return expires;
     }
 
     public long getFirstAccess() {
@@ -44,23 +109,24 @@ public class Sessions {
       return lastAccess;
     }
 
-    public int getCount() {
-      return count;
-    }
-
     public Map<String, String> getMetadata() {
       return metadata;
     }
 
+    private SessionData touch(long expires, Map<String, String> metadata) {
+      return new SessionData(sessionKey, expires, firstAccess, System.currentTimeMillis(), System.nanoTime(), metadata);
+    }
+
     private SessionData touch(Map<String, String> metadata) {
-      return new SessionData(key, firstAccess, System.currentTimeMillis(), System.nanoTime(), count + 1, metadata);
+      return touch(expires, metadata);
     }
 
     public String toString() {
       return "SessionData{" +
-          "key='" + key + '\'' +
+          "sessionKey='" + sessionKey + '\'' +
           ", firstAccess=" + firstAccess +
           ", lastAccess=" + lastAccess +
+          ", lastAccessNano=" + lastAccessNano +
           ", metadata=" + metadata +
           '}';
     }
@@ -69,60 +135,110 @@ public class Sessions {
       return (int) (lastAccessNano - o.lastAccessNano);
     }
 
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-
-      SessionData that = (SessionData) o;
-
-      if (!key.equals(that.key)) return false;
-
-      return true;
-    }
-
-    public int hashCode() {
-      return key.hashCode();
-    }
-
   }
 
-  private final ConcurrentMap<String, SessionData> sessions = new ConcurrentHashMap<String, SessionData>();
+  /**
+   * username->(sessionKey,sessionData)
+   */
+  private final ConcurrentMap<String, SessionDatas> sessions = new ConcurrentHashMap<String, SessionDatas>();
+  private final int expires;
   private final int limit;
 
-  public Sessions(int limit) {
+  public static final String ADDRESS_KEY = "_address";
+  public static final String AGENT_KEY = "_agent";
+
+  public Sessions(int expires, int limit) {
+    this.expires = expires;
     this.limit = limit;
   }
 
-  public SessionData get(String key) {
-    return sessions.get(key);
+
+  public SessionDatas get(String key) {
+    return getSessions().get(key);
   }
 
-  public Map<String, SessionData> getAll() {
-    return Maper.copyOf(sessions);
+  public ConcurrentMap<String, SessionDatas> getSessions() {
+    ConcurrentMap<String, SessionDatas> sessionsUse = null;
+    if (Constant.cache_enabled) {
+      ConcurrentMap<String, SessionDatas> sessionsCache = SessionCache.instance().get(Session.SESSION_DEF_KEY, Session.SESSION_ALL_KEY);
+      if (sessionsCache == null)
+        sessionsUse = sessions;
+    } else {
+      sessionsUse = sessions;
+    }
+    return sessionsUse;
   }
 
-  public SessionData touch(String key, Map<String, String> metadata) {
+  public Map<String, SessionDatas> getAll() {
+    return Maper.copyOf(getSessions());
+  }
+
+  public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata) {
+    return touch(key, sessionKey, metadata, System.currentTimeMillis() + expires);
+  }
+
+  public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata, long expires) {
+    if (expires == -1) return touch(key, sessionKey, metadata);
+    ConcurrentMap<String, SessionDatas> sessions = getSessions();
     boolean updated = false;
-    SessionData updatedSessionData;
+    SessionDatas sessionDatas;
+    SessionDatas updatedSessionDatas;
+    SessionData sessionData;
     do {
-      SessionData sessionData;
-      sessionData = sessions.size() > 0 ? sessions.get(key) : null;
+      sessionData = null;
+      sessionDatas = sessions.get(key);
+      if (sessionDatas != null) {
+        sessionData = sessionDatas.getSessionData(sessionKey);
+      }
       if (sessionData != null) {
-        updatedSessionData = sessionData.touch(metadata);
+        updatedSessionDatas = sessionDatas.touch(sessionKey, sessionData.touch(expires, metadata));
       } else {
         long access = System.currentTimeMillis();
-        updatedSessionData = new SessionData(key, access, access, System.nanoTime(), 1, metadata);
+        updatedSessionDatas = new SessionDatas(key, 1, Maper.of(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata)));
       }
 
-      updated = sessions.put(key, updatedSessionData) == sessionData;
+      updated = sessions.put(key, updatedSessionDatas) == sessionDatas;
     } while (!updated);
 
     // take size under limit
     // note that it may exceed the limit for a short time until the following code completes
-    int size = sessions.size();
-    int remainingChecks = (size - limit) * 3 + 100;
-    while (sessions.size() > limit) {
-      if (remainingChecks-- == 0) {
+    Collection<SessionData> sessionDataCollection;
+    SessionDatas datas;
+    Map<String, SessionData> sessionDataMap = null;
+    SessionData oldest;
+    List<String> delSks;
+    //user key
+    int size = 0;
+    for (String k : sessions.keySet()) {
+      datas = sessions.get(k);
+      sessionDataMap = datas.getSessionMetadatas();
+      while (sessionDataMap.size() > limit) {
+        // we check if we still need to remove an element, the sessions may have changed while we were
+        // looking for the oldest element
+        sessionDataCollection = sessionDataMap.values();
+        oldest = sessionDataCollection.toArray(new SessionData[sessionDataCollection.size()])[0];
+        // we remove it only if it hasn't changed. If it changed the remove method of ConcurrentMap won't
+        // remove it, and we will go on with the while loop
+        sessionDataMap.remove(oldest.getSessionKey());
+      }
+      //all session size
+      size += sessionDataMap.size();
+    }
+    //删除超时的session
+    if (sessionDataMap != null && sessionDataMap.size() > 0) {
+      delSks = new ArrayList<String>();
+      for (String sk : sessionDataMap.keySet()) {
+        oldest = sessionDataMap.get(sk);
+        if (System.currentTimeMillis() > oldest.getExpires()) {
+          delSks.add(sk);
+        }
+      }
+      //delete session
+      for (String delSk : delSks) {
+        sessionDataMap.remove(delSk);
+      }
+      int remainingChecks = (size - limit) * 3 + 100;
+      if (remainingChecks == 0) {
         // we have tried too many times to remove exceeding elements.
         // the possible cause is that oldest element is always updated between we find it and try to remove it
         // this is very unlikely but it's better to fail than run into an infinite loop
@@ -132,29 +248,9 @@ public class Sessions {
                 "Didn't manage to limit the size of sessions data within a reasonnable (%d) number of attempts",
                 (size - limit) * 3 + 100));
       }
-
-      Collection<SessionData> sessionDatas = sessions.values();
-      SessionData oldest = sessionDatas.toArray(new SessionData[sessionDatas.size()])[0];
-
-      // we check if we still need to remove an element, the sessions may have changed while we were
-      // looking for the oldest element
-      if (sessions.size() > limit) {
-        // we remove it only if it hasn't changed. If it changed the remove method of ConcurrentMap won't
-        // remove it, and we will go on with the while loop
-        sessions.remove(oldest.getKey(), oldest);
-      }
     }
-
-    return updatedSessionData;
-  }
-
-  public static void main(String[] args) {
-    ConcurrentMap<String, String> sessions = new ConcurrentHashMap<String, String>();
-    sessions.put("a", "1");
-    sessions.put("b", "2");
-    Collection<String> sessionDatas = sessions.values();
-    String oldest = sessionDatas.toArray(new String[sessionDatas.size()])[0];
-
-    System.out.println(oldest);
+    //add cache
+    SessionCache.instance().add(Session.SESSION_DEF_KEY, Session.SESSION_ALL_KEY, sessions);
+    return updatedSessionDatas;
   }
 }

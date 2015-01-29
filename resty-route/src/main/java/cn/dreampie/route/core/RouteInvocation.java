@@ -62,7 +62,8 @@ public class RouteInvocation {
         //if use application/json to post
         HttpRequest request = routeMatch.getRequest();
         //判断是否是application/json 传递数据的
-        if (request.getContentType().toLowerCase().contains(HttpTyper.ContentType.JSON.value())) {
+        String contentType = request.getContentType();
+        if (contentType != null && contentType.toLowerCase().contains(HttpTyper.ContentType.JSON.value())) {
           params = getJsonParams(request);
         } else {
           params = getFormParams();

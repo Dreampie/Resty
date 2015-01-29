@@ -24,7 +24,7 @@ public class MyAuthenticateService implements AuthenticateService {
 
   public Set<Credential> loadAllCredentials() {
     Set<Credential> credentials = new HashSet<Credential>();
-    credentials.add(new Credential("GET", "/api/v1.0/users**", "users"));
+    credentials.add(new Credential("*", "/api/v1.0/users**", "users"));
     return credentials;
   }
 }

@@ -56,7 +56,10 @@ public class SecurityInterceptor implements Interceptor {
     Subject.check(request.getHttpMethod(), request.getRestPath());
     Object result = ri.invoke();
     //把session  写入cookie
-    sessionBuilder.out(session, request, response);
+    Session newSession = sessionBuilder.out(session, request, response);
+    //保存session到cache
+    sessionBuilder.buildSessionMetadata(request, newSession);
+
     return result;
   }
 

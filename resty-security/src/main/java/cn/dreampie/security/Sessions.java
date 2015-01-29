@@ -4,9 +4,11 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -142,7 +144,7 @@ public class Sessions {
   /**
    * username->(sessionKey,sessionData)
    */
-  private static final Map<String, SessionDatas> sessions = new HashMap<String, SessionDatas>();
+  private final Map<String, SessionDatas> sessions = new ConcurrentHashMap<String, SessionDatas>();
   private final int expires;
   private final int limit;
 
@@ -154,9 +156,17 @@ public class Sessions {
     this.limit = limit;
   }
 
-
   public SessionDatas get(String key) {
     return getSessions().get(key);
+  }
+
+  public void remove(String key, String sessionKey) {
+    Map<String, SessionDatas> sessions = getSessions();
+    Map<String, SessionData> sessionMetadatas = sessions.get(key).getSessionMetadatas();
+    sessionMetadatas.remove(sessionKey);
+    if (sessionMetadatas.size() <= 0) {
+      sessions.remove(key);
+    }
   }
 
   public Map<String, SessionDatas> getSessions() {
@@ -182,21 +192,25 @@ public class Sessions {
   public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata, long expires) {
     if (expires == -1) return touch(key, sessionKey, metadata);
     Map<String, SessionDatas> sessions = getSessions();
+    Map<String, SessionData> sessionMetadatas;
     boolean updated = false;
     SessionDatas sessionDatas;
     SessionDatas updatedSessionDatas;
     SessionData sessionData;
     do {
-      sessionData = null;
       sessionDatas = sessions.get(key);
+      long access = System.currentTimeMillis();
       if (sessionDatas != null) {
         sessionData = sessionDatas.getSessionData(sessionKey);
-      }
-      if (sessionData != null) {
-        updatedSessionDatas = sessionDatas.touch(sessionKey, sessionData.touch(expires, metadata));
+        if (sessionData != null) {
+          updatedSessionDatas = sessionDatas.touch(sessionKey, sessionData.touch(expires, metadata));
+        } else {
+          updatedSessionDatas = sessionDatas.touch(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
+        }
       } else {
-        long access = System.currentTimeMillis();
-        updatedSessionDatas = new SessionDatas(key, 1, Maper.of(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata)));
+        sessionMetadatas = new ConcurrentHashMap<String, SessionData>();
+        sessionMetadatas.put(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
+        updatedSessionDatas = new SessionDatas(key, 1, sessionMetadatas);
       }
 
       updated = sessions.put(key, updatedSessionDatas) == sessionDatas;

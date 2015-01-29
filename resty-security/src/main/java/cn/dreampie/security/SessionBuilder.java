@@ -58,8 +58,6 @@ public class SessionBuilder {
   public Session in(HttpRequest request) {
     Session session = build(request);
     Session.setCurrent(session);
-    //保存session到cache
-    buildSessionMetadata(request, session);
     return session;
   }
 
@@ -69,7 +67,7 @@ public class SessionBuilder {
    * @param request
    * @param session
    */
-  private void buildSessionMetadata(HttpRequest request, Session session) {
+  public void buildSessionMetadata(HttpRequest request, Session session) {
     Map<String, String> metadata = prepareSessionStatsMetadata(request);
     String sessionKey = session.get(Session.SESSION_DEF_KEY);
     Principal principal = session.getPrincipal();
@@ -87,13 +85,12 @@ public class SessionBuilder {
    * @param session
    * @param response
    */
-  public void out(Session session, HttpRequest request, HttpResponse response) {
+  public Session out(Session session, HttpRequest request, HttpResponse response) {
     Session newSession = Session.current();
     if (newSession != session) {
       updateSessionInClient(response, newSession);
-      //保存session到cache
-      buildSessionMetadata(request, newSession);
     }
+    return newSession;
   }
 
 

@@ -4,10 +4,7 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
@@ -124,6 +121,7 @@ public class Sessions {
           '}';
     }
 
+    //升序
     public int compareTo(SessionData o) {
       return (int) (lastAccessNano - o.lastAccessNano);
     }
@@ -191,28 +189,25 @@ public class Sessions {
     SessionDatas sessionDatas;
     SessionDatas updatedSessionDatas;
     SessionData sessionData;
-    do {
-      sessionDatas = sessions.get(key);
-      long access = System.currentTimeMillis();
-      if (sessionDatas != null) {
-        sessionData = sessionDatas.getSessionData(sessionKey);
-        if (sessionData != null) {
-          updatedSessionDatas = sessionDatas.touch(sessionKey, sessionData.touch(expires, metadata));
-        } else {
-          updatedSessionDatas = sessionDatas.touch(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
-        }
+    //save sessionData
+    sessionDatas = sessions.get(key);
+    long access = System.currentTimeMillis();
+    if (sessionDatas != null) {
+      sessionData = sessionDatas.getSessionData(sessionKey);
+      if (sessionData != null) {
+        updatedSessionDatas = sessionDatas.touch(sessionKey, sessionData.touch(expires, metadata));
       } else {
-        sessionMetadatas = new ConcurrentHashMap<String, SessionData>();
-        sessionMetadatas.put(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
-        updatedSessionDatas = new SessionDatas(key, sessionMetadatas);
+        updatedSessionDatas = sessionDatas.touch(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
       }
-
-      updated = sessions.put(key, updatedSessionDatas) == sessionDatas;
-    } while (!updated);
-
+    } else {
+      sessionMetadatas = new ConcurrentHashMap<String, SessionData>();
+      sessionMetadatas.put(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
+      updatedSessionDatas = new SessionDatas(key, sessionMetadatas);
+    }
+    sessions.put(key, updatedSessionDatas);
     // take size under limit
     // note that it may exceed the limit for a short time until the following code completes
-    Collection<SessionData> sessionDataCollection = null;
+    List<SessionData> sessionDataList = null;
     SessionDatas datas = null;
     Map<String, SessionData> sessionDataMap = null;
     SessionData oldest = null;
@@ -225,8 +220,16 @@ public class Sessions {
       while (sessionDataMap.size() > limit) {
         // we check if we still need to remove an element, the sessions may have changed while we were
         // looking for the oldest element
-        sessionDataCollection = sessionDataMap.values();
-        oldest = sessionDataCollection.toArray(new SessionData[sessionDataCollection.size()])[0];
+        sessionDataList = new ArrayList<SessionData>(sessionDataMap.values());
+        for (SessionData s:sessionDataList){
+          System.out.println(s.lastAccessNano);
+        }
+        System.out.println("------------");
+        Collections.sort(sessionDataList);
+        for (SessionData s:sessionDataList){
+          System.out.println(s.lastAccessNano);
+        }
+        oldest = sessionDataList.get(0);
         // we remove it only if it hasn't changed. If it changed the remove method of ConcurrentMap won't
         // remove it, and we will go on with the while loop
         sessionDataMap.remove(oldest.getSessionKey());

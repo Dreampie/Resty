@@ -81,11 +81,8 @@ public class SessionBuilder {
     Session newSession = Session.current();
     if (newSession != session) {
       String sessionKey = session.get(Session.SESSION_DEF_KEY);
-      Principal principal = session.getPrincipal();
-
-      String newSessionKey = session.get(Session.SESSION_DEF_KEY);
-      Principal newPrincipal = session.getPrincipal();
-      if (!sessionKey.equals(newSessionKey) || !principal.equals(newPrincipal)) {
+      String newSessionKey = newSession.get(Session.SESSION_DEF_KEY);
+      if (!sessionKey.equals(newSessionKey)) {
         return true;
       }
     }

@@ -4,10 +4,7 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -21,7 +18,7 @@ public class Sessions {
 
   public static final class SessionDatas {
     private final String key;
-    private final int count;
+    private int count;
     private final Map<String, SessionData> sessionMetadatas;
 
     public SessionDatas(String key, int count, Map<String, SessionData> sessionMetadatas) {
@@ -32,6 +29,10 @@ public class Sessions {
 
     public String getKey() {
       return key;
+    }
+
+    public void setCount(int count) {
+      this.count = count;
     }
 
     public int getCount() {
@@ -53,18 +54,6 @@ public class Sessions {
     private SessionDatas touch(String sessionKey, SessionData sessionData) {
       sessionMetadatas.put(sessionKey, sessionData);
       return new SessionDatas(key, count + 1, sessionMetadatas);
-    }
-
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-
-      SessionDatas that = (SessionDatas) o;
-      return key.equals(that.key);
-    }
-
-    public int hashCode() {
-      return key.hashCode();
     }
 
     public String toString() {
@@ -121,6 +110,19 @@ public class Sessions {
       return touch(expires, metadata);
     }
 
+
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      SessionData that = (SessionData) o;
+      return sessionKey.equals(that.sessionKey);
+    }
+
+    public int hashCode() {
+      return sessionKey.hashCode();
+    }
+
     public String toString() {
       return "SessionData{" +
           "sessionKey='" + sessionKey + '\'' +
@@ -140,7 +142,7 @@ public class Sessions {
   /**
    * username->(sessionKey,sessionData)
    */
-  private final ConcurrentMap<String, SessionDatas> sessions = new ConcurrentHashMap<String, SessionDatas>();
+  private static final Map<String, SessionDatas> sessions = new HashMap<String, SessionDatas>();
   private final int expires;
   private final int limit;
 
@@ -157,10 +159,10 @@ public class Sessions {
     return getSessions().get(key);
   }
 
-  public ConcurrentMap<String, SessionDatas> getSessions() {
-    ConcurrentMap<String, SessionDatas> sessionsUse = null;
+  public Map<String, SessionDatas> getSessions() {
+    Map<String, SessionDatas> sessionsUse = null;
     if (Constant.cache_enabled) {
-      ConcurrentMap<String, SessionDatas> sessionsCache = SessionCache.instance().get(Session.SESSION_DEF_KEY, Session.SESSION_ALL_KEY);
+      Map<String, SessionDatas> sessionsCache = SessionCache.instance().get(Session.SESSION_DEF_KEY, Session.SESSION_ALL_KEY);
       if (sessionsCache == null)
         sessionsUse = sessions;
     } else {
@@ -179,7 +181,7 @@ public class Sessions {
 
   public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata, long expires) {
     if (expires == -1) return touch(key, sessionKey, metadata);
-    ConcurrentMap<String, SessionDatas> sessions = getSessions();
+    Map<String, SessionDatas> sessions = getSessions();
     boolean updated = false;
     SessionDatas sessionDatas;
     SessionDatas updatedSessionDatas;
@@ -202,11 +204,11 @@ public class Sessions {
 
     // take size under limit
     // note that it may exceed the limit for a short time until the following code completes
-    Collection<SessionData> sessionDataCollection;
-    SessionDatas datas;
+    Collection<SessionData> sessionDataCollection = null;
+    SessionDatas datas = null;
     Map<String, SessionData> sessionDataMap = null;
-    SessionData oldest;
-    List<String> delSks;
+    SessionData oldest = null;
+    List<String> delSks = null;
     //user key
     int size = 0;
     for (String k : sessions.keySet()) {
@@ -237,6 +239,7 @@ public class Sessions {
       for (String delSk : delSks) {
         sessionDataMap.remove(delSk);
       }
+      datas.setCount(datas.getCount() - delSks.size());
       int remainingChecks = (size - limit) * 3 + 100;
       if (remainingChecks == 0) {
         // we have tried too many times to remove exceeding elements.

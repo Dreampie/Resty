@@ -125,8 +125,8 @@ public class Route {
       }
 
       sb.append(sbPath).append(sbOther);
-      sb.append("\nDescriptions : ").append(des).append("\n");
-      sb.append("--------------------------------------------------------------------------------\n");
+      sb.append("\nDescriptions : ").append(des);
+      sb.append("\n--------------------------------------------------------------------------------\n");
       logger.info(sb.toString());
     }
   }
@@ -220,9 +220,8 @@ public class Route {
           sb.append(vc.getName()).append("(").append(vc.getSimpleName()).append(".java:").append(validsLineNumbers[i][0]).append(")");
           i++;
         }
-        sb.append("\n");
       }
-      sb.append("--------------------------------------------------------------------------------\n");
+      sb.append("\n--------------------------------------------------------------------------------\n");
       logger.info(sb.toString());
     }
   }

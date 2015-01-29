@@ -19,9 +19,9 @@ CREATE TABLE sec_user (
   deleted_at   DATETIME     NULL,
   PRIMARY KEY (id, sid)
 )
-  ENGINE =InnoDB
-  DEFAULT CHARSET =utf8
-  COMMENT ='用户';
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COMMENT = '用户';
 
 
 DROP TABLE IF EXISTS sec_user_info;
@@ -38,9 +38,9 @@ CREATE TABLE sec_user_info (
   street      VARCHAR(500) COMMENT '街道',
   zip_code    VARCHAR(50) COMMENT '邮编'
 )
-  ENGINE =InnoDB
-  DEFAULT CHARSET =utf8
-  COMMENT ='用户信息';
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COMMENT = '用户信息';
 
 DROP TABLE IF EXISTS sec_role;
 CREATE TABLE sec_role (
@@ -56,9 +56,9 @@ CREATE TABLE sec_role (
   updated_at DATETIME    NULL,
   deleted_at DATETIME    NULL
 )
-  ENGINE =InnoDB
-  DEFAULT CHARSET =utf8
-  COMMENT ='角色';
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COMMENT = '角色';
 
 DROP TABLE IF EXISTS sec_user_role;
 CREATE TABLE sec_user_role (
@@ -66,9 +66,9 @@ CREATE TABLE sec_user_role (
   user_id BIGINT NOT NULL,
   role_id BIGINT NOT NULL
 )
-  ENGINE =InnoDB
-  DEFAULT CHARSET =utf8
-  COMMENT ='用户角色';
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COMMENT = '用户角色';
 
 DROP TABLE IF EXISTS sec_permission;
 CREATE TABLE sec_permission (
@@ -87,9 +87,9 @@ CREATE TABLE sec_permission (
   updated_at DATETIME    NULL,
   deleted_at DATETIME    NULL
 )
-  ENGINE =InnoDB
-  DEFAULT CHARSET =utf8
-  COMMENT ='权限';
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COMMENT = '权限';
 
 
 DROP TABLE IF EXISTS sec_role_permission;
@@ -98,7 +98,7 @@ CREATE TABLE sec_role_permission (
   role_id       BIGINT NOT NULL,
   permission_id BIGINT NOT NULL
 )
-  ENGINE =InnoDB
-  DEFAULT CHARSET =utf8
-  COMMENT ='角色权限';
+  ENGINE = InnoDB
+  DEFAULT CHARSET = utf8
+  COMMENT = '角色权限';
 

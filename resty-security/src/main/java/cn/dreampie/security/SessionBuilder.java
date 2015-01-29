@@ -68,7 +68,43 @@ public class SessionBuilder {
    * @param session
    */
   public void buildSessionMetadata(HttpRequest request, Session session) {
-    Map<String, String> metadata = prepareSessionStatsMetadata(request);
+    Session newSession = Session.current();
+    if (isChangeSessionMetadata(session)) {
+      updateSessionMetadata(request, session, newSession);
+    } else {
+      saveSessionMetadata(request, session);
+    }
+
+  }
+
+  public boolean isChangeSessionMetadata(Session session) {
+    Session newSession = Session.current();
+    if (newSession != session) {
+      String sessionKey = session.get(Session.SESSION_DEF_KEY);
+      Principal principal = session.getPrincipal();
+
+      String newSessionKey = session.get(Session.SESSION_DEF_KEY);
+      Principal newPrincipal = session.getPrincipal();
+      if (!sessionKey.equals(newSessionKey) || !principal.equals(newPrincipal)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void updateSessionMetadata(HttpRequest request, Session session, Session newSession) {
+    String sessionKey = session.get(Session.SESSION_DEF_KEY);
+    Principal principal = session.getPrincipal();
+    if (principal != null) {
+      sessions.remove(principal.getUsername(), sessionKey);
+    } else {
+      sessions.remove("anonymous@" + request.getClientAddress(), sessionKey);
+    }
+    saveSessionMetadata(request, newSession);
+  }
+
+  private void saveSessionMetadata(HttpRequest request, Session session) {
+    Map<String, String> metadata = prepareSessionMetadata(request);
     String sessionKey = session.get(Session.SESSION_DEF_KEY);
     Principal principal = session.getPrincipal();
     if (principal != null) {
@@ -85,7 +121,7 @@ public class SessionBuilder {
    * @param session
    * @param response
    */
-  public Session out(Session session, HttpRequest request, HttpResponse response) {
+  public Session out(Session session, HttpResponse response) {
     Session newSession = Session.current();
     if (newSession != session) {
       updateSessionInClient(response, newSession);
@@ -94,7 +130,7 @@ public class SessionBuilder {
   }
 
 
-  private Map<String, String> prepareSessionStatsMetadata(HttpRequest req) {
+  private Map<String, String> prepareSessionMetadata(HttpRequest req) {
     String agent = req.getHeader("User-Agent");
     return Maper.of(
         Sessions.ADDRESS_KEY, req.getClientAddress(),

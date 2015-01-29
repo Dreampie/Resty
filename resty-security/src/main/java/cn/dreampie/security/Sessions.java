@@ -20,25 +20,15 @@ public class Sessions {
 
   public static final class SessionDatas {
     private final String key;
-    private int count;
     private final Map<String, SessionData> sessionMetadatas;
 
-    public SessionDatas(String key, int count, Map<String, SessionData> sessionMetadatas) {
+    public SessionDatas(String key, Map<String, SessionData> sessionMetadatas) {
       this.key = checkNotNull(key);
-      this.count = count;
       this.sessionMetadatas = checkNotNull(sessionMetadatas);
     }
 
     public String getKey() {
       return key;
-    }
-
-    public void setCount(int count) {
-      this.count = count;
-    }
-
-    public int getCount() {
-      return count;
     }
 
     public SessionData getSessionData(String sessionKey) {
@@ -55,13 +45,12 @@ public class Sessions {
 
     private SessionDatas touch(String sessionKey, SessionData sessionData) {
       sessionMetadatas.put(sessionKey, sessionData);
-      return new SessionDatas(key, count + 1, sessionMetadatas);
+      return new SessionDatas(key, sessionMetadatas);
     }
 
     public String toString() {
       return "SessionDatas{" +
           "key='" + key + '\'' +
-          ", count=" + count +
           ", sessionMetadatas=" + sessionMetadatas +
           '}';
     }
@@ -162,10 +151,15 @@ public class Sessions {
 
   public void remove(String key, String sessionKey) {
     Map<String, SessionDatas> sessions = getSessions();
-    Map<String, SessionData> sessionMetadatas = sessions.get(key).getSessionMetadatas();
-    sessionMetadatas.remove(sessionKey);
-    if (sessionMetadatas.size() <= 0) {
-      sessions.remove(key);
+    if (sessions.size() > 0) {
+      SessionDatas sessionDatas = sessions.get(key);
+      if (sessionDatas != null) {
+        Map<String, SessionData> sessionMetadatas = sessionDatas.getSessionMetadatas();
+        sessionMetadatas.remove(sessionKey);
+        if (sessionMetadatas.size() <= 0) {
+          sessions.remove(key);
+        }
+      }
     }
   }
 
@@ -210,7 +204,7 @@ public class Sessions {
       } else {
         sessionMetadatas = new ConcurrentHashMap<String, SessionData>();
         sessionMetadatas.put(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
-        updatedSessionDatas = new SessionDatas(key, 1, sessionMetadatas);
+        updatedSessionDatas = new SessionDatas(key, sessionMetadatas);
       }
 
       updated = sessions.put(key, updatedSessionDatas) == sessionDatas;
@@ -253,7 +247,6 @@ public class Sessions {
       for (String delSk : delSks) {
         sessionDataMap.remove(delSk);
       }
-      datas.setCount(datas.getCount() - delSks.size());
       int remainingChecks = (size - limit) * 3 + 100;
       if (remainingChecks == 0) {
         // we have tried too many times to remove exceeding elements.

@@ -130,9 +130,7 @@ public class Sessions {
 
     //升序
     public int compareTo(SessionData o) {
-//      return (int) (lastAccessNano - o.lastAccessNano);
-      Long result = lastAccessNano - o.getLastAccessNano();
-      return result.compareTo(0L);
+      return (lastAccessNano < o.lastAccessNano ? -1 : (lastAccessNano == o.lastAccessNano ? 0 : 1));
     }
 
   }

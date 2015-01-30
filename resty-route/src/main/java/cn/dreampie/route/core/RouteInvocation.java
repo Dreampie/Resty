@@ -193,18 +193,22 @@ public class RouteInvocation {
       logger.error(msg, e);
       throw new WebException(msg);
     }
-    if (null != json && !"".equals(json)) {
-      Map<String, Object> paramsMap = Jsoner.parseObject(json, Map.class);
-      for (String name : allParamNames) {
-        paramType = route.getAllParamTypes().get(i);
+    boolean hasJson = null != json && !"".equals(json);
+    Map<String, Object> paramsMap = null;
+    if (hasJson) {
+      paramsMap = Jsoner.parseObject(json, Map.class);
+    }
+    for (String name : allParamNames) {
+      paramType = route.getAllParamTypes().get(i);
 
-        //path里的参数
-        if (pathParamNames.contains(name)) {
-          if (paramType == String.class) {
-            params.set(name, routeMatch.getPathParam(name));
-          } else
-            params.set(name, Jsoner.parseObject(routeMatch.getPathParam(name), paramType));
-        } else {//其他参数
+      //path里的参数
+      if (pathParamNames.contains(name)) {
+        if (paramType == String.class) {
+          params.set(name, routeMatch.getPathParam(name));
+        } else
+          params.set(name, Jsoner.parseObject(routeMatch.getPathParam(name), paramType));
+      } else {//其他参数
+        if (hasJson) {
           obj = paramsMap.get(name);
 
           if (paramType == String.class) {
@@ -214,8 +218,8 @@ public class RouteInvocation {
             parse(params, i, paramType, obj, name);
           }
         }
-        i++;
       }
+      i++;
     }
     return params;
   }

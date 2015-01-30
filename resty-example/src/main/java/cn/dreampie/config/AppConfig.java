@@ -58,7 +58,7 @@ public class AppConfig extends Config {
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {
     //权限拦截器
-    interceptorLoader.add(new SecurityInterceptor(1,new MyAuthenticateService()));
+    interceptorLoader.add(new SecurityInterceptor(2,new MyAuthenticateService()));
     //事务的拦截器 @Transaction
     interceptorLoader.add(new TransactionInterceptor());
   }

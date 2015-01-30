@@ -192,7 +192,6 @@ public class Sessions {
     if (expires == -1) return touch(key, sessionKey, metadata);
     Map<String, SessionDatas> sessions = getSessions();
     Map<String, SessionData> sessionMetadatas;
-    boolean updated = false;
     SessionDatas sessionDatas;
     SessionDatas updatedSessionDatas;
     SessionData sessionData;
@@ -200,8 +199,14 @@ public class Sessions {
     sessionDatas = sessions.get(key);
     long access = System.currentTimeMillis();
     if (sessionDatas != null) {
-      sessionData = sessionDatas.getSessionData(sessionKey);
+      sessionMetadatas = sessionDatas.getSessionMetadatas();
+      sessionData = sessionMetadatas.get(sessionKey);
+      if (sessionMetadatas.size() > 0) {
+        //删除超时的session
+        removeTimeout(sessionMetadatas);
+      }
       if (sessionData != null) {
+        //更新
         updatedSessionDatas = sessionDatas.touch(sessionKey, sessionData.touch(expires, metadata));
       } else {
         updatedSessionDatas = sessionDatas.touch(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
@@ -211,66 +216,92 @@ public class Sessions {
       sessionMetadatas.put(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
       updatedSessionDatas = new SessionDatas(key, sessionMetadatas);
     }
+    //如果session已经到达限制数量
+    while (sessionMetadatas.size() > limit) {
+      removeOldest(sessionMetadatas);
+    }
     sessions.put(key, updatedSessionDatas);
     // take size under limit
     // note that it may exceed the limit for a short time until the following code completes
-    List<SessionData> sessionDataList = null;
     SessionDatas datas = null;
     Map<String, SessionData> sessionDataMap = null;
-    SessionData oldest = null;
-    List<String> delSks = null;
     //user key
     int size = 0;
     for (String k : sessions.keySet()) {
       datas = sessions.get(k);
-      sessionDataMap = datas.getSessionMetadatas();
-      while (sessionDataMap.size() > limit) {
-        // we check if we still need to remove an element, the sessions may have changed while we were
-        // looking for the oldest element
-        sessionDataList = new ArrayList<SessionData>(sessionDataMap.values());
-        for (SessionData s : sessionDataList) {
-          System.out.println(s.lastAccessNano);
+      if (datas != null) {
+        sessionDataMap = datas.getSessionMetadatas();
+        if (sessionDataMap != null && sessionDataMap.size() > 0) {
+          //all session size
+          size += sessionDataMap.size();
         }
-        System.out.println("------------");
-        Collections.sort(sessionDataList);
-        for (SessionData s : sessionDataList) {
-          System.out.println(s.lastAccessNano);
-        }
-        oldest = sessionDataList.get(0);
-        // we remove it only if it hasn't changed. If it changed the remove method of ConcurrentMap won't
-        // remove it, and we will go on with the while loop
-        sessionDataMap.remove(oldest.getSessionKey());
       }
-      //all session size
-      size += sessionDataMap.size();
     }
-    //删除超时的session
-    if (sessionDataMap != null && sessionDataMap.size() > 0) {
-      delSks = new ArrayList<String>();
-      for (String sk : sessionDataMap.keySet()) {
-        oldest = sessionDataMap.get(sk);
-        if (System.currentTimeMillis() > oldest.getExpires()) {
-          delSks.add(sk);
-        }
-      }
-      //delete session
-      for (String delSk : delSks) {
-        sessionDataMap.remove(delSk);
-      }
-      int remainingChecks = (size - limit) * 3 + 100;
-      if (remainingChecks == 0) {
-        // we have tried too many times to remove exceeding elements.
-        // the possible cause is that oldest element is always updated between we find it and try to remove it
-        // this is very unlikely but it's better to fail than run into an infinite loop
 
-        throw new IllegalStateException(
-            String.format(
-                "Didn't manage to limit the size of sessions data within a reasonnable (%d) number of attempts",
-                (size - limit) * 3 + 100));
-      }
+    int remainingChecks = (size - limit) * 3 + 100;
+    if (remainingChecks == 0) {
+      // we have tried too many times to remove exceeding elements.
+      // the possible cause is that oldest element is always updated between we find it and try to remove it
+      // this is very unlikely but it's better to fail than run into an infinite loop
+
+      throw new IllegalStateException(
+          String.format(
+              "Didn't manage to limit the size of sessions data within a reasonnable (%d) number of attempts",
+              (size - limit) * 3 + 100));
     }
     //add cache
     SessionCache.instance().add(Session.SESSION_DEF_KEY, Session.SESSION_ALL_KEY, sessions);
     return updatedSessionDatas;
+  }
+
+  /**
+   * 删除超时的session
+   *
+   * @param sessionMetadatas
+   */
+  private void removeTimeout(Map<String, SessionData> sessionMetadatas) {
+    //删除超时的session
+    if (sessionMetadatas != null && sessionMetadatas.size() > 0) {
+      boolean todoDel;
+      do {
+        todoDel = false;
+        //判断是否存在超时的session
+        for (String sk : sessionMetadatas.keySet()) {
+          if (System.currentTimeMillis() > sessionMetadatas.get(sk).getExpires()) {
+            todoDel = true;
+            break;
+          }
+        }
+
+        //delete oldest session
+        if (todoDel)
+          removeOldest(sessionMetadatas);
+      } while (todoDel);
+    }
+  }
+
+  /**
+   * 删除时间最小的session
+   *
+   * @param sessionMetadatas
+   */
+  private void removeOldest(Map<String, SessionData> sessionMetadatas) {
+    if (sessionMetadatas != null && sessionMetadatas.size() > 0) {
+      List<SessionData> sessionDataList;
+      SessionData oldest;
+      sessionDataList = new ArrayList<SessionData>(sessionMetadatas.values());
+      for (SessionData s : sessionDataList) {
+        System.out.println(s.lastAccessNano);
+      }
+      System.out.println("------------");
+      Collections.sort(sessionDataList);
+      for (SessionData s : sessionDataList) {
+        System.out.println(s.lastAccessNano);
+      }
+      oldest = sessionDataList.get(0);
+      // we remove it only if it hasn't changed. If it changed the remove method of ConcurrentMap won't
+      // remove it, and we will go on with the while loop
+      sessionMetadatas.remove(oldest.getSessionKey());
+    }
   }
 }

@@ -38,6 +38,8 @@ public class SecurityInterceptor implements Interceptor {
   }
 
   public SecurityInterceptor(int expires, int limit, int rememberDay, AuthenticateService authenticateService, PasswordService passwordService) {
+    if (limit < 1)
+      throw new InitException("Session limit must greater than 1.");
     if (rememberDay > 30)
       throw new InitException("RememberMe must less than 30 days.");
     if (passwordService != null)

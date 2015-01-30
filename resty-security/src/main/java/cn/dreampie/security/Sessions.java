@@ -223,32 +223,32 @@ public class Sessions {
     sessions.put(key, updatedSessionDatas);
     // take size under limit
     // note that it may exceed the limit for a short time until the following code completes
-    SessionDatas datas = null;
-    Map<String, SessionData> sessionDataMap = null;
-    //user key
-    int size = 0;
-    for (String k : sessions.keySet()) {
-      datas = sessions.get(k);
-      if (datas != null) {
-        sessionDataMap = datas.getSessionMetadatas();
-        if (sessionDataMap != null && sessionDataMap.size() > 0) {
-          //all session size
-          size += sessionDataMap.size();
-        }
-      }
-    }
-
-    int remainingChecks = (size - limit) * 3 + 100;
-    if (remainingChecks == 0) {
-      // we have tried too many times to remove exceeding elements.
-      // the possible cause is that oldest element is always updated between we find it and try to remove it
-      // this is very unlikely but it's better to fail than run into an infinite loop
-
-      throw new IllegalStateException(
-          String.format(
-              "Didn't manage to limit the size of sessions data within a reasonnable (%d) number of attempts",
-              (size - limit) * 3 + 100));
-    }
+//    SessionDatas datas = null;
+//    Map<String, SessionData> sessionDataMap = null;
+//    //user key
+//    int size = 0;
+//    for (String k : sessions.keySet()) {
+//      datas = sessions.get(k);
+//      if (datas != null) {
+//        sessionDataMap = datas.getSessionMetadatas();
+//        if (sessionDataMap != null && sessionDataMap.size() > 0) {
+//          //all session size
+//          size += sessionDataMap.size();
+//        }
+//      }
+//    }
+//
+//    int remainingChecks = (size - limit) * 3 + 100;
+//    if (remainingChecks == 0) {
+//      // we have tried too many times to remove exceeding elements.
+//      // the possible cause is that oldest element is always updated between we find it and try to remove it
+//      // this is very unlikely but it's better to fail than run into an infinite loop
+//
+//      throw new IllegalStateException(
+//          String.format(
+//              "Didn't manage to limit the size of sessions data within a reasonnable (%d) number of attempts",
+//              (size - limit) * 3 + 100));
+//    }
     //add cache
     SessionCache.instance().add(Session.SESSION_DEF_KEY, Session.SESSION_ALL_KEY, sessions);
     return updatedSessionDatas;

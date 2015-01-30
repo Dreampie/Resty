@@ -4,7 +4,10 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
@@ -61,7 +64,7 @@ public class Sessions {
     private final long lastAccessNano;
     private final Map<String, String> metadata;
 
-    private SessionData(String sessionKey, long expires, long firstAccess, long lastAccess, long lastAccessNano, Map<String, String> metadata) {
+    public SessionData(String sessionKey, long expires, long firstAccess, long lastAccess, long lastAccessNano, Map<String, String> metadata) {
       this.sessionKey = checkNotNull(sessionKey);
       this.expires = expires;
       this.firstAccess = firstAccess;
@@ -84,6 +87,10 @@ public class Sessions {
 
     public long getLastAccess() {
       return lastAccess;
+    }
+
+    public long getLastAccessNano() {
+      return lastAccessNano;
     }
 
     public Map<String, String> getMetadata() {
@@ -221,12 +228,12 @@ public class Sessions {
         // we check if we still need to remove an element, the sessions may have changed while we were
         // looking for the oldest element
         sessionDataList = new ArrayList<SessionData>(sessionDataMap.values());
-        for (SessionData s:sessionDataList){
+        for (SessionData s : sessionDataList) {
           System.out.println(s.lastAccessNano);
         }
         System.out.println("------------");
         Collections.sort(sessionDataList);
-        for (SessionData s:sessionDataList){
+        for (SessionData s : sessionDataList) {
           System.out.println(s.lastAccessNano);
         }
         oldest = sessionDataList.get(0);

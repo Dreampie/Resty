@@ -130,7 +130,9 @@ public class Sessions {
 
     //升序
     public int compareTo(SessionData o) {
-      return (int) (lastAccessNano - o.lastAccessNano);
+//      return (int) (lastAccessNano - o.lastAccessNano);
+      Long result = lastAccessNano - o.getLastAccessNano();
+      return result.compareTo(0L);
     }
 
   }
@@ -290,14 +292,7 @@ public class Sessions {
       List<SessionData> sessionDataList;
       SessionData oldest;
       sessionDataList = new ArrayList<SessionData>(sessionMetadatas.values());
-      for (SessionData s : sessionDataList) {
-        System.out.println(s.lastAccessNano);
-      }
-      System.out.println("------------");
       Collections.sort(sessionDataList);
-      for (SessionData s : sessionDataList) {
-        System.out.println(s.lastAccessNano);
-      }
       oldest = sessionDataList.get(0);
       // we remove it only if it hasn't changed. If it changed the remove method of ConcurrentMap won't
       // remove it, and we will go on with the while loop

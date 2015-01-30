@@ -181,6 +181,7 @@ public class RouteInvocation {
     int i = 0;
     Class paramType = null;
     List<String> allParamNames = route.getAllParamNames();
+    List<String> pathParamNames = route.getPathParamNames();
 
     Object obj = null;
     String json = "";
@@ -196,13 +197,22 @@ public class RouteInvocation {
       Map<String, Object> paramsMap = Jsoner.parseObject(json, Map.class);
       for (String name : allParamNames) {
         paramType = route.getAllParamTypes().get(i);
-        obj = paramsMap.get(name);
 
-        if (paramType == String.class) {
-          params.set(name, obj.toString());
-        } else {
-          //转换对象到指定的类型
-          parse(params, i, paramType, obj, name);
+        //path里的参数
+        if (pathParamNames.contains(name)) {
+          if (paramType == String.class) {
+            params.set(name, routeMatch.getPathParam(name));
+          } else
+            params.set(name, Jsoner.parseObject(routeMatch.getPathParam(name), paramType));
+        } else {//其他参数
+          obj = paramsMap.get(name);
+
+          if (paramType == String.class) {
+            params.set(name, obj.toString());
+          } else {
+            //转换对象到指定的类型
+            parse(params, i, paramType, obj, name);
+          }
         }
         i++;
       }

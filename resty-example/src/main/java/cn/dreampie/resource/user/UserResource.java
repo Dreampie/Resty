@@ -59,8 +59,8 @@ public class UserResource extends ApiResource {
   }
 
   //保存
-  @POST("/users")
-  public Set<User> save(Set<User> users) {
+  @POST("/users/:id")
+  public Set<User> save(int id, Set<User> users) {
     userService.save(users.iterator().next());
     return users;
   }

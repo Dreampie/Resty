@@ -54,7 +54,7 @@ public class ClientTest {
 
   @Test
   public void testSave() {
-    ClientRequest request = new ClientRequest("/users", HttpMethod.POST);
+    ClientRequest request = new ClientRequest("/users/1", HttpMethod.POST);
     request.addHeader("Content-Type", "application/json;charset=utf-8");
     request.setJsonParameter(Jsoner.toJSONString(
         new HashMap<String, Object>() {

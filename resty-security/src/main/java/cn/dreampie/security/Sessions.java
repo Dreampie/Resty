@@ -1,9 +1,9 @@
 package cn.dreampie.security;
 
 import cn.dreampie.common.Constant;
-import cn.dreampie.common.util.Maper;
 import cn.dreampie.security.cache.SessionCache;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +18,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public class Sessions {
 
-  public static final class SessionDatas {
+  public static final class SessionDatas implements Serializable {
     private final String key;
     private final Map<String, SessionData> sessionMetadatas;
 
@@ -56,7 +56,7 @@ public class Sessions {
     }
   }
 
-  public static final class SessionData implements Comparable<SessionData> {
+  public static final class SessionData implements Comparable<SessionData>, Serializable {
     private final String sessionKey;
     private final long expires;
     private final long firstAccess;
@@ -150,38 +150,37 @@ public class Sessions {
     this.limit = limit;
   }
 
-  public SessionDatas get(String key) {
-    return getSessions().get(key);
-  }
-
   public void remove(String key, String sessionKey) {
-    Map<String, SessionDatas> sessions = getSessions();
-    if (sessions.size() > 0) {
-      SessionDatas sessionDatas = sessions.get(key);
-      if (sessionDatas != null) {
-        Map<String, SessionData> sessionMetadatas = sessionDatas.getSessionMetadatas();
+    SessionDatas sessions = getSessions(key);
+    if (sessions != null) {
+      Map<String, SessionData> sessionMetadatas = sessions.getSessionMetadatas();
+      if (sessionMetadatas.size() > 0) {
         sessionMetadatas.remove(sessionKey);
-        if (sessionMetadatas.size() <= 0) {
-          sessions.remove(key);
-        }
+      }
+      if (Constant.cache_enabled) {
+        SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessions);
       }
     }
   }
 
-  public Map<String, SessionDatas> getSessions() {
-    Map<String, SessionDatas> sessionsUse = null;
+  public SessionDatas getSessions(String key) {
+    SessionDatas sessionsUse = null;
     if (Constant.cache_enabled) {
-      Map<String, SessionDatas> sessionsCache = SessionCache.instance().get(Session.SESSION_DEF_KEY, Session.SESSION_ALL_KEY);
-      if (sessionsCache == null)
-        sessionsUse = sessions;
+      sessionsUse = SessionCache.instance().get(Session.SESSION_DEF_KEY, key);
+      if (sessionsUse == null)
+        sessionsUse = sessions.get(key);
     } else {
-      sessionsUse = sessions;
+      sessionsUse = sessions.get(key);
     }
     return sessionsUse;
   }
 
-  public Map<String, SessionDatas> getAll() {
-    return Maper.copyOf(getSessions());
+  private void saveSessions(String key, SessionDatas sessionDatas) {
+    //add cache
+    if (Constant.cache_enabled)
+      SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessionDatas);
+    else
+      this.sessions.put(key, sessionDatas);
   }
 
   public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata) {
@@ -190,13 +189,12 @@ public class Sessions {
 
   public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata, long expires) {
     if (expires == -1) return touch(key, sessionKey, metadata);
-    Map<String, SessionDatas> sessions = getSessions();
+    //获取该用户名下的所有session
+    SessionDatas sessionDatas = getSessions(key);
     Map<String, SessionData> sessionMetadatas;
-    SessionDatas sessionDatas;
     SessionDatas updatedSessionDatas;
     SessionData sessionData;
     //save sessionData
-    sessionDatas = sessions.get(key);
     long access = System.currentTimeMillis();
     if (sessionDatas != null) {
       sessionMetadatas = sessionDatas.getSessionMetadatas();
@@ -220,39 +218,10 @@ public class Sessions {
     while (sessionMetadatas.size() > limit) {
       removeOldest(sessionMetadatas);
     }
-    sessions.put(key, updatedSessionDatas);
-    // take size under limit
-    // note that it may exceed the limit for a short time until the following code completes
-//    SessionDatas datas = null;
-//    Map<String, SessionData> sessionDataMap = null;
-//    //user key
-//    int size = 0;
-//    for (String k : sessions.keySet()) {
-//      datas = sessions.get(k);
-//      if (datas != null) {
-//        sessionDataMap = datas.getSessionMetadatas();
-//        if (sessionDataMap != null && sessionDataMap.size() > 0) {
-//          //all session size
-//          size += sessionDataMap.size();
-//        }
-//      }
-//    }
-//
-//    int remainingChecks = (size - limit) * 3 + 100;
-//    if (remainingChecks == 0) {
-//      // we have tried too many times to remove exceeding elements.
-//      // the possible cause is that oldest element is always updated between we find it and try to remove it
-//      // this is very unlikely but it's better to fail than run into an infinite loop
-//
-//      throw new IllegalStateException(
-//          String.format(
-//              "Didn't manage to limit the size of sessions data within a reasonnable (%d) number of attempts",
-//              (size - limit) * 3 + 100));
-//    }
-    //add cache
-    SessionCache.instance().add(Session.SESSION_DEF_KEY, Session.SESSION_ALL_KEY, sessions);
+    saveSessions(key, updatedSessionDatas);
     return updatedSessionDatas;
   }
+
 
   /**
    * 删除超时的session

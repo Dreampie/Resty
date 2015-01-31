@@ -161,7 +161,7 @@ public class SessionBuilder {
         Principal principal = null;
         if (principalName != null && !"".equals(principalName.trim())) {
           //判断 是否使用了 remeberme 或失效
-          Sessions.SessionDatas sessionDatas = sessions.get(principalName);
+          Sessions.SessionDatas sessionDatas = sessions.getSessions(principalName);
           if (sessionDatas == null || (sessionDatas != null && !sessionDatas.containsSessionKey(cookieValues.get(Session.SESSION_DEF_KEY)))) {
             return emptySession;
           }

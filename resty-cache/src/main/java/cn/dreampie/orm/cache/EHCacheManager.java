@@ -40,11 +40,11 @@ public class EHCacheManager extends CacheManager {
   }
 
 
-  public Object getCache(String group, String key) {
+  public <T> T getCache(String group, String key) {
     try {
       createIfMissing(group);
       Cache c = cacheManager.getCache(group);
-      return c.get(key) == null ? null : c.get(key).getObjectValue();
+      return (T) (c.get(key) == null ? null : c.get(key).getObjectValue());
     } catch (Exception e) {
       logger.warn("%s", e, e);
       return null;

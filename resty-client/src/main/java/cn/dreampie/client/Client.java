@@ -30,7 +30,9 @@ public class Client extends ClientConnection {
   }
 
   public Client build(ClientRequest clientRequest) {
-    this.clientRequest = clientRequest;
+    if (clientRequest == null)
+      throw new ClientException("ClientRequest must not null.");
+    this.clientRequest.set(clientRequest);
     return this;
   }
 
@@ -81,17 +83,17 @@ public class Client extends ClientConnection {
       } else if (loginRequest != null && httpCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
         logger.info("Relogin to server.");
         if (!clientRequest.equals(loginRequest))
-          return login(clientRequest);
+          return login(clientRequest.get());
       }
       if (is == null) {
         is = conn.getErrorStream();
         if (is == null) {
-          logger.warn("Api " + clientRequest.getRestUrl() + " response is null!!");
+          logger.warn("Api " + clientRequest.get().getRestUrl() + " response is null!!");
         }
       }
       //是否是下载文件
-      if (clientRequest.getDownloadFile() != null) {
-        return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), clientRequest.getDownloadFile()));//服务器端在这种下载的情况下  返回总是大1 未知原因
+      if (clientRequest.get().getDownloadFile() != null) {
+        return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), clientRequest.get().getDownloadFile()));//服务器端在这种下载的情况下  返回总是大1 未知原因
       } else {
         return new ResponseData(httpCode, StreamReader.readString(is));
       }

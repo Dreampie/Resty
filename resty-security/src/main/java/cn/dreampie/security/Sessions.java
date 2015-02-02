@@ -172,6 +172,13 @@ public class Sessions {
     } else {
       sessionsUse = sessions.get(key);
     }
+    if (sessionsUse != null) {
+      Map<String, SessionData> sessionMetadatas = sessionsUse.getSessionMetadatas();
+      if (sessionMetadatas.size() > 0) {
+        //删除超时的session
+        removeTimeout(sessionMetadatas);
+      }
+    }
     return sessionsUse;
   }
 
@@ -199,10 +206,7 @@ public class Sessions {
     if (sessionDatas != null) {
       sessionMetadatas = sessionDatas.getSessionMetadatas();
       sessionData = sessionMetadatas.get(sessionKey);
-      if (sessionMetadatas.size() > 0) {
-        //删除超时的session
-        removeTimeout(sessionMetadatas);
-      }
+
       if (sessionData != null) {
         //更新
         updatedSessionDatas = sessionDatas.touch(sessionKey, sessionData.touch(expires, metadata));

@@ -31,7 +31,7 @@ public class MSSQLDialect extends DefaultDialect {
     Matcher om = orderPattern.matcher(sql);
     if (om.find()) {
       int oindex = om.end();
-      if (oindex > sql.toLowerCase().lastIndexOf(")")) {
+      if (oindex > sql.lastIndexOf(")")) {
         orderBys = sql.substring(oindex, sql.length());
         sql = sql.substring(0, om.start());
       }

@@ -1,6 +1,9 @@
 package cn.dreampie.common.util.stream;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
 
 /**
  * Created by ice on 15-1-28.
@@ -16,5 +19,18 @@ public class Filer {
       }
     }
     return file;
+  }
+
+  public static boolean exist(String file) {
+    Enumeration<URL> urls = null;
+    try {
+      urls = Thread.currentThread().getContextClassLoader().getResources(file);
+      while (urls.hasMoreElements()) {
+        return true;
+      }
+    } catch (IOException e) {
+      throw new FileException("Could not getResource from file - " + file, e);
+    }
+    return false;
   }
 }

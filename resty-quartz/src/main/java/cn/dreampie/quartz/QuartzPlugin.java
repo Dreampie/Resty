@@ -2,16 +2,18 @@ package cn.dreampie.quartz;
 
 import cn.dreampie.common.Plugin;
 import cn.dreampie.common.util.properties.Proper;
+import cn.dreampie.common.util.stream.Filer;
 import cn.dreampie.log.Logger;
 import cn.dreampie.quartz.job.QuartzCronJob;
 import cn.dreampie.quartz.job.QuartzOnceJob;
 import org.quartz.Scheduler;
 import org.quartz.impl.StdSchedulerFactory;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -71,9 +73,11 @@ public class QuartzPlugin implements Plugin {
 
 
   public void startPropertiesJobs() {
-    if (new File(jobs).exists()) {
+    if (Filer.exist(jobs)) {
       Properties jobsProp = Proper.use(jobs).getProperties();
       Enumeration enums = jobsProp.keys();
+
+      List<String> startedJobs = new ArrayList<String>();
 
       while (enums.hasMoreElements()) {
         String key = enums.nextElement() + "";
@@ -82,7 +86,11 @@ public class QuartzPlugin implements Plugin {
         }
 
         String[] keyArr = key.split("\\.");
-
+        String jobName = keyArr[1];
+        //已经启动过的任务
+        if (startedJobs.contains(jobName))
+          continue;
+        startedJobs.add(jobName);
 
         String jobClassKey = key.replace(keyArr[2], "class");
         String groupKey = key.replace(keyArr[2], "group");

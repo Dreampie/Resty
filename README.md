@@ -224,6 +224,6 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
 提醒:推荐idea作为开发ide，使用分模块的多module开发
 
-License [MIT](http://opensource.org/licenses/MIT)
+License [Apache License V2](https://www.apache.org/licenses/LICENSE-2.0)
 
 

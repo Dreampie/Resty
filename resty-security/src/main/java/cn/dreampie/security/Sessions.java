@@ -213,12 +213,10 @@ public class Sessions {
       } else {
         updatedSessionDatas = sessionDatas.touch(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
       }
-      System.out.println("update " + key);
     } else {
       sessionMetadatas = new ConcurrentHashMap<String, SessionData>();
       sessionMetadatas.put(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
       updatedSessionDatas = new SessionDatas(key, sessionMetadatas);
-      System.out.println("new " + key);
     }
     //如果session已经到达限制数量
     while (sessionMetadatas.size() > limit) {

@@ -8,6 +8,7 @@ import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.log.Logger;
+import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.Valid;
@@ -73,7 +74,7 @@ public class Route {
         try {
           paramAttr = ParamNamesScaner.getParamNames(interceptor.getClass().getMethod("intercept", RouteInvocation.class));
         } catch (NoSuchMethodException e) {
-          throw new RuntimeException(e.getMessage(), e);
+          throw new InitException(e.getMessage(), e);
         }
         this.interceptorsLineNumbers[i] = paramAttr.getLines();
         i++;
@@ -85,7 +86,7 @@ public class Route {
         try {
           paramAttr = ParamNamesScaner.getParamNames(valid.getClass().getMethod("valid", Params.class));
         } catch (NoSuchMethodException e) {
-          throw new RuntimeException(e.getMessage(), e);
+          throw new InitException(e.getMessage(), e);
         }
         this.validsLineNumbers[i] = paramAttr.getLines();
         i++;
@@ -100,11 +101,17 @@ public class Route {
     this.pattern = Pattern.compile(s.patternBuilder.toString());
     this.stdPathPattern = s.stdPathPatternBuilder.toString();
     this.pathParamNames = s.pathParamNames;
+    //check arguments
+    for (String pName : pathParamNames) {
+      if (!allParamNames.contains(pName)) {
+        throw new InitException("PathParameter '" + pName + "' could not found in method arguments at " + resourceClass.getName() + "(" + resourceClass.getSimpleName() + ".java:" + allLineNumbers[0] + ")");
+      }
+    }
 
     if (logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nBuild route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
-      sb.append("\nResource     : ").append(resourceClass.getName()).append("(").append(resourceClass.getSimpleName()).append(".java:" + allLineNumbers[0] + ")");
+      sb.append("\nResource     : ").append(resourceClass.getName()).append("(").append(resourceClass.getSimpleName()).append(".java:").append(allLineNumbers[0]).append(")");
       sb.append("\nMethod       : ").append(method.getName());
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
       //print params
@@ -387,7 +394,8 @@ public class Route {
     private StringBuilder pathParamName = new StringBuilder();
 
     public void handle(int curChar, PathPatternParser pathPatternParser) {
-      if (!Character.isLetterOrDigit(curChar)) {
+//      if (!Character.isLetterOrDigit(curChar) && curChar != '_') {
+      if (curChar == '/') {
         pathPatternParser.patternBuilder.append(DEFAULT_PATTERN);
         pathPatternParser.stdPathPatternBuilder.append("{").append(pathParamName).append("}");
         pathPatternParser.pathParamNames.add(pathParamName.toString());
@@ -423,4 +431,5 @@ public class Route {
     public void end(PathPatternParser pathPatternParser) {
     }
   };
+
 }

@@ -46,9 +46,9 @@ public class UserResource extends ApiResource {
   }
 
   //按条件分页 http://localhost:8081/api/v1.0/users/1/10/x
-  @GET("/users/:pageNumber/:pageSize/:term")
-  public Page<User> paginate(int pageNumber, int pageSize, String term) {
-    return User.dao.paginateBy(pageNumber, pageSize, "username=?", term);
+  @GET("/users/:page_Number/:_page$Size/:$term")
+  public Page<User> paginate(int page_Number, int _page$Size, String $term) {
+    return User.dao.paginateBy(page_Number, _page$Size, "username=?", $term);
   }
 
   //更新

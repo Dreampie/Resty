@@ -12,11 +12,11 @@ import cn.dreampie.route.render.RenderFactory;
 final public class ConstantLoader {
 
   public void setDevMode(boolean devMode) {
-    Constant.dev_mode = devMode;
+    Constant.devMode = devMode;
   }
 
   public void setShowRoute(boolean showRoute) {
-    Constant.show_route = showRoute;
+    Constant.showRoute = showRoute;
   }
 
   //encoding
@@ -41,7 +41,7 @@ final public class ConstantLoader {
 
   public void setCacheManager(CacheManager cacheManager, boolean cacheEnable) {
     Constant.cacheManager = cacheManager;
-    Constant.cache_enabled = cacheEnable;
+    Constant.cacheEnabled = cacheEnable;
   }
 
   public void setCacheEnable(boolean cacheEnable) {
@@ -64,6 +64,10 @@ final public class ConstantLoader {
 
   public void setUploadDenieds(String... uploadDenieds) {
     Constant.uploadDenieds = uploadDenieds;
+  }
+
+  public void setApiPrefix(String apiPrefix) {
+    Constant.apiPrefix = apiPrefix;
   }
 
 }

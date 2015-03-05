@@ -157,7 +157,7 @@ public class Sessions {
       if (sessionMetadatas.size() > 0) {
         sessionMetadatas.remove(sessionKey);
       }
-      if (Constant.cache_enabled) {
+      if (Constant.cacheEnabled) {
         SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessions);
       }
     }
@@ -165,7 +165,7 @@ public class Sessions {
 
   public SessionDatas getSessions(String key) {
     SessionDatas sessionsUse = null;
-    if (Constant.cache_enabled) {
+    if (Constant.cacheEnabled) {
       sessionsUse = SessionCache.instance().get(Session.SESSION_DEF_KEY, key);
       if (sessionsUse == null)
         sessionsUse = sessions.get(key);
@@ -184,7 +184,7 @@ public class Sessions {
 
   private void saveSessions(String key, SessionDatas sessionDatas) {
     //add cache
-    if (Constant.cache_enabled)
+    if (Constant.cacheEnabled)
       SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessionDatas);
     else
       this.sessions.put(key, sessionDatas);

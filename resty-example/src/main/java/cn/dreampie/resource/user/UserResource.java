@@ -1,6 +1,5 @@
 package cn.dreampie.resource.user;
 
-import cn.dreampie.orm.DS;
 import cn.dreampie.orm.Page;
 import cn.dreampie.orm.transaction.AspectFactory;
 import cn.dreampie.orm.transaction.Transaction;

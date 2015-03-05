@@ -1,11 +1,10 @@
 package cn.dreampie.config;
 
-import cn.dreampie.resource.user.model.UserInfo;
+import cn.dreampie.resource.user.model.User;
 import cn.dreampie.security.AuthenticateService;
 import cn.dreampie.security.Credential;
 import cn.dreampie.security.DefaultPasswordService;
 import cn.dreampie.security.Principal;
-import cn.dreampie.resource.user.model.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,7 +27,7 @@ public class MyAuthenticateService implements AuthenticateService {
 
   public Set<Credential> loadAllCredentials() {
     Set<Credential> credentials = new HashSet<Credential>();
-    credentials.add(new Credential("*", "/api/v1.0/users**", "users"));
+    credentials.add(new Credential("*", "/api/v1.0/users/**", "users"));
     return credentials;
   }
 }

@@ -1,5 +1,6 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.HttpStatus;
@@ -56,7 +57,7 @@ public final class RouteHandler extends Handler {
         routeMatch.getRender().render(request, response, result);
       }
     } else {
-      if (!request.getRestPath().equals("/"))
+      if (request.getRestPath().equals(Constant.apiPrefix))
         // no route matched
         throw new WebException(HttpStatus.NOT_FOUND, "No rest route found.");
       else

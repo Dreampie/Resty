@@ -23,13 +23,13 @@ public class ClientTest {
 
   @Before
   public void setUp() throws Exception {
-    client = new Client("http://127.0.0.1:8081/api/v1.0");
+    client = new Client("http://127.0.0.1:8081/api/v1.0", "/sessions", "awesa", "asda", false);
   }
 
   @Test
   public void testLogin() {
     ClientRequest request = new ClientRequest("/sessions", HttpMethod.POST);
-    request.addParameter("username", "asdasda").addParameter("password", "123").addParameter("rememberMe", "true");
+    request.addParameter("username", "asdasda").addParameter("password", "1232").addParameter("rememberMe", "true");
     System.out.println(client.build(request).ask());
   }
 

@@ -166,7 +166,7 @@ public class SessionBuilder {
             return emptySession;
           }
           //是否使用cache
-          if (Constant.cache_enabled) {
+          if (Constant.cacheEnabled) {
             //通过cache 来获取对象相关的值
             principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
             //cache 已经失效  从接口获取用户数据

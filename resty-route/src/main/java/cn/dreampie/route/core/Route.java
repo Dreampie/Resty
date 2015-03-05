@@ -65,7 +65,7 @@ public class Route {
     this.allGenericParamTypes = Arrays.asList(method.getGenericParameterTypes());
     this.valids = valids;
     //获取拦截器的行号
-    if (Constant.show_route) {
+    if (Constant.showRoute) {
       this.interceptorsLineNumbers = new int[interceptors.length][];
       //获取参数
       ParamAttribute paramAttr;
@@ -175,7 +175,7 @@ public class Route {
   }
 
   private void printMatchRoute(Map<String, String> params, Map<String, List<String>> otherParams) {
-    if (Constant.show_route && logger.isInfoEnabled()) {
+    if (Constant.showRoute && logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
       sb.append("\nResource     : ").append(resourceClass.getName()).append("(").append(resourceClass.getSimpleName()).append(".java:" + allLineNumbers[0] + ")");

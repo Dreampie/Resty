@@ -115,7 +115,7 @@ public class Subject {
    */
   public static String need(String httpMethod, String path) {
     Set<Credential> credentials = null;
-    if (Constant.cache_enabled) {
+    if (Constant.cacheEnabled) {
       credentials = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
 
       if (credentials == null) {

@@ -9,12 +9,12 @@ import java.io.File;
  */
 public final class Constant {
   public static String encoding = "UTF-8";
-  public static boolean dev_mode = false;
-  public static boolean cache_enabled = false;
+  public static boolean devMode = false;
+  public static boolean cacheEnabled = false;
   public static String uploadDirectory = File.separator + "upload" + File.separator;
   public static int uploadMaxSize = 1024 * 1024 * 10;// 10 Meg
   public static String[] uploadDenieds = new String[]{};
   public static CacheManager cacheManager;
-  public static boolean show_route = false;
-
+  public static boolean showRoute = false;
+  public static String apiPrefix = "/api";
 }

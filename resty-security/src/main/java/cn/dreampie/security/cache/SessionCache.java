@@ -32,7 +32,7 @@ public enum SessionCache {
 
   private final static Logger logger = Logger.getLogger(SessionCache.class);
 
-  private final boolean enabled = Constant.cache_enabled;
+  private final boolean enabled = Constant.cacheEnabled;
 
   private final CacheManager cacheManager;
 

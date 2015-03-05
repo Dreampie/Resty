@@ -3,6 +3,7 @@ package cn.dreampie.route;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
+import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.pattern.AntPathMatcher;
 import cn.dreampie.log.Logger;
@@ -84,6 +85,7 @@ public final class RestyFilter implements Filter {
           logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error - " + e.getMessage());
         }
       } catch (Exception e) {
+        response.setStatus(HttpStatus.BAD_REQUEST);
         RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getMessage());
         if (logger.isErrorEnabled()) {
           logger.error(request.getRestPath(), e);

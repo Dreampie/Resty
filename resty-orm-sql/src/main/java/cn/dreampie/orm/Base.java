@@ -316,7 +316,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     } else {
       inCache = true;
     }
-    if (Constant.dev_mode)
+    if (Constant.devMode)
       checkTableName(getModelMeta(), sql);
 
     DataSourceMeta dsm = getDataSourceMeta();
@@ -589,7 +589,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     if (getModelMeta().isCached()) {
       purgeCache();
     }
-    if (Constant.dev_mode)
+    if (Constant.devMode)
       checkTableName(getModelMeta(), sql);
     return DS.use(getModelMeta().getDsName()).update(sql, paras);
   }

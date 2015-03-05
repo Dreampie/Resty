@@ -205,7 +205,7 @@ public class Sessions {
     long access = System.currentTimeMillis();
     if (sessionDatas != null) {
       sessionMetadatas = sessionDatas.getSessionMetadatas();
-      sessionData = sessionMetadatas.get(sessionKey);
+      sessionData = sessionMetadatas != null && sessionMetadatas.size() > 0 ? sessionMetadatas.get(sessionKey) : null;
 
       if (sessionData != null) {
         //更新

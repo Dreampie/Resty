@@ -89,7 +89,6 @@ public class Subject {
       logger.info("Session leave authentication " + principal.getUsername());
     }
     Session.current().clearPrincipal();
-    Session.current().set(Session.SESSION_DEF_KEY, null);
   }
 
 

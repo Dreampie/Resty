@@ -2,6 +2,7 @@ package cn.dreampie.common.http;
 
 import cn.dreampie.common.Response;
 
+import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -92,6 +93,9 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
     response.addHeader(headerName, header);
   }
 
+  public void forward(String url) throws ServletException, IOException {
+    request.getRequestDispatcher(url).forward(request, response);
+  }
 
   @SuppressWarnings("unchecked")
   public <T> T unwrap(Class<T> clazz) {
@@ -104,4 +108,5 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
   public void reset() {
     response.reset();
   }
+
 }

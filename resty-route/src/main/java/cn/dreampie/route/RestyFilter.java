@@ -73,7 +73,7 @@ public final class RestyFilter implements Filter {
 
     boolean[] isHandled = {false};
     //排除的参数
-    if (!isExclusion(request.getRestUri())) {
+    if (!isExclusion(request.getRestPath())) {
 
       try {
         handler.handle(request, response, isHandled);

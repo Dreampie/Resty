@@ -26,10 +26,17 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 public abstract class Base<M extends Base> extends Entity<Base> implements Serializable {
 
   private static final Logger logger = Logger.getLogger(Base.class);
+
+  private boolean inCache = true;
   /**
    * Attributes of this model
    */
   private Map<String, Object> attrs = getAttrsMap();
+
+  public M inCache(boolean inCache) {
+    this.inCache = inCache;
+    return (M) this;
+  }
 
   protected <T> T getCache(String sql, Object[] paras) {
     ModelMeta modelMeta = getModelMeta();
@@ -296,15 +303,19 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public List<M> find(String sql, Object... paras) {
     List<M> result = null;
-    boolean cached = getModelMeta().isCached();
-    //hit cache
-    if (cached) {
-      result = getCache(sql, paras);
+    boolean cached = false;
+    if (inCache) {
+      cached = getModelMeta().isCached();
+      //hit cache
+      if (cached) {
+        result = getCache(sql, paras);
+      }
+      if (result != null) {
+        return result;
+      }
+    } else {
+      inCache = true;
     }
-    if (result != null) {
-      return result;
-    }
-
     if (Constant.dev_mode)
       checkTableName(getModelMeta(), sql);
 

@@ -73,7 +73,7 @@ public class UserResource extends ApiResource {
 
 
   @GET("/transactions")
-  @Transaction(name = {DS.DEFAULT_DS_NAME})
+  @Transaction
   public User transaction() {
     User u = new User().set("username", "test").set("providername", "test").set("password", "123456").set("sid", "1");
     UserInfo userInfo = null;

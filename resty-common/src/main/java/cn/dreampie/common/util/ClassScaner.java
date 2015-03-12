@@ -229,7 +229,7 @@ public class ClassScaner {
     List<String> classFiles = new ArrayList<String>();
     try {
       // 判断目录是否存在
-      File baseDir = new File(baseDirName);
+      File baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
       if (!baseDir.exists() || !baseDir.isDirectory()) {
         throw new RuntimeException("file serach error：" + baseDirName + " is not a dir！");
       } else {

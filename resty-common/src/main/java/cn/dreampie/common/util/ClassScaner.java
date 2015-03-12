@@ -3,6 +3,7 @@ package cn.dreampie.common.util;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -95,7 +96,12 @@ public class ClassScaner {
     List<String> classFiles = new ArrayList<String>();
     String tempName = null;
     // 判断目录是否存在
-    File baseDir = new File(baseDirName);
+    File baseDir = null;
+    try {
+      baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
     if (!baseDir.exists() || !baseDir.isDirectory()) {
       throw new RuntimeException("search error：" + baseDirName + "is not a dir！");
     } else {

@@ -11,10 +11,7 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by wangrenhui on 14-4-21.
@@ -77,37 +74,41 @@ public class QuartzPlugin implements Plugin {
       Properties jobsProp = Proper.use(jobs).getProperties();
       Enumeration enums = jobsProp.keys();
 
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
       List<String> startedJobs = new ArrayList<String>();
-
+      String[] keyArr;
+      String key, jobName, jobClassKey, groupKey, cronKey, onceKey, enable, group, jobCron, jobOnce, jobClassName;
+      Class clazz;
+      Date onceTime;
       while (enums.hasMoreElements()) {
-        String key = enums.nextElement() + "";
+        key = enums.nextElement() + "";
         if (!key.startsWith("job")) {
           continue;
         }
 
-        String[] keyArr = key.split("\\.");
-        String jobName = keyArr[1];
+        keyArr = key.split("\\.");
+        jobName = keyArr[1];
         //已经启动过的任务
         if (startedJobs.contains(jobName))
           continue;
         startedJobs.add(jobName);
 
-        String jobClassKey = key.replace(keyArr[2], "class");
-        String groupKey = key.replace(keyArr[2], "group");
-        String cronKey = key.replace(keyArr[2], "cron");
-        String onceKey = key.replace(keyArr[2], "once");
-        String enable = key.replace(keyArr[2], "enable");
+        jobClassKey = key.replace(keyArr[2], "class");
+        groupKey = key.replace(keyArr[2], "group");
+        cronKey = key.replace(keyArr[2], "cron");
+        onceKey = key.replace(keyArr[2], "once");
+        enable = key.replace(keyArr[2], "enable");
 
         //判断任务是否启用
         if (!Boolean.valueOf(jobsProp.getProperty(enable))) {
           continue;
         }
 
-        String group = jobsProp.getProperty(groupKey);
-        String jobCron = jobsProp.getProperty(cronKey);
-        String jobOnce = jobsProp.getProperty(onceKey);
-        String jobClassName = jobsProp.getProperty(jobClassKey);
-        Class clazz;
+        group = jobsProp.getProperty(groupKey);
+        jobCron = jobsProp.getProperty(cronKey);
+        jobOnce = jobsProp.getProperty(onceKey);
+        jobClassName = jobsProp.getProperty(jobClassKey);
+
         try {
           clazz = Class.forName(jobClassName);
         } catch (ClassNotFoundException e) {
@@ -121,19 +122,20 @@ public class QuartzPlugin implements Plugin {
             new QuartzCronJob(keyArr[1], jobCron, clazz).start();
           }
         } else if (jobOnce != null) {
-          SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
           try {
-            if (group != null) {
-              new QuartzOnceJob(group, keyArr[1], sdf.parse(jobOnce), clazz).start();
-            } else {
-              new QuartzOnceJob(keyArr[1], sdf.parse(jobOnce), clazz).start();
-            }
+            onceTime = sdf.parse(jobOnce);
           } catch (ParseException e) {
             throw new RuntimeException(e.getMessage(), e);
           }
+          if (System.currentTimeMillis() <= onceTime.getTime()) {
+            if (group != null) {
+              new QuartzOnceJob(group, keyArr[1], onceTime, clazz).start();
+            } else {
+              new QuartzOnceJob(keyArr[1], onceTime, clazz).start();
+            }
+          }
         } else {
-          throw new RuntimeException("This job must has cron or once attribute " + keyArr[1]);
+          new QuartzOnceJob(group, keyArr[1], new Date(), clazz).start();
         }
       }
     }

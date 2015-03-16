@@ -73,29 +73,29 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   /**
    * Flag of column has been modified. update need this flag
    */
-  private Map<String, Object> modifyFlag;
+  private Map<String, Object> modifyAttrs;
 
-  public Map<String, Object> getModifyFlag() {
-    if (modifyFlag == null) {
-      modifyFlag = new CaseInsensitiveMap<Object>();
+  public Map<String, Object> getModifyAttrs() {
+    if (modifyAttrs == null) {
+      modifyAttrs = new CaseInsensitiveMap<Object>();
     }
-    return modifyFlag;
+    return modifyAttrs;
   }
 
 
   /**
    * Return attribute name of this model.
    */
-  public String[] getModifyNames() {
-    Set<String> attrNameSet = modifyFlag.keySet();
+  public String[] getModifyAttrNames() {
+    Set<String> attrNameSet = modifyAttrs.keySet();
     return attrNameSet.toArray(new String[attrNameSet.size()]);
   }
 
   /**
    * Return attribute values of this model.
    */
-  public Object[] getModifyValues() {
-    java.util.Collection<Object> attrValueCollection = modifyFlag.values();
+  public Object[] getModifyAttrValues() {
+    java.util.Collection<Object> attrValueCollection = modifyAttrs.values();
     return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
   }
 
@@ -123,7 +123,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   public M set(String attr, Object value) {
     if (getModelMeta().hasAttribute(attr)) {
       attrs.put(attr, value);
-      getModifyFlag().put(attr, value);  // Add modify flag, update() need this flag.
+      getModifyAttrs().put(attr, value);  // Add modify flag, update() need this flag.
       return (M) this;
     }
     throw new DBException("The attribute name is not exists: " + attr);
@@ -134,7 +134,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public M put(String key, Object value) {
     if (getModelMeta().hasAttribute(key))
-      getModifyFlag().put(key, value);
+      getModifyAttrs().put(key, value);
     attrs.put(key, value);
     return (M) this;
   }
@@ -459,7 +459,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     Dialect dialect = dsm.getDialect();
     ModelMeta modelMeta = getModelMeta();
 
-    String sql = dialect.insert(modelMeta.getTableName(), getAttrNames());
+    String sql = dialect.insert(modelMeta.getTableName(), getModifyAttrNames());
 
     // --------
     Connection conn = null;
@@ -467,11 +467,11 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     int result = 0;
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, sql, getAttrValues());
+      pst = getPreparedStatement(conn, sql, getModifyAttrValues());
 
       result = pst.executeUpdate();
       getGeneratedKey(pst, modelMeta);
-      getModifyFlag().clear();
+      getModifyAttrs().clear();
       return result >= 1;
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
@@ -506,7 +506,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     Dialect dialect = dsm.getDialect();
     ModelMeta modelMeta = firstModel.getModelMeta();
 
-    String[] columns = firstModel.getAttrNames();
+    String[] columns = firstModel.getModifyAttrNames();
     String sql = dialect.insert(modelMeta.getTableName(), columns);
 
     //参数
@@ -537,7 +537,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
         conn.commit();
       conn.setAutoCommit(autoCommit);
       for (M model : models) {
-        model.getModifyFlag().clear();
+        model.getModifyAttrs().clear();
       }
 
       for (int r : result) {
@@ -653,7 +653,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * Update model.
    */
   public boolean update() {
-    if (getModifyFlag().isEmpty())
+    if (getModifyAttrs().isEmpty())
       return false;
 
     ModelMeta modelMeta = getModelMeta();
@@ -665,7 +665,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
     String where = null;
     Object[] paras = null;
-    Object[] modifys = getModifyValues();
+    Object[] modifys = getModifyAttrValues();
     //锁定主键 更新的时候 使用所有主键作为条件
     if (modelMeta.isLockKey()) {
       String[] pkeys = modelMeta.getPrimaryKeys();
@@ -686,16 +686,16 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       paras[modifys.length] = id;
       where = pKey;
     }
+    String[] modifyNames = getModifyAttrNames();
+    String sql = dialect.update(modelMeta.getTableName(), "", where + "=?", modifyNames);
 
-    String sql = dialect.update(modelMeta.getTableName(), "", where + "=?", getModifyNames());
-
-    if (getModifyNames().length <= 0) {  // Needn't update
+    if (modifyNames.length <= 0) {  // Needn't update
       return false;
     }
 
     int result = update(sql, paras);
     if (result >= 1) {
-      getModifyFlag().clear();
+      getModifyAttrs().clear();
       return true;
     }
     return false;
@@ -751,7 +751,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public M remove(String attr) {
     attrs.remove(attr);
-    getModifyFlag().remove(attr);
+    getModifyAttrs().remove(attr);
     return (M) this;
   }
 
@@ -765,7 +765,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     if (attrs != null)
       for (String a : attrs) {
         this.attrs.remove(a);
-        this.getModifyFlag().remove(a);
+        this.getModifyAttrs().remove(a);
       }
     return (M) this;
   }
@@ -780,7 +780,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       Map.Entry<String, Object> e = it.next();
       if (e.getValue() == null) {
         it.remove();
-        getModifyFlag().remove(e.getKey());
+        getModifyAttrs().remove(e.getKey());
       }
     }
     return (M) this;
@@ -799,14 +799,14 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       for (String a : attrs) {
         if (this.attrs.containsKey(a))  // prevent put null value to the newColumns
           newAttrs.put(a, this.attrs.get(a));
-        if (this.getModifyFlag().containsKey(a))
+        if (this.getModifyAttrs().containsKey(a))
           newModifyFlag.put(a, this.attrs.get(a));
       }
       this.attrs = newAttrs;
-      this.modifyFlag = newModifyFlag;
+      this.modifyAttrs = newModifyFlag;
     } else {
       this.attrs.clear();
-      this.getModifyFlag().clear();
+      this.getModifyAttrs().clear();
     }
     return (M) this;
   }
@@ -820,15 +820,15 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   public M keep(String attr) {
     if (attrs.containsKey(attr)) {  // prevent put null value to the newColumns
       Object keepIt = attrs.get(attr);
-      boolean keepFlag = getModifyFlag().containsKey(attr);
+      boolean keepFlag = getModifyAttrs().containsKey(attr);
       attrs.clear();
-      getModifyFlag().clear();
+      getModifyAttrs().clear();
       attrs.put(attr, keepIt);
       if (keepFlag)
-        getModifyFlag().put(attr, keepIt);
+        getModifyAttrs().put(attr, keepIt);
     } else {
       attrs.clear();
-      getModifyFlag().clear();
+      getModifyAttrs().clear();
     }
     return (M) this;
   }
@@ -840,7 +840,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public M clear() {
     attrs.clear();
-    getModifyFlag().clear();
+    getModifyAttrs().clear();
     return (M) this;
   }
 
@@ -872,7 +872,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
   public int hashCode() {
-    return (attrs == null ? 0 : attrs.hashCode()) ^ (getModifyFlag() == null ? 0 : getModifyFlag().hashCode());
+    return (attrs == null ? 0 : attrs.hashCode()) ^ (getModifyAttrs() == null ? 0 : getModifyAttrs().hashCode());
   }
 
   /**

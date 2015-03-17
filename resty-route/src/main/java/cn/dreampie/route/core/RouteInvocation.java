@@ -161,6 +161,8 @@ public class RouteInvocation {
             //转换为对应的对象类型
             parse(params, i, paramType, obj, name);
           }
+        } else {
+          params.set(name, null);
         }
       }
       i++;
@@ -212,11 +214,15 @@ public class RouteInvocation {
         if (hasJsonParam) {
           obj = paramsMap.get(name);
 
-          if (paramType == String.class) {
-            params.set(name, obj.toString());
+          if (obj != null) {
+            if (paramType == String.class) {
+              params.set(name, obj.toString());
+            } else {
+              //转换对象到指定的类型
+              parse(params, i, paramType, obj, name);
+            }
           } else {
-            //转换对象到指定的类型
-            parse(params, i, paramType, obj, name);
+            params.set(name, null);
           }
         }
       }

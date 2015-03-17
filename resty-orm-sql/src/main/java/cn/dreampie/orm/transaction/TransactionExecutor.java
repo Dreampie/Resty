@@ -1,32 +1,32 @@
-package cn.dreampie.route.interceptor.transaction;
+package cn.dreampie.orm.transaction;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.Metadatas;
-import cn.dreampie.orm.exception.DBException;
-import cn.dreampie.route.core.RouteInvocation;
-import cn.dreampie.route.interceptor.Interceptor;
+import cn.dreampie.orm.exception.TransactionException;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * Created by wangrenhui on 15/1/3.
  */
-public class InterceptorTransactionExcutor {
-  private final static Logger logger = Logger.getLogger(InterceptorTransactionExcutor.class);
+public class TransactionExecutor {
 
+  private final static Logger logger = Logger.getLogger(TransactionExecutor.class);
   private String dsName;
   private int level;
 
 
-  public InterceptorTransactionExcutor(String dsName, int level) {
+  public TransactionExecutor(String dsName, int level) {
     this.dsName = dsName;
     this.level = level;
   }
 
 
-  public void transaction(Interceptor interceptor, RouteInvocation ri) {
+  public void transaction(TransactionAspect aspect, InvocationHandler ih, Object proxy, Method method, Object[] args) {
     DataSourceMeta dataSourceMeta = Metadatas.getDataSourceMeta(dsName);
     Connection conn = dataSourceMeta.getCurrentConnection();
     if (conn != null) {
@@ -36,7 +36,7 @@ public class InterceptorTransactionExcutor {
         }
         return;
       } catch (SQLException e) {
-        throw new DBException(e.getMessage(), e);
+        throw new TransactionException(e.getMessage(), e);
       }
     }
 
@@ -47,15 +47,15 @@ public class InterceptorTransactionExcutor {
       dataSourceMeta.setCurrentConnection(conn);
       conn.setTransactionIsolation(level);  // conn.setTransactionIsolation(transactionLevel);
       conn.setAutoCommit(false);
-      interceptor.intercept(ri);
+      aspect.aspect(ih, proxy, method, args);
       conn.commit();
     } catch (Throwable t) {
       if (conn != null) try {
         conn.rollback();
-      } catch (Exception e) {
+      } catch (SQLException e) {
         logger.error("Could not rollback " + dsName + " connection.", e);
       }
-      throw new DBException(t.getMessage(), t);
+      throw new TransactionException(t.getMessage(), t);
     } finally {
       try {
         if (conn != null) {

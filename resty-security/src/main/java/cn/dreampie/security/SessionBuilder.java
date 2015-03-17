@@ -149,12 +149,11 @@ public class SessionBuilder {
       String expiresCookie = entries.remove(EXPIRES);
       //失效时间
       if (expiresCookie != null && !"".equals(expiresCookie.trim())) {
-        int expiration = -1;
+        long expiration = -1;
         if (!"-1".equals(expiresCookie)) {
-          Date expires = new Date(Long.parseLong(expiresCookie));
-          Date now = new Date();
-          expiration = (int) (expires.getTime() - now.getTime());
-          expiration = req.isPersistentCookie(sessionCookieName) ? (expiration > this.expires ? expiration : -1) : -1;
+          long expires = Long.parseLong(expiresCookie);
+          if (expires > System.currentTimeMillis() + this.expires)
+            expiration = expires;
         }
         Map<String, String> cookieValues = Maper.copyOf(entries);
         String principalName = cookieValues.get(Principal.PRINCIPAL_DEF_KEY);
@@ -172,6 +171,8 @@ public class SessionBuilder {
             //cache 已经失效  从接口获取用户数据
             if (principal == null) {
               principal = authenticateService.findByUsername(principalName);
+              if (principal != null)
+                SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, principalName, principal);
             }
           } else {
             principal = authenticateService.findByUsername(principalName);
@@ -198,7 +199,7 @@ public class SessionBuilder {
       resp.clearCookie(sessionCookieDescriptor.getCookieSignatureName());
     } else {
       for (Map.Entry<String, String> cookie : cookiesMap.entrySet()) {
-        resp.addCookie(cookie.getKey(), cookie.getValue(), session.getExpires());
+        resp.addCookie(cookie.getKey(), cookie.getValue(), (int) (session.getExpires() / 1000));
       }
     }
   }

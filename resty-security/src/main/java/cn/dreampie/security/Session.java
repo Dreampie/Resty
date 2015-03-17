@@ -12,19 +12,19 @@ public class Session {
   public static final String SESSION_ALL_KEY = "_allSessions";
   private final Map<String, String> values;
   private final Principal principal;
-  private final int expires;
+  private final long expires;
 
-  public Session(Map<String, String> values, Principal principal, int expires) {
+  public Session(Map<String, String> values, Principal principal, long expires) {
     this.values = values;
     this.principal = principal;
     this.expires = expires;
   }
 
-  Session setExpires(int expires) {
+  Session setExpires(long expires) {
     return updateCurrent(new Session(values, principal, expires));
   }
 
-  int getExpires() {
+  long getExpires() {
     return expires;
   }
 

@@ -33,9 +33,10 @@ public abstract class Render {
     } catch (IOException e) {
       throw new WebException(e.getMessage());
     } finally {
-      if (writer != null)
-        writer.close();
       try {
+        if (writer != null) {
+          writer.close();
+        }
         response.close();
       } catch (Exception ex) {
         throw new WebException(ex.getMessage());

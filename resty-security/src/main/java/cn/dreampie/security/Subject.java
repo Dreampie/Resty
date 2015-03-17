@@ -27,7 +27,7 @@ public class Subject {
     Subject.passwordService = passwordService;
   }
 
-  public static int getExpires() {
+  public static long getExpires() {
     return Session.current().getExpires();
   }
 
@@ -60,13 +60,13 @@ public class Subject {
         Session.current().set(Session.SESSION_DEF_KEY, null);
         //授权用户
         //时间
-        int expires = -1;
+        long expires = -1;
         if (rememberMe) {
           Calendar cal = Calendar.getInstance();
-          cal.setTime(new Date());
           cal.add(Calendar.DATE, rememberDay);
-          expires = (int) cal.getTimeInMillis();
+          expires =  cal.getTimeInMillis();
         }
+
         Session.current().setExpires(expires);
         String sessionKey = UUID.randomUUID().toString();
         Session.current().authenticateAs(principal);

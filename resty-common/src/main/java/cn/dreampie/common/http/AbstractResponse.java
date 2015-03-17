@@ -80,8 +80,7 @@ public abstract class AbstractResponse<R> implements Response {
           " Make sure you call setContentType() before calling getWriter(). Using UTF-8 charset.");
       charset = Charsets.UTF_8;
     }
-    return writer = new PrintWriter(
-        new OutputStreamWriter(doGetOutputStream(), charset), true);
+    return writer = new PrintWriter(new OutputStreamWriter(doGetOutputStream(), charset), true);
   }
 
 

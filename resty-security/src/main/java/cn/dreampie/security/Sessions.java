@@ -18,7 +18,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public class Sessions {
 
-  public static final class SessionDatas implements Serializable {
+  public static final class SessionDatas {// implements Serializable {
     private final String key;
     private final Map<String, SessionData> sessionMetadatas;
 
@@ -48,6 +48,10 @@ public class Sessions {
       return new SessionDatas(key, sessionMetadatas);
     }
 
+//    public int hashCode() {
+//      return key.hashCode();
+//    }
+
     public String toString() {
       return "SessionDatas{" +
           "key='" + key + '\'' +
@@ -56,7 +60,7 @@ public class Sessions {
     }
   }
 
-  public static final class SessionData implements Comparable<SessionData>, Serializable {
+  public static final class SessionData implements Comparable<SessionData> {//, Serializable {
     private final String sessionKey;
     private final long expires;
     private final long firstAccess;
@@ -106,17 +110,17 @@ public class Sessions {
     }
 
 
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-
-      SessionData that = (SessionData) o;
-      return sessionKey.equals(that.sessionKey);
-    }
-
-    public int hashCode() {
-      return sessionKey.hashCode();
-    }
+//    public boolean equals(Object o) {
+//      if (this == o) return true;
+//      if (o == null || getClass() != o.getClass()) return false;
+//
+//      SessionData that = (SessionData) o;
+//      return sessionKey.equals(that.sessionKey);
+//    }
+//
+//    public int hashCode() {
+//      return sessionKey.hashCode();
+//    }
 
     public String toString() {
       return "SessionData{" +
@@ -167,8 +171,6 @@ public class Sessions {
     SessionDatas sessionsUse = null;
     if (Constant.cacheEnabled) {
       sessionsUse = SessionCache.instance().get(Session.SESSION_DEF_KEY, key);
-      if (sessionsUse == null)
-        sessionsUse = sessions.get(key);
     } else {
       sessionsUse = sessions.get(key);
     }
@@ -182,12 +184,15 @@ public class Sessions {
     return sessionsUse;
   }
 
-  private void saveSessions(String key, SessionDatas sessionDatas) {
+  private boolean saveSessions(String key, SessionDatas sessionDatas) {
+    boolean updated = false;
     //add cache
-    if (Constant.cacheEnabled)
+    if (Constant.cacheEnabled) {
       SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessionDatas);
-    else
-      this.sessions.put(key, sessionDatas);
+      updated = SessionCache.instance().get(Session.SESSION_DEF_KEY, key) == sessionDatas;
+    } else
+      updated = this.sessions.put(key, sessionDatas) == sessionDatas;
+    return updated;
   }
 
   public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata) {
@@ -219,10 +224,14 @@ public class Sessions {
       updatedSessionDatas = new SessionDatas(key, sessionMetadatas);
     }
     //如果session已经到达限制数量
-    while (sessionMetadatas.size() > limit) {
+    while (sessionMetadatas != null && sessionMetadatas.size() > limit) {
       removeOldest(sessionMetadatas);
     }
-    saveSessions(key, updatedSessionDatas);
+    boolean updated = false;
+    do {
+      updated = saveSessions(key, updatedSessionDatas);
+    } while (!updated);
+
     return updatedSessionDatas;
   }
 

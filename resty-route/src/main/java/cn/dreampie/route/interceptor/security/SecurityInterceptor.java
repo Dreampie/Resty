@@ -58,11 +58,10 @@ public class SecurityInterceptor implements Interceptor {
     Subject.check(request.getHttpMethod(), request.getRestPath());
     //执行resource
     Object result = ri.invoke();
-    //保存session到cache
-    sessionBuilder.buildSessionMetadata(request, oldSession);
-
     //把session  写入cookie
     sessionBuilder.out(oldSession, response);
+    //保存session到cache
+    sessionBuilder.buildSessionMetadata(request, oldSession);
 
     return result;
   }

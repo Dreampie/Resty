@@ -64,7 +64,7 @@ public class Subject {
         if (rememberMe) {
           Calendar cal = Calendar.getInstance();
           cal.add(Calendar.DATE, rememberDay);
-          expires =  cal.getTimeInMillis();
+          expires = cal.getTimeInMillis();
         }
 
         Session.current().setExpires(expires);
@@ -143,6 +143,7 @@ public class Subject {
    */
   public static void check(String httpMethod, String path) {
     String needCredential = need(httpMethod, path);
+    logger.info(httpMethod + " " + path + " need credential " + needCredential);
     if (needCredential != null) {
       Principal principal = Session.current().getPrincipal();
       if (principal != null) {

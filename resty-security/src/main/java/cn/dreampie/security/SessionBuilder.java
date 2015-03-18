@@ -199,7 +199,7 @@ public class SessionBuilder {
       resp.clearCookie(sessionCookieDescriptor.getCookieSignatureName());
     } else {
       for (Map.Entry<String, String> cookie : cookiesMap.entrySet()) {
-        resp.addCookie(cookie.getKey(), cookie.getValue(), (int) (session.getExpires() / 1000));
+        resp.addCookie(cookie.getKey(), cookie.getValue(), session.getExpires() > 0 ? (int) (session.getExpires() / 1000) : (int) session.getExpires());
       }
     }
   }

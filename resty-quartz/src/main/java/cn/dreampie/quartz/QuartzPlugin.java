@@ -135,7 +135,11 @@ public class QuartzPlugin implements Plugin {
             }
           }
         } else {
-          new QuartzOnceJob(group, keyArr[1], new Date(), clazz).start();
+          if (group != null) {
+            new QuartzOnceJob(group, keyArr[1], new Date(), clazz).start();
+          } else {
+            new QuartzOnceJob(keyArr[1], new Date(), clazz).start();
+          }
         }
       }
     }

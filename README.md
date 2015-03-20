@@ -1,5 +1,6 @@
 
-resty 一款极简的restful轻量级的web框架
+Resty 一款极简的restful轻量级的web框架 开发群: <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=8fc9498714ebbc3675cc5a5035858004154ef4645ebc9c128dfd76688d32179b"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="极简Restful框架 - Resty" title="极简Restful框架 - Resty"></a>
+
 ===========
 
 如果你还不是很了解restful，或者认为restful只是一种规范不具有实际意义，推荐一篇osc两年前的文章：[RESTful API 设计最佳实践](http://www.oschina.net/translate/best-practices-for-a-pragmatic-restful-api)  和 Infoq的一篇极其理论的文章  [理解本真的REST架构风格](http://www.infoq.com/cn/articles/understanding-restful-style) 虽然有点老，介绍的也很简单，大家权当了解，restful的更多好处，还请google
@@ -14,14 +15,16 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 一、独有优点：
 -----------
 
-1.极简的route设计:
+1.极简的route设计，完全融入普通方法的方式，方法参数就是请求参数，方法返回值就是数据返回值
 
 ```java
-  @GET("/users/:name")  //在路径中自定义解析的参数 如果有其他符合 也可以用 /users/{name}
+  @GET("/users/:name")
+  //在路径中自定义解析的参数 如果有其他符合 也可以用 /users/{name}
   // 参数名就是方法变量名  除路径参数之外的参数也可以放在方法参数里  传递方式 user={json字符串}
   public Map find(String name,User user) {
     // return Lister.of(name);
-    return Maper.of("k1", "v1,name:" + name, "k2", "v2");//返回什么数据直接return，完全融入普通方法的方式
+    return Maper.of("k1", "v1,name:" + name, "k2", "v2");
+    //返回什么数据直接return
   }
 ```
 
@@ -208,8 +211,6 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
     // constantLoader.addRender("json", new JsonRender());
   }
 ```
-
-极简Restful框架 - Resty 开发群: <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=8fc9498714ebbc3675cc5a5035858004154ef4645ebc9c128dfd76688d32179b"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="极简Restful框架 - Resty" title="极简Restful框架 - Resty"></a>
 
 二、运行example示例：
 -----------------

@@ -75,6 +75,10 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
   private DruidDataSource ds;
   private Dialect dialect;
 
+  public DruidPlugin() {
+    this("default");
+  }
+
   public DruidPlugin(String dsName) {
     Prop prop = Proper.use("application.properties");
     this.url = prop.get("db." + dsName + ".url");

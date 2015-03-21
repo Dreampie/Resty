@@ -18,6 +18,8 @@ public class AppConfig extends Config {
   public void configConstant(ConstantLoader constantLoader) {
     //通过后缀来返回不同的数据类型  你可以自定义自己的  render  如：FreemarkerRender
     //constantLoader.addRender("json", new JsonRender());
+
+    //以下配置移植到application.properties
     //启用缓存并在要自动使用缓存的model上  开启缓存@Table(name = "sec_user", cached = true)
 //    boolean devMode = prop.getBoolean("devMode", false);
 //    constantLoader.setCacheEnable(!devMode);//开发模式下不开启缓存

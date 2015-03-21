@@ -1,6 +1,8 @@
 package cn.dreampie.orm.druid;
 
 import cn.dreampie.common.Plugin;
+import cn.dreampie.common.util.properties.Prop;
+import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.orm.DataSourceProvider;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
@@ -13,6 +15,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cn.dreampie.common.util.Checker.checkNotNull;
+
 
 /**
  * Created by ice on 14-12-30.
@@ -21,9 +25,9 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
 
   // 基本属性 url、user、password
   private String url;
-  private String username;
+  private String user;
   private String password;
-  private String driverClass = null;  // 由 "com.mysql.jdbc.Driver" 改为 null 让 druid 自动探测 driverClass 值
+  private String driverClass;  // 由 "com.mysql.jdbc.Driver" 改为 null 让 druid 自动探测 driverClass 值
 
   // 初始连接池大小、最小空闲连接数、最大活跃连接数
   private int initialSize = 10;
@@ -71,26 +75,32 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
   private DruidDataSource ds;
   private Dialect dialect;
 
-  public DruidPlugin(String url, String username, String password) {
-    this(url, username, password, null);
-  }
-
-  public DruidPlugin(String url, String username, String password, String dialect) {
-    this(url, username, password, null, dialect);
-  }
-
-  public DruidPlugin(String url, String username, String password, String driverClass, String dialect) {
-    this(url, username, password, dialect, driverClass, null);
-  }
-
-  public DruidPlugin(String url, String username, String password, String dialect, String driverClass, String filters) {
-    this.url = url;
-    this.username = username;
-    this.password = password;
-    this.dialect = DialectFactory.get(dialect == null ? "mysql" : dialect);
+  public DruidPlugin(String dsName) {
+    Prop prop = Proper.use("application.properties");
+    this.url = prop.get("db." + dsName + ".url");
+    checkNotNull(this.url, "Could not found database url for " + "db." + dsName + ".url");
+    this.user = prop.get("db." + dsName + ".user");
+    checkNotNull(this.user, "Could not found database user for " + "db." + dsName + ".user");
+    this.password = prop.get("db." + dsName + ".password");
+    checkNotNull(this.password, "Could not found database password for " + "db." + dsName + ".password");
+    this.dialect = DialectFactory.get(prop.get("db." + dsName + ".dialect", "mysql"));
+    this.driverClass = prop.get("db." + dsName + ".driver");
+    this.filters = prop.get("db." + dsName + ".filter");
+    this.initialSize = prop.getInt("db." + dsName + ".initialSize", 10);
+    this.minIdle = prop.getInt("db." + dsName + ".minIdle", 10);
+    this.maxActive = prop.getInt("db." + dsName + ".maxActive", 100);
+    this.maxWait = prop.getInt("db." + dsName + ".maxWait", DruidDataSource.DEFAULT_MAX_WAIT);
+    this.timeBetweenEvictionRunsMillis = prop.getLong("db." + dsName + ".timeBetweenEvictionRunsMillis", DruidDataSource.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS);
+    this.minEvictableIdleTimeMillis = prop.getLong("db." + dsName + ".minEvictableIdleTimeMillis", DruidDataSource.DEFAULT_MIN_EVICTABLE_IDLE_TIME_MILLIS);
+    this.timeBetweenConnectErrorMillis = prop.getLong("db." + dsName + ".timeBetweenConnectErrorMillis", DruidDataSource.DEFAULT_TIME_BETWEEN_CONNECT_ERROR_MILLIS);
     this.validationQuery = this.dialect.validQuery();
-    this.driverClass = driverClass;
-    this.filters = filters;
+    this.testWhileIdle = prop.getBoolean("db." + dsName + ".testWhileIdle", true);
+    this.testOnBorrow = prop.getBoolean("db." + dsName + ".testOnBorrow", false);
+    this.testOnReturn = prop.getBoolean("db." + dsName + ".testOnReturn", false);
+    this.removeAbandoned = prop.getBoolean("db." + dsName + ".removeAbandoned", false);
+    this.removeAbandonedTimeoutMillis = prop.getInt("db." + dsName + ".removeAbandonedTimeoutMillis", 300 * 1000);
+    this.logAbandoned = prop.getBoolean("db." + dsName + ".logAbandoned", false);
+    this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize");
   }
 
   /**
@@ -117,7 +127,7 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
     ds = new DruidDataSource();
 
     ds.setUrl(url);
-    ds.setUsername(username);
+    ds.setUsername(user);
     ds.setPassword(password);
     if (driverClass != null)
       ds.setDriverClassName(driverClass);

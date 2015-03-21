@@ -6,8 +6,6 @@ import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.common.util.json.ModelDeserializer;
 import cn.dreampie.common.util.json.ModelSerializer;
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.dialect.Dialect;
-import cn.dreampie.orm.dialect.DialectFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +27,21 @@ public class ActiveRecordPlugin implements Plugin {
   private boolean showSql = false;
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
-    this(DS.DEFAULT_DS_NAME, dataSourceProvider);
+    this("default", dataSourceProvider, false);
+  }
+
+  public ActiveRecordPlugin(DataSourceProvider dataSourceProvider, boolean showSql) {
+    this("default", dataSourceProvider, showSql);
   }
 
   public ActiveRecordPlugin(String dsName, DataSourceProvider dataSourceProvider) {
+    this(dsName, dataSourceProvider, false);
+  }
+
+  public ActiveRecordPlugin(String dsName, DataSourceProvider dataSourceProvider, boolean showSql) {
     this.dsName = dsName;
     this.dataSourceProvider = dataSourceProvider;
+    this.showSql = showSql;
   }
 
 
@@ -83,37 +90,41 @@ public class ActiveRecordPlugin implements Plugin {
   public boolean start() {
     if (includeClasses.size() <= 0) {
       includeClasses = ClassScaner.of(Model.class).includepaths(includeClassPaths).search();
+    } else {
+      includeClasses.addAll(ClassScaner.of(Model.class).includepaths(includeClassPaths).<Model>search());
     }
 
-    modelMetas = new ArrayList<ModelMeta>();
-    ModelMeta modelMeta = null;
-    for (Class<? extends Model> modelClass : includeClasses) {
-      boolean isexclude = false;
-      if (excludeClassPaths.size() > 0) {
-        for (String excludepath : excludeClassPaths) {
-          if (modelClass.getName().startsWith(excludepath)) {
-            logger.debug("Exclude model:" + modelClass.getName());
-            isexclude = true;
-            break;
+    DataSourceMeta dsm = new DataSourceMeta(dsName, dataSourceProvider, showSql);
+    if (includeClasses.size() > 0) {
+      modelMetas = new ArrayList<ModelMeta>();
+      ModelMeta modelMeta = null;
+      for (Class<? extends Model> modelClass : includeClasses) {
+        boolean isexclude = false;
+        if (excludeClassPaths.size() > 0) {
+          for (String excludepath : excludeClassPaths) {
+            if (modelClass.getName().startsWith(excludepath)) {
+              logger.debug("Exclude model:" + modelClass.getName());
+              isexclude = true;
+              break;
+            }
           }
         }
-      }
-      if (isexclude || excludeClasses.contains(modelClass)) {
-        continue;
-      }
-      //add modelMeta
-      modelMeta = new ModelMeta(modelClass, dsName);
-      modelMetas.add(modelMeta);
-      logger.info("AddMapping(" + modelMeta.getTableName() + ", " + modelClass.getName() + ")");
+        if (isexclude || excludeClasses.contains(modelClass)) {
+          continue;
+        }
+        //add modelMeta
+        modelMeta = new ModelMeta(modelClass, dsName);
+        modelMetas.add(modelMeta);
+        logger.info("AddMapping(" + modelMeta.getTableName() + ", " + modelClass.getName() + ")");
 
-      //json  config
-      Jsoner.addConfig(modelClass, ModelSerializer.instance(), ModelDeserializer.instance());
+        //json  config
+        Jsoner.addConfig(modelClass, ModelSerializer.instance(), ModelDeserializer.instance());
+      }
+      //model 元数据
+      ModelMetaBuilder.build(modelMetas, dsm);
     }
-    DataSourceMeta dsm = new DataSourceMeta(dsName, dataSourceProvider, showSql);
     //数据源  元数据
     Metadatas.addDataSourceMeta(dsName, dsm);
-    //model 元数据
-    ModelMetaBuilder.build(modelMetas, dsm);
     return true;
   }
 
@@ -121,15 +132,4 @@ public class ActiveRecordPlugin implements Plugin {
     return true;
   }
 
-  public void setShowSql(boolean showSql) {
-    this.showSql = showSql;
-  }
-
-  public void setDsName(String dsName) {
-    this.dsName = dsName;
-  }
-
-  public void addDialect(String dialectName, Dialect dialect) {
-    DialectFactory.addDialect(dialectName, dialect);
-  }
 }

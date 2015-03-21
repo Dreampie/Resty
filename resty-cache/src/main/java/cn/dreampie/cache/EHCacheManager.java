@@ -1,4 +1,4 @@
-package cn.dreampie.orm.cache;
+package cn.dreampie.cache;
 
 import cn.dreampie.log.Logger;
 import net.sf.ehcache.Cache;

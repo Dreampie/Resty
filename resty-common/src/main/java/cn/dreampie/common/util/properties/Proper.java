@@ -17,6 +17,8 @@
 package cn.dreampie.common.util.properties;
 
 
+import cn.dreampie.common.Constant;
+
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +40,7 @@ public class Proper {
    * @see #use(String, String)
    */
   public static Prop use(String fileName) {
-    return use(fileName, Prop.DEFAULT_ENCODING);
+    return use(fileName, Constant.encoding);
   }
 
   /**
@@ -75,7 +77,7 @@ public class Proper {
    * @see #use(java.io.File, String)
    */
   public static Prop use(File file) {
-    return use(file, Prop.DEFAULT_ENCODING);
+    return use(file, Constant.encoding);
   }
 
   /**

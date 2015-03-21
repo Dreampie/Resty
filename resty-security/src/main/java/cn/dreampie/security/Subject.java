@@ -7,7 +7,10 @@ import cn.dreampie.common.util.pattern.AntPathMatcher;
 import cn.dreampie.log.Logger;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -17,6 +20,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 public class Subject {
   private static final Logger logger = Logger.getLogger(Subject.class);
 
+  private static boolean cacheEnabled = Constant.cacheEnabled;
   private static AuthenticateService authenticateService;
   private static PasswordService passwordService;
   private static int rememberDay;
@@ -114,7 +118,7 @@ public class Subject {
    */
   public static String need(String httpMethod, String path) {
     Set<Credential> credentials = null;
-    if (Constant.cacheEnabled) {
+    if (cacheEnabled) {
       credentials = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
 
       if (credentials == null) {

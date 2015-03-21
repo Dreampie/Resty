@@ -16,7 +16,7 @@ public class ActiveRecordPluginTest {
   @Test
   public void testStart() {
     Prop prop = Proper.use("application.properties");
-    DruidPlugin druidPlugin = new DruidPlugin(prop.get("db.default.url"), prop.get("db.default.user"), prop.get("db.default.password"), prop.get("db.default.driver"), prop.get("db.default.dialect"));
+    DruidPlugin druidPlugin = new DruidPlugin("default");
     druidPlugin.start();
     ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
     activeRecordPlugin.addIncludePaths("cn.dremapie.orm");

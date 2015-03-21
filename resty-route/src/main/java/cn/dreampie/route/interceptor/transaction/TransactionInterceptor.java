@@ -1,5 +1,6 @@
 package cn.dreampie.route.interceptor.transaction;
 
+import cn.dreampie.orm.DS;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.route.core.RouteInvocation;
 import cn.dreampie.route.interceptor.Interceptor;
@@ -17,6 +18,9 @@ public class TransactionInterceptor implements Interceptor {
       Transaction transactionAnn = ri.getMethod().getAnnotation(Transaction.class);
       if (transactionAnn != null) {
         String[] names = transactionAnn.name();
+        if (names.length == 0) {
+          names = new String[]{DS.getDefaultDsName()};
+        }
         int[] levels = transactionAnn.level();
         excutors = new TransactionInterceptorExecutor[names.length];
         for (int i = 0; i < names.length; i++) {

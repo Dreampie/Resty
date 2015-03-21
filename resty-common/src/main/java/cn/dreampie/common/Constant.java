@@ -1,6 +1,10 @@
 package cn.dreampie.common;
 
-import cn.dreampie.orm.cache.CacheManager;
+import cn.dreampie.cache.CacheManager;
+import cn.dreampie.cache.EHCacheManager;
+import cn.dreampie.common.util.properties.Prop;
+import cn.dreampie.common.util.properties.Proper;
+import cn.dreampie.log.Logger;
 
 import java.io.File;
 
@@ -8,13 +12,52 @@ import java.io.File;
  * Created by ice on 14-12-29.
  */
 public final class Constant {
-  public static String encoding = "UTF-8";
-  public static boolean devMode = false;
-  public static boolean cacheEnabled = false;
-  public static String uploadDirectory = File.separator + "upload" + File.separator;
-  public static int uploadMaxSize = 1024 * 1024 * 10;// 10 Meg
-  public static String[] uploadDenieds = new String[]{};
-  public static CacheManager cacheManager;
-  public static boolean showRoute = false;
-  public static String apiPrefix = "/api";
+
+  private final static Logger logger = Logger.getLogger(Constant.class);
+
+  public final static String encoding;
+  public final static boolean devMode;
+  public final static boolean cacheEnabled;
+  public final static String uploadDirectory;
+  public final static Integer uploadMaxSize;// 10 Meg
+  public final static String[] uploadDenieds;//set file content type eg. text/xml
+  public final static CacheManager cacheManager;// 缓存工具
+  public final static boolean showRoute;
+  public final static String apiPrefix;
+
+  static {
+    Prop constants = Proper.use("application.properties");
+    encoding = constants.get("app.encoding", "UTF-8");
+    devMode = constants.getBoolean("app.devMode", false);
+    cacheEnabled = constants.getBoolean("app.cacheEnabled", false);
+    uploadDirectory = constants.get("app.uploadDirectory", File.separator + "upload" + File.separator);
+    uploadMaxSize = constants.getInt("app.uploadMaxSize", 1024 * 1024 * 10);
+    String uploadDeniedStr = constants.get("app.uploadDenieds");
+    if (uploadDeniedStr == null)
+      uploadDenieds = new String[]{};
+    else
+      uploadDenieds = uploadDeniedStr.split(",");
+    showRoute = constants.getBoolean("app.showRoute", false);
+    apiPrefix = constants.get("app.showRoute", "/api");
+
+    CacheManager cm = null;
+    if (cacheEnabled) {
+      String cacheManagerClassStr = constants.get("app.cacheManager");
+      if (cacheManagerClassStr == null) {
+        cm = new EHCacheManager();
+      } else {
+        try {
+          Class cacheClass = Class.forName(cacheManagerClassStr);
+          cm = (CacheManager) cacheClass.newInstance();
+        } catch (ClassNotFoundException e) {
+          logger.error("Could not found CacheManager Class.", e);
+        } catch (InstantiationException e) {
+          logger.error("Could not init CacheManager Class.", e);
+        } catch (IllegalAccessException e) {
+          logger.error("Could not access CacheManager Class.", e);
+        }
+      }
+    }
+    cacheManager = cm;
+  }
 }

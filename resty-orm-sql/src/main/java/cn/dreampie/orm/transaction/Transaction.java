@@ -1,7 +1,5 @@
 package cn.dreampie.orm.transaction;
 
-import cn.dreampie.orm.DS;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,7 +12,7 @@ import java.sql.Connection;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Transaction {
-  String[] name() default DS.DEFAULT_DS_NAME;
+  String[] name() default {};
 
   int[] level() default Connection.TRANSACTION_READ_COMMITTED;
 }

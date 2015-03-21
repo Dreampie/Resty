@@ -1,5 +1,7 @@
 package cn.dreampie.orm.transaction;
 
+import cn.dreampie.orm.DS;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -16,6 +18,9 @@ public class TransactionAspect implements Aspect {
       Transaction transactionAnn = method.getAnnotation(Transaction.class);
       if (transactionAnn != null) {
         String[] names = transactionAnn.name();
+        if (names.length == 0) {
+          names = new String[]{DS.getDefaultDsName()};
+        }
         int[] levels = transactionAnn.level();
         excutors = new TransactionExecutor[names.length];
         for (int i = 0; i < names.length; i++) {

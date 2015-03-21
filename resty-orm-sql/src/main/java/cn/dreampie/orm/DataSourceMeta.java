@@ -25,24 +25,12 @@ public class DataSourceMeta {
 
   private final ThreadLocal<Connection> connectionTL = new ThreadLocal<Connection>();
 
-  public DataSourceMeta(DataSourceProvider dataSourceProvider) {
-    this(DS.DEFAULT_DS_NAME, dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), false);
-  }
-
   public DataSourceMeta(String dsName, DataSourceProvider dataSourceProvider) {
     this(dsName, dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), false);
   }
 
   public DataSourceMeta(String dsName, DataSourceProvider dataSourceProvider, boolean showSql) {
     this(dsName, dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), showSql);
-  }
-
-  public DataSourceMeta(DataSource dataSource, Dialect dialect) {
-    this(DS.DEFAULT_DS_NAME, dataSource, dialect, false);
-  }
-
-  public DataSourceMeta(DataSource dataSource, Dialect dialect, boolean showSql) {
-    this(DS.DEFAULT_DS_NAME, dataSource, dialect, showSql);
   }
 
   public DataSourceMeta(String dsName, DataSource dataSource, Dialect dialect) {

@@ -1,6 +1,7 @@
 package cn.dreampie.common.util.properties;
 
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 
 import java.io.*;
@@ -12,8 +13,6 @@ import java.util.Properties;
 public class Prop {
   private final static Logger logger = Logger.getLogger(Prop.class);
 
-  public static final String DEFAULT_ENCODING = "UTF-8";
-
   private Properties properties = null;
 
   /**
@@ -22,7 +21,7 @@ public class Prop {
    * @see #Prop(String, String)
    */
   public Prop(String fileName) {
-    this(fileName, DEFAULT_ENCODING);
+    this(fileName, Constant.encoding);
   }
 
   /**
@@ -39,22 +38,8 @@ public class Prop {
    * @param encoding the encoding
    */
   public Prop(String fileName, String encoding) {
-    InputStream inputStream = null;
-    try {
-      inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);    // properties.load(Prop.class.getResourceAsStream(fileName));
-      if (inputStream == null)
-        throw new IllegalArgumentException("Properties file not found in classpath: " + fileName);
-      properties = new Properties();
-      properties.load(new InputStreamReader(inputStream, encoding));
-    } catch (IOException e) {
-      throw new RuntimeException("Error loading properties file.", e);
-    } finally {
-      if (inputStream != null) try {
-        inputStream.close();
-      } catch (IOException e) {
-        logger.warn(e.getMessage(), e);
-      }
-    }
+    InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+    load(fileName, inputStream, encoding);
   }
 
   /**
@@ -63,7 +48,7 @@ public class Prop {
    * @see #Prop(java.io.File, String)
    */
   public Prop(File file) {
-    this(file, DEFAULT_ENCODING);
+    this(file, Constant.encoding);
   }
 
   /**
@@ -79,18 +64,28 @@ public class Prop {
   public Prop(File file, String encoding) {
     if (file == null)
       throw new IllegalArgumentException("File can not be null.");
+    String fileName = file.getName();
     if (!file.isFile())
-      throw new IllegalArgumentException("Not a file : " + file.getName());
-
-    InputStream inputStream = null;
+      throw new IllegalArgumentException("Not a file : " + fileName);
+    InputStream inputStream;
     try {
       inputStream = new FileInputStream(file);
+      load(fileName, inputStream, encoding);
+    } catch (FileNotFoundException e) {
+      logger.warn(e.getMessage(), e);
+    }
+  }
+
+  void load(String fileName, InputStream inputStream, String encoding) {
+    if (inputStream == null)
+      throw new IllegalArgumentException("Properties file not found in classpath: " + fileName);
+    try {
       properties = new Properties();
-      properties.load(new InputStreamReader(inputStream, encoding));
+      properties.load(new InputStreamReader(inputStream, encoding == null ? "UTF-8" : encoding));
     } catch (IOException e) {
       throw new RuntimeException("Error loading properties file.", e);
     } finally {
-      if (inputStream != null) try {
+      try {
         inputStream.close();
       } catch (IOException e) {
         logger.warn(e.getMessage(), e);

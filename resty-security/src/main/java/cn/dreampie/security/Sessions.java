@@ -3,7 +3,6 @@ package cn.dreampie.security;
 import cn.dreampie.common.Constant;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

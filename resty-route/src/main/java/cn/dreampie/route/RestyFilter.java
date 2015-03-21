@@ -115,8 +115,8 @@ public final class RestyFilter implements Filter {
       else
         throw new InitException("Could not create instance of class: " + configClass + ". Please check the config in web.xml");
     } else {
-      config = new NoConfig();
-      logger.warn("Could not found config and start in NoConfig.");
+      config = new Config();
+      logger.warn("Could not found config and start in no config.");
     }
 
   }

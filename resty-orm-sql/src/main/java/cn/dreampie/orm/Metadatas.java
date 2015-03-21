@@ -34,8 +34,11 @@ public class Metadatas {
     dataSourceMetaMap.put(dsm.getDsName(), dsm);
   }
 
-  public static void addDataSourceMeta(String dbName, DataSourceMeta conn) {
-    dataSourceMetaMap.put(dbName, conn);
+  public static void addDataSourceMeta(String dsName, DataSourceMeta conn) {
+    if (dataSourceMetaMap.size() == 0) {
+      DS.setDefaultDsName(dsName);
+    }
+    dataSourceMetaMap.put(dsName, conn);
   }
 
   public static void setModelMetaMap(Map<Class<? extends Base>, ModelMeta> modelMap) {

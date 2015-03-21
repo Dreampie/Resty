@@ -1,11 +1,11 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.cache.QueryCache;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.Entity;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.exception.ModelException;
@@ -27,6 +27,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
   private static final Logger logger = Logger.getLogger(Base.class);
 
+  private final boolean devMode = Constant.devMode;
   private boolean inCache = true;
   /**
    * Attributes of this model
@@ -316,7 +317,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     } else {
       inCache = true;
     }
-    if (Constant.devMode)
+    if (devMode)
       checkTableName(getModelMeta(), sql);
 
     DataSourceMeta dsm = getDataSourceMeta();
@@ -584,12 +585,12 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
   //update  base
-  protected int update(String sql, Object... paras) {
+  public int update(String sql, Object... paras) {
     //清除缓存
     if (getModelMeta().isCached()) {
       purgeCache();
     }
-    if (Constant.devMode)
+    if (devMode)
       checkTableName(getModelMeta(), sql);
     return DS.use(getModelMeta().getDsName()).update(sql, paras);
   }

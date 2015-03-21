@@ -2,17 +2,17 @@
 <configuration>
   <contextName>resty-example</contextName>
   <!-- 声明变量 -->
-  <substitutionProperty name="log.base" value="./log/resty-example"/>
+  <substitutionProperty name="log.base" value="./logs/resty-example"/>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <layout class="ch.qos.logback.classic.PatternLayout">
-      <pattern>%-4relative [%thread] %-5level %logger - %msg%n</pattern>
+      <pattern>%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
     </layout>
   </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <layout class="ch.qos.logback.classic.PatternLayout">
-      <pattern>%-4relative [%thread] %-5level %logger - %msg%n</pattern>
+      <pattern>%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
     </layout>
     <File>${log.base}.log</File>
   </appender>
@@ -20,7 +20,7 @@
 
   <root level="DEBUG">
     <appender-ref ref="STDOUT"/>
-    <!--<appender-ref ref="FILE" />-->
+    <appender-ref ref="FILE" />
   </root>
 
 </configuration>

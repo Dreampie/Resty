@@ -6,32 +6,37 @@ package cn.dreampie.route.config;
  * <p/>
  * Config order: configConstant(), configResource(), configPlugin(), configInterceptor(), configHandler()
  */
-public abstract class Config {
+public class Config {
 
   /**
    * Config constant
    */
-  public abstract void configConstant(ConstantLoader constantLoader);
+  public void configConstant(ConstantLoader constantLoader) {
+  }
 
   /**
    * Config resource
    */
-  public abstract void configResource(ResourceLoader resourceLoader);
+  public void configResource(ResourceLoader resourceLoader) {
+  }
 
   /**
    * Config plugin
    */
-  public abstract void configPlugin(PluginLoader pluginLoader);
+  public void configPlugin(PluginLoader pluginLoader) {
+  }
 
   /**
    * Config interceptor applied to all actions.
    */
-  public abstract void configInterceptor(InterceptorLoader interceptorLoader);
+  public void configInterceptor(InterceptorLoader interceptorLoader) {
+  }
 
   /**
    * Config handler
    */
-  public abstract void configHandler(HandlerLoader handlerLoader);
+  public void configHandler(HandlerLoader handlerLoader) {
+  }
 
 
   /**

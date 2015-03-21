@@ -11,7 +11,6 @@ import cn.dreampie.security.cache.SessionCache;
 import cn.dreampie.security.sign.CookieSigner;
 import cn.dreampie.security.sign.Signer;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
@@ -26,6 +25,7 @@ public class SessionBuilder {
 
   private final static Logger logger = Logger.getLogger(SessionBuilder.class);
 
+  private final boolean cacheEnabled = Constant.cacheEnabled;
   private final Sessions sessions;
   private final Signer signer;
   private final SessionCookieDescriptor sessionCookieDescriptor;
@@ -165,7 +165,7 @@ public class SessionBuilder {
             return emptySession;
           }
           //是否使用cache
-          if (Constant.cacheEnabled) {
+          if (cacheEnabled) {
             //通过cache 来获取对象相关的值
             principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
             //cache 已经失效  从接口获取用户数据

@@ -1,9 +1,9 @@
 package cn.dreampie.orm;
 
 
+import cn.dreampie.cache.QueryCache;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
@@ -20,19 +20,18 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public class DS {
   private static final Logger logger = Logger.getLogger(DS.class);
-  public static final String DEFAULT_DS_NAME = "default";
+  public static String defaultDsName;
   public static final String DEFAULT_PRIMARY_KAY = "id";
   public static final Object[] NULL_PARA_ARRAY = new Object[0];
-
   private DataSourceMeta dataSourceMeta;
   private boolean cached = false;
 
   public static DS use() {
-    return DS.use(DEFAULT_DS_NAME, false);
+    return DS.use(defaultDsName, false);
   }
 
   public static DS use(boolean cached) {
-    return DS.use(DEFAULT_DS_NAME, cached);
+    return DS.use(defaultDsName, cached);
   }
 
   public static DS use(String dsName) {
@@ -46,6 +45,18 @@ public class DS {
     ds.cached = cached;
     return ds;
   }
+
+  static void setDefaultDsName(String defaultDsName) {
+    if (DS.defaultDsName == null)
+      DS.defaultDsName = defaultDsName;
+    else
+      throw new DBException("Conld not set twice for defaultDsName");
+  }
+
+  public static String getDefaultDsName() {
+    return defaultDsName;
+  }
+
 
   public DataSourceMeta getDataSourceMeta() {
     return dataSourceMeta;
@@ -501,7 +512,7 @@ public class DS {
     return deleteById(tableName, DEFAULT_PRIMARY_KAY, record.get(DEFAULT_PRIMARY_KAY));
   }
 
-  boolean save(String tableName, String primaryKey, Record record) {
+  public boolean save(String tableName, String primaryKey, Record record) {
     String sql = dataSourceMeta.getDialect().insert(tableName, record.getAttrNames());
     int result = -1;
     Object[] params = record.getAttrValues();
@@ -524,9 +535,21 @@ public class DS {
     return result >= 1;
   }
 
-//  boolean save(String tableName, String primaryKey, Record... records) {
-//    return save(tableName, primaryKey, Arrays.asList(records));
-//  }
+  public boolean save(String tableName, String primaryKey, Record... records) {
+    return save(tableName, primaryKey, Arrays.asList(records));
+  }
+
+  /**
+   * @see #save(String, String, Record)
+   */
+  public boolean save(String tableName, Record record) {
+    return save(tableName, DEFAULT_PRIMARY_KAY, record);
+  }
+
+
+  public boolean save(String tableName, Record... records) {
+    return save(tableName, DEFAULT_PRIMARY_KAY, records);
+  }
 
   public boolean save(String tableName, List<Record> records) {
     return save(tableName, DEFAULT_PRIMARY_KAY, records);
@@ -540,7 +563,7 @@ public class DS {
    * @param records    记录
    * @return boolean
    */
-  boolean save(String tableName, String primaryKey, List<Record> records) {
+  public boolean save(String tableName, String primaryKey, List<Record> records) {
     if (records == null || records.size() <= 0) {
       logger.warn("Cloud not found records to save.");
       return false;
@@ -616,19 +639,8 @@ public class DS {
     rs.close();
   }
 
-  /**
-   * @see #save(String, String, Record)
-   */
-  public boolean save(String tableName, Record record) {
-    return save(tableName, DEFAULT_PRIMARY_KAY, record);
-  }
 
-
-//  public boolean save(String tableName, Record... records) {
-//    return save(tableName, DEFAULT_PRIMARY_KAY, records);
-//  }
-
-  boolean update(String tableName, String primaryKey, Record record) {
+  public boolean update(String tableName, String primaryKey, Record record) {
     Object id = record.get(primaryKey);
     checkNotNull(id, "You can't update model without Primary Key.");
 

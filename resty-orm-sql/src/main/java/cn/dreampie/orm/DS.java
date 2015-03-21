@@ -524,8 +524,12 @@ public class DS {
     return result >= 1;
   }
 
-  boolean save(String tableName, String primaryKey, Record... records) {
-    return save(tableName, primaryKey, Arrays.asList(records));
+//  boolean save(String tableName, String primaryKey, Record... records) {
+//    return save(tableName, primaryKey, Arrays.asList(records));
+//  }
+
+  public boolean save(String tableName, List<Record> records) {
+    return save(tableName, DEFAULT_PRIMARY_KAY, records);
   }
 
   /**
@@ -620,9 +624,9 @@ public class DS {
   }
 
 
-  public boolean save(String tableName, Record... records) {
-    return save(tableName, DEFAULT_PRIMARY_KAY, records);
-  }
+//  public boolean save(String tableName, Record... records) {
+//    return save(tableName, DEFAULT_PRIMARY_KAY, records);
+//  }
 
   boolean update(String tableName, String primaryKey, Record record) {
     Object id = record.get(primaryKey);

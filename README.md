@@ -174,10 +174,9 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 6.极简的缓存设计，可扩展，非常简单即可启用model的自动缓存功能
 
 ```java
-  public void configConstant(ConstantLoader constantLoader) {
-    //启用缓存并在要自动使用缓存的model上  开启缓存@Table(name = "sec_user", cached = true)
-    constantLoader.setCacheEnable(true);
-  }
+  //启用缓存并在要自动使用缓存的model上
+  //config application.properties  app.cacheEnabled=true
+  //开启缓存@Table(name = "sec_user", cached = true)
 
   @Table(name = "sec_user", cached = true)
   public class User extends Model<User> {

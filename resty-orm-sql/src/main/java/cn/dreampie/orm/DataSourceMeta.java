@@ -2,6 +2,7 @@ package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;
+import com.alibaba.druid.pool.DruidDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -73,6 +74,11 @@ public class DataSourceMeta {
 
   public void rmCurrentConnection() {
     connectionTL.remove();
+  }
+
+  public final void close() {
+    if (dataSource != null && dataSource instanceof DruidDataSource)
+      ((DruidDataSource) dataSource).close();
   }
 
   /**

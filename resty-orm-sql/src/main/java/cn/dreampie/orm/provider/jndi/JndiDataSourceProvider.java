@@ -1,4 +1,4 @@
-package cn.dreampie.orm.jndi;
+package cn.dreampie.orm.provider.jndi;
 
 import cn.dreampie.orm.DataSourceProvider;
 import cn.dreampie.orm.dialect.Dialect;
@@ -17,18 +17,20 @@ public class JndiDataSourceProvider implements DataSourceProvider {
 
   private DataSource ds;
   private Dialect dialect;
+  private String dsName;
 
-  public JndiDataSourceProvider(String name) {
-    this(name, null);
+  public JndiDataSourceProvider(String jndiName) {
+    this("default", jndiName, null);
   }
 
-  public JndiDataSourceProvider(String name, String dialect) {
+  public JndiDataSourceProvider(String dsName, String jndiName, String dialect) {
+    this.dsName = dsName;
     Context ctx;
     try {
       ctx = new InitialContext();
-      ds = (DataSource) ctx.lookup(name);
+      ds = (DataSource) ctx.lookup(jndiName);
       if (ds == null) {
-        throw new DBException("Jndi could not found error for " + name);
+        throw new DBException("Jndi could not found error for " + jndiName);
       }
     } catch (NamingException e) {
       throw new DBException(e.getMessage(), e);
@@ -42,5 +44,9 @@ public class JndiDataSourceProvider implements DataSourceProvider {
 
   public Dialect getDialect() {
     return dialect;
+  }
+
+  public String getDsName() {
+    return dsName;
   }
 }

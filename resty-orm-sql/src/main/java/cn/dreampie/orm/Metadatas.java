@@ -1,5 +1,7 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.orm.exception.DBException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +40,22 @@ public class Metadatas {
     if (dataSourceMetaMap.size() == 0) {
       DS.setDefaultDsName(dsName);
     }
+    if (dataSourceMetaMap.containsKey(dsName))
+      throw new DBException("Already exists dsName " + dsName);
     dataSourceMetaMap.put(dsName, conn);
+  }
+
+  public static void closeDataSourceMeta() {
+    for (String dsName : dataSourceMetaMap.keySet()) {
+      closeDataSourceMeta(dsName);
+    }
+  }
+
+  public static void closeDataSourceMeta(String dsName) {
+    DataSourceMeta dataSourceMeta = dataSourceMetaMap.get(dsName);
+    if (dataSourceMeta != null) {
+      dataSourceMeta.close();
+    }
   }
 
   public static void setModelMetaMap(Map<Class<? extends Base>, ModelMeta> modelMap) {

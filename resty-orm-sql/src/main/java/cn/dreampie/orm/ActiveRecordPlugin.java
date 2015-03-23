@@ -27,23 +27,14 @@ public class ActiveRecordPlugin implements Plugin {
   private boolean showSql = false;
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
-    this("default", dataSourceProvider, false);
+    this(dataSourceProvider, false);
   }
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider, boolean showSql) {
-    this("default", dataSourceProvider, showSql);
-  }
-
-  public ActiveRecordPlugin(String dsName, DataSourceProvider dataSourceProvider) {
-    this(dsName, dataSourceProvider, false);
-  }
-
-  public ActiveRecordPlugin(String dsName, DataSourceProvider dataSourceProvider, boolean showSql) {
-    this.dsName = dsName;
+    this.dsName = dataSourceProvider.getDsName();
     this.dataSourceProvider = dataSourceProvider;
     this.showSql = showSql;
   }
-
 
   public ActiveRecordPlugin addExcludeClasses(Class<? extends Model>... clazzes) {
     for (Class<? extends Model> clazz : clazzes) {
@@ -129,6 +120,8 @@ public class ActiveRecordPlugin implements Plugin {
   }
 
   public boolean stop() {
+    //关闭数据源  元数据
+    Metadatas.closeDataSourceMeta();
     return true;
   }
 

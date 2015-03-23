@@ -1,12 +1,10 @@
 package cn.dreampie;
 
 
-import cn.dreampie.common.util.properties.Prop;
-import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.DS;
 import cn.dreampie.orm.Record;
-import cn.dreampie.orm.druid.DruidPlugin;
+import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
 import org.junit.Test;
 
 /**
@@ -15,10 +13,7 @@ import org.junit.Test;
 public class ActiveRecordPluginTest {
   @Test
   public void testStart() {
-    Prop prop = Proper.use("application.properties");
-    DruidPlugin druidPlugin = new DruidPlugin("default");
-    druidPlugin.start();
-    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(druidPlugin);
+    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(new DruidDataSourceProvider("default"));
     activeRecordPlugin.addIncludePaths("cn.dremapie.orm");
     activeRecordPlugin.start();
 

@@ -1,6 +1,5 @@
-package cn.dreampie.orm.druid;
+package cn.dreampie.orm.provider.druid;
 
-import cn.dreampie.common.Plugin;
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.orm.DataSourceProvider;
@@ -21,8 +20,9 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 /**
  * Created by ice on 14-12-30.
  */
-public class DruidPlugin implements Plugin, DataSourceProvider {
+public class DruidDataSourceProvider implements DataSourceProvider {
 
+  private String dsName;
   // 基本属性 url、user、password
   private String url;
   private String user;
@@ -75,11 +75,12 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
   private DruidDataSource ds;
   private Dialect dialect;
 
-  public DruidPlugin() {
+  public DruidDataSourceProvider() {
     this("default");
   }
 
-  public DruidPlugin(String dsName) {
+  public DruidDataSourceProvider(String dsName) {
+    this.dsName = dsName;
     Prop prop = Proper.use("application.properties");
     this.url = prop.get("db." + dsName + ".url");
     checkNotNull(this.url, "Could not found database url for " + "db." + dsName + ".url");
@@ -105,31 +106,9 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
     this.removeAbandonedTimeoutMillis = prop.getInt("db." + dsName + ".removeAbandonedTimeoutMillis", 300 * 1000);
     this.logAbandoned = prop.getBoolean("db." + dsName + ".logAbandoned", false);
     this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize");
-  }
 
-  /**
-   * 设置过滤器，如果要开启监控统计需要使用此方法或在构造方法中进行设置
-   * <p>
-   * 监控统计："stat"
-   * 防SQL注入："wall"
-   * 组合使用： "stat,wall"
-   * </p>
-   */
-  public DruidPlugin setFilters(String filters) {
-    this.filters = filters;
-    return this;
-  }
-
-  public synchronized DruidPlugin addFilter(Filter filter) {
-    if (filterList == null)
-      filterList = new ArrayList<Filter>();
-    filterList.add(filter);
-    return this;
-  }
-
-  public boolean start() {
+    //init druid
     ds = new DruidDataSource();
-
     ds.setUrl(url);
     ds.setUsername(user);
     ds.setPassword(password);
@@ -163,7 +142,26 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
       }
 
     addFilterList(ds);
-    return true;
+  }
+
+  /**
+   * 设置过滤器，如果要开启监控统计需要使用此方法或在构造方法中进行设置
+   * <p>
+   * 监控统计："stat"
+   * 防SQL注入："wall"
+   * 组合使用： "stat,wall"
+   * </p>
+   */
+  public DruidDataSourceProvider setFilters(String filters) {
+    this.filters = filters;
+    return this;
+  }
+
+  public synchronized DruidDataSourceProvider addFilter(Filter filter) {
+    if (filterList == null)
+      filterList = new ArrayList<Filter>();
+    filterList.add(filter);
+    return this;
   }
 
   private void addFilterList(DruidDataSource ds) {
@@ -183,12 +181,6 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
     }
   }
 
-  public boolean stop() {
-    if (ds != null)
-      ds.close();
-    return true;
-  }
-
   public DataSource getDataSource() {
     return ds;
   }
@@ -197,44 +189,48 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
     return dialect;
   }
 
-  public DruidPlugin set(int initialSize, int minIdle, int maxActive) {
+  public String getDsName() {
+    return dsName;
+  }
+
+  public DruidDataSourceProvider set(int initialSize, int minIdle, int maxActive) {
     this.initialSize = initialSize;
     this.minIdle = minIdle;
     this.maxActive = maxActive;
     return this;
   }
 
-  public DruidPlugin setDriverClass(String driverClass) {
+  public DruidDataSourceProvider setDriverClass(String driverClass) {
     this.driverClass = driverClass;
     return this;
   }
 
-  public DruidPlugin setInitialSize(int initialSize) {
+  public DruidDataSourceProvider setInitialSize(int initialSize) {
     this.initialSize = initialSize;
     return this;
   }
 
-  public DruidPlugin setMinIdle(int minIdle) {
+  public DruidDataSourceProvider setMinIdle(int minIdle) {
     this.minIdle = minIdle;
     return this;
   }
 
-  public DruidPlugin setMaxActive(int maxActive) {
+  public DruidDataSourceProvider setMaxActive(int maxActive) {
     this.maxActive = maxActive;
     return this;
   }
 
-  public DruidPlugin setMaxWait(long maxWait) {
+  public DruidDataSourceProvider setMaxWait(long maxWait) {
     this.maxWait = maxWait;
     return this;
   }
 
-  public DruidPlugin setTimeBetweenEvictionRunsMillis(long timeBetweenEvictionRunsMillis) {
+  public DruidDataSourceProvider setTimeBetweenEvictionRunsMillis(long timeBetweenEvictionRunsMillis) {
     this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
     return this;
   }
 
-  public DruidPlugin setMinEvictableIdleTimeMillis(long minEvictableIdleTimeMillis) {
+  public DruidDataSourceProvider setMinEvictableIdleTimeMillis(long minEvictableIdleTimeMillis) {
     this.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
     return this;
   }
@@ -245,27 +241,27 @@ public class DruidPlugin implements Plugin, DataSourceProvider {
    * DB2 - "select 1 from sysibm.sysdummy1"
    * mysql - "select 1"
    */
-  public DruidPlugin setValidationQuery(String validationQuery) {
+  public DruidDataSourceProvider setValidationQuery(String validationQuery) {
     this.validationQuery = validationQuery;
     return this;
   }
 
-  public DruidPlugin setTestWhileIdle(boolean testWhileIdle) {
+  public DruidDataSourceProvider setTestWhileIdle(boolean testWhileIdle) {
     this.testWhileIdle = testWhileIdle;
     return this;
   }
 
-  public DruidPlugin setTestOnBorrow(boolean testOnBorrow) {
+  public DruidDataSourceProvider setTestOnBorrow(boolean testOnBorrow) {
     this.testOnBorrow = testOnBorrow;
     return this;
   }
 
-  public DruidPlugin setTestOnReturn(boolean testOnReturn) {
+  public DruidDataSourceProvider setTestOnReturn(boolean testOnReturn) {
     this.testOnReturn = testOnReturn;
     return this;
   }
 
-  public DruidPlugin setMaxPoolPreparedStatementPerConnectionSize(int maxPoolPreparedStatementPerConnectionSize) {
+  public DruidDataSourceProvider setMaxPoolPreparedStatementPerConnectionSize(int maxPoolPreparedStatementPerConnectionSize) {
     this.maxPoolPreparedStatementPerConnectionSize = maxPoolPreparedStatementPerConnectionSize;
     return this;
   }

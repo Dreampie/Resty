@@ -11,4 +11,6 @@ public interface DataSourceProvider {
   DataSource getDataSource();
 
   Dialect getDialect();
+
+  String getDsName();
 }

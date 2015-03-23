@@ -3,17 +3,19 @@ package cn.dreampie.quartz.job;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.quartz.QuartzKey;
 import cn.dreampie.quartz.Quartzer;
+import cn.dreampie.quartz.exception.QuartzException;
 import org.quartz.*;
 
 import java.util.Date;
 import java.util.Map;
+
+import static org.quartz.JobBuilder.newJob;
 
 /**
  * Created by wangrenhui on 14/11/29.
  */
 public abstract class QuartzJob {
   protected QuartzKey quartzKey;
-  protected JobState state;//started,stoped,paused
   protected Class<? extends Job> jobClass;
   protected Date scheduleTime;
   protected Map<String, Object> params = Maper.of();
@@ -55,12 +57,11 @@ public abstract class QuartzJob {
           scheduler.pauseTrigger(triggerKey);
           scheduler.unscheduleJob(triggerKey);
           scheduler.deleteJob(trigger.getJobKey());
-          this.state = JobState.STOPED;
           Quartzer.removeQuartzJob(this);
         }
       }
     } catch (Exception e) {
-      throw new RuntimeException("Can't stop job.", e);
+      throw new QuartzException("Can't stop job.", e);
     }
   }
 
@@ -79,11 +80,10 @@ public abstract class QuartzJob {
         Trigger trigger = scheduler.getTrigger(triggerKey);
         if (trigger != null) {
           scheduler.pauseTrigger(triggerKey);
-          this.state = JobState.PAUSED;
         }
       }
     } catch (Exception e) {
-      throw new RuntimeException("Can't pause job.", e);
+      throw new QuartzException("Can't pause job.", e);
     }
   }
 
@@ -102,12 +102,48 @@ public abstract class QuartzJob {
         Trigger trigger = scheduler.getTrigger(triggerKey);
         if (trigger != null) {
           scheduler.resumeJob(trigger.getJobKey());
-          this.state = JobState.RESUMED;
         }
       }
     } catch (Exception e) {
-      throw new RuntimeException("Can't resume job.", e);
+      throw new QuartzException("Can't resume job.", e);
     }
+  }
+
+
+  public Trigger.TriggerState getState() {
+    long id = quartzKey.getId();
+    String name = quartzKey.getName();
+    String group = quartzKey.getGroup();
+    SchedulerFactory factory = Quartzer.getSchedulerFactory();
+    Trigger.TriggerState triggerState = null;
+    try {
+      if (factory != null) {
+        Scheduler scheduler = factory.getScheduler();
+        TriggerKey triggerKey = TriggerKey.triggerKey(TRIGGER_MARK + SEPARATOR + name + SEPARATOR + id, GROUP_MARK + SEPARATOR + group + SEPARATOR + id);
+        triggerState = scheduler.getTriggerState(triggerKey);
+      }
+    } catch (Exception e) {
+      throw new QuartzException("Can't get job state.", e);
+    }
+    return triggerState;
+  }
+
+
+  protected JobDetail getJobDetail(long id, String name, String group) {
+    // define the job and tie it to our HelloJob class
+    JobDetail job = newJob(jobClass)
+        .withIdentity(JOB_MARK + SEPARATOR + name + SEPARATOR + id, GROUP_MARK + SEPARATOR + group + SEPARATOR + id)
+        .requestRecovery()
+        .build();
+
+    Map jobMap = job.getJobDataMap();
+    jobMap.put("job_group", group);
+    jobMap.put("job_name", name);
+    jobMap.put("job_id", id);
+    //添加参数
+    if (params != null && params.size() > 0)
+      jobMap.putAll(params);
+    return job;
   }
 
   public QuartzKey getQuartzKey() {
@@ -116,14 +152,6 @@ public abstract class QuartzJob {
 
   public void setQuartzKey(QuartzKey quartzKey) {
     this.quartzKey = quartzKey;
-  }
-
-  public JobState getState() {
-    return state;
-  }
-
-  public void setState(JobState state) {
-    this.state = state;
   }
 
   public Class<? extends Job> getJobClass() {

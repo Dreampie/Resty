@@ -224,6 +224,8 @@ public class RouteInvocation {
           } else {
             params.set(name, null);
           }
+        } else {
+          params.set(name, null);
         }
       }
       i++;

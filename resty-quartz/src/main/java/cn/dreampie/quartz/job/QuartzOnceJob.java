@@ -2,12 +2,11 @@ package cn.dreampie.quartz.job;
 
 import cn.dreampie.quartz.QuartzKey;
 import cn.dreampie.quartz.Quartzer;
+import cn.dreampie.quartz.exception.QuartzException;
 import org.quartz.*;
 
 import java.util.Date;
-import java.util.Map;
 
-import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
@@ -29,7 +28,6 @@ public class QuartzOnceJob extends QuartzJob {
     this.quartzKey = quartzKey;
     this.startTime = startTime;
     this.jobClass = jobClass;
-    this.state = JobState.INITED;
   }
 
   /**
@@ -54,18 +52,7 @@ public class QuartzOnceJob extends QuartzJob {
     try {
       if (factory != null) {
         Scheduler sched = factory.getScheduler();
-        // define the job and tie it to our HelloJob class
-        JobDetail job = newJob(jobClass)
-            .withIdentity(JOB_MARK + SEPARATOR + name + SEPARATOR + id, GROUP_MARK + SEPARATOR + group + SEPARATOR + id)
-            .requestRecovery()
-            .build();
-
-        Map jobMap = job.getJobDataMap();
-        jobMap.put(group + SEPARATOR + name, id);
-        //添加参数
-        if (params != null && params.size() > 0)
-          jobMap.putAll(params);
-
+        JobDetail job = getJobDetail(id, name, group);
         // 定时执行
         Trigger trigger = newTrigger()
             .withIdentity(TRIGGER_MARK + SEPARATOR + name + SEPARATOR + id, GROUP_MARK + SEPARATOR + group + SEPARATOR + id)
@@ -75,12 +62,12 @@ public class QuartzOnceJob extends QuartzJob {
 
         this.scheduleTime = sched.scheduleJob(job, trigger);
         sched.start();
-        this.state = JobState.STARTED;
         Quartzer.addQuartzJob(this);
       }
     } catch (Exception e) {
-      throw new RuntimeException("Can't start once job.", e);
+      throw new QuartzException("Can't start once job.", e);
     }
+
   }
 
   public Date getStartTime() {

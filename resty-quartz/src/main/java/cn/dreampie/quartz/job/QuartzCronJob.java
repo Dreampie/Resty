@@ -2,12 +2,10 @@ package cn.dreampie.quartz.job;
 
 import cn.dreampie.quartz.QuartzKey;
 import cn.dreampie.quartz.Quartzer;
+import cn.dreampie.quartz.exception.QuartzException;
 import org.quartz.*;
 
-import java.util.Map;
-
 import static org.quartz.CronScheduleBuilder.cronSchedule;
-import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 /**
@@ -27,7 +25,6 @@ public class QuartzCronJob extends QuartzJob {
 
   public QuartzCronJob(QuartzKey quartzKey, String cron, Class<? extends Job> jobClass) {
     this.quartzKey = quartzKey;
-    this.state = JobState.INITED;
     this.cron = cron;
     this.jobClass = jobClass;
   }
@@ -53,17 +50,8 @@ public class QuartzCronJob extends QuartzJob {
     try {
       if (factory != null) {
         Scheduler sched = factory.getScheduler();
-        // define the job and tie it to our HelloJob class
-        JobDetail job = newJob(jobClass)
-            .withIdentity(JOB_MARK + SEPARATOR + name + SEPARATOR + id, GROUP_MARK + SEPARATOR + group + SEPARATOR + id)
-            .requestRecovery()
-            .build();
+        JobDetail job = getJobDetail(id, name, group);
 
-        Map jobMap = job.getJobDataMap();
-        jobMap.put(group + SEPARATOR + name, id);
-        //添加参数
-        if (params != null && params.size() > 0)
-          jobMap.putAll(params);
 
         // 执行表达式
         CronTrigger trigger = newTrigger()
@@ -72,11 +60,10 @@ public class QuartzCronJob extends QuartzJob {
 
         this.scheduleTime = sched.scheduleJob(job, trigger);
         sched.start();
-        this.state = JobState.STARTED;
         Quartzer.addQuartzJob(this);
       }
     } catch (Exception e) {
-      throw new RuntimeException("Can't start cron job.", e);
+      throw new QuartzException("Can't start cron job.", e);
     }
 
   }

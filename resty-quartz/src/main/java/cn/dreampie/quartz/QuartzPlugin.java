@@ -4,6 +4,7 @@ import cn.dreampie.common.Plugin;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.common.util.stream.Filer;
 import cn.dreampie.log.Logger;
+import cn.dreampie.quartz.exception.QuartzException;
 import cn.dreampie.quartz.job.QuartzCronJob;
 import cn.dreampie.quartz.job.QuartzOnceJob;
 import org.quartz.Scheduler;
@@ -54,7 +55,7 @@ public class QuartzPlugin implements Plugin {
       startPropertiesJobs();
       return true;
     } catch (Exception e) {
-      throw new RuntimeException("Can't start quartz plugin.", e);
+      throw new QuartzException("Can't start quartz plugin.", e);
     }
   }
 
@@ -64,7 +65,7 @@ public class QuartzPlugin implements Plugin {
       Quartzer.setSchedulerFactory(null);
       return true;
     } catch (Exception e) {
-      throw new RuntimeException("Can't stop quartz plugin.", e);
+      throw new QuartzException("Can't stop quartz plugin.", e);
     }
   }
 
@@ -112,7 +113,7 @@ public class QuartzPlugin implements Plugin {
         try {
           clazz = Class.forName(jobClassName);
         } catch (ClassNotFoundException e) {
-          throw new RuntimeException(e.getMessage(), e);
+          throw new QuartzException(e.getMessage(), e);
         }
         //启动任务
         if (jobCron != null) {
@@ -125,7 +126,7 @@ public class QuartzPlugin implements Plugin {
           try {
             onceTime = sdf.parse(jobOnce);
           } catch (ParseException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new QuartzException(e.getMessage(), e);
           }
           if (System.currentTimeMillis() <= onceTime.getTime()) {
             if (group != null) {

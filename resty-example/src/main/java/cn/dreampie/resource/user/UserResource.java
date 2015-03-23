@@ -23,7 +23,7 @@ import java.util.Set;
 public class UserResource extends ApiResource {
   //用于使用service层的 事务
   // @Transaction(name = {"default", "demo"})的注解需要写在service的接口上
-  // 注意java的自动代理必须存在接口
+  // 注意java的自动代理必须存在接口  注意不要使用静态类型 避免线程问题
   private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect());
 
   //查询集合

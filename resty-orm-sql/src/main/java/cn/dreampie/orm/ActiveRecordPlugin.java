@@ -80,10 +80,12 @@ public class ActiveRecordPlugin implements Plugin {
   }
 
   public boolean start() {
-    if (includeClasses.size() <= 0) {
-      includeClasses = ClassScaner.of(Model.class).includepaths(includeClassPaths).search();
-    } else {
-      includeClasses.addAll(ClassScaner.of(Model.class).includepaths(includeClassPaths).<Model>search());
+    if (includeClassPaths.size() > 0) {
+      if (includeClasses.size() <= 0) {
+        includeClasses = ClassScaner.of(Model.class).includepaths(includeClassPaths).search();
+      } else {
+        includeClasses.addAll(ClassScaner.of(Model.class).includepaths(includeClassPaths).<Model>search());
+      }
     }
 
     DataSourceMeta dsm = new DataSourceMeta(dsName, dataSourceProvider, showSql);

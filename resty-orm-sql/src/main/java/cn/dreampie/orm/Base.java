@@ -381,11 +381,11 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @param id the id value of the model
    */
   public M findById(Object id) {
-    return findById("*", id);
+    return findColsById("*", id);
   }
 
   public M findByIds(Object... ids) {
-    return findByIds("*", ids);
+    return findColsByIds("*", ids);
   }
 
   /**
@@ -395,13 +395,13 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @param columns the specific columns
    * @param id      the id value of the model
    */
-  public M findById(String columns, Object id) {
+  public M findColsById(String columns, Object id) {
     String sql = getDialect().select(getModelMeta().getTableName(), "", getModelMeta().getPrimaryKey() + "=?", columns.split(","));
     List<M> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }
 
-  public M findByIds(String columns, Object... ids) {
+  public M findColsByIds(String columns, Object... ids) {
     String sql = getDialect().select(getModelMeta().getTableName(), "", Joiner.on("=? AND ").join(getModelMeta().getPrimaryKeys()) + "=?", columns.split(","));
     List<M> result = find(sql, ids);
     return result.size() > 0 ? result.get(0) : null;

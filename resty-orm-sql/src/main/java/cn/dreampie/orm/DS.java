@@ -398,7 +398,7 @@ public class DS {
    * @param id        the id value of the record
    */
   public Record findById(String tableName, Object id) {
-    return findById(tableName, DEFAULT_PRIMARY_KAY, id);
+    return findColsById(tableName, DEFAULT_PRIMARY_KAY, id);
   }
 
   /**
@@ -409,8 +409,8 @@ public class DS {
    * @param id        the id value of the record
    * @param columns   the specific columns
    */
-  public Record findById(String tableName, Number id, String... columns) {
-    return findById(tableName, DEFAULT_PRIMARY_KAY, id, columns);
+  public Record findColsById(String tableName, Object id, String... columns) {
+    return findColsById(tableName, DEFAULT_PRIMARY_KAY, id, columns);
   }
 
   /**
@@ -422,7 +422,7 @@ public class DS {
    * @param id         the id value of the record
    * @param columns    the specific columns separate with comma character ==> ","
    */
-  public Record findById(String tableName, String primaryKey, Object id, String... columns) {
+  public Record findColsById(String tableName, String primaryKey, Object id, String... columns) {
     checkNotNull(id, "You can't find model without Primary Key.");
 
     String sql = dataSourceMeta.getDialect().select(tableName, "", primaryKey + "=?", columns);
@@ -439,7 +439,7 @@ public class DS {
    * @param ids         the id values of the record
    * @param columns     the specific columns separate with comma character ==> ","
    */
-  public Record findByIds(String tableName, String primaryKeys, Object[] ids, String... columns) {
+  public Record findColsByIds(String tableName, String primaryKeys, Object[] ids, String... columns) {
     checkNotNull(ids, "You can't find model without Primary Keys.");
 
     String sql = dataSourceMeta.getDialect().select(tableName, "", Joiner.on("=? AND ").join(primaryKeys.split(",")) + "=?", columns);

@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.Stringer;
 import cn.dreampie.log.Logger;
 
@@ -12,6 +13,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   private static final Logger logger = Logger.getLogger(Model.class);
 
   protected String alias;
+
 
   /**
    * 查询全部的model数据

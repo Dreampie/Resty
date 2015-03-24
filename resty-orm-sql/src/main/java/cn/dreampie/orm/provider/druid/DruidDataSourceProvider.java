@@ -105,7 +105,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.removeAbandoned = prop.getBoolean("db." + dsName + ".removeAbandoned", false);
     this.removeAbandonedTimeoutMillis = prop.getInt("db." + dsName + ".removeAbandonedTimeoutMillis", 300 * 1000);
     this.logAbandoned = prop.getBoolean("db." + dsName + ".logAbandoned", false);
-    this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize");
+    this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize",10);
 
     //init druid
     ds = new DruidDataSource();

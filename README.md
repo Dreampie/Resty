@@ -16,7 +16,7 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
 一、独有优点：
 -----------
-//数据库喝全局参数配置移植到application.properties  详情参看resty-example
+//数据库和全局参数配置移植到application.properties  详情参看resty-example
 
 ```java
 //not must auto load

@@ -1,8 +1,8 @@
 package cn.dreampie.example;
 
+import cn.dreampie.common.entity.Record;
 import cn.dreampie.orm.DS;
 import cn.dreampie.orm.Page;
-import cn.dreampie.orm.Record;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.resource.user.model.UserInfo;
 import org.junit.Before;

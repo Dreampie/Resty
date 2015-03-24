@@ -1,6 +1,5 @@
-package cn.dreampie.orm;
+package cn.dreampie.common.entity;
 
-import cn.dreampie.common.Entity;
 import cn.dreampie.common.util.json.Jsoner;
 
 import java.io.Serializable;

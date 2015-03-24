@@ -1,4 +1,4 @@
-package cn.dreampie.orm;
+package cn.dreampie.common.entity;
 
 import java.util.TreeSet;
 

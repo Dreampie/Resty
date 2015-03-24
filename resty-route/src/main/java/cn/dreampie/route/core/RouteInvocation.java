@@ -1,6 +1,6 @@
 package cn.dreampie.route.core;
 
-import cn.dreampie.common.Entity;
+import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.exception.WebException;

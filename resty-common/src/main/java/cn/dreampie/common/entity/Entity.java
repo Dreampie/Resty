@@ -1,4 +1,4 @@
-package cn.dreampie.common;
+package cn.dreampie.common.entity;
 
 import java.util.Map;
 

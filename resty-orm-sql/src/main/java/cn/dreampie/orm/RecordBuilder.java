@@ -1,5 +1,8 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.entity.CaseInsensitiveMap;
+import cn.dreampie.common.entity.Record;
+
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;

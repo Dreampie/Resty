@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.exception.DBException;
 

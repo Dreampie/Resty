@@ -1,6 +1,7 @@
 package cn.dreampie.common.util.json;
 
-import cn.dreampie.common.Entity;
+import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.entity.Record;
 import cn.dreampie.common.util.Stringer;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -37,7 +38,11 @@ public enum ModelDeserializer implements ObjectDeserializer {
 
     try {
       Entity<T> e = (Entity<T>) clazz.newInstance();
-      return e.putAttrs(deserialze(map, clazz));
+      if (clazz.isAssignableFrom(Record.class)) {
+        return e.putAttrs(map);
+      } else {
+        return e.putAttrs(deserialze(map, clazz));
+      }
     } catch (Exception e) {
       throw new JSONException("Unsupport type " + type, e);
     }

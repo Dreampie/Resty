@@ -1,6 +1,7 @@
 package cn.dreampie.orm;
 
 import cn.dreampie.common.Plugin;
+import cn.dreampie.common.entity.Record;
 import cn.dreampie.common.util.ClassScaner;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.common.util.json.ModelDeserializer;

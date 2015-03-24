@@ -2,6 +2,7 @@ package cn.dreampie.orm;
 
 
 import cn.dreampie.cache.QueryCache;
+import cn.dreampie.common.entity.Record;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;

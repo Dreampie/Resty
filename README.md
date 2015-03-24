@@ -26,7 +26,7 @@ app.showRoute=true
 app.cacheEnabled=true
 
 
-//druid plugin auto load  
+//druid plugin auto load
 //dsName is "default"  you can use everything
 db.default.url=jdbc:mysql://127.0.0.1/example?useUnicode=true&characterEncoding=UTF-8
 db.default.user=dev
@@ -45,11 +45,11 @@ db.default.migration.initOnMigrate=true
 
 //数据库的配置精简  自动从文件读取参数  只需配置model扫描目录 和dsName
 public void configPlugin(PluginLoader pluginLoader) {
-    //第一个数据库
-    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(new DruidDataSourceProvider("default"), true);
-    activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
-    pluginLoader.add(activeRecordPlugin);
-  }
+  //第一个数据库
+  ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(new DruidDataSourceProvider("default"), true);
+  activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
+  pluginLoader.add(activeRecordPlugin);
+}
 
 ```
 

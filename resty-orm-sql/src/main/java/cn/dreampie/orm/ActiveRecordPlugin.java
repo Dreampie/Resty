@@ -114,6 +114,8 @@ public class ActiveRecordPlugin implements Plugin {
       //model 元数据
       ModelMetaBuilder.build(modelMetas, dsm);
     }
+    //Record 解析支持
+    Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());
     //数据源  元数据
     Metadatas.addDataSourceMeta(dsName, dsm);
     return true;

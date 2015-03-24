@@ -10,7 +10,7 @@ import java.util.Set;
  */
 public class Params {
   /**
-   * params for valid
+   * params for validate
    */
   private Map<String, Object> params;
 

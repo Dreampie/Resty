@@ -7,7 +7,7 @@ import cn.dreampie.route.config.ResourceLoader;
 import cn.dreampie.route.core.annotation.*;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.interceptor.InterceptorBuilder;
-import cn.dreampie.route.valid.Valid;
+import cn.dreampie.route.valid.Validator;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -61,9 +61,9 @@ public final class RouteBuilder {
     //当前方法的参数属性
     ParamAttribute paramAttribute;
 
-    //valid
-    Class<? extends Valid>[] validClasses;
-    Valid[] valids;
+    //validate
+    Class<? extends Validator>[] validClasses;
+    Validator[] validators;
     //addResources
     for (Class<? extends Resource> resourceClazz : resourceLoader.getResources()) {
       resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
@@ -81,48 +81,48 @@ public final class RouteBuilder {
         delete = method.getAnnotation(DELETE.class);
         if (delete != null) {
           validClasses = delete.valid();
-          valids = getValids(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters, delete.des(), valids));
+          validators = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters, delete.des(), validators));
           continue;
         }
 
         get = method.getAnnotation(GET.class);
         if (get != null) {
           validClasses = get.valid();
-          valids = getValids(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters, get.des(), valids));
+          validators = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters, get.des(), validators));
           continue;
         }
 
         post = method.getAnnotation(POST.class);
         if (post != null) {
           validClasses = post.valid();
-          valids = getValids(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters, post.des(), valids));
+          validators = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters, post.des(), validators));
           continue;
         }
 
         put = method.getAnnotation(PUT.class);
         if (put != null) {
           validClasses = put.valid();
-          valids = getValids(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters, put.des(), valids));
+          validators = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters, put.des(), validators));
           continue;
         }
 
         head = method.getAnnotation(HEAD.class);
         if (head != null) {
           validClasses = head.valid();
-          valids = getValids(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters, head.des(), valids));
+          validators = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters, head.des(), validators));
           continue;
         }
 
         patch = method.getAnnotation(PATCH.class);
         if (patch != null) {
           validClasses = patch.valid();
-          valids = getValids(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters, patch.des(), valids));
+          validators = getValids(validClasses);
+          addRoute(new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters, patch.des(), validators));
           continue;
         }
       }
@@ -148,13 +148,13 @@ public final class RouteBuilder {
    * @param validClasses 验证器的class
    * @return Valid[]
    */
-  private Valid[] getValids(Class<? extends Valid>[] validClasses) {
-    Valid[] valids = new Valid[validClasses.length];
+  private Validator[] getValids(Class<? extends Validator>[] validClasses) {
+    Validator[] validators = new Validator[validClasses.length];
     if (validClasses.length > 0) {
       int i = 0;
-      for (Class<? extends Valid> valid : validClasses) {
+      for (Class<? extends Validator> valid : validClasses) {
         try {
-          valids[i] = valid.newInstance();
+          validators[i] = valid.newInstance();
         } catch (InstantiationException e) {
           throw new RuntimeException(e.getMessage(), e);
         } catch (IllegalAccessException e) {
@@ -163,7 +163,7 @@ public final class RouteBuilder {
         i++;
       }
     }
-    return valids;
+    return validators;
   }
 
   /**

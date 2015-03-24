@@ -13,10 +13,6 @@ import cn.dreampie.common.util.json.Jsoner;
  */
 public class JsonRender extends Render {
 
-  public Render newInstance() {
-    return new JsonRender();
-  }
-
   public void render(HttpRequest request, HttpResponse response, Object out) {
     response.setContentType(HttpTyper.ContentType.JSON.toString());
     if (out == null) {

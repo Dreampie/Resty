@@ -15,10 +15,6 @@ import java.io.*;
 public class FileRender extends Render {
   private static final Logger logger = Logger.getLogger(FileRender.class);
 
-  public Render newInstance() {
-    return new FileRender();
-  }
-
   public void render(HttpRequest request, HttpResponse response, Object outFile) {
     if (outFile instanceof File) {
       File file = (File) outFile;

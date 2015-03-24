@@ -11,7 +11,7 @@ import cn.dreampie.log.Logger;
 import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
-import cn.dreampie.route.valid.Valid;
+import cn.dreampie.route.valid.Validator;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -48,10 +48,10 @@ public class Route {
   private final Interceptor[] interceptors;
   private final int[][] interceptorsLineNumbers;
 
-  private final Valid[] valids;
+  private final Validator[] validators;
   private final int[][] validsLineNumbers;
 
-  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Valid[] valids) {
+  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Validator[] validators) {
     this.resourceClass = resourceClass;
     this.httpMethod = checkNotNull(httpMethod);
     this.pathPattern = checkNotNull(pathPattern);
@@ -63,7 +63,7 @@ public class Route {
     this.allLineNumbers = paramAttribute.getLines();
     this.allParamTypes = Arrays.asList(method.getParameterTypes());
     this.allGenericParamTypes = Arrays.asList(method.getGenericParameterTypes());
-    this.valids = valids;
+    this.validators = validators;
     //获取拦截器的行号
     if (Constant.showRoute) {
       this.interceptorsLineNumbers = new int[interceptors.length][];
@@ -80,11 +80,11 @@ public class Route {
         i++;
       }
       //验证器
-      this.validsLineNumbers = new int[valids.length][];
+      this.validsLineNumbers = new int[validators.length][];
       i = 0;
-      for (Valid valid : valids) {
+      for (Validator validator : validators) {
         try {
-          paramAttr = ParamNamesScaner.getParamNames(valid.getClass().getMethod("valid", Params.class));
+          paramAttr = ParamNamesScaner.getParamNames(validator.getClass().getMethod("validate", Params.class));
         } catch (NoSuchMethodException e) {
           throw new InitException(e.getMessage(), e);
         }
@@ -217,13 +217,13 @@ public class Route {
         }
       }
 
-      if (valids != null && valids.length > 0) {
+      if (validators != null && validators.length > 0) {
         sb.append("\nValidates    : ");
         int i = 0;
-        for (Valid valid : valids) {
+        for (Validator validator : validators) {
           if (i > 0)
             sb.append("\n               ");
-          Class<? extends Valid> vc = valid.getClass();
+          Class<? extends Validator> vc = validator.getClass();
           sb.append(vc.getName()).append("(").append(vc.getSimpleName()).append(".java:").append(validsLineNumbers[i][0]).append(")");
           i++;
         }
@@ -282,8 +282,8 @@ public class Route {
     return interceptors;
   }
 
-  public Valid[] getValids() {
-    return valids;
+  public Validator[] getValidators() {
+    return validators;
   }
 
   // here comes the path pattern parsing logic

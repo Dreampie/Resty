@@ -15,7 +15,7 @@
  */
 package cn.dreampie.route.core.annotation;
 
-import cn.dreampie.route.valid.Valid;
+import cn.dreampie.route.valid.Validator;
 
 import java.lang.annotation.*;
 
@@ -31,5 +31,5 @@ public @interface GET {
 
   String des() default "";
 
-  Class<? extends Valid>[] valid() default {};
+  Class<? extends Validator>[] valid() default {};
 }

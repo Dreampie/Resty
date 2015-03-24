@@ -11,7 +11,8 @@ import cn.dreampie.common.util.json.ObjectCastException;
 import cn.dreampie.common.util.stream.StreamReader;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
-import cn.dreampie.route.valid.Valid;
+import cn.dreampie.route.valid.ValidResult;
+import cn.dreampie.route.valid.Validator;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 
@@ -103,19 +104,19 @@ public class RouteInvocation {
    * @param params 参数
    */
   private void valid(Params params) {
-    Valid[] valids = route.getValids();
+    Validator[] validators = route.getValidators();
 
-    if (valids.length > 0) {
+    if (validators.length > 0) {
       Map<String, Object> errors = new HashMap<String, Object>();
       HttpStatus status = HttpStatus.BAD_REQUEST;
-      Valid valid;
-      for (Valid v : valids) {
-        valid = v.newInstance();
+      ValidResult vr;
+
+      for (Validator validator : validators) {
         //数据验证
-        valid.valid(params);
-        errors.putAll(valid.getErrors());
-        if (!valid.getStatus().equals(status))
-          status = v.getStatus();
+        vr = validator.validate(params);
+        errors.putAll(vr.getErrors());
+        if (!vr.getStatus().equals(status))
+          status = vr.getStatus();
       }
 
       if (errors.size() > 0) {

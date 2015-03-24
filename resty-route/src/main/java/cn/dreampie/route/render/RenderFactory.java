@@ -38,9 +38,9 @@ public class RenderFactory {
   public static Render get(String extension) {
     Render render = renderMap.get(extension);
     if (render == null) {
-      return renderMap.get(defaultExtension).newInstance();
+      return renderMap.get(defaultExtension);
     } else {
-      return render.newInstance();
+      return render;
     }
   }
 

@@ -16,6 +16,44 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
 一、独有优点：
 -----------
+//数据库喝全局参数配置移植到application.properties  详情参看resty-example
+
+```java
+//not must auto load
+app.encoding=UTF-8
+app.devMode=true
+app.showRoute=true
+app.cacheEnabled=true
+
+
+//druid plugin auto load  
+//dsName is "default"  you can use everything
+db.default.url=jdbc:mysql://127.0.0.1/example?useUnicode=true&characterEncoding=UTF-8
+db.default.user=dev
+db.default.password=dev1010
+db.default.dialect=mysql
+db.default.initialSize=10
+db.default.maxPoolPreparedStatementPerConnectionSize=20
+db.default.timeBetweenConnectErrorMillis=1000
+db.default.filters=stat,wall
+
+//flyway database migration auto load
+db.default.valid.clean=true
+db.default.migration.auto=true
+db.default.migration.initOnMigrate=true
+
+
+//数据库的配置精简  自动从文件读取参数  只需配置model扫描目录 和dsName
+public void configPlugin(PluginLoader pluginLoader) {
+    //第一个数据库
+    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(new DruidDataSourceProvider("default"), true);
+    activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
+    pluginLoader.add(activeRecordPlugin);
+  }
+
+```
+
+
 
 1.极简的route设计，完全融入普通方法的方式，方法参数就是请求参数，方法返回值就是数据返回值
 
@@ -131,11 +169,11 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
   // 如果你需要在service里实现事务，通过java动态代理（必须使用接口，jdk设计就是这样）
   public interface UserService {
-    @Transaction(name = {DS.DEFAULT_DS_NAME, "demo"})//service里添加多数据源的事务，如果你只有一个数据库  直接@Transaction 不需要参数
+    @Transaction(name = {"demo"})//service里添加多数据源的事务，如果你只有一个数据库  直接@Transaction 不需要参数
     public User save(User u);
   }
   // 在resource里使用service层的 事务
-  // @Transaction(name = {DS.DEFAULT_DS_NAME, "demo"})的注解需要写在service的接口上
+  // @Transaction(name = {"demo"})的注解需要写在service的接口上
   // 注意java的自动代理必须存在接口
   // TransactionAspect 是事务切面 ，你也可以实现自己的切面比如日志的Aspect，实现Aspect接口
   // 再private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect(),new LogAspect());

@@ -81,7 +81,7 @@ public final class RouteBuilder {
         delete = method.getAnnotation(DELETE.class);
         if (delete != null) {
           validClasses = delete.valid();
-          validators = getValids(validClasses);
+          validators = getValidators(validClasses);
           addRoute(new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters, delete.des(), validators));
           continue;
         }
@@ -89,7 +89,7 @@ public final class RouteBuilder {
         get = method.getAnnotation(GET.class);
         if (get != null) {
           validClasses = get.valid();
-          validators = getValids(validClasses);
+          validators = getValidators(validClasses);
           addRoute(new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters, get.des(), validators));
           continue;
         }
@@ -97,7 +97,7 @@ public final class RouteBuilder {
         post = method.getAnnotation(POST.class);
         if (post != null) {
           validClasses = post.valid();
-          validators = getValids(validClasses);
+          validators = getValidators(validClasses);
           addRoute(new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters, post.des(), validators));
           continue;
         }
@@ -105,7 +105,7 @@ public final class RouteBuilder {
         put = method.getAnnotation(PUT.class);
         if (put != null) {
           validClasses = put.valid();
-          validators = getValids(validClasses);
+          validators = getValidators(validClasses);
           addRoute(new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters, put.des(), validators));
           continue;
         }
@@ -113,7 +113,7 @@ public final class RouteBuilder {
         head = method.getAnnotation(HEAD.class);
         if (head != null) {
           validClasses = head.valid();
-          validators = getValids(validClasses);
+          validators = getValidators(validClasses);
           addRoute(new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters, head.des(), validators));
           continue;
         }
@@ -121,7 +121,7 @@ public final class RouteBuilder {
         patch = method.getAnnotation(PATCH.class);
         if (patch != null) {
           validClasses = patch.valid();
-          validators = getValids(validClasses);
+          validators = getValidators(validClasses);
           addRoute(new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters, patch.des(), validators));
           continue;
         }
@@ -148,7 +148,7 @@ public final class RouteBuilder {
    * @param validClasses 验证器的class
    * @return Valid[]
    */
-  private Validator[] getValids(Class<? extends Validator>[] validClasses) {
+  private Validator[] getValidators(Class<? extends Validator>[] validClasses) {
     Validator[] validators = new Validator[validClasses.length];
     if (validClasses.length > 0) {
       int i = 0;

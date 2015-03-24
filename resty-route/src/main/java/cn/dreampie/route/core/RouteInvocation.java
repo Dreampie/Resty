@@ -71,7 +71,7 @@ public class RouteInvocation {
         }
 
         //数据验证
-        valid(params);
+        validate(params);
         //执行方法
         Object[] args = params.getValues();
         route.getMethod().setAccessible(true);
@@ -103,7 +103,7 @@ public class RouteInvocation {
    *
    * @param params 参数
    */
-  private void valid(Params params) {
+  private void validate(Params params) {
     Validator[] validators = route.getValidators();
 
     if (validators.length > 0) {

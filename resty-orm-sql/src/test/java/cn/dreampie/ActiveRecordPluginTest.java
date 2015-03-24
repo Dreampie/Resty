@@ -27,7 +27,7 @@ public class ActiveRecordPluginTest {
 
     record = DS.use().findColsByIds("test","id,id2", new Object[]{record.get("id"),record.get("id2")});
 
-    DS.use().update("sec_user", record);
+    DS.use().update("test", record);
     //Record 解析支持
 //    Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());
 //    Record r = new Record().set("id", 1).set("long", "x");

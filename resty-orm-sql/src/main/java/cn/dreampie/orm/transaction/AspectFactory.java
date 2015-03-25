@@ -32,7 +32,6 @@ public class AspectFactory {
     if (logger.isDebugEnabled()) {
       logger.debug("Instance of " + clazz + ", " + Joiner.on(",").join(clazz.getInterfaces()));
     }
-    T instance = (T) Proxy.newProxyInstance(clazz.getClassLoader(), clazz.getInterfaces(), hander);
-    return instance;
+    return (T) Proxy.newProxyInstance(clazz.getClassLoader(), clazz.getInterfaces(), hander);
   }
 }

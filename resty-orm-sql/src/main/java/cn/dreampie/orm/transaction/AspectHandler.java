@@ -1,5 +1,7 @@
 package cn.dreampie.orm.transaction;
 
+import cn.dreampie.log.Logger;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -8,10 +10,17 @@ import java.lang.reflect.Method;
  */
 public class AspectHandler implements InvocationHandler {
 
+  private static final Logger logger = Logger.getLogger(AspectHandler.class);
+
   private Object target = null;
   private Class<? extends Aspect>[] aspects = null;
-  private int index = 0;
+  private int index = -1;
 
+  public AspectHandler(int index, Object target, Class<? extends Aspect>[] aspects) {
+    this.index = index;
+    this.target = target;
+    this.aspects = aspects;
+  }
 
   public AspectHandler(Object target, Class<? extends Aspect>[] aspects) {
     this.target = target;
@@ -46,6 +55,10 @@ public class AspectHandler implements InvocationHandler {
    */
   public Object invoke(Object proxy, Method method, Object[] args)
       throws Throwable {
+    if (index == -1) {
+      logger.info("Instance an aspectHandler to invoke method %s.", method.getName());
+      return new AspectHandler(0, target, aspects).invoke(proxy, method, args);
+    }
     Object result = null;
     if (index < aspects.length) {
       result = aspects[index++].newInstance().aspect(this, proxy, method, args);

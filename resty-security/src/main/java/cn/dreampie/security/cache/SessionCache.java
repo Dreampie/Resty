@@ -18,8 +18,8 @@ limitations under the License.
 package cn.dreampie.security.cache;
 
 
-import cn.dreampie.cache.CacheEvent;
-import cn.dreampie.cache.CacheManager;
+import cn.dreampie.orm.cache.CacheEvent;
+import cn.dreampie.orm.cache.CacheManager;
 import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 

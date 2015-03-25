@@ -11,7 +11,6 @@ import com.alibaba.druid.pool.DruidDataSource;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
@@ -90,7 +89,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     checkNotNull(this.password, "Could not found database password for " + "db." + dsName + ".password");
     this.dialect = DialectFactory.get(prop.get("db." + dsName + ".dialect", "mysql"));
     this.driverClass = prop.get("db." + dsName + ".driver");
-    this.filters = prop.get("db." + dsName + ".filter");
+    this.filters = prop.get("db." + dsName + ".filters");
     this.initialSize = prop.getInt("db." + dsName + ".initialSize", 10);
     this.minIdle = prop.getInt("db." + dsName + ".minIdle", 10);
     this.maxActive = prop.getInt("db." + dsName + ".maxActive", 100);
@@ -105,7 +104,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.removeAbandoned = prop.getBoolean("db." + dsName + ".removeAbandoned", false);
     this.removeAbandonedTimeoutMillis = prop.getInt("db." + dsName + ".removeAbandonedTimeoutMillis", 300 * 1000);
     this.logAbandoned = prop.getBoolean("db." + dsName + ".logAbandoned", false);
-    this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize",10);
+    this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize");
 
     //init druid
     ds = new DruidDataSource();
@@ -140,45 +139,6 @@ public class DruidDataSourceProvider implements DataSourceProvider {
       } catch (SQLException e) {
         throw new DruidRuntimeException(e.getMessage(), e);
       }
-
-    addFilterList(ds);
-  }
-
-  /**
-   * 设置过滤器，如果要开启监控统计需要使用此方法或在构造方法中进行设置
-   * <p>
-   * 监控统计："stat"
-   * 防SQL注入："wall"
-   * 组合使用： "stat,wall"
-   * </p>
-   */
-  public DruidDataSourceProvider setFilters(String filters) {
-    this.filters = filters;
-    return this;
-  }
-
-  public synchronized DruidDataSourceProvider addFilter(Filter filter) {
-    if (filterList == null)
-      filterList = new ArrayList<Filter>();
-    filterList.add(filter);
-    return this;
-  }
-
-  private void addFilterList(DruidDataSource ds) {
-    if (filterList != null) {
-      List<Filter> targetList = ds.getProxyFilters();
-      for (Filter add : filterList) {
-        boolean found = false;
-        for (Filter target : targetList) {
-          if (add.getClass().equals(target.getClass())) {
-            found = true;
-            break;
-          }
-        }
-        if (!found)
-          targetList.add(add);
-      }
-    }
   }
 
   public DataSource getDataSource() {
@@ -191,94 +151,5 @@ public class DruidDataSourceProvider implements DataSourceProvider {
 
   public String getDsName() {
     return dsName;
-  }
-
-  public DruidDataSourceProvider set(int initialSize, int minIdle, int maxActive) {
-    this.initialSize = initialSize;
-    this.minIdle = minIdle;
-    this.maxActive = maxActive;
-    return this;
-  }
-
-  public DruidDataSourceProvider setDriverClass(String driverClass) {
-    this.driverClass = driverClass;
-    return this;
-  }
-
-  public DruidDataSourceProvider setInitialSize(int initialSize) {
-    this.initialSize = initialSize;
-    return this;
-  }
-
-  public DruidDataSourceProvider setMinIdle(int minIdle) {
-    this.minIdle = minIdle;
-    return this;
-  }
-
-  public DruidDataSourceProvider setMaxActive(int maxActive) {
-    this.maxActive = maxActive;
-    return this;
-  }
-
-  public DruidDataSourceProvider setMaxWait(long maxWait) {
-    this.maxWait = maxWait;
-    return this;
-  }
-
-  public DruidDataSourceProvider setTimeBetweenEvictionRunsMillis(long timeBetweenEvictionRunsMillis) {
-    this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
-    return this;
-  }
-
-  public DruidDataSourceProvider setMinEvictableIdleTimeMillis(long minEvictableIdleTimeMillis) {
-    this.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
-    return this;
-  }
-
-  /**
-   * hsqldb - "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS"
-   * Oracle - "select 1 from dual"
-   * DB2 - "select 1 from sysibm.sysdummy1"
-   * mysql - "select 1"
-   */
-  public DruidDataSourceProvider setValidationQuery(String validationQuery) {
-    this.validationQuery = validationQuery;
-    return this;
-  }
-
-  public DruidDataSourceProvider setTestWhileIdle(boolean testWhileIdle) {
-    this.testWhileIdle = testWhileIdle;
-    return this;
-  }
-
-  public DruidDataSourceProvider setTestOnBorrow(boolean testOnBorrow) {
-    this.testOnBorrow = testOnBorrow;
-    return this;
-  }
-
-  public DruidDataSourceProvider setTestOnReturn(boolean testOnReturn) {
-    this.testOnReturn = testOnReturn;
-    return this;
-  }
-
-  public DruidDataSourceProvider setMaxPoolPreparedStatementPerConnectionSize(int maxPoolPreparedStatementPerConnectionSize) {
-    this.maxPoolPreparedStatementPerConnectionSize = maxPoolPreparedStatementPerConnectionSize;
-    return this;
-  }
-
-  public final void setTimeBetweenConnectErrorMillis(long timeBetweenConnectErrorMillis) {
-    this.timeBetweenConnectErrorMillis = timeBetweenConnectErrorMillis;
-  }
-
-  public final void setRemoveAbandoned(boolean removeAbandoned) {
-    this.removeAbandoned = removeAbandoned;
-  }
-
-  public final void setRemoveAbandonedTimeoutMillis(long removeAbandonedTimeoutMillis) {
-    this.removeAbandonedTimeoutMillis = removeAbandonedTimeoutMillis;
-  }
-
-  public final void setLogAbandoned(boolean logAbandoned) {
-    this.logAbandoned = logAbandoned;
   }
 }

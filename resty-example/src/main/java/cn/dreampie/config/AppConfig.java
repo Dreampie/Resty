@@ -8,6 +8,7 @@ import cn.dreampie.route.config.*;
 import cn.dreampie.route.handler.cors.CORSHandler;
 import cn.dreampie.route.interceptor.security.SecurityInterceptor;
 import cn.dreampie.route.interceptor.transaction.TransactionInterceptor;
+import com.alibaba.druid.pool.DruidDataSource;
 
 /**
  * Created by ice on 14-12-29.
@@ -35,7 +36,8 @@ public class AppConfig extends Config {
 
   public void configPlugin(PluginLoader pluginLoader) {
     //第一个数据库
-    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(new DruidDataSourceProvider("default"), true);
+    DruidDataSourceProvider ddsp=new DruidDataSourceProvider("default");
+    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(ddsp, true);
     activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
     pluginLoader.add(activeRecordPlugin);
   }

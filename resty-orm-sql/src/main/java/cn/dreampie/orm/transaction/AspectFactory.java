@@ -23,15 +23,16 @@ public class AspectFactory {
   /**
    * 工厂方法
    *
-   * @param instance 代理目标类实例对象
-   * @param aspects  切面集合
+   * @param target  代理目标对象
+   * @param aspects 切面集合
    */
-  public static <T> T newInstance(T instance, Aspect... aspects) {
-    AspectHandler hander = new AspectHandler(instance, aspects);
-    Class<?> clazz = instance.getClass();
+  public static <T> T newInstance(T target, Class<? extends Aspect>... aspects) {
+    AspectHandler hander = new AspectHandler(target, aspects);
+    Class clazz = target.getClass();
     if (logger.isDebugEnabled()) {
       logger.debug("Instance of " + clazz + ", " + Joiner.on(",").join(clazz.getInterfaces()));
     }
-    return (T) Proxy.newProxyInstance(clazz.getClassLoader(), clazz.getInterfaces(), hander);
+    T instance = (T) Proxy.newProxyInstance(clazz.getClassLoader(), clazz.getInterfaces(), hander);
+    return instance;
   }
 }

@@ -14,7 +14,7 @@ public class TransactionAspect implements Aspect {
   private int index = 0;
 
   public Object aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable {
-    if (index == 0) {
+    if (excutors == null) {
       Transaction transactionAnn = method.getAnnotation(Transaction.class);
       if (transactionAnn != null) {
         String[] names = transactionAnn.name();

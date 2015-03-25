@@ -8,15 +8,16 @@ import java.lang.reflect.Method;
  */
 public class AspectHandler implements InvocationHandler {
 
-
   private Object target = null;
-  private Aspect[] aspects = null;
+  private Class<? extends Aspect>[] aspects = null;
   private int index = 0;
 
-  public AspectHandler(Object target, Aspect[] aspects) {
+
+  public AspectHandler(Object target, Class<? extends Aspect>[] aspects) {
     this.target = target;
     this.aspects = aspects;
   }
+
 
   public Object getTarget() {
     return target;
@@ -27,13 +28,12 @@ public class AspectHandler implements InvocationHandler {
     this.target = target;
   }
 
-
-  public Aspect[] getAspects() {
+  public Class<? extends Aspect>[] getAspects() {
     return aspects;
   }
 
 
-  public void setAspects(Aspect... aspects) {
+  public void setAspects(Class<? extends Aspect>... aspects) {
     this.aspects = aspects;
   }
 
@@ -46,12 +46,11 @@ public class AspectHandler implements InvocationHandler {
    */
   public Object invoke(Object proxy, Method method, Object[] args)
       throws Throwable {
-
     Object result = null;
-    if (index < aspects.length)
-      result = aspects[index++].aspect(this, proxy, method, args);
-    else if (index++ == aspects.length) {
-      result = method.invoke(getTarget(), args);
+    if (index < aspects.length) {
+      result = aspects[index++].newInstance().aspect(this, proxy, method, args);
+    } else if (index++ == aspects.length) {
+      result = method.invoke(target, args);
     }
     return result;
   }

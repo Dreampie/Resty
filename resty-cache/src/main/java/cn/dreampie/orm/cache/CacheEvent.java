@@ -1,4 +1,4 @@
-package cn.dreampie.cache;
+package cn.dreampie.orm.cache;
 
 /**
  * Event object. Sent to {@link CacheManager} to let it know

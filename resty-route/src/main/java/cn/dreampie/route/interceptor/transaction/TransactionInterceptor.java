@@ -2,6 +2,7 @@ package cn.dreampie.route.interceptor.transaction;
 
 import cn.dreampie.orm.DS;
 import cn.dreampie.orm.transaction.Transaction;
+import cn.dreampie.orm.transaction.TransactionExecutor;
 import cn.dreampie.route.core.RouteInvocation;
 import cn.dreampie.route.interceptor.Interceptor;
 
@@ -10,11 +11,17 @@ import cn.dreampie.route.interceptor.Interceptor;
  */
 public class TransactionInterceptor implements Interceptor {
 
-  private TransactionInterceptorExecutor[] excutors;
-  private int index = 0;
+  private static final ThreadLocal<TransactionInterceptorExecutor[]> excutorsTL = new ThreadLocal<TransactionInterceptorExecutor[]>();
+  private static final ThreadLocal<Integer> indexTL = new ThreadLocal<Integer>() {
+    protected Integer initialValue() {
+      return 0;
+    }
+  };
 
   public Object intercept(RouteInvocation ri) {
-    if (index == 0) {
+    int index = indexTL.get();
+    TransactionInterceptorExecutor[] excutors = excutorsTL.get();
+    if (excutors == null) {
       Transaction transactionAnn = ri.getMethod().getAnnotation(Transaction.class);
       if (transactionAnn != null) {
         String[] names = transactionAnn.name();
@@ -26,17 +33,16 @@ public class TransactionInterceptor implements Interceptor {
         for (int i = 0; i < names.length; i++) {
           excutors[i] = new TransactionInterceptorExecutor(names[i], levels.length == 1 ? levels[0] : levels[i]);
         }
+        excutorsTL.set(excutors);
       }
     }
 
     if (excutors != null && excutors.length > 0) {
-      if (excutors.length > 0) {
-        if (index < excutors.length)
-          excutors[index++].transaction(this, ri);
-        else if (index++ == excutors.length) {
-          index = 0;
-          excutors = null;
-        }
+      if (index < excutors.length) {
+        indexTL.set(index + 1);
+        excutors[index].transaction(this, ri);
+      } else if (index == excutors.length) {
+        indexTL.set(index+1);
       }
     }
     return ri.invoke();

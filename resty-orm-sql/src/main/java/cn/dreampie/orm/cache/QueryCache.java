@@ -1,4 +1,4 @@
-package cn.dreampie.cache;
+package cn.dreampie.orm.cache;
 
 
 import cn.dreampie.common.Constant;

@@ -1,6 +1,6 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.cache.QueryCache;
+import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.common.entity.Entity;

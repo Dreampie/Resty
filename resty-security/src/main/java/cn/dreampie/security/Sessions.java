@@ -3,6 +3,7 @@ package cn.dreampie.security;
 import cn.dreampie.common.Constant;
 import cn.dreampie.security.cache.SessionCache;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +18,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public class Sessions {
 
-  public static final class SessionDatas {// implements Serializable {
+  public static final class SessionDatas implements Serializable {
     private final String key;
     private final Map<String, SessionData> sessionMetadatas;
 
@@ -59,7 +60,7 @@ public class Sessions {
     }
   }
 
-  public static final class SessionData implements Comparable<SessionData> {//, Serializable {
+  public static final class SessionData implements Comparable<SessionData>, Serializable {
     private final String sessionKey;
     private final long expires;
     private final long firstAccess;

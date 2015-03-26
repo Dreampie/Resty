@@ -70,13 +70,6 @@ public class Record extends Entity<Record> implements Serializable {
     return Record.useDS(Metadata.getDataSourceMeta(dsName), tableName, pKeys, lockKey, cached);
   }
 
-  public static Record useDS(DataSourceMeta dataSourceMeta, TableMeta tableMeta) {
-    Record record = new Record();
-    record.dataSourceMeta = dataSourceMeta;
-    record.tableMeta = tableMeta;
-    return record;
-  }
-
   public static Record useDS(DataSourceMeta dataSourceMeta, String tableName, String pKeys, boolean lockKey, boolean cached) {
     checkNotNull(dataSourceMeta, "Could not found dataSourceMeta.");
     checkNotNull(tableName, "Could not found tableName.");
@@ -98,7 +91,10 @@ public class Record extends Entity<Record> implements Serializable {
    * @return Record
    */
   public Record reNew() {
-    return Record.useDS(dataSourceMeta, tableMeta);
+    Record record = new Record();
+    record.dataSourceMeta = dataSourceMeta;
+    record.tableMeta = tableMeta;
+    return record;
   }
 
   /**

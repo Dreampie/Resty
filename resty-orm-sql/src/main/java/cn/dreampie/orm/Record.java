@@ -56,7 +56,11 @@ public class Record extends Entity<Record> implements Serializable {
   }
 
   public static Record useDS(String dsName, String tableName) {
-    return Record.useDS(dsName, tableName, DS.DEFAULT_PRIMARY_KAY);
+    return Record.useDS(dsName, tableName, false);
+  }
+
+  public static Record useDS(String dsName, String tableName, boolean cached) {
+    return Record.useDS(dsName, tableName, DS.DEFAULT_PRIMARY_KAY, false, cached);
   }
 
   public static Record useDS(String dsName, String tableName, String pKeys) {

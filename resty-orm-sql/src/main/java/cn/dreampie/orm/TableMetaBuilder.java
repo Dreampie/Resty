@@ -14,20 +14,20 @@ import java.util.SortedMap;
 /**
  * Created by wangrenhui on 14/12/30.
  */
-public class ModelMetaBuilder {
+public class TableMetaBuilder {
 
-  private static final Logger logger = Logger.getLogger(ModelMetaBuilder.class);
+  private static final Logger logger = Logger.getLogger(TableMetaBuilder.class);
 
-  static void build(List<ModelMeta> modelMetas, DataSourceMeta dsm) {
-    ModelMeta temp = null;
+  public static List<TableMeta> buildModel(List<TableMeta> tableMetas, DataSourceMeta dsm) {
+    TableMeta temp = null;
     Connection conn = null;
     try {
       conn = dsm.getDataSource().getConnection();
-      for (ModelMeta modelMeta : modelMetas) {
-        temp = modelMeta;
-        modelMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), modelMeta.getTableName()));
+      for (TableMeta tableMeta : tableMetas) {
+        temp = tableMeta;
+        tableMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
         //添加到model元数据集合
-        Metadatas.addModelMeta(modelMeta.getModelClass(), modelMeta);
+        Metadata.addModelTableMeta(tableMeta.getModelClass(), tableMeta);
       }
     } catch (Exception e) {
       if (temp != null)
@@ -35,7 +35,25 @@ public class ModelMetaBuilder {
     } finally {
       dsm.close(conn);
     }
+    return tableMetas;
   }
+
+  public static TableMeta buildRecord(TableMeta tableMeta, DataSourceMeta dsm) {
+    Connection conn = null;
+    try {
+      conn = dsm.getDataSource().getConnection();
+      tableMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
+      //添加到record元数据集合
+      Metadata.addRecordTableMeta(tableMeta.getDsName(), tableMeta.getTableName(), tableMeta);
+    } catch (Exception e) {
+      if (tableMeta != null)
+        throw new DBException("Could not create Table object, maybe the table " + tableMeta.getTableName() + " is not exists.", e);
+    } finally {
+      dsm.close(conn);
+    }
+    return tableMeta;
+  }
+
 
   /**
    * Returns a hash keyed off a column name.

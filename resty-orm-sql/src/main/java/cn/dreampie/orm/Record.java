@@ -27,12 +27,7 @@ public class Record extends Entity<Record> implements Serializable {
   private static final boolean devMode = Constant.devMode;
 
   private DataSourceMeta dataSourceMeta;
-  private String tableName;
-  private String pKeys;
-  private String primaryKey;
-  private String[] primaryKeys;
-  private boolean lockKey = false;
-  private boolean cached = false;
+  private TableMeta tableMeta;
 
   private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
 
@@ -56,7 +51,7 @@ public class Record extends Entity<Record> implements Serializable {
   }
 
   public static Record use(String tableName, String pKeys, boolean lockKey, boolean cached) {
-    return Record.useDS(Metadatas.getDefaultDsName(), tableName, pKeys, lockKey, cached);
+    return Record.useDS(Metadata.getDefaultDsName(), tableName, pKeys, lockKey, cached);
   }
 
   public static Record useDS(String dsName, String tableName) {
@@ -72,7 +67,14 @@ public class Record extends Entity<Record> implements Serializable {
   }
 
   public static Record useDS(String dsName, String tableName, String pKeys, boolean lockKey, boolean cached) {
-    return Record.useDS(Metadatas.getDataSourceMeta(dsName), tableName, pKeys, lockKey, cached);
+    return Record.useDS(Metadata.getDataSourceMeta(dsName), tableName, pKeys, lockKey, cached);
+  }
+
+  public static Record useDS(DataSourceMeta dataSourceMeta, TableMeta tableMeta) {
+    Record record = new Record();
+    record.dataSourceMeta = dataSourceMeta;
+    record.tableMeta = tableMeta;
+    return record;
   }
 
   public static Record useDS(DataSourceMeta dataSourceMeta, String tableName, String pKeys, boolean lockKey, boolean cached) {
@@ -80,20 +82,15 @@ public class Record extends Entity<Record> implements Serializable {
     checkNotNull(tableName, "Could not found tableName.");
     Record record = new Record();
     record.dataSourceMeta = dataSourceMeta;
-    record.tableName = tableName;
-    record.pKeys = pKeys;
-    if (pKeys.contains(",")) {
-      record.primaryKeys = pKeys.split(",");
-      record.lockKey = lockKey;
-      record.primaryKey = record.primaryKeys[0];
+    String dsName = dataSourceMeta.getDsName();
+    if (Metadata.hasRecordTableMeta(dsName, tableName)) {
+      record.tableMeta = Metadata.getRecordTableMeta(dsName, tableName);
     } else {
-      record.primaryKeys = null;
-      record.lockKey = false;
-      record.primaryKey = pKeys;
+      record.tableMeta = TableMetaBuilder.buildRecord(new TableMeta(dsName, tableName, pKeys, lockKey, cached), dataSourceMeta);
     }
-    record.cached = cached;
     return record;
   }
+
 
   /**
    * create new record
@@ -101,27 +98,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return Record
    */
   public Record reNew() {
-    return Record.useDS(dataSourceMeta, tableName, pKeys, lockKey, cached);
-  }
-
-  public void setCached(boolean cached) {
-    this.cached = cached;
-  }
-
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  public void setPrimaryKey(String primaryKey) {
-    this.primaryKey = primaryKey;
-  }
-
-  public void setPrimaryKeys(String[] primaryKeys) {
-    this.primaryKeys = primaryKeys;
-  }
-
-  public void setLockKey(boolean lockKey) {
-    this.lockKey = lockKey;
+    return Record.useDS(dataSourceMeta, tableMeta);
   }
 
   /**
@@ -157,7 +134,6 @@ public class Record extends Entity<Record> implements Serializable {
     return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
   }
 
-
   /**
    * Set attribute to model.
    *
@@ -167,18 +143,24 @@ public class Record extends Entity<Record> implements Serializable {
    * @throws cn.dreampie.orm.exception.DBException if the attribute is not exists of the model
    */
   public Record set(String attr, Object value) {
-    attrs.put(attr, value);
-    modifyAttrs.put(attr, value);  // Add modify flag, update() need this flag.
-    return this;
+    if (tableMeta.hasAttribute(attr)) {
+      attrs.put(attr, value);
+      modifyAttrs.put(attr, value);  // Add modify flag, update() need this flag.
+      return this;
+    }
+    throw new DBException("The attribute name is not exists: " + attr);
   }
 
   /**
    * Put key value pair to the model when the key is not attribute of the model.
    */
   public Record put(String key, Object value) {
+    if (tableMeta.hasAttribute(key))
+      modifyAttrs.put(key, value);
     attrs.put(key, value);
     return this;
   }
+
 
   /**
    * Check the table name. The table name must in sql.
@@ -214,6 +196,7 @@ public class Record extends Entity<Record> implements Serializable {
   public List<Record> find(String sql, Object... paras) {
     List<Record> result = null;
     String dsName = dataSourceMeta.getDsName();
+    boolean cached = tableMeta.isCached();
     //hit cache
     if (cached) {
       result = QueryCache.instance().get(dsName, sql, paras);
@@ -229,7 +212,7 @@ public class Record extends Entity<Record> implements Serializable {
       conn = dataSourceMeta.getConnection();
       pst = DS.getPreparedStatement(conn, DS.DEFAULT_PRIMARY_KAY, sql, paras);
       rs = pst.executeQuery();
-      result = RecordBuilder.build(rs, dsName, tableName, pKeys, lockKey, cached);
+      result = RecordBuilder.build(rs, dataSourceMeta, tableMeta);
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
     } finally {
@@ -296,7 +279,7 @@ public class Record extends Entity<Record> implements Serializable {
   public Record findColsById(String columns, Object id) {
     checkNotNull(id, "You can't find model without Primary Key.");
 
-    String sql = dataSourceMeta.getDialect().select(tableName, "", primaryKey + "=?", columns.split(","));
+    String sql = dataSourceMeta.getDialect().select(tableMeta.getTableName(), "", tableMeta.getPrimaryKey() + "=?", columns.split(","));
     List<Record> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }
@@ -311,7 +294,7 @@ public class Record extends Entity<Record> implements Serializable {
   public Record findColsByIds(String columns, Object[] ids) {
     checkNotNull(ids, "You can't find model without Primary Keys.");
 
-    String sql = dataSourceMeta.getDialect().select(tableName, "", Joiner.on("=? AND ").join(primaryKeys) + "=?", columns.split(","));
+    String sql = dataSourceMeta.getDialect().select(tableMeta.getTableName(), "", Joiner.on("=? AND ").join(tableMeta.getPrimaryKeys()) + "=?", columns.split(","));
     List<Record> result = find(sql, ids);
     return result.size() > 0 ? result.get(0) : null;
   }
@@ -360,11 +343,14 @@ public class Record extends Entity<Record> implements Serializable {
   }
 
   public boolean save() {
-    String sql = dataSourceMeta.getDialect().insert(tableName, getModifyAttrNames());
+    String sql = dataSourceMeta.getDialect().insert(tableMeta.getTableName(), getModifyAttrNames());
     int result = -1;
+
+    boolean cached = tableMeta.isCached();
+    String primaryKey = tableMeta.getPrimaryKey();
     //remove cache
     if (cached) {
-      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableName);
+      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableMeta.getTableName());
     }
     Connection conn = null;
     PreparedStatement pst = null;
@@ -403,13 +389,16 @@ public class Record extends Entity<Record> implements Serializable {
     if (records.size() == 1) {
       return firstRecord.save();
     }
+
+    boolean cached = tableMeta.isCached();
+    String primaryKey = tableMeta.getPrimaryKey();
     //清除models缓存
     if (cached) {
-      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableName);
+      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableMeta.getTableName());
     }
 
     String[] columns = firstRecord.getModifyAttrNames();
-    String sql = dataSourceMeta.getDialect().insert(tableName, columns);
+    String sql = dataSourceMeta.getDialect().insert(tableMeta.getTableName(), columns);
     //参数
     Object[][] paras = new Object[records.size()][columns.length];
 
@@ -458,12 +447,14 @@ public class Record extends Entity<Record> implements Serializable {
 
   //update  base
   public int update(String sql, Object... paras) {
+
+    boolean cached = tableMeta.isCached();
     //清除缓存
     if (cached) {
-      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableName);
+      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableMeta.getTableName());
     }
     if (devMode)
-      checkTableName(tableName, sql);
+      checkTableName(tableMeta.getTableName(), sql);
     return DS.use(dataSourceMeta.getDsName()).update(sql, paras);
   }
 
@@ -473,6 +464,9 @@ public class Record extends Entity<Record> implements Serializable {
    */
   public boolean delete() {
 
+    boolean lockKey = tableMeta.isLockKey();
+    String primaryKey = tableMeta.getPrimaryKey();
+    String[] primaryKeys = tableMeta.getPrimaryKeys();
     Object id = attrs.get(primaryKey);
     checkNotNull(id, "You can't delete model without primaryKey " + primaryKey + ".");
 
@@ -500,7 +494,7 @@ public class Record extends Entity<Record> implements Serializable {
   public boolean deleteById(Object id) {
     checkNotNull(id, "You can't delete model without Primary Key.");
 
-    String sql = dataSourceMeta.getDialect().delete(tableName, primaryKey + "=?");
+    String sql = dataSourceMeta.getDialect().delete(tableMeta.getTableName(), tableMeta.getPrimaryKey() + "=?");
     int result = update(sql, id);
     return result > 0;
   }
@@ -515,13 +509,17 @@ public class Record extends Entity<Record> implements Serializable {
   public boolean deleteByIds(Object... ids) {
     checkNotNull(ids, "You can't delete model without Primary Keys.");
 
-    String sql = dataSourceMeta.getDialect().delete(tableName, Joiner.on("=? AND ").join(primaryKeys) + "=?");
+    String sql = dataSourceMeta.getDialect().delete(tableMeta.getTableName(), Joiner.on("=? AND ").join(tableMeta.getPrimaryKeys()) + "=?");
     int result = update(sql, ids);
     return result > 0;
   }
 
 
   public boolean update() {
+
+    boolean lockKey = tableMeta.isLockKey();
+    String primaryKey = tableMeta.getPrimaryKey();
+    String[] primaryKeys = tableMeta.getPrimaryKeys();
     Object id = get(primaryKey);
 
     checkNotNull(id, "You can't update model without Primary Key " + primaryKey + ".");
@@ -549,7 +547,7 @@ public class Record extends Entity<Record> implements Serializable {
       where = primaryKey;
     }
     String[] modifyNames = getModifyAttrNames();
-    String sql = dataSourceMeta.getDialect().update(tableName, "", where + "=?", modifyNames);
+    String sql = dataSourceMeta.getDialect().update(tableMeta.getTableName(), "", where + "=?", modifyNames);
 
     if (modifyNames.length <= 0) {  // Needn't update
       return false;
@@ -710,7 +708,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return model 集合
    */
   public List<Record> findAll() {
-    return find(dataSourceMeta.getDialect().select(tableName));
+    return find(dataSourceMeta.getDialect().select(tableMeta.getTableName()));
   }
 
   /**
@@ -720,7 +718,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return model 集合
    */
   public List<Record> findColsAll(String columns) {
-    return find(dataSourceMeta.getDialect().select(tableName, columns.split(",")));
+    return find(dataSourceMeta.getDialect().select(tableMeta.getTableName(), columns.split(",")));
   }
 
   /**
@@ -731,7 +729,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return list
    */
   public List<Record> findBy(String where, Object... paras) {
-    return find(dataSourceMeta.getDialect().select(tableName, getAlias(), where), paras);
+    return find(dataSourceMeta.getDialect().select(tableMeta.getTableName(), getAlias(), where), paras);
   }
 
   /**
@@ -743,7 +741,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return model集合
    */
   public List<Record> findColsBy(String colums, String where, Object... paras) {
-    return find(dataSourceMeta.getDialect().select(tableName, getAlias(), where, colums.split(",")), paras);
+    return find(dataSourceMeta.getDialect().select(tableMeta.getTableName(), getAlias(), where, colums.split(",")), paras);
   }
 
   /**
@@ -755,7 +753,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return list
    */
   public List<Record> findTopBy(int topNumber, String where, Object... paras) {
-    return paginate(1, topNumber, dataSourceMeta.getDialect().select(tableName, getAlias(), where), paras).getList();
+    return paginate(1, topNumber, dataSourceMeta.getDialect().select(tableMeta.getTableName(), getAlias(), where), paras).getList();
   }
 
   /**
@@ -768,7 +766,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return list
    */
   public List<Record> findColsTopBy(int topNumber, String columns, String where, Object... paras) {
-    return paginate(1, topNumber, dataSourceMeta.getDialect().select(tableName, getAlias(), where, columns.split(",")), paras).getList();
+    return paginate(1, topNumber, dataSourceMeta.getDialect().select(tableMeta.getTableName(), getAlias(), where, columns.split(",")), paras).getList();
   }
 
   /**
@@ -779,7 +777,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return model对象
    */
   public Record findFirstBy(String where, Object... paras) {
-    return findFirst(dataSourceMeta.getDialect().select(tableName, getAlias(), where), paras);
+    return findFirst(dataSourceMeta.getDialect().select(tableMeta.getTableName(), getAlias(), where), paras);
   }
 
   /**
@@ -791,7 +789,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return model对象
    */
   public Record findColsFirstBy(String columns, String where, Object... paras) {
-    return findFirst(dataSourceMeta.getDialect().select(tableName, getAlias(), where, columns.split(",")), paras);
+    return findFirst(dataSourceMeta.getDialect().select(tableMeta.getTableName(), getAlias(), where, columns.split(",")), paras);
   }
 
   /**
@@ -802,7 +800,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return 分页对象
    */
   public Page<Record> paginateAll(int pageNumber, int pageSize) {
-    return paginate(pageNumber, pageSize, dataSourceMeta.getDialect().select(tableName));
+    return paginate(pageNumber, pageSize, dataSourceMeta.getDialect().select(tableMeta.getTableName()));
   }
 
   /**
@@ -814,7 +812,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return 分页对象
    */
   public Page<Record> paginateColsAll(int pageNumber, int pageSize, String columns) {
-    return paginate(pageNumber, pageSize, dataSourceMeta.getDialect().select(tableName, columns.split(",")));
+    return paginate(pageNumber, pageSize, dataSourceMeta.getDialect().select(tableMeta.getTableName(), columns.split(",")));
   }
 
   /**
@@ -827,7 +825,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return 分页对象
    */
   public Page<Record> paginateBy(int pageNumber, int pageSize, String where, Object... paras) {
-    return paginate(pageNumber, pageSize, dataSourceMeta.getDialect().select(tableName, getAlias(), where), paras);
+    return paginate(pageNumber, pageSize, dataSourceMeta.getDialect().select(tableMeta.getTableName(), getAlias(), where), paras);
   }
 
   /**
@@ -841,7 +839,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return 分页对象
    */
   public Page<Record> paginateColsBy(int pageNumber, int pageSize, String columns, String where, Object... paras) {
-    return paginate(pageNumber, pageSize, dataSourceMeta.getDialect().select(tableName, getAlias(), where, columns.split(",")), paras);
+    return paginate(pageNumber, pageSize, dataSourceMeta.getDialect().select(tableMeta.getTableName(), getAlias(), where, columns.split(",")), paras);
   }
 
   /**
@@ -853,7 +851,7 @@ public class Record extends Entity<Record> implements Serializable {
    */
   public boolean updateColsAll(String columns, Object... paras) {
     logger.warn("You must ensure that \"updateAll()\" method of safety.");
-    return update(dataSourceMeta.getDialect().update(tableName, columns.split(",")), paras) > 0;
+    return update(dataSourceMeta.getDialect().update(tableMeta.getTableName(), columns.split(",")), paras) > 0;
   }
 
   /**
@@ -865,7 +863,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return boolean
    */
   public boolean updateColsBy(String columns, String where, Object... paras) {
-    return update(dataSourceMeta.getDialect().update(tableName, getAlias(), where, columns.split(",")), paras) > 0;
+    return update(dataSourceMeta.getDialect().update(tableMeta.getTableName(), getAlias(), where, columns.split(",")), paras) > 0;
   }
 
   /**
@@ -875,7 +873,7 @@ public class Record extends Entity<Record> implements Serializable {
    */
   public boolean deleteAll() {
     logger.warn("You must ensure that \"deleteAll()\" method of safety.");
-    return update(dataSourceMeta.getDialect().delete(tableName)) > 0;
+    return update(dataSourceMeta.getDialect().delete(tableMeta.getTableName())) > 0;
   }
 
   /**
@@ -886,7 +884,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return
    */
   public boolean deleteBy(String where, Object... paras) {
-    return update(dataSourceMeta.getDialect().delete(tableName, where), paras) > 0;
+    return update(dataSourceMeta.getDialect().delete(tableMeta.getTableName(), where), paras) > 0;
   }
 
   /**
@@ -895,7 +893,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return Long
    */
   public Long countAll() {
-    return DS.use(dataSourceMeta.getDsName()).queryFirst(dataSourceMeta.getDialect().count(tableName));
+    return DS.use(dataSourceMeta.getDsName()).queryFirst(dataSourceMeta.getDialect().count(tableMeta.getTableName()));
   }
 
   /**
@@ -904,7 +902,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return Long
    */
   public Long countBy(String where, Object... paras) {
-    return DS.use(dataSourceMeta.getDsName()).queryFirst(dataSourceMeta.getDialect().count(tableName, getAlias(), where), paras);
+    return DS.use(dataSourceMeta.getDsName()).queryFirst(dataSourceMeta.getDialect().count(tableMeta.getTableName(), getAlias(), where), paras);
   }
 
 

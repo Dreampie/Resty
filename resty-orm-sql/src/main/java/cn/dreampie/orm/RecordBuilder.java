@@ -12,7 +12,7 @@ import java.util.Map;
  * Created by ice on 14-12-30.
  */
 public class RecordBuilder {
-  public static List<Record> build(ResultSet rs, String dsName, String tableName, String pKeys, boolean lockKey, boolean cached) throws SQLException {
+  public static List<Record> build(ResultSet rs, DataSourceMeta dataSourceMeta, TableMeta tableMeta) throws SQLException {
     List<Record> result = new ArrayList<Record>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
@@ -20,7 +20,7 @@ public class RecordBuilder {
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
 
-    Record recordDAO = Record.useDS(dsName, tableName, pKeys, lockKey, cached);
+    Record recordDAO = Record.useDS(dataSourceMeta, tableMeta);
     Record record;
     Map<String, Object> columns;
     Object value;

@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.entity.Entity;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.annotation.Table;
 import cn.dreampie.orm.dialect.Dialect;
@@ -11,31 +12,46 @@ import java.util.SortedMap;
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
 
-public class ModelMeta implements Serializable {
-  private final static Logger logger = Logger.getLogger(ModelMeta.class);
+public class TableMeta implements Serializable {
+  private final static Logger logger = Logger.getLogger(TableMeta.class);
 
   private SortedMap<String, ColumnMeta> columnMetadata;
   private final String primaryKey;
   private final String[] primaryKeys;
   private final boolean lockKey;
   private final String tableName, dsName;
-  private final Class<? extends Base> modelClass;
+  private final Class<? extends Entity> modelClass;
   private final boolean cached;
 
-  protected ModelMeta(Class<? extends Base> modelClass, String dsName) {
-    Table tableAnnotation = modelClass.getAnnotation(Table.class);
-    checkNotNull(tableAnnotation, "Could not found @Table Annotation.");
-    this.modelClass = modelClass;
-    String key = tableAnnotation.primaryKey();
-
-    if (key.contains(",")) {
-      primaryKeys = key.split(",");
-      lockKey = tableAnnotation.lockKey();
+  protected TableMeta(String dsName, String tableName, String pKeys, boolean lKey, boolean cached) {
+    modelClass = Record.class;
+    if (pKeys.contains(",")) {
+      lockKey = lKey;
+      primaryKeys = pKeys.split(",");
       this.primaryKey = primaryKeys[0];
     } else {
       primaryKeys = null;
       lockKey = false;
-      this.primaryKey = key;
+      this.primaryKey = pKeys;
+    }
+    this.tableName = tableName;
+    this.cached = cached;
+    this.dsName = dsName;
+  }
+
+  protected TableMeta(String dsName, Class<? extends Base> modelClass) {
+    Table tableAnnotation = modelClass.getAnnotation(Table.class);
+    checkNotNull(tableAnnotation, "Could not found @Table Annotation.");
+    this.modelClass = modelClass;
+    String pKeys = tableAnnotation.primaryKey();
+    if (pKeys.contains(",")) {
+      lockKey = tableAnnotation.lockKey();
+      primaryKeys = pKeys.split(",");
+      this.primaryKey = primaryKeys[0];
+    } else {
+      primaryKeys = null;
+      lockKey = false;
+      this.primaryKey = pKeys;
     }
     this.tableName = tableAnnotation.name();
     this.cached = tableAnnotation.cached();
@@ -50,7 +66,7 @@ public class ModelMeta implements Serializable {
     return cached;
   }
 
-  public Class<? extends Base> getModelClass() {
+  public Class<? extends Entity> getModelClass() {
     return modelClass;
   }
 
@@ -80,11 +96,11 @@ public class ModelMeta implements Serializable {
   }
 
   public String getDbType() {
-    return Metadatas.getDataSourceMeta(dsName).getDialect().getDbType();
+    return Metadata.getDataSourceMeta(dsName).getDialect().getDbType();
   }
 
   public Dialect getDialect() {
-    return Metadatas.getDataSourceMeta(dsName).getDialect();
+    return Metadata.getDataSourceMeta(dsName).getDialect();
   }
 
   /**

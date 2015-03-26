@@ -27,11 +27,11 @@ public class DS {
   }
 
   public static DS use() {
-    return DS.use(Metadatas.getDefaultDsName(), false);
+    return DS.use(Metadata.getDefaultDsName(), false);
   }
 
   public static DS use(boolean cached) {
-    return DS.use(Metadatas.getDefaultDsName(), cached);
+    return DS.use(Metadata.getDefaultDsName(), cached);
   }
 
   public static DS use(String dsName) {
@@ -39,7 +39,7 @@ public class DS {
   }
 
   public static DS use(String dsName, boolean cached) {
-    return DS.use(Metadatas.getDataSourceMeta(dsName), false);
+    return DS.use(Metadata.getDataSourceMeta(dsName), false);
   }
 
   public static DS use(DataSourceMeta dataSourceMeta, boolean cached) {

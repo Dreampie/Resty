@@ -2,7 +2,7 @@ package cn.dreampie.route.interceptor.transaction;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.DataSourceMeta;
-import cn.dreampie.orm.Metadatas;
+import cn.dreampie.orm.Metadata;
 import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.route.core.RouteInvocation;
 import cn.dreampie.route.interceptor.Interceptor;
@@ -27,7 +27,7 @@ public class TransactionInterceptorExecutor {
 
 
   public void transaction(Interceptor interceptor, RouteInvocation ri) {
-    DataSourceMeta dataSourceMeta = Metadatas.getDataSourceMeta(dsName);
+    DataSourceMeta dataSourceMeta = Metadata.getDataSourceMeta(dsName);
     Connection conn = dataSourceMeta.getCurrentConnection();
     if (conn != null) {
       try {

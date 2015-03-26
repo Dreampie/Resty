@@ -24,7 +24,7 @@ public class ActiveRecordPlugin implements Plugin {
 
   private DataSourceProvider dataSourceProvider;
   private String dsName;
-  private List<ModelMeta> modelMetas;
+  private List<TableMeta> tableMetas;
   private boolean showSql = false;
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
@@ -90,8 +90,8 @@ public class ActiveRecordPlugin implements Plugin {
 
     DataSourceMeta dsm = new DataSourceMeta(dsName, dataSourceProvider, showSql);
     if (includeClasses.size() > 0) {
-      modelMetas = new ArrayList<ModelMeta>();
-      ModelMeta modelMeta = null;
+      tableMetas = new ArrayList<TableMeta>();
+      TableMeta tableMeta = null;
       for (Class<? extends Model> modelClass : includeClasses) {
         boolean isexclude = false;
         if (excludeClassPaths.size() > 0) {
@@ -107,26 +107,26 @@ public class ActiveRecordPlugin implements Plugin {
           continue;
         }
         //add modelMeta
-        modelMeta = new ModelMeta(modelClass, dsName);
-        modelMetas.add(modelMeta);
-        logger.info("AddMapping(" + modelMeta.getTableName() + ", " + modelClass.getName() + ")");
+        tableMeta = new TableMeta(dsName, modelClass);
+        tableMetas.add(tableMeta);
+        logger.info("AddMapping(" + tableMeta.getTableName() + ", " + modelClass.getName() + ")");
 
         //json  config
         Jsoner.addConfig(modelClass, ModelSerializer.instance(), ModelDeserializer.instance());
       }
       //model 元数据
-      ModelMetaBuilder.build(modelMetas, dsm);
+      TableMetaBuilder.buildModel(tableMetas, dsm);
     }
     //Record 解析支持
     Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());
     //数据源  元数据
-    Metadatas.addDataSourceMeta(dsName, dsm);
+    Metadata.addDataSourceMeta(dsName, dsm);
     return true;
   }
 
   public boolean stop() {
     //关闭数据源  元数据
-    Metadatas.closeDataSourceMeta();
+    Metadata.closeDataSourceMeta();
     return true;
   }
 

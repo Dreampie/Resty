@@ -2,7 +2,7 @@ package cn.dreampie.orm.transaction;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.DataSourceMeta;
-import cn.dreampie.orm.Metadatas;
+import cn.dreampie.orm.Metadata;
 import cn.dreampie.orm.exception.TransactionException;
 
 import java.lang.reflect.InvocationHandler;
@@ -27,7 +27,7 @@ public class TransactionExecutor {
 
 
   public void transaction(TransactionAspect aspect, InvocationHandler ih, Object proxy, Method method, Object[] args) {
-    DataSourceMeta dataSourceMeta = Metadatas.getDataSourceMeta(dsName);
+    DataSourceMeta dataSourceMeta = Metadata.getDataSourceMeta(dsName);
     Connection conn = dataSourceMeta.getCurrentConnection();
     if (conn != null) {
       try {

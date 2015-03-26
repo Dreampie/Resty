@@ -20,7 +20,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return model 集合
    */
   public List<M> findAll() {
-    return find(getDialect().select(getModelMeta().getTableName()));
+    return find(getDialect().select(getTableMeta().getTableName()));
   }
 
   /**
@@ -30,7 +30,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return model 集合
    */
   public List<M> findColsAll(String columns) {
-    return find(getDialect().select(getModelMeta().getTableName(), columns.split(",")));
+    return find(getDialect().select(getTableMeta().getTableName(), columns.split(",")));
   }
 
   /**
@@ -41,7 +41,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return list
    */
   public List<M> findBy(String where, Object... paras) {
-    return find(getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras);
+    return find(getDialect().select(getTableMeta().getTableName(), getAlias(), where), paras);
   }
 
   /**
@@ -53,7 +53,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return model集合
    */
   public List<M> findColsBy(String colums, String where, Object... paras) {
-    return find(getDialect().select(getModelMeta().getTableName(), getAlias(), where, colums.split(",")), paras);
+    return find(getDialect().select(getTableMeta().getTableName(), getAlias(), where, colums.split(",")), paras);
   }
 
   /**
@@ -65,7 +65,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return list
    */
   public List<M> findTopBy(int topNumber, String where, Object... paras) {
-    return paginate(1, topNumber, getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras).getList();
+    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where), paras).getList();
   }
 
   /**
@@ -78,7 +78,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return list
    */
   public List<M> findColsTopBy(int topNumber, String columns, String where, Object... paras) {
-    return paginate(1, topNumber, getDialect().select(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras).getList();
+    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), paras).getList();
   }
 
   /**
@@ -89,7 +89,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return model对象
    */
   public M findFirstBy(String where, Object... paras) {
-    return findFirst(getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras);
+    return findFirst(getDialect().select(getTableMeta().getTableName(), getAlias(), where), paras);
   }
 
   /**
@@ -101,7 +101,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return model对象
    */
   public M findColsFirstBy(String columns, String where, Object... paras) {
-    return findFirst(getDialect().select(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
+    return findFirst(getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
   }
 
   /**
@@ -112,7 +112,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return 分页对象
    */
   public Page<M> paginateAll(int pageNumber, int pageSize) {
-    return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName()));
+    return paginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName()));
   }
 
   /**
@@ -124,7 +124,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return 分页对象
    */
   public Page<M> paginateColsAll(int pageNumber, int pageSize, String columns) {
-    return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), columns.split(",")));
+    return paginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), columns.split(",")));
   }
 
   /**
@@ -137,7 +137,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return 分页对象
    */
   public Page<M> paginateBy(int pageNumber, int pageSize, String where, Object... paras) {
-    return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), getAlias(), where), paras);
+    return paginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), getAlias(), where), paras);
   }
 
   /**
@@ -151,7 +151,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return 分页对象
    */
   public Page<M> paginateColsBy(int pageNumber, int pageSize, String columns, String where, Object... paras) {
-    return paginate(pageNumber, pageSize, getDialect().select(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
+    return paginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
   }
 
   /**
@@ -163,7 +163,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    */
   public boolean updateColsAll(String columns, Object... paras) {
     logger.warn("You must ensure that \"updateAll()\" method of safety.");
-    return update(getDialect().update(getModelMeta().getTableName(), columns.split(",")), paras) > 0;
+    return update(getDialect().update(getTableMeta().getTableName(), columns.split(",")), paras) > 0;
   }
 
   /**
@@ -175,7 +175,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return boolean
    */
   public boolean updateColsBy(String columns, String where, Object... paras) {
-    return update(getDialect().update(getModelMeta().getTableName(), getAlias(), where, columns.split(",")), paras) > 0;
+    return update(getDialect().update(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), paras) > 0;
   }
 
   /**
@@ -185,7 +185,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    */
   public boolean deleteAll() {
     logger.warn("You must ensure that \"deleteAll()\" method of safety.");
-    return update(getDialect().delete(getModelMeta().getTableName())) > 0;
+    return update(getDialect().delete(getTableMeta().getTableName())) > 0;
   }
 
   /**
@@ -196,7 +196,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return
    */
   public boolean deleteBy(String where, Object... paras) {
-    return update(getDialect().delete(getModelMeta().getTableName(), where), paras) > 0;
+    return update(getDialect().delete(getTableMeta().getTableName(), where), paras) > 0;
   }
 
   /**
@@ -205,7 +205,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return Long
    */
   public Long countAll() {
-    return DS.use(getModelMeta().getDsName()).queryFirst(getDialect().count(getModelMeta().getTableName()));
+    return DS.use(getTableMeta().getDsName()).queryFirst(getDialect().count(getTableMeta().getTableName()));
   }
 
   /**
@@ -214,7 +214,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return Long
    */
   public Long countBy(String where, Object... paras) {
-    return DS.use(getModelMeta().getDsName()).queryFirst(getDialect().count(getModelMeta().getTableName(), getAlias(), where), paras);
+    return DS.use(getTableMeta().getDsName()).queryFirst(getDialect().count(getTableMeta().getTableName(), getAlias(), where), paras);
   }
 
 

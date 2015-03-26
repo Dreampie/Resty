@@ -40,24 +40,24 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
   protected <T> T getCache(String sql, Object[] paras) {
-    ModelMeta modelMeta = getModelMeta();
-    if (modelMeta.isCached()) {
-      return (T) QueryCache.instance().get(modelMeta.getDsName(), modelMeta.getTableName(), sql, paras);
+    TableMeta tableMeta = getTableMeta();
+    if (tableMeta.isCached()) {
+      return (T) QueryCache.instance().get(tableMeta.getDsName(), tableMeta.getTableName(), sql, paras);
     }
     return null;
   }
 
   protected void addCache(String sql, Object[] paras, Object cache) {
-    ModelMeta modelMeta = getModelMeta();
-    if (modelMeta.isCached()) {
-      QueryCache.instance().add(modelMeta.getDsName(), modelMeta.getTableName(), sql, paras, cache);
+    TableMeta tableMeta = getTableMeta();
+    if (tableMeta.isCached()) {
+      QueryCache.instance().add(tableMeta.getDsName(), tableMeta.getTableName(), sql, paras, cache);
     }
   }
 
   protected void purgeCache() {
-    ModelMeta modelMeta = getModelMeta();
-    if (modelMeta.isCached()) {
-      QueryCache.instance().purge(modelMeta.getDsName(), modelMeta.getTableName());
+    TableMeta tableMeta = getTableMeta();
+    if (tableMeta.isCached()) {
+      QueryCache.instance().purge(tableMeta.getDsName(), tableMeta.getTableName());
     }
   }
 
@@ -87,12 +87,12 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
   }
 
-  protected ModelMeta getModelMeta() {
-    return Metadatas.getModelMeta(getClass());
+  protected TableMeta getTableMeta() {
+    return Metadata.getModelTableMeta(getClass());
   }
 
   protected DataSourceMeta getDataSourceMeta() {
-    return Metadatas.getDataSourceMeta(getModelMeta().getDsName());
+    return Metadata.getDataSourceMeta(getTableMeta().getDsName());
   }
 
 
@@ -109,7 +109,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @throws cn.dreampie.orm.exception.DBException if the attribute is not exists of the model
    */
   public M set(String attr, Object value) {
-    if (getModelMeta().hasAttribute(attr)) {
+    if (getTableMeta().hasAttribute(attr)) {
       attrs.put(attr, value);
       modifyAttrs.put(attr, value);  // Add modify flag, update() need this flag.
       return (M) this;
@@ -121,7 +121,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * Put key value pair to the model when the key is not attribute of the model.
    */
   public M put(String key, Object value) {
-    if (getModelMeta().hasAttribute(key))
+    if (getTableMeta().hasAttribute(key))
       modifyAttrs.put(key, value);
     attrs.put(key, value);
     return (M) this;
@@ -181,7 +181,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     List<M> result = null;
     boolean cached = false;
     if (inCache) {
-      cached = getModelMeta().isCached();
+      cached = getTableMeta().isCached();
       //hit cache
       if (cached) {
         result = getCache(sql, paras);
@@ -193,7 +193,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       inCache = true;
     }
     if (devMode)
-      checkTableName(getModelMeta().getTableName(), sql);
+      checkTableName(getTableMeta().getTableName(), sql);
 
     DataSourceMeta dsm = getDataSourceMeta();
     Connection conn = null;
@@ -201,7 +201,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     ResultSet rs = null;
     try {
       conn = dsm.getConnection();
-      pst = DS.getPreparedStatement(conn, getModelMeta().getPrimaryKey(), sql, paras);
+      pst = DS.getPreparedStatement(conn, getTableMeta().getPrimaryKey(), sql, paras);
       rs = pst.executeQuery();
       result = ModelBuilder.build(rs, getClass());
     } catch (SQLException e) {
@@ -270,13 +270,13 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * @param id      the id value of the model
    */
   public M findColsById(String columns, Object id) {
-    String sql = getDialect().select(getModelMeta().getTableName(), "", getModelMeta().getPrimaryKey() + "=?", columns.split(","));
+    String sql = getDialect().select(getTableMeta().getTableName(), "", getTableMeta().getPrimaryKey() + "=?", columns.split(","));
     List<M> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }
 
   public M findColsByIds(String columns, Object... ids) {
-    String sql = getDialect().select(getModelMeta().getTableName(), "", Joiner.on("=? AND ").join(getModelMeta().getPrimaryKeys()) + "=?", columns.split(","));
+    String sql = getDialect().select(getTableMeta().getTableName(), "", Joiner.on("=? AND ").join(getTableMeta().getPrimaryKeys()) + "=?", columns.split(","));
     List<M> result = find(sql, ids);
     return result.size() > 0 ? result.get(0) : null;
   }
@@ -327,15 +327,15 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public boolean save() {
     //清除缓存
-    if (getModelMeta().isCached()) {
+    if (getTableMeta().isCached()) {
       purgeCache();
     }
 
     DataSourceMeta dsm = getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
-    ModelMeta modelMeta = getModelMeta();
+    TableMeta tableMeta = getTableMeta();
 
-    String sql = dialect.insert(modelMeta.getTableName(), getModifyAttrNames());
+    String sql = dialect.insert(tableMeta.getTableName(), getModifyAttrNames());
 
     // --------
     Connection conn = null;
@@ -343,10 +343,10 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     int result = 0;
     try {
       conn = dsm.getConnection();
-      pst = DS.getPreparedStatement(conn, getModelMeta().getPrimaryKey(), sql, getModifyAttrValues());
+      pst = DS.getPreparedStatement(conn, getTableMeta().getPrimaryKey(), sql, getModifyAttrValues());
 
       result = pst.executeUpdate();
-      getGeneratedKey(pst, modelMeta.getPrimaryKey());
+      getGeneratedKey(pst, tableMeta.getPrimaryKey());
       modifyAttrs.clear();
       return result >= 1;
     } catch (SQLException e) {
@@ -378,16 +378,16 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     }
 
     //清除models缓存
-    if (firstModel.getModelMeta().isCached()) {
+    if (firstModel.getTableMeta().isCached()) {
       firstModel.purgeCache();
     }
 
     DataSourceMeta dsm = firstModel.getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
-    ModelMeta modelMeta = firstModel.getModelMeta();
+    TableMeta tableMeta = firstModel.getTableMeta();
 
     String[] columns = firstModel.getModifyAttrNames();
-    String sql = dialect.insert(modelMeta.getTableName(), columns);
+    String sql = dialect.insert(tableMeta.getTableName(), columns);
 
     //参数
     Object[][] paras = new Object[models.size()][columns.length];
@@ -409,9 +409,9 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       if (autoCommit)
         conn.setAutoCommit(false);
 
-      pst = DS.getPreparedStatement(conn, getModelMeta().getPrimaryKey(), sql, paras);
+      pst = DS.getPreparedStatement(conn, getTableMeta().getPrimaryKey(), sql, paras);
       result = pst.executeBatch();
-      getGeneratedKey(pst, modelMeta.getPrimaryKey(), models);
+      getGeneratedKey(pst, tableMeta.getPrimaryKey(), models);
       //没有事务的情况下 手动提交
       if (dsm.getCurrentConnection() == null)
         conn.commit();
@@ -437,26 +437,26 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   //update  base
   public int update(String sql, Object... paras) {
     //清除缓存
-    if (getModelMeta().isCached()) {
+    if (getTableMeta().isCached()) {
       purgeCache();
     }
     if (devMode)
-      checkTableName(getModelMeta().getTableName(), sql);
-    return DS.use(getModelMeta().getDsName()).update(sql, paras);
+      checkTableName(getTableMeta().getTableName(), sql);
+    return DS.use(getTableMeta().getDsName()).update(sql, paras);
   }
 
   /**
    * Delete model.
    */
   public boolean delete() {
-    ModelMeta modelMeta = getModelMeta();
+    TableMeta tableMeta = getTableMeta();
 
-    Object id = attrs.get(modelMeta.getPrimaryKey());
-    checkNotNull(id, "You can't delete model without primaryKey " + modelMeta.getPrimaryKey() + ".");
+    Object id = attrs.get(tableMeta.getPrimaryKey());
+    checkNotNull(id, "You can't delete model without primaryKey " + tableMeta.getPrimaryKey() + ".");
 
     //锁定主键 删除的时候 使用所有主键作为条件
-    if (modelMeta.isLockKey()) {
-      String[] pkeys = modelMeta.getPrimaryKeys();
+    if (tableMeta.isLockKey()) {
+      String[] pkeys = tableMeta.getPrimaryKeys();
       Object[] ids = new Object[pkeys.length];
       ids[0] = id;
       int i = 1;
@@ -478,16 +478,16 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public boolean deleteById(Object id) {
     checkNotNull(id, "You can't delete model without primaryKey.");
-    ModelMeta modelMeta = getModelMeta();
-    String sql = getDialect().delete(modelMeta.getTableName(), modelMeta.getPrimaryKey() + "=?");
+    TableMeta tableMeta = getTableMeta();
+    String sql = getDialect().delete(tableMeta.getTableName(), tableMeta.getPrimaryKey() + "=?");
     int result = update(sql, id);
     return result > 0;
   }
 
   public boolean deleteByIds(Object... ids) {
     checkNotNull(ids, "You can't delete model without primaryKey.");
-    ModelMeta modelMeta = getModelMeta();
-    String sql = getDialect().delete(modelMeta.getTableName(), Joiner.on("=? AND ").join(modelMeta.getPrimaryKeys()) + "=?");
+    TableMeta tableMeta = getTableMeta();
+    String sql = getDialect().delete(tableMeta.getTableName(), Joiner.on("=? AND ").join(tableMeta.getPrimaryKeys()) + "=?");
     int result = update(sql, ids);
     return result > 0;
   }
@@ -499,10 +499,10 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     if (modifyAttrs.isEmpty())
       return false;
 
-    ModelMeta modelMeta = getModelMeta();
+    TableMeta tableMeta = getTableMeta();
     Dialect dialect = getDialect();
 
-    String pKey = modelMeta.getPrimaryKey();
+    String pKey = tableMeta.getPrimaryKey();
     Object id = attrs.get(pKey);
     checkNotNull(id, "You can't update model without Primary Key " + pKey + ".");
 
@@ -510,8 +510,8 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     Object[] paras = null;
     Object[] modifys = getModifyAttrValues();
     //锁定主键 更新的时候 使用所有主键作为条件
-    if (modelMeta.isLockKey()) {
-      String[] pkeys = modelMeta.getPrimaryKeys();
+    if (tableMeta.isLockKey()) {
+      String[] pkeys = tableMeta.getPrimaryKeys();
       Object[] ids = new Object[pkeys.length];
       ids[0] = id;
       int i = 1;
@@ -522,7 +522,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       paras = new Object[ids.length + modifys.length];
       System.arraycopy(modifys, 0, paras, 0, modifys.length);
       System.arraycopy(ids, 0, paras, modifys.length, ids.length);
-      where = Joiner.on("=?,").join(modelMeta.getPrimaryKeys());
+      where = Joiner.on("=?,").join(tableMeta.getPrimaryKeys());
     } else {
       paras = new Object[1 + modifys.length];
       System.arraycopy(modifys, 0, paras, 0, modifys.length);
@@ -530,7 +530,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       where = pKey;
     }
     String[] modifyNames = getModifyAttrNames();
-    String sql = dialect.update(modelMeta.getTableName(), "", where + "=?", modifyNames);
+    String sql = dialect.update(tableMeta.getTableName(), "", where + "=?", modifyNames);
 
     if (modifyNames.length <= 0) {  // Needn't update
       return false;

@@ -148,10 +148,4 @@ public abstract class DefaultDialect implements Dialect {
     return paginateWith(pageNumber, pageSize, select(table, alias, where, columns));
   }
 
-  public static void main(String[] args) {
-    MySQLDialect mySQLDialect = new MySQLDialect();
-    mySQLDialect.getAlias("");
-    mySQLDialect.getPrefix("", "*");
-    System.out.println(Joiner.on(", ").join(new String[]{"*"}));
-  }
 }

@@ -187,7 +187,7 @@ public void configPlugin(PluginLoader pluginLoader) {
 ```java
   // 在resource里使用事务,也就是controller里，rest的世界认为所以的请求都表示资源，所以这儿叫resource
   @GET("/users")
-  @Transaction(name = {DS.DEFAULT_DS_NAME, "demo"}) //多数据源的事务，如果你只有一个数据库  直接@Transaction 不需要参数
+  @Transaction(name = {"default", "demo"}) //多数据源的事务，如果你只有一个数据库  直接@Transaction 不需要参数
   public User transaction() {
   //TODO 用model执行数据库的操作  只要有操作抛出异常  两个数据源 都会回滚  虽然不是分布式事务  也能保证代码块的数据执行安全
   }

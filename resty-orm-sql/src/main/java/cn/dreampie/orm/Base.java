@@ -435,7 +435,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
 
   //update  base
-  public int update(String sql, Object... paras) {
+  protected int update(String sql, Object... paras) {
     //清除缓存
     if (getTableMeta().isCached()) {
       purgeCache();

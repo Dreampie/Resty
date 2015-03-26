@@ -28,6 +28,7 @@ public class Record extends Entity<Record> implements Serializable {
 
   private DataSourceMeta dataSourceMeta;
   private TableMeta tableMeta;
+  private boolean inCache = true;
 
   private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
 
@@ -84,6 +85,12 @@ public class Record extends Entity<Record> implements Serializable {
     return record;
   }
 
+  public static Record useDS(DataSourceMeta dataSourceMeta, TableMeta tableMeta) {
+    Record record = new Record();
+    record.dataSourceMeta = dataSourceMeta;
+    record.tableMeta = tableMeta;
+    return record;
+  }
 
   /**
    * create new record
@@ -91,10 +98,35 @@ public class Record extends Entity<Record> implements Serializable {
    * @return Record
    */
   public Record reNew() {
-    Record record = new Record();
-    record.dataSourceMeta = dataSourceMeta;
-    record.tableMeta = tableMeta;
-    return record;
+    return Record.useDS(dataSourceMeta, tableMeta);
+  }
+
+  public Record inCache(boolean inCache) {
+    this.inCache = inCache;
+    return this;
+  }
+
+  public TableMeta getTableMeta() {
+    return tableMeta;
+  }
+
+  protected <T> T getCache(String sql, Object[] paras) {
+    if (tableMeta.isCached()) {
+      return (T) QueryCache.instance().get(tableMeta.getDsName(), tableMeta.getTableName(), sql, paras);
+    }
+    return null;
+  }
+
+  protected void addCache(String sql, Object[] paras, Object cache) {
+    if (tableMeta.isCached()) {
+      QueryCache.instance().add(tableMeta.getDsName(), tableMeta.getTableName(), sql, paras, cache);
+    }
+  }
+
+  protected void purgeCache() {
+    if (tableMeta.isCached()) {
+      QueryCache.instance().purge(tableMeta.getDsName(), tableMeta.getTableName());
+    }
   }
 
   /**
@@ -191,15 +223,21 @@ public class Record extends Entity<Record> implements Serializable {
 
   public List<Record> find(String sql, Object... paras) {
     List<Record> result = null;
-    String dsName = dataSourceMeta.getDsName();
-    boolean cached = tableMeta.isCached();
-    //hit cache
-    if (cached) {
-      result = QueryCache.instance().get(dsName, sql, paras);
+    boolean cached = false;
+    if (inCache) {
+      cached = tableMeta.isCached();
+      //hit cache
+      if (cached) {
+        result = getCache(sql, paras);
+      }
+      if (result != null) {
+        return result;
+      }
+    } else {
+      inCache = true;
     }
-    if (result != null) {
-      return result;
-    }
+    if (devMode)
+      checkTableName(tableMeta.getTableName(), sql);
 
     Connection conn = null;
     PreparedStatement pst = null;
@@ -216,7 +254,7 @@ public class Record extends Entity<Record> implements Serializable {
     }
     //添加缓存
     if (cached) {
-      QueryCache.instance().add(dataSourceMeta.getDsName(), sql, paras, result);
+      addCache(sql, paras, result);
     }
     return result;
   }
@@ -346,7 +384,7 @@ public class Record extends Entity<Record> implements Serializable {
     String primaryKey = tableMeta.getPrimaryKey();
     //remove cache
     if (cached) {
-      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableMeta.getTableName());
+      purgeCache();
     }
     Connection conn = null;
     PreparedStatement pst = null;
@@ -389,8 +427,8 @@ public class Record extends Entity<Record> implements Serializable {
     boolean cached = tableMeta.isCached();
     String primaryKey = tableMeta.getPrimaryKey();
     //清除models缓存
-    if (cached) {
-      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableMeta.getTableName());
+    if (firstRecord.getTableMeta().isCached()) {
+      firstRecord.purgeCache();
     }
 
     String[] columns = firstRecord.getModifyAttrNames();
@@ -442,12 +480,12 @@ public class Record extends Entity<Record> implements Serializable {
   }
 
   //update  base
-  public int update(String sql, Object... paras) {
+  protected int update(String sql, Object... paras) {
 
     boolean cached = tableMeta.isCached();
     //清除缓存
     if (cached) {
-      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableMeta.getTableName());
+      purgeCache();
     }
     if (devMode)
       checkTableName(tableMeta.getTableName(), sql);

@@ -270,8 +270,4 @@ public abstract class Entity<M extends Entity> {
     return (Number) getAttrs().get(column);
   }
 
-
-
-///////************DB OPRATION*******************////////////
-
 }

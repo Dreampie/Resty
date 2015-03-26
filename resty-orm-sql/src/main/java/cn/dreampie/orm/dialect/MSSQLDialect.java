@@ -13,9 +13,6 @@ public class MSSQLDialect extends DefaultDialect {
   protected final Pattern selectPattern = Pattern.compile("^\\s*SELECT\\s*",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
-  protected final Pattern orderPattern = Pattern.compile("\\s*ORDER\\s*BY\\s*",
-      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
   public String getDbType() {
     return "mssql";
   }

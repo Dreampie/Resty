@@ -3,6 +3,9 @@ package cn.dreampie.orm.dialect;
 
 import cn.dreampie.common.util.Joiner;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 /**
  * 数据库	validationQuery
@@ -17,6 +20,9 @@ import cn.dreampie.common.util.Joiner;
  * H2	select 1
  */
 public abstract class DefaultDialect implements Dialect {
+
+  protected final Pattern orderPattern = Pattern.compile("\\s*ORDER\\s*BY\\s*",
+      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
   public String select(String table) {
     return "SELECT * FROM " + table;
@@ -115,6 +121,13 @@ public abstract class DefaultDialect implements Dialect {
   }
 
   public String countWith(String sql) {
+    Matcher om = orderPattern.matcher(sql);
+    if (om.find()) {
+      int oindex = om.end();
+      if (oindex > sql.lastIndexOf(")")) {
+        sql = sql.substring(0, om.start());
+      }
+    }
     return "SELECT COUNT(*) FROM (" + sql + ") count_alias";
   }
 

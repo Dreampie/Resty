@@ -31,6 +31,10 @@ Record r2 = recordDAO.reNew().set("属性", "值");
 recordDAO.save(r1, r2);
 //更新
 r2.set("属性", "值").update()
+//查询全部
+List<Record> records = recordDAO.findAll();
+//条件查询
+recordDAO.findBy(where,paras)
 //分页查询
 Page<Record> records = recordDAO.paginateAll();
 //根据id删除

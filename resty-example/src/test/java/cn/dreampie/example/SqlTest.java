@@ -88,9 +88,17 @@ public class SqlTest {
   public void testUpdate() {
     List<User> users = User.dao.findAll();
     for (User user : users) {
-      user.set("username", "testupdate");
+      user.set("username", "testupdate").update();
     }
     DS.use().update("UPDATE sec_user SET username='c' WHERE username='a'");
+    Record recordDAO = Record.use("sec_user");
+    List<Record> records = recordDAO.findAll();
+    int i = 0;
+    for (Record record : records) {
+      if (i % 2 == 0)
+        record.set("username", "testupdxx").update();
+      i++;
+    }
   }
 
   @Test

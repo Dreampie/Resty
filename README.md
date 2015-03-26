@@ -16,6 +16,30 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
 一、独有优点：
 -----------
+
+最新更新：
+record的时代已经到来，你完全不用使用任何的model来执行你的数据
+```java
+//使用use和useDS 方法来创建record的执行器  针对sec_user表
+Record recordDAO = Record.use("sec_user");
+//new 一个对象来保存数据
+recordDAO.reNew().set("属性", 值).save();
+Record r1 = recordDAO.reNew().set("属性", 值);
+Record r2 = recordDAO.reNew().set("属性", 值);
+//批量保存
+recordDAO.save(r1, r2);
+//更新
+r2.set("属性", 值).update()
+//分页查询
+Page<Record> records = recordDAO.paginateAll();
+//根据id删除
+recordDAO.deleteById("1");
+
+//等等，完全摆脱model，实现快速操作数据
+
+```
+
+
 //数据库和全局参数配置移植到application.properties  详情参看resty-example
 
 ```java

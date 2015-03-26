@@ -21,38 +21,23 @@ public class DS {
   public static final String DEFAULT_PRIMARY_KAY = "id";
   public static final Object[] NULL_PARA_ARRAY = new Object[0];
   private DataSourceMeta dataSourceMeta;
-  private boolean cached = false;
 
   private DS() {
   }
 
   public static DS use() {
-    return DS.use(Metadata.getDefaultDsName(), false);
-  }
-
-  public static DS use(boolean cached) {
-    return DS.use(Metadata.getDefaultDsName(), cached);
+    return DS.use(Metadata.getDefaultDsName());
   }
 
   public static DS use(String dsName) {
-    return DS.use(dsName, false);
+    return DS.use(dsName);
   }
 
-  public static DS use(String dsName, boolean cached) {
-    return DS.use(Metadata.getDataSourceMeta(dsName), false);
-  }
-
-  public static DS use(DataSourceMeta dataSourceMeta, boolean cached) {
+  public static DS use(DataSourceMeta dataSourceMeta) {
     checkNotNull(dataSourceMeta, "Could not found dataSourceMeta.");
     DS ds = new DS();
     ds.dataSourceMeta = dataSourceMeta;
-    ds.cached = cached;
     return ds;
-  }
-
-  public DS setCached(boolean cached) {
-    this.cached = cached;
-    return this;
   }
 
   public DataSourceMeta getDataSourceMeta() {
@@ -298,10 +283,6 @@ public class DS {
    */
   public int update(String sql, Object... paras) {
     int result = -1;
-    //remove cache
-    if (cached) {
-      QueryCache.instance().purge(dataSourceMeta.getDsName());
-    }
     Connection conn = null;
     PreparedStatement pst = null;
     try {

@@ -1,9 +1,9 @@
 package cn.dreampie.orm.provider.jndi;
 
-import cn.dreampie.orm.DataSourceProvider;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
 import cn.dreampie.orm.exception.DBException;
+import cn.dreampie.orm.provider.DataSourceProvider;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;

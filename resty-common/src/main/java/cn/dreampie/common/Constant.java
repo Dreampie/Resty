@@ -1,10 +1,10 @@
 package cn.dreampie.common;
 
-import cn.dreampie.orm.cache.CacheManager;
-import cn.dreampie.orm.cache.EHCacheManager;
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.cache.CacheManager;
+import cn.dreampie.orm.cache.EHCacheManager;
 
 import java.io.File;
 

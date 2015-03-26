@@ -1,12 +1,12 @@
 package cn.dreampie.orm;
 
 import cn.dreampie.common.Plugin;
-import cn.dreampie.common.entity.Record;
 import cn.dreampie.common.util.ClassScaner;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.common.util.json.ModelDeserializer;
 import cn.dreampie.common.util.json.ModelSerializer;
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.provider.DataSourceProvider;
 
 import java.util.ArrayList;
 import java.util.List;

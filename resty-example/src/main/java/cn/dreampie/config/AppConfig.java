@@ -8,7 +8,6 @@ import cn.dreampie.route.config.*;
 import cn.dreampie.route.handler.cors.CORSHandler;
 import cn.dreampie.route.interceptor.security.SecurityInterceptor;
 import cn.dreampie.route.interceptor.transaction.TransactionInterceptor;
-import com.alibaba.druid.pool.DruidDataSource;
 
 /**
  * Created by ice on 14-12-29.

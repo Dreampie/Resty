@@ -1,13 +1,8 @@
 package cn.dreampie;
 
 
-import cn.dreampie.common.entity.Record;
-import cn.dreampie.common.util.json.Jsoner;
-import cn.dreampie.common.util.json.ModelDeserializer;
-import cn.dreampie.common.util.json.ModelSerializer;
 import cn.dreampie.orm.ActiveRecordPlugin;
-import cn.dreampie.orm.DS;
-import cn.dreampie.orm.Model;
+import cn.dreampie.orm.Record;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
 import org.junit.Test;
 
@@ -21,13 +16,13 @@ public class ActiveRecordPluginTest {
 //    activeRecordPlugin.addIncludePaths("cn.dremapie.orm");
     activeRecordPlugin.start();
 
-    Record record = new Record().set("id2", 10);
+    Record recordDAO = Record.use("ds2","test");
 
-    DS.use().save("test", record);
+    recordDAO.reNew().set("id2", 10).save();
 
-    record = DS.use().findColsByIds("test","id,id2", new Object[]{record.get("id"),record.get("id2")});
+    recordDAO = Record.use("test").findColsByIds("id,id2", new Object[]{recordDAO.get("id"), recordDAO.get("id2")});
 
-    DS.use().update("test", record);
+    recordDAO.update();
     //Record 解析支持
 //    Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());
 //    Record r = new Record().set("id", 1).set("long", "x");

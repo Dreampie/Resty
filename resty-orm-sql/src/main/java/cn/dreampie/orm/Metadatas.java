@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.log.Logger;
 import cn.dreampie.orm.exception.DBException;
 
 import java.util.HashMap;
@@ -11,6 +12,9 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  * Created by ice on 14-12-30.
  */
 public class Metadatas {
+
+  private static final Logger logger = Logger.getLogger(Metadatas.class);
+  private static String defaultDsName;
 
   private static Map<String, DataSourceMeta> dataSourceMetaMap = new HashMap<String, DataSourceMeta>();
 
@@ -38,10 +42,10 @@ public class Metadatas {
 
   public static void addDataSourceMeta(String dsName, DataSourceMeta conn) {
     if (dataSourceMetaMap.size() == 0) {
-      DS.setDefaultDsName(dsName);
+      defaultDsName = dsName;
     }
     if (dataSourceMetaMap.containsKey(dsName))
-      throw new DBException("Already exists dsName " + dsName);
+      logger.warn("Covering multiple data sources for dsName '%s'.", dsName);
     dataSourceMetaMap.put(dsName, conn);
   }
 
@@ -68,5 +72,9 @@ public class Metadatas {
 
   public static void addModelMeta(Class<? extends Base> modelClass, ModelMeta model) {
     modelMetaMap.put(modelClass, model);
+  }
+
+  public static String getDefaultDsName() {
+    return defaultDsName;
   }
 }

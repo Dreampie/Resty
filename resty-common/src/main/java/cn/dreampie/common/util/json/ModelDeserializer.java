@@ -1,7 +1,6 @@
 package cn.dreampie.common.util.json;
 
 import cn.dreampie.common.entity.Entity;
-import cn.dreampie.common.entity.Record;
 import cn.dreampie.common.util.Stringer;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -29,20 +28,14 @@ public enum ModelDeserializer implements ObjectDeserializer {
   public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
 
     Map<String, Object> map = parser.parseObject();
-
     Class<?> clazz = (Class<?>) type;
     if (clazz.isInterface()) {
       throw new JSONException("Unsupport type " + type);
     }
 
-
     try {
-      Entity<T> e = (Entity<T>) clazz.newInstance();
-      if (clazz.isAssignableFrom(Record.class)) {
-        return e.putAttrs(map);
-      } else {
-        return e.putAttrs(deserialze(map, clazz));
-      }
+      Entity<?> e = (Entity<?>) clazz.newInstance();
+      return (T) e.putAttrs(deserialze(map, clazz));
     } catch (Exception e) {
       throw new JSONException("Unsupport type " + type, e);
     }

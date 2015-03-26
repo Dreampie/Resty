@@ -1,8 +1,5 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.common.entity.CaseInsensitiveMap;
-import cn.dreampie.common.entity.Record;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -15,7 +12,7 @@ import java.util.Map;
  * Created by ice on 14-12-30.
  */
 public class RecordBuilder {
-  public static List<Record> build(ResultSet rs) throws SQLException {
+  public static List<Record> build(ResultSet rs, String dsName, String tableName, String pKeys, boolean lockKey, boolean cached) throws SQLException {
     List<Record> result = new ArrayList<Record>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
@@ -23,12 +20,12 @@ public class RecordBuilder {
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
 
+    Record recordDAO = Record.useDS(dsName, tableName, pKeys, lockKey, cached);
     Record record;
     Map<String, Object> columns;
     Object value;
     while (rs.next()) {
-      record = new Record();
-      record.putAttrs(new CaseInsensitiveMap<Object>());
+      record = recordDAO.reNew();
       columns = record.getAttrs();
       for (int i = 1; i <= columnCount; i++) {
 

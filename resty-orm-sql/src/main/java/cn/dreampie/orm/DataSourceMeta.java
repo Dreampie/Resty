@@ -2,6 +2,7 @@ package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;
+import cn.dreampie.orm.provider.DataSourceProvider;
 import com.alibaba.druid.pool.DruidDataSource;
 
 import javax.sql.DataSource;

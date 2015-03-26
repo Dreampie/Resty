@@ -2,9 +2,9 @@ package cn.dreampie.orm.provider.druid;
 
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
-import cn.dreampie.orm.DataSourceProvider;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.dialect.DialectFactory;
+import cn.dreampie.orm.provider.DataSourceProvider;
 import com.alibaba.druid.DruidRuntimeException;
 import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.pool.DruidDataSource;
@@ -69,7 +69,6 @@ public class DruidDataSourceProvider implements DataSourceProvider {
 
   // 配置监控统计拦截的filters
   private String filters;  // 监控统计："stat"    防SQL注入："wall"     组合使用： "stat,wall"
-  private List<Filter> filterList;
 
   private DruidDataSource ds;
   private Dialect dialect;
@@ -105,7 +104,30 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.removeAbandonedTimeoutMillis = prop.getInt("db." + dsName + ".removeAbandonedTimeoutMillis", 300 * 1000);
     this.logAbandoned = prop.getBoolean("db." + dsName + ".logAbandoned", false);
     this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize");
+    buidDataSource();
+  }
 
+  public DruidDataSourceProvider(String url, String user, String password) {
+    this(url, user, password, "mysql");
+  }
+
+  public DruidDataSourceProvider(String url, String user, String password, String dbType) {
+    this(url, user, password, dbType, null);
+  }
+
+  public DruidDataSourceProvider(String url, String user, String password, String dbType, String driverClass) {
+    this.url = url;
+    checkNotNull(this.url, "Could not found database url for custom.");
+    this.user = user;
+    checkNotNull(this.user, "Could not found database user for custom.");
+    this.password = password;
+    checkNotNull(this.password, "Could not found database password for custom.");
+    this.dialect = DialectFactory.get(dbType);
+    this.driverClass = driverClass;
+    buidDataSource();
+  }
+
+  private void buidDataSource() {
     //init druid
     ds = new DruidDataSource();
     ds.setUrl(url);
@@ -152,4 +174,128 @@ public class DruidDataSourceProvider implements DataSourceProvider {
   public String getDsName() {
     return dsName;
   }
+
+
+  public DruidDataSourceProvider setDriverClass(String driverClass) {
+    this.driverClass = driverClass;
+    ds.setDriverClassName(driverClass);
+    return this;
+  }
+
+  public DruidDataSourceProvider setInitialSize(int initialSize) {
+    this.initialSize = initialSize;
+    ds.setInitialSize(initialSize);
+    return this;
+  }
+
+  public DruidDataSourceProvider setMinIdle(int minIdle) {
+    this.minIdle = minIdle;
+    ds.setMinIdle(minIdle);
+    return this;
+  }
+
+  public DruidDataSourceProvider setMaxActive(int maxActive) {
+    this.maxActive = maxActive;
+    ds.setMaxActive(maxActive);
+    return this;
+  }
+
+  public DruidDataSourceProvider setMaxWait(long maxWait) {
+    this.maxWait = maxWait;
+    ds.setMaxWait(maxWait);
+    return this;
+  }
+
+  public DruidDataSourceProvider setTimeBetweenEvictionRunsMillis(long timeBetweenEvictionRunsMillis) {
+    this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
+    ds.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+    return this;
+  }
+
+  public DruidDataSourceProvider setMinEvictableIdleTimeMillis(long minEvictableIdleTimeMillis) {
+    this.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
+    ds.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+    return this;
+  }
+
+  public DruidDataSourceProvider setTimeBetweenConnectErrorMillis(long timeBetweenConnectErrorMillis) {
+    this.timeBetweenConnectErrorMillis = timeBetweenConnectErrorMillis;
+    ds.setTimeBetweenConnectErrorMillis(timeBetweenConnectErrorMillis);
+    return this;
+  }
+
+  public DruidDataSourceProvider setValidationQuery(String validationQuery) {
+    this.validationQuery = validationQuery;
+    ds.setValidationQuery(validationQuery);
+    return this;
+  }
+
+  public DruidDataSourceProvider setTestWhileIdle(boolean testWhileIdle) {
+    this.testWhileIdle = testWhileIdle;
+    ds.setTestWhileIdle(testWhileIdle);
+    return this;
+  }
+
+  public DruidDataSourceProvider setTestOnBorrow(boolean testOnBorrow) {
+    this.testOnBorrow = testOnBorrow;
+    ds.setTestOnBorrow(testOnBorrow);
+    return this;
+  }
+
+  public DruidDataSourceProvider setTestOnReturn(boolean testOnReturn) {
+    this.testOnReturn = testOnReturn;
+    ds.setTestOnReturn(testOnReturn);
+    return this;
+  }
+
+  public DruidDataSourceProvider setRemoveAbandoned(boolean removeAbandoned) {
+    this.removeAbandoned = removeAbandoned;
+    ds.setRemoveAbandoned(removeAbandoned);
+    return this;
+  }
+
+  public DruidDataSourceProvider setRemoveAbandonedTimeoutMillis(long removeAbandonedTimeoutMillis) {
+    this.removeAbandonedTimeoutMillis = removeAbandonedTimeoutMillis;
+    ds.setRemoveAbandonedTimeoutMillis(removeAbandonedTimeoutMillis);
+    return this;
+  }
+
+  public DruidDataSourceProvider setLogAbandoned(boolean logAbandoned) {
+    this.logAbandoned = logAbandoned;
+    ds.setLogAbandoned(logAbandoned);
+    return this;
+  }
+
+  public DruidDataSourceProvider setMaxPoolPreparedStatementPerConnectionSize(int maxPoolPreparedStatementPerConnectionSize) {
+    this.maxPoolPreparedStatementPerConnectionSize = maxPoolPreparedStatementPerConnectionSize;
+    ds.setMaxPoolPreparedStatementPerConnectionSize(maxPoolPreparedStatementPerConnectionSize);
+    return this;
+  }
+
+  public DruidDataSourceProvider setFilters(String filters) {
+    this.filters = filters;
+    try {
+      ds.setFilters(filters);
+    } catch (SQLException e) {
+      throw new DruidRuntimeException(e.getMessage(), e);
+    }
+    return this;
+  }
+
+  public DruidDataSourceProvider addFilter(Filter... filters) {
+    List<Filter> targetList = ds.getProxyFilters();
+    for (Filter add : filters) {
+      boolean found = false;
+      for (Filter target : targetList) {
+        if (add.getClass().equals(target.getClass())) {
+          found = true;
+          break;
+        }
+      }
+      if (!found)
+        targetList.add(add);
+    }
+    return this;
+  }
+
 }

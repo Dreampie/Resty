@@ -1,12 +1,11 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.util.Joiner;
-import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.exception.ModelException;
@@ -28,12 +27,12 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
   private static final Logger logger = Logger.getLogger(Base.class);
 
-  private final boolean devMode = Constant.devMode;
+  private static final boolean devMode = Constant.devMode;
   private boolean inCache = true;
   /**
    * Attributes of this model
    */
-  private Map<String, Object> attrs = getAttrsMap();
+  private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
 
   public M inCache(boolean inCache) {
     this.inCache = inCache;
@@ -63,27 +62,14 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
   /**
-   * Return columns map.
-   */
-  public Map<String, Object> getAttrsMap() {
-    if (attrs == null) {
-      attrs = new CaseInsensitiveMap<Object>();
-    }
-    return attrs;
-  }
-
-  /**
    * Flag of column has been modified. update need this flag
    */
-  private Map<String, Object> modifyAttrs;
+  private Map<String, Object> modifyAttrs = new CaseInsensitiveMap<Object>();
+  ;
 
   public Map<String, Object> getModifyAttrs() {
-    if (modifyAttrs == null) {
-      modifyAttrs = new CaseInsensitiveMap<Object>();
-    }
     return modifyAttrs;
   }
-
 
   /**
    * Return attribute name of this model.
@@ -125,7 +111,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   public M set(String attr, Object value) {
     if (getModelMeta().hasAttribute(attr)) {
       attrs.put(attr, value);
-      getModifyAttrs().put(attr, value);  // Add modify flag, update() need this flag.
+      modifyAttrs.put(attr, value);  // Add modify flag, update() need this flag.
       return (M) this;
     }
     throw new DBException("The attribute name is not exists: " + attr);
@@ -136,24 +122,9 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public M put(String key, Object value) {
     if (getModelMeta().hasAttribute(key))
-      getModifyAttrs().put(key, value);
+      modifyAttrs.put(key, value);
     attrs.put(key, value);
     return (M) this;
-  }
-
-  /**
-   * Get attribute of any mysql type
-   */
-  public <T> T get(String attr) {
-    return (T) (attrs.get(attr));
-  }
-
-  /**
-   * Get attribute of any mysql type. Returns defaultValue if null.
-   */
-  public <T> T get(String attr, Object defaultValue) {
-    Object result = attrs.get(attr);
-    return (T) (result != null ? result : defaultValue);
   }
 
   /**
@@ -167,133 +138,36 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
   /**
-   * Return attribute Set.
+   * Check the table name. The table name must in sql.
    */
-  public Set<Map.Entry<String, Object>> getAttrsEntrySet() {
-    return attrs.entrySet();
+  private void checkTableName(String tableName, String sql) {
+    if (!sql.toLowerCase().contains(tableName.toLowerCase()))
+      throw new DBException("The table name: " + tableName + " not in your sql.");
   }
 
   /**
-   * Get attribute of mysql type: varchar, char, enum, set, text, tinytext, mediumtext, longtext
+   * Get id after save method.
    */
-  public String getStr(String attr) {
-    return (String) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: int, integer, tinyint(n) n > 1, smallint, mediumint
-   */
-  public Integer getInt(String attr) {
-    return (Integer) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: bigint, unsign int
-   */
-  public Long getLong(String attr) {
-    return (Long) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: unsigned bigint
-   */
-  public java.math.BigInteger getBigInteger(String attr) {
-    return (java.math.BigInteger) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: date, year
-   */
-  public java.util.Date getDate(String attr) {
-    return (java.util.Date) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: time
-   */
-  public java.sql.Time getTime(String attr) {
-    return (java.sql.Time) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: timestamp, datetime
-   */
-  public java.sql.Timestamp getTimestamp(String attr) {
-    return (java.sql.Timestamp) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: real, double
-   */
-  public Double getDouble(String attr) {
-    return (Double) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: float
-   */
-  public Float getFloat(String attr) {
-    return (Float) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: bit, tinyint(1)
-   */
-  public Boolean getBoolean(String attr) {
-    return (Boolean) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: decimal, numeric
-   */
-  public java.math.BigDecimal getBigDecimal(String attr) {
-    return (java.math.BigDecimal) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of mysql type: binary, varbinary, tinyblob, blob, mediumblob, longblob
-   */
-  public byte[] getBytes(String attr) {
-    return (byte[]) attrs.get(attr);
-  }
-
-  /**
-   * Get attribute of any type that extends from Number
-   */
-  public Number getNumber(String attr) {
-    return (Number) attrs.get(attr);
-  }
-
-  private PreparedStatement getPreparedStatement(Connection conn, String sql, Object[] paras) throws SQLException {
-    PreparedStatement pst = null;
-    pst = conn.prepareStatement(sql, new String[]{getModelMeta().getPrimaryKey()});
-
-    for (int i = 0; i < paras.length; i++) {
-      pst.setObject(i + 1, paras[i]);
-    }
-    return pst;
-  }
-
-  private PreparedStatement getPreparedStatement(Connection connection, String sql, Object[][] paras) throws SQLException {
-    PreparedStatement pst = null;
-    String key = getModelMeta().getPrimaryKey();
-    String[] returnKeys = new String[paras.length];
-    for (int i = 0; i < paras.length; i++) {
-      returnKeys[i] = key;
-    }
-    pst = connection.prepareStatement(sql, returnKeys);
-    final int batchSize = 1000;
-    int count = 0;
-    for (int i = 0; i < paras.length; i++) {
-      for (int j = 0; j < paras[i].length; j++) {
-        pst.setObject(j + 1, paras[i][j]);
-      }
-      pst.addBatch();
-      if (++count % batchSize == 0) {
-        pst.executeBatch();
+  private void getGeneratedKey(PreparedStatement pst, String pKey) throws SQLException {
+    if (get(pKey) == null) {
+      ResultSet rs = pst.getGeneratedKeys();
+      if (rs.next()) {
+        set(pKey, rs.getObject(1));    // It returns Long object for int colType
+        rs.close();
       }
     }
-    return pst;
+  }
+
+  private void getGeneratedKey(PreparedStatement pst, String pKey, List<M> models) throws SQLException {
+    ResultSet rs = pst.getGeneratedKeys();
+    for (M model : models) {
+      if (model.get(pKey) == null) {
+        if (rs.next()) {
+          model.set(pKey, rs.getObject(1));
+        }
+      }
+    }
+    rs.close();
   }
 
   /**
@@ -319,7 +193,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       inCache = true;
     }
     if (devMode)
-      checkTableName(getModelMeta(), sql);
+      checkTableName(getModelMeta().getTableName(), sql);
 
     DataSourceMeta dsm = getDataSourceMeta();
     Connection conn = null;
@@ -327,7 +201,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     ResultSet rs = null;
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, sql, paras);
+      pst = DS.getPreparedStatement(conn, getModelMeta().getPrimaryKey(), sql, paras);
       rs = pst.executeQuery();
       result = ModelBuilder.build(rs, getClass());
     } catch (SQLException e) {
@@ -469,11 +343,11 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     int result = 0;
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, sql, getModifyAttrValues());
+      pst = DS.getPreparedStatement(conn, getModelMeta().getPrimaryKey(), sql, getModifyAttrValues());
 
       result = pst.executeUpdate();
-      getGeneratedKey(pst, modelMeta);
-      getModifyAttrs().clear();
+      getGeneratedKey(pst, modelMeta.getPrimaryKey());
+      modifyAttrs.clear();
       return result >= 1;
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
@@ -499,6 +373,10 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     }
 
     M firstModel = models.get(0);
+    if (models.size() == 1) {
+      return firstModel.save();
+    }
+
     //清除models缓存
     if (firstModel.getModelMeta().isCached()) {
       firstModel.purgeCache();
@@ -531,9 +409,9 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       if (autoCommit)
         conn.setAutoCommit(false);
 
-      pst = getPreparedStatement(conn, sql, paras);
+      pst = DS.getPreparedStatement(conn, getModelMeta().getPrimaryKey(), sql, paras);
       result = pst.executeBatch();
-      getGeneratedKey(pst, modelMeta, models);
+      getGeneratedKey(pst, modelMeta.getPrimaryKey(), models);
       //没有事务的情况下 手动提交
       if (dsm.getCurrentConnection() == null)
         conn.commit();
@@ -556,35 +434,6 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   }
 
 
-  /**
-   * Get id after save method.
-   */
-  private void getGeneratedKey(PreparedStatement pst, ModelMeta modelMeta) throws SQLException {
-    String pKey = modelMeta.getPrimaryKey();
-
-    if (get(pKey) == null) {
-      ResultSet rs = pst.getGeneratedKeys();
-      if (rs.next()) {
-        set(pKey, rs.getObject(1));    // It returns Long object for int colType
-        rs.close();
-      }
-    }
-  }
-
-  private void getGeneratedKey(PreparedStatement pst, ModelMeta modelMeta, List<M> models) throws SQLException {
-    ResultSet rs = pst.getGeneratedKeys();
-    String pKey = null;
-    for (M model : models) {
-      pKey = model.getModelMeta().getPrimaryKey();
-      if (model.get(pKey) == null) {
-        if (rs.next()) {
-          model.set(pKey, rs.getObject(1));
-        }
-      }
-    }
-    rs.close();
-  }
-
   //update  base
   public int update(String sql, Object... paras) {
     //清除缓存
@@ -592,7 +441,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       purgeCache();
     }
     if (devMode)
-      checkTableName(getModelMeta(), sql);
+      checkTableName(getModelMeta().getTableName(), sql);
     return DS.use(getModelMeta().getDsName()).update(sql, paras);
   }
 
@@ -601,7 +450,6 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public boolean delete() {
     ModelMeta modelMeta = getModelMeta();
-
 
     Object id = attrs.get(modelMeta.getPrimaryKey());
     checkNotNull(id, "You can't delete model without primaryKey " + modelMeta.getPrimaryKey() + ".");
@@ -630,22 +478,15 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public boolean deleteById(Object id) {
     checkNotNull(id, "You can't delete model without primaryKey.");
-    return deleteById(getModelMeta(), id);
-  }
-
-  public boolean deleteByIds(Object... ids) {
-    checkNotNull(ids, "You can't delete model without primaryKey.");
-    return deleteByIds(getModelMeta(), ids);
-  }
-
-  private boolean deleteById(ModelMeta modelMeta, Object id) {
+    ModelMeta modelMeta = getModelMeta();
     String sql = getDialect().delete(modelMeta.getTableName(), modelMeta.getPrimaryKey() + "=?");
     int result = update(sql, id);
     return result > 0;
   }
 
-  private boolean deleteByIds(ModelMeta modelMeta, Object... ids) {
-
+  public boolean deleteByIds(Object... ids) {
+    checkNotNull(ids, "You can't delete model without primaryKey.");
+    ModelMeta modelMeta = getModelMeta();
     String sql = getDialect().delete(modelMeta.getTableName(), Joiner.on("=? AND ").join(modelMeta.getPrimaryKeys()) + "=?");
     int result = update(sql, ids);
     return result > 0;
@@ -655,7 +496,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    * Update model.
    */
   public boolean update() {
-    if (getModifyAttrs().isEmpty())
+    if (modifyAttrs.isEmpty())
       return false;
 
     ModelMeta modelMeta = getModelMeta();
@@ -697,20 +538,11 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
     int result = update(sql, paras);
     if (result >= 1) {
-      getModifyAttrs().clear();
+      modifyAttrs.clear();
       return true;
     }
     return false;
   }
-
-  /**
-   * Check the table name. The table name must in sql.
-   */
-  private void checkTableName(ModelMeta modelMeta, String sql) {
-    if (!sql.toLowerCase().contains(modelMeta.getTableName().toLowerCase()))
-      throw new DBException("The table name: " + modelMeta.getTableName() + " not in your sql.");
-  }
-
 
   /**
    * Set attributes with other model.
@@ -720,10 +552,6 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public M setAttrs(M model) {
     return (M) setAttrs(model.getAttrs());
-  }
-
-  public M putAttrs(M model) {
-    return (M) putAttrs(model.getAttrs());
   }
 
   /**
@@ -753,7 +581,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public M remove(String attr) {
     attrs.remove(attr);
-    getModifyAttrs().remove(attr);
+    modifyAttrs.remove(attr);
     return (M) this;
   }
 
@@ -767,7 +595,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     if (attrs != null)
       for (String a : attrs) {
         this.attrs.remove(a);
-        this.getModifyAttrs().remove(a);
+        this.modifyAttrs.remove(a);
       }
     return (M) this;
   }
@@ -777,12 +605,12 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    *
    * @return this model
    */
-  public M removeNullValueAttrs() {
+  public M removeNull() {
     for (Iterator<Map.Entry<String, Object>> it = attrs.entrySet().iterator(); it.hasNext(); ) {
       Map.Entry<String, Object> e = it.next();
       if (e.getValue() == null) {
         it.remove();
-        getModifyAttrs().remove(e.getKey());
+        modifyAttrs.remove(e.getKey());
       }
     }
     return (M) this;
@@ -801,14 +629,14 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
       for (String a : attrs) {
         if (this.attrs.containsKey(a))  // prevent put null value to the newColumns
           newAttrs.put(a, this.attrs.get(a));
-        if (this.getModifyAttrs().containsKey(a))
+        if (this.modifyAttrs.containsKey(a))
           newModifyFlag.put(a, this.attrs.get(a));
       }
       this.attrs = newAttrs;
       this.modifyAttrs = newModifyFlag;
     } else {
       this.attrs.clear();
-      this.getModifyAttrs().clear();
+      this.modifyAttrs.clear();
     }
     return (M) this;
   }
@@ -822,15 +650,15 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
   public M keep(String attr) {
     if (attrs.containsKey(attr)) {  // prevent put null value to the newColumns
       Object keepIt = attrs.get(attr);
-      boolean keepFlag = getModifyAttrs().containsKey(attr);
+      boolean keepFlag = modifyAttrs.containsKey(attr);
       attrs.clear();
-      getModifyAttrs().clear();
+      modifyAttrs.clear();
       attrs.put(attr, keepIt);
       if (keepFlag)
-        getModifyAttrs().put(attr, keepIt);
+        modifyAttrs.put(attr, keepIt);
     } else {
       attrs.clear();
-      getModifyAttrs().clear();
+      modifyAttrs.clear();
     }
     return (M) this;
   }
@@ -842,62 +670,11 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
    */
   public M clear() {
     attrs.clear();
-    getModifyAttrs().clear();
+    modifyAttrs.clear();
     return (M) this;
   }
 
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(super.toString()).append(" {");
-    boolean first = true;
-    for (Map.Entry<String, Object> e : attrs.entrySet()) {
-      if (first)
-        first = false;
-      else
-        sb.append(", ");
-
-      Object value = e.getValue();
-      if (value != null)
-        value = value.toString();
-      sb.append(e.getKey()).append(":").append(value);
-    }
-    sb.append("}");
-    return sb.toString();
-  }
-
-  public boolean equals(Object o) {
-    if (!(o instanceof Base))
-      return false;
-    if (o == this)
-      return true;
-    return this.attrs.equals(((Base) o).attrs);
-  }
-
   public int hashCode() {
-    return (attrs == null ? 0 : attrs.hashCode()) ^ (getModifyAttrs() == null ? 0 : getModifyAttrs().hashCode());
+    return (attrs == null ? 0 : attrs.hashCode()) ^ (modifyAttrs == null ? 0 : modifyAttrs.hashCode());
   }
-
-  /**
-   * Return attribute name of this model.
-   */
-  public String[] getAttrNames() {
-    Set<String> attrNameSet = attrs.keySet();
-    return attrNameSet.toArray(new String[attrNameSet.size()]);
-  }
-
-  /**
-   * Return attribute values of this model.
-   */
-  public Object[] getAttrValues() {
-    java.util.Collection<Object> attrValueCollection = attrs.values();
-    return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
-  }
-
-  /**
-   * Return json string of this model.
-   */
-  public String toJson() {
-    return Jsoner.toJSONString(attrs);
-  }
-
 }

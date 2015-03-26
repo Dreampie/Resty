@@ -1,11 +1,8 @@
 package cn.dreampie.orm;
 
 
-import cn.dreampie.orm.cache.QueryCache;
-import cn.dreampie.common.entity.Record;
-import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.dialect.Dialect;
+import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.exception.DBException;
 
 import java.sql.*;
@@ -13,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static cn.dreampie.common.util.Checker.checkArgument;
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
@@ -21,18 +17,21 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public class DS {
   private static final Logger logger = Logger.getLogger(DS.class);
-  public static String defaultDsName;
+
   public static final String DEFAULT_PRIMARY_KAY = "id";
   public static final Object[] NULL_PARA_ARRAY = new Object[0];
   private DataSourceMeta dataSourceMeta;
   private boolean cached = false;
 
+  private DS() {
+  }
+
   public static DS use() {
-    return DS.use(defaultDsName, false);
+    return DS.use(Metadatas.getDefaultDsName(), false);
   }
 
   public static DS use(boolean cached) {
-    return DS.use(defaultDsName, cached);
+    return DS.use(Metadatas.getDefaultDsName(), cached);
   }
 
   public static DS use(String dsName) {
@@ -40,30 +39,27 @@ public class DS {
   }
 
   public static DS use(String dsName, boolean cached) {
+    return DS.use(Metadatas.getDataSourceMeta(dsName), false);
+  }
+
+  public static DS use(DataSourceMeta dataSourceMeta, boolean cached) {
+    checkNotNull(dataSourceMeta, "Could not found dataSourceMeta.");
     DS ds = new DS();
-    ds.dataSourceMeta = Metadatas.getDataSourceMeta(dsName);
-    checkNotNull(ds.dataSourceMeta, "Could not found dsName " + dsName + ".");
+    ds.dataSourceMeta = dataSourceMeta;
     ds.cached = cached;
     return ds;
   }
 
-  static void setDefaultDsName(String defaultDsName) {
-    if (DS.defaultDsName == null)
-      DS.defaultDsName = defaultDsName;
-    else
-      throw new DBException("Conld not set twice for defaultDsName");
+  public DS setCached(boolean cached) {
+    this.cached = cached;
+    return this;
   }
-
-  public static String getDefaultDsName() {
-    return defaultDsName;
-  }
-
 
   public DataSourceMeta getDataSourceMeta() {
     return dataSourceMeta;
   }
 
-  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[] paras) throws SQLException {
+  public static PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[] paras) throws SQLException {
     PreparedStatement pst = conn.prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
 
     for (int i = 0; i < paras.length; i++) {
@@ -73,7 +69,7 @@ public class DS {
   }
 
 
-  private PreparedStatement getPreparedStatement(Connection connection, String primaryKey, String sql, Object[][] paras) throws SQLException {
+  public static PreparedStatement getPreparedStatement(Connection connection, String primaryKey, String sql, Object[][] paras) throws SQLException {
     PreparedStatement pst = null;
     String key = primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey;
     String[] returnKeys = new String[paras.length];
@@ -95,7 +91,7 @@ public class DS {
     return pst;
   }
 
-  private Statement getPreparedStatement(Connection connection, List<String> sql) throws SQLException {
+  private static Statement getPreparedStatement(Connection connection, List<String> sql) throws SQLException {
     Statement stmt = null;
 
     stmt = connection.createStatement();
@@ -327,393 +323,6 @@ public class DS {
    */
   public int update(String sql) {
     return update(sql, NULL_PARA_ARRAY);
-  }
-
-
-  public List<Record> find(String sql, Object... paras) {
-    List<Record> result = null;
-    //hit cache
-    if (cached) {
-      result = QueryCache.instance().get(dataSourceMeta.getDsName(), sql, paras);
-    }
-    if (result != null) {
-      return result;
-    }
-
-    Connection conn = null;
-    PreparedStatement pst = null;
-    ResultSet rs = null;
-    try {
-      conn = dataSourceMeta.getConnection();
-      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
-      rs = pst.executeQuery();
-      result = RecordBuilder.build(rs);
-    } catch (SQLException e) {
-      throw new DBException(e.getMessage(), e);
-    } finally {
-      dataSourceMeta.close(rs, pst, conn);
-    }
-    //添加缓存
-    if (cached) {
-      QueryCache.instance().add(dataSourceMeta.getDsName(), sql, paras, result);
-    }
-    return result;
-  }
-
-
-  /**
-   * @param sql the sql statement
-   * @see #find(String, Object...)
-   */
-  public List<Record> find(String sql) {
-    return find(sql, NULL_PARA_ARRAY);
-  }
-
-  /**
-   * Find first record. I recommend add "limit 1" in your sql.
-   *
-   * @param sql   an SQL statement that may contain one or more '?' IN parameter placeholders
-   * @param paras the parameters of sql
-   * @return the Record object
-   */
-  public Record findFirst(String sql, Object... paras) {
-    List<Record> result = find(sql, paras);
-    return result.size() > 0 ? result.get(0) : null;
-  }
-
-  /**
-   * @param sql an SQL statement
-   * @see #findFirst(String, Object...)
-   */
-  public Record findFirst(String sql) {
-    List<Record> result = find(sql, NULL_PARA_ARRAY);
-    return result.size() > 0 ? result.get(0) : null;
-  }
-
-  /**
-   * Find record by id.
-   * Example: Record user = DbPro.use().findById("user", 15);
-   *
-   * @param tableName the table name of the table
-   * @param id        the id value of the record
-   */
-  public Record findById(String tableName, Object id) {
-    return findColsById(tableName, DEFAULT_PRIMARY_KAY, id);
-  }
-
-  /**
-   * Find record by id. Fetch the specific columns only.
-   * Example: Record user = DbPro.use().findById("user", 15, "name, age");
-   *
-   * @param tableName the table name of the table
-   * @param id        the id value of the record
-   * @param columns   the specific columns
-   */
-  public Record findColsById(String tableName, Object id, String... columns) {
-    return findColsById(tableName, DEFAULT_PRIMARY_KAY, id, columns);
-  }
-
-  /**
-   * Find record by id. Fetch the specific columns only.
-   * Example: Record user = DbPro.use().findById("user", "user_id", 15, "name, age");
-   *
-   * @param tableName  the table name of the table
-   * @param primaryKey the primary key of the table
-   * @param id         the id value of the record
-   * @param columns    the specific columns separate with comma character ==> ","
-   */
-  public Record findColsById(String tableName, String primaryKey, Object id, String... columns) {
-    checkNotNull(id, "You can't find model without Primary Key.");
-
-    String sql = dataSourceMeta.getDialect().select(tableName, "", primaryKey + "=?", columns);
-    List<Record> result = find(sql, id);
-    return result.size() > 0 ? result.get(0) : null;
-  }
-
-  /**
-   * Find record by ids. Fetch the specific columns only.
-   * Example: Record user = DbPro.use().findById("user", "user_id", 15, "name, age");
-   *
-   * @param tableName   the table name of the table
-   * @param primaryKeys the primary keys of the table split ,
-   * @param ids         the id values of the record
-   * @param columns     the specific columns separate with comma character ==> ","
-   */
-  public Record findColsByIds(String tableName, String primaryKeys, Object[] ids, String... columns) {
-    checkNotNull(ids, "You can't find model without Primary Keys.");
-
-    String sql = dataSourceMeta.getDialect().select(tableName, "", Joiner.on("=? AND ").join(primaryKeys.split(",")) + "=?", columns);
-    List<Record> result = find(sql, ids);
-    return result.size() > 0 ? result.get(0) : null;
-  }
-
-  /**
-   * Delete record by id.
-   * Example: boolean succeed = DbPro.use().deleteById("user", "user_id", 15);
-   *
-   * @param tableName  the table name of the table
-   * @param primaryKey the primary key of the table
-   * @param id         the id value of the record
-   * @return true if delete succeed otherwise false
-   */
-  public boolean deleteById(String tableName, String primaryKey, Object id) {
-    checkNotNull(id, "You can't delete model without Primary Key.");
-
-    String sql = dataSourceMeta.getDialect().delete(tableName, primaryKey + "=?");
-    return update(sql, id) >= 1;
-  }
-
-  /**
-   * Delete record by ids.
-   * Example: boolean succeed = DbPro.use().deleteById("user", "user_id", 15);
-   *
-   * @param tableName   the table name of the table
-   * @param primaryKeys the primary keys of the table split ,
-   * @param ids         the id values of the record
-   * @return true if delete succeed otherwise false
-   */
-  public boolean deleteByIds(String tableName, String primaryKeys, Object... ids) {
-    checkNotNull(ids, "You can't delete model without Primary Keys.");
-
-    String sql = dataSourceMeta.getDialect().delete(tableName, Joiner.on("=? AND ").join(primaryKeys.split(",")) + "=?");
-    return update(sql, ids) >= 1;
-  }
-
-  /**
-   * Delete record by id.
-   * Example: boolean succeed = DbPro.use().deleteById("user", 15);
-   *
-   * @param tableName the table name of the table
-   * @param id        the id value of the record
-   * @return true if delete succeed otherwise false
-   */
-  public boolean deleteById(String tableName, Object id) {
-    return deleteById(tableName, DEFAULT_PRIMARY_KAY, id);
-  }
-
-  /**
-   * Delete record.
-   * Example: boolean succeed = DbPro.use().delete("user", "id", user);
-   *
-   * @param tableName  the table name of the table
-   * @param primaryKey the primary key of the table
-   * @param record     the record
-   * @return true if delete succeed otherwise false
-   */
-  public boolean delete(String tableName, String primaryKey, Record record) {
-    return deleteById(tableName, primaryKey, record.get(primaryKey));
-  }
-
-  /**
-   * Example: boolean succeed = DbPro.use().delete("user", user);
-   *
-   * @see #delete(String, String, Record)
-   */
-  public boolean delete(String tableName, Record record) {
-    return deleteById(tableName, DEFAULT_PRIMARY_KAY, record.get(DEFAULT_PRIMARY_KAY));
-  }
-
-  public boolean save(String tableName, String primaryKey, Record record) {
-    String sql = dataSourceMeta.getDialect().insert(tableName, record.getAttrNames());
-    int result = -1;
-    Object[] params = record.getAttrValues();
-    //remove cache
-    if (cached) {
-      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableName);
-    }
-    Connection conn = null;
-    PreparedStatement pst = null;
-    try {
-      conn = dataSourceMeta.getConnection();
-      pst = getPreparedStatement(conn, primaryKey, sql, params);
-      result = pst.executeUpdate();
-      getGeneratedKey(pst, primaryKey, record);
-    } catch (SQLException e) {
-      throw new DBException(e.getMessage(), e);
-    } finally {
-      dataSourceMeta.close(pst, conn);
-    }
-    return result >= 1;
-  }
-
-  public boolean save(String tableName, String primaryKey, Record... records) {
-    return save(tableName, primaryKey, Arrays.asList(records));
-  }
-
-  /**
-   * @see #save(String, String, Record)
-   */
-  public boolean save(String tableName, Record record) {
-    return save(tableName, DEFAULT_PRIMARY_KAY, record);
-  }
-
-
-  public boolean save(String tableName, Record... records) {
-    return save(tableName, DEFAULT_PRIMARY_KAY, records);
-  }
-
-  public boolean save(String tableName, List<Record> records) {
-    return save(tableName, DEFAULT_PRIMARY_KAY, records);
-  }
-
-  /**
-   * 批量保存record
-   *
-   * @param tableName  表名
-   * @param primaryKey 主键
-   * @param records    记录
-   * @return boolean
-   */
-  public boolean save(String tableName, String primaryKey, List<Record> records) {
-    if (records == null || records.size() <= 0) {
-      logger.warn("Cloud not found records to save.");
-      return false;
-    }
-    Record firstRecord = records.get(0);
-    //清除models缓存
-    if (cached) {
-      QueryCache.instance().purge(dataSourceMeta.getDsName(), tableName);
-    }
-
-    String[] columns = firstRecord.getAttrNames();
-    String sql = dataSourceMeta.getDialect().insert(tableName, columns);
-    //参数
-    Object[][] paras = new Object[records.size()][columns.length];
-
-    for (int i = 0; i < paras.length; i++) {
-      for (int j = 0; j < paras[i].length; j++) {
-        paras[i][j] = records.get(i).get(columns[j]);
-      }
-    }
-
-    // --------
-    PreparedStatement pst = null;
-    int[] result = null;
-    Connection conn = null;
-    Boolean autoCommit = null;
-    try {
-      conn = dataSourceMeta.getConnection();
-      autoCommit = conn.getAutoCommit();
-      if (autoCommit)
-        conn.setAutoCommit(false);
-
-      pst = getPreparedStatement(conn, primaryKey, sql, paras);
-      result = pst.executeBatch();
-      getGeneratedKey(pst, primaryKey, records);
-      //没有事务的情况下 手动提交
-      if (dataSourceMeta.getCurrentConnection() == null)
-        conn.commit();
-      conn.setAutoCommit(autoCommit);
-
-      for (int r : result) {
-        if (r < 1) {
-          return false;
-        }
-      }
-      return true;
-    } catch (SQLException e) {
-      throw new DBException(e.getMessage(), e);
-    } finally {
-      dataSourceMeta.close(pst, conn);
-    }
-  }
-
-  /**
-   * Get id after insert method getGeneratedKey().
-   */
-  private void getGeneratedKey(PreparedStatement pst, String primaryKey, Record record) throws SQLException {
-    ResultSet rs = pst.getGeneratedKeys();
-    if (rs.next())
-      record.set(primaryKey, rs.getObject(1));
-    rs.close();
-  }
-
-  private void getGeneratedKey(PreparedStatement pst, String primaryKey, List<Record> records) throws SQLException {
-    ResultSet rs = pst.getGeneratedKeys();
-    for (Record record : records) {
-      if (record.get(primaryKey) == null) {
-        if (rs.next()) {
-          record.set(primaryKey, rs.getObject(1));
-        }
-      }
-    }
-    rs.close();
-  }
-
-
-  public boolean update(String tableName, String primaryKey, Record record) {
-    Object id = record.get(primaryKey);
-    checkNotNull(id, "You can't update model without Primary Key.");
-
-    String[] attrs = record.getAttrNames();
-    String[] columns = new String[attrs.length - 1];
-    Object[] paras = new Object[attrs.length];
-    int i = 0;
-    for (String attr : attrs) {
-      if (attr.equals(primaryKey)) {
-        continue;
-      }
-      columns[i] = attr;
-      paras[i] = record.get(attr);
-      i++;
-    }
-    paras[i] = id;
-
-    String sql = dataSourceMeta.getDialect().update(tableName, "", primaryKey + "=?", columns);
-
-    return update(sql, paras) >= 1;
-  }
-
-  /**
-   * Update Record. The primary key of the table is: "id".
-   *
-   * @see #update(String, String, Record)
-   */
-  public boolean update(String tableName, Record record) {
-    return update(tableName, DEFAULT_PRIMARY_KAY, record);
-  }
-
-  /**
-   * 分页查询Record
-   *
-   * @param pageNumber 页码
-   * @param pageSize   页大小
-   * @param sql        sql
-   * @param paras      参数
-   * @return page
-   */
-  public Page<Record> paginate(int pageNumber, int pageSize, String sql, Object... paras) {
-    checkArgument(pageNumber >= 1 || pageSize >= 1, "pageNumber and pageSize must be more than 0");
-
-    Dialect dialect = dataSourceMeta.getDialect();
-
-    long totalRow = 0;
-    int totalPage = 0;
-    List result = query(dialect.countWith(sql), paras);
-    int size = result.size();
-    if (size == 1)
-      totalRow = ((Number) result.get(0)).longValue();
-    else if (size > 1)
-      totalRow = result.size();
-    else
-      return new Page<Record>(new ArrayList<Record>(0), pageNumber, pageSize, 0, 0);
-
-    totalPage = (int) (totalRow / pageSize);
-    if (totalRow % pageSize != 0) {
-      totalPage++;
-    }
-
-    // --------
-    List<Record> list = find(dialect.paginateWith(pageNumber, pageSize, sql), paras);
-    return new Page<Record>(list, pageNumber, pageSize, totalPage, (int) totalRow);
-  }
-
-
-  /**
-   * @see #paginate(int, int, String, Object...)
-   */
-  public Page<Record> paginate(int pageNumber, int pageSize, String sql) {
-    return paginate(pageNumber, pageSize, sql, NULL_PARA_ARRAY);
   }
 
 

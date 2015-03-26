@@ -1,7 +1,6 @@
 package cn.dreampie.common.util.json;
 
 import cn.dreampie.common.entity.Entity;
-import cn.dreampie.common.entity.Record;
 import cn.dreampie.common.util.Stringer;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -34,19 +33,17 @@ public enum ModelSerializer implements ObjectSerializer {
 
     String mName;
     if (object instanceof Entity) {
-      if (!(object instanceof Record)) {
-        Method[] methods = object.getClass().getDeclaredMethods();
-        JSONField fieldAnn = null;
-        for (Method m : methods) {
-          fieldAnn = m.getAnnotation(JSONField.class);
-          mName = m.getName();
-          if ((fieldAnn == null || fieldAnn.serialize()) && mName.length() > 3 && mName.startsWith("get")
-              && !hasMethod((Entity<?>) object, mName)) {
-            try {
-              m.invoke(object);
-            } catch (Exception e) {
-              throw new JSONException("Method could not invoke.", e);
-            }
+      Method[] methods = object.getClass().getDeclaredMethods();
+      JSONField fieldAnn = null;
+      for (Method m : methods) {
+        fieldAnn = m.getAnnotation(JSONField.class);
+        mName = m.getName();
+        if ((fieldAnn == null || fieldAnn.serialize()) && mName.length() > 3 && mName.startsWith("get")
+            && !hasMethod((Entity<?>) object, mName)) {
+          try {
+            m.invoke(object);
+          } catch (Exception e) {
+            throw new JSONException("Method could not invoke.", e);
           }
         }
       }

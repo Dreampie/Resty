@@ -1,4 +1,4 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.provider;
 
 import cn.dreampie.orm.dialect.Dialect;
 

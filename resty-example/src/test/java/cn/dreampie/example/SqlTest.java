@@ -1,8 +1,8 @@
 package cn.dreampie.example;
 
-import cn.dreampie.common.entity.Record;
 import cn.dreampie.orm.DS;
 import cn.dreampie.orm.Page;
+import cn.dreampie.orm.Record;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.resource.user.model.UserInfo;
 import org.junit.Before;
@@ -41,12 +41,13 @@ public class SqlTest {
       userInfo.save();
     }
 
+    Record recordDAO = Record.use("sec_user");
 
-    DS.use().save("sec_user", new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date()));
-    Record r1 = new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
-    Record r2 = new Record().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
+    recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date()).save();
+    Record r1 = recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
+    Record r2 = recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
 
-    DS.use().save("sec_user", r1, r2);
+    recordDAO.save(r1, r2);
   }
 
   @Test
@@ -59,9 +60,10 @@ public class SqlTest {
       System.out.println(user.get("username"));
     }
 
-    List<Record> records = DS.use().find("SELECT * FROM sec_user");
-    for (Record record : records) {
-      System.out.println(record.get("username"));
+    Record recordDAO = Record.use("sec_user");
+    List<Record> records = recordDAO.findAll();
+    for (Record r : records) {
+      System.out.println(r.get("username"));
     }
 
     User u = User.dao.findByIds(id, sid);
@@ -75,8 +77,8 @@ public class SqlTest {
     for (User user : users.getList()) {
       System.out.println(user.get("username"));
     }
-
-    Page<Record> records = DS.use().paginate(1, 10, "SELECT * FROM sec_user");
+    Record recordDAO = Record.use("sec_user");
+    Page<Record> records = recordDAO.paginate(1, 10, "SELECT * FROM sec_user");
     for (Record record : records.getList()) {
       System.out.println(record.get("username"));
     }
@@ -112,8 +114,8 @@ public class SqlTest {
       user.delete();
       i++;
     }
-
-    DS.use().delete("sec_user", new Record().set("id", "1"));
+    Record recordDAO = Record.use("sec_user");
+    recordDAO.deleteById("1");
   }
 
 //  @Test

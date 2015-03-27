@@ -13,16 +13,16 @@ public class AspectHandler implements InvocationHandler {
   private static final Logger logger = Logger.getLogger(AspectHandler.class);
 
   private Object target = null;
-  private Class<? extends Aspect>[] aspects = null;
+  private Aspect[] aspects = null;
   private int index = -1;
 
-  public AspectHandler(int index, Object target, Class<? extends Aspect>[] aspects) {
+  public AspectHandler(int index, Object target, Aspect[] aspects) {
     this.index = index;
     this.target = target;
     this.aspects = aspects;
   }
 
-  public AspectHandler(Object target, Class<? extends Aspect>[] aspects) {
+  public AspectHandler(Object target, Aspect[] aspects) {
     this.target = target;
     this.aspects = aspects;
   }
@@ -37,12 +37,12 @@ public class AspectHandler implements InvocationHandler {
     this.target = target;
   }
 
-  public Class<? extends Aspect>[] getAspects() {
+  public Aspect[] getAspects() {
     return aspects;
   }
 
 
-  public void setAspects(Class<? extends Aspect>... aspects) {
+  public void setAspects(Aspect... aspects) {
     this.aspects = aspects;
   }
 
@@ -56,12 +56,12 @@ public class AspectHandler implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args)
       throws Throwable {
     if (index == -1) {
-      logger.info("Instance an aspectHandler to invoke method %s.", method.getName());
+      logger.info("Instance an AspectHandler to invoke method %s.", method.getName());
       return new AspectHandler(0, target, aspects).invoke(proxy, method, args);
     }
     Object result = null;
     if (index < aspects.length) {
-      result = aspects[index++].newInstance().aspect(this, proxy, method, args);
+      result = aspects[index++].aspect(this, proxy, method, args);
     } else if (index++ == aspects.length) {
       result = method.invoke(target, args);
     }

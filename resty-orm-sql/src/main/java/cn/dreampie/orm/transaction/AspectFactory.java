@@ -26,7 +26,7 @@ public class AspectFactory {
    * @param target  代理目标对象
    * @param aspects 切面集合
    */
-  public static <T> T newInstance(T target, Class<? extends Aspect>... aspects) {
+  public static <T> T newInstance(T target,  Aspect... aspects) {
     AspectHandler hander = new AspectHandler(target, aspects);
     Class clazz = target.getClass();
     if (logger.isDebugEnabled()) {

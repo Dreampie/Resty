@@ -25,7 +25,7 @@ public class TransactionAspect implements Aspect {
 
   public Object aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable {
     if (index == -1) {
-      logger.info("Instance an TransactionAspect to invoke method %s.", method.getName());
+      logger.info("Instance an TransactionAspect to add transaction for method %s.", method.getName());
       return new TransactionAspect(0, excutors).aspect(ih, proxy, method, args);
     }
     if (excutors == null) {

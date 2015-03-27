@@ -41,6 +41,11 @@ public abstract class Resource {
     return routeMatch.getOtherParams().get(name);
   }
 
+  public String getOtherParamFisrt(String name) {
+    List<String> value = routeMatch.getOtherParams().get(name);
+    return value != null ? value.get(0) : null;
+  }
+
   public HttpRequest getRequest() {
     return routeMatch.getRequest();
   }
@@ -92,9 +97,15 @@ public abstract class Resource {
     return multipartBuilder.getParameters();
   }
 
-  public List<String> getParameters(String param) {
+  public List<String> getParameter(String param) {
     Hashtable<String, List<String>> parameters = getParameters();
     return parameters.get(param);
+  }
+
+  public String getParameterFirst(String param) {
+    Hashtable<String, List<String>> parameters = getParameters();
+    List<String> value = parameters.get(param);
+    return value != null ? value.get(0) : null;
   }
 
 }

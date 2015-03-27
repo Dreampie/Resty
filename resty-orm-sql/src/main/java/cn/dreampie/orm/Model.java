@@ -205,7 +205,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return Long
    */
   public Long countAll() {
-    return DS.use(getTableMeta().getDsName()).queryFirst(getDialect().count(getTableMeta().getTableName()));
+    return DS.useDS(getTableMeta().getDsName()).queryFirst(getDialect().count(getTableMeta().getTableName()));
   }
 
   /**
@@ -214,7 +214,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return Long
    */
   public Long countBy(String where, Object... paras) {
-    return DS.use(getTableMeta().getDsName()).queryFirst(getDialect().count(getTableMeta().getTableName(), getAlias(), where), paras);
+    return DS.useDS(getTableMeta().getDsName()).queryFirst(getDialect().count(getTableMeta().getTableName(), getAlias(), where), paras);
   }
 
 

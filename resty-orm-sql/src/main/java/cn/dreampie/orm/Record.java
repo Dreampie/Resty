@@ -353,7 +353,7 @@ public class Record extends Entity<Record> implements Serializable {
 
     long totalRow = 0;
     int totalPage = 0;
-    List result = DS.use(dataSourceMeta.getDsName()).query(dialect.countWith(sql), paras);
+    List result = DS.useDS(dataSourceMeta.getDsName()).query(dialect.countWith(sql), paras);
     int size = result.size();
     if (size == 1)
       totalRow = ((Number) result.get(0)).longValue();
@@ -493,7 +493,7 @@ public class Record extends Entity<Record> implements Serializable {
     }
     if (devMode)
       checkTableName(tableMeta.getTableName(), sql);
-    return DS.use(dataSourceMeta.getDsName()).update(sql, paras);
+    return DS.useDS(dataSourceMeta.getDsName()).update(sql, paras);
   }
 
 
@@ -931,7 +931,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return Long
    */
   public Long countAll() {
-    return DS.use(dataSourceMeta.getDsName()).queryFirst(dataSourceMeta.getDialect().count(tableMeta.getTableName()));
+    return DS.useDS(dataSourceMeta.getDsName()).queryFirst(dataSourceMeta.getDialect().count(tableMeta.getTableName()));
   }
 
   /**
@@ -940,7 +940,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return Long
    */
   public Long countBy(String where, Object... paras) {
-    return DS.use(dataSourceMeta.getDsName()).queryFirst(dataSourceMeta.getDialect().count(tableMeta.getTableName(), getAlias(), where), paras);
+    return DS.useDS(dataSourceMeta.getDsName()).queryFirst(dataSourceMeta.getDialect().count(tableMeta.getTableName(), getAlias(), where), paras);
   }
 
 

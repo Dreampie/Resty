@@ -2,7 +2,6 @@ package cn.dreampie.orm;
 
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.exception.DBException;
 
 import java.sql.*;
@@ -26,14 +25,14 @@ public class DS {
   }
 
   public static DS use() {
-    return DS.use(Metadata.getDefaultDsName());
+    return DS.useDS(Metadata.getDefaultDsName());
   }
 
-  public static DS use(String dsName) {
-    return DS.use(dsName);
+  public static DS useDS(String dsName) {
+    return DS.useDS(Metadata.getDataSourceMeta(dsName));
   }
 
-  public static DS use(DataSourceMeta dataSourceMeta) {
+  public static DS useDS(DataSourceMeta dataSourceMeta) {
     checkNotNull(dataSourceMeta, "Could not found dataSourceMeta.");
     DS ds = new DS();
     ds.dataSourceMeta = dataSourceMeta;

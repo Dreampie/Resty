@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.entity.Entity;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.exception.ModelException;
 
@@ -17,7 +18,7 @@ import java.util.Map;
 public class ModelBuilder {
   private static final Logger logger = Logger.getLogger(ModelBuilder.class);
 
-  public static <T> List<T> build(ResultSet rs, Class<? extends Base> modelClass) throws SQLException, InstantiationException, IllegalAccessException {
+  public static <T> List<T> build(ResultSet rs, Class<? extends Entity> modelClass) throws SQLException, InstantiationException, IllegalAccessException {
     List<T> result = new ArrayList<T>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
@@ -25,12 +26,12 @@ public class ModelBuilder {
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
 
-    Base ba;
+    Entity entity;
     Map<String, Object> attrs;
     Object value;
     while (rs.next()) {
-      ba = modelClass.newInstance();
-      attrs = ba.getAttrs();
+      entity = modelClass.newInstance();
+      attrs = entity.getAttrs();
       for (int i = 1; i <= columnCount; i++) {
 
         if (types[i] < Types.BLOB)
@@ -46,7 +47,7 @@ public class ModelBuilder {
 
         attrs.put(labelNames[i], value);
       }
-      result.add((T) ba);
+      result.add((T) entity);
     }
     return result;
   }

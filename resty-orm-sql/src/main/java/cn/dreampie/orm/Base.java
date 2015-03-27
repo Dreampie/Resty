@@ -296,7 +296,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
 
     long totalRow = 0;
     int totalPage = 0;
-    List result = DS.use(getDataSourceMeta().getDsName()).query(dialect.countWith(sql), paras);
+    List result = DS.useDS(getDataSourceMeta().getDsName()).query(dialect.countWith(sql), paras);
     int size = result.size();
     if (size == 1)
       totalRow = ((Number) result.get(0)).longValue();    // totalRow = (Long)result.get(0);
@@ -442,7 +442,7 @@ public abstract class Base<M extends Base> extends Entity<Base> implements Seria
     }
     if (devMode)
       checkTableName(getTableMeta().getTableName(), sql);
-    return DS.use(getTableMeta().getDsName()).update(sql, paras);
+    return DS.useDS(getTableMeta().getDsName()).update(sql, paras);
   }
 
   /**

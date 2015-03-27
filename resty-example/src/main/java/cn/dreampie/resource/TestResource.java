@@ -57,7 +57,7 @@ public class TestResource extends ApiResource {
   public UploadedFile upload(String filename) {
     //如果上传文件的同时 有参数
     UploadedFile uploadedFile = getFile(filename);
-    System.out.println(getParameters("des"));
+    System.out.println(getParameter("des"));
     return uploadedFile;
   }
 

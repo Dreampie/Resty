@@ -104,7 +104,7 @@ public class Route {
     //check arguments
     for (String pName : pathParamNames) {
       if (!allParamNames.contains(pName)) {
-        throw new InitException("PathParameter '" + pName + "' could not found in method arguments at " + resourceClass.getName() + "(" + resourceClass.getSimpleName() + ".java:" + allLineNumbers[0] + ")");
+        throw new IllegalArgumentException("PathParameter '" + pName + "' could not found in method arguments at " + resourceClass.getName() + "(" + resourceClass.getSimpleName() + ".java:" + allLineNumbers[0] + ")");
       }
     }
 

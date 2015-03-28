@@ -30,7 +30,7 @@ public final class RouteBuilder {
   public void addRoute(Route route) {
     for (Route r : routes) {
       if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern())) {
-        throw new RuntimeException("Same path pattern " + r.getHttpMethod() + " " + r.getPattern() + " (" + r.getPathPattern() + " = " + route.getPathPattern() + ")");
+        throw new IllegalArgumentException("Same path pattern " + r.getHttpMethod() + " " + r.getPattern());
       }
     }
     routes.add(route);

@@ -41,7 +41,7 @@ public class Record extends Entity<Record> implements Serializable {
   }
 
   public static Record use(String tableName, boolean cached) {
-    return Record.use(tableName, DS.DEFAULT_PRIMARY_KAY);
+    return Record.use(tableName, DS.DEFAULT_PRIMARY_KAY, false, cached);
   }
 
   public static Record use(String tableName, String pKeys) {
@@ -76,6 +76,14 @@ public class Record extends Entity<Record> implements Serializable {
     return Record.useDS(Metadata.getDataSourceMeta(dsName), tableName, pKeys, lockKey, cached);
   }
 
+  /**
+   * @param dataSourceMeta 数据源
+   * @param tableName      表名
+   * @param pKeys          主键id通过逗号拼接
+   * @param lockKey        是否在更新的时候 要求必须使用全部主键
+   * @param cached         使用对数据缓存
+   * @return Record执行对象
+   */
   public static Record useDS(DataSourceMeta dataSourceMeta, String tableName, String pKeys, boolean lockKey, boolean cached) {
     checkNotNull(dataSourceMeta, "Could not found dataSourceMeta.");
     checkNotNull(tableName, "Could not found tableName.");

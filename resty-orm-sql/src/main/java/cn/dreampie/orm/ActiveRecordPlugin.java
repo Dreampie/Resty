@@ -120,7 +120,7 @@ public class ActiveRecordPlugin implements Plugin {
     //Record 解析支持
     Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());
     //数据源  元数据
-    Metadata.addDataSourceMeta(dsName, dsm);
+    Metadata.addDataSourceMeta(dsm);
     return true;
   }
 

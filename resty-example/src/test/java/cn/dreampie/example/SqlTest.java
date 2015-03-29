@@ -72,7 +72,7 @@ public class SqlTest {
 
   @Test
   public void testPaginate() {
-    Page<User> users = User.dao.paginateAll(1, 10);
+    Page<User> users = User.dao.unCache().paginateAll(1, 10);
     for (User user : users.getList()) {
       System.out.println(user.get("username"));
     }
@@ -81,6 +81,8 @@ public class SqlTest {
     for (Record record : records.getList()) {
       System.out.println(record.get("username"));
     }
+
+    records = recordDAO.unCache().paginate(1, 10, "SELECT * FROM sec_user");
   }
 
   @Test

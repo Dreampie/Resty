@@ -27,7 +27,7 @@ public class TableMetaBuilder {
         temp = tableMeta;
         tableMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
         //添加到model元数据集合
-        Metadata.addModelTableMeta(tableMeta.getModelClass(), tableMeta);
+        Metadata.addTableMeta(tableMeta);
       }
     } catch (Exception e) {
       if (temp != null)
@@ -38,13 +38,13 @@ public class TableMetaBuilder {
     return tableMetas;
   }
 
-  public static TableMeta buildRecord(TableMeta tableMeta, DataSourceMeta dsm) {
+  public static TableMeta buildModel(TableMeta tableMeta, DataSourceMeta dsm) {
     Connection conn = null;
     try {
       conn = dsm.getDataSource().getConnection();
       tableMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
       //添加到record元数据集合
-      Metadata.addRecordTableMeta(tableMeta.getDsName(), tableMeta.getTableName(), tableMeta);
+      Metadata.addTableMeta(tableMeta);
     } catch (Exception e) {
       if (tableMeta != null)
         throw new DBException("Could not create Table object, maybe the table " + tableMeta.getTableName() + " is not exists.", e);

@@ -8,6 +8,7 @@ import cn.dreampie.log.Logger;
 import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
+import cn.dreampie.orm.exception.ModelException;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -28,7 +29,7 @@ public class Record extends Entity<Record> implements Serializable {
 
   private DataSourceMeta dataSourceMeta;
   private TableMeta tableMeta;
-  private boolean inCache = true;
+  private boolean useCache = true;
 
   private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
 
@@ -81,10 +82,10 @@ public class Record extends Entity<Record> implements Serializable {
     Record record = new Record();
     record.dataSourceMeta = dataSourceMeta;
     String dsName = dataSourceMeta.getDsName();
-    if (Metadata.hasRecordTableMeta(dsName, tableName)) {
-      record.tableMeta = Metadata.getRecordTableMeta(dsName, tableName);
+    if (Metadata.hasTableMeta(dsName, tableName)) {
+      record.tableMeta = Metadata.getTableMeta(dsName, tableName);
     } else {
-      record.tableMeta = TableMetaBuilder.buildRecord(new TableMeta(dsName, tableName, pKeys, lockKey, cached), dataSourceMeta);
+      record.tableMeta = TableMetaBuilder.buildModel(new TableMeta(dsName, tableName, pKeys, lockKey, cached), dataSourceMeta);
     }
     return record;
   }
@@ -105,9 +106,35 @@ public class Record extends Entity<Record> implements Serializable {
     return Record.useDS(dataSourceMeta, tableMeta);
   }
 
-  public Record inCache(boolean inCache) {
-    this.inCache = inCache;
-    return this;
+  private Record instance(String useDS, boolean useCache) {
+    Record record = reNew();
+    if (useDS != null) {
+      record.dataSourceMeta = Metadata.getDataSourceMeta(useDS);
+    }
+    record.useCache = useCache;
+    return record;
+  }
+
+  public Record unCache() {
+    if (!this.useCache) {
+      return this;
+    } else {
+      return instance(null, false);
+    }
+  }
+
+  public Record useDS(String useDS) {
+    checkNotNull(useDS, "DataSourceName could not be null.");
+    if (!this.useCache) {
+      this.dataSourceMeta = Metadata.getDataSourceMeta(useDS);
+      return this;
+    } else {
+      if (dataSourceMeta.getDsName().equals(useDS)) {
+        return this;
+      } else {
+        return instance(useDS, true);
+      }
+    }
   }
 
   public TableMeta getTableMeta() {
@@ -116,20 +143,20 @@ public class Record extends Entity<Record> implements Serializable {
 
   protected <T> T getCache(String sql, Object[] paras) {
     if (tableMeta.isCached()) {
-      return (T) QueryCache.instance().get(tableMeta.getDsName(), tableMeta.getTableName(), sql, paras);
+      return (T) QueryCache.instance().get("Record", tableMeta.getDsName(), tableMeta.getTableName(), sql, paras);
     }
     return null;
   }
 
   protected void addCache(String sql, Object[] paras, Object cache) {
     if (tableMeta.isCached()) {
-      QueryCache.instance().add(tableMeta.getDsName(), tableMeta.getTableName(), sql, paras, cache);
+      QueryCache.instance().add("Record", tableMeta.getDsName(), tableMeta.getTableName(), sql, paras, cache);
     }
   }
 
   protected void purgeCache() {
     if (tableMeta.isCached()) {
-      QueryCache.instance().purge(tableMeta.getDsName(), tableMeta.getTableName());
+      QueryCache.instance().purge("Record", tableMeta.getDsName(), tableMeta.getTableName());
     }
   }
 
@@ -228,7 +255,7 @@ public class Record extends Entity<Record> implements Serializable {
   public List<Record> find(String sql, Object... paras) {
     List<Record> result = null;
     boolean cached = false;
-    if (inCache) {
+    if (useCache) {
       cached = tableMeta.isCached();
       //hit cache
       if (cached) {
@@ -238,7 +265,8 @@ public class Record extends Entity<Record> implements Serializable {
         return result;
       }
     } else {
-      inCache = true;
+      logger.debug("This query not use cache.");
+      useCache = true;
     }
     if (devMode)
       checkTableName(tableMeta.getTableName(), sql);
@@ -353,7 +381,26 @@ public class Record extends Entity<Record> implements Serializable {
 
     long totalRow = 0;
     int totalPage = 0;
-    List result = DS.useDS(dataSourceMeta.getDsName()).query(dialect.countWith(sql), paras);
+    boolean cached = false;
+    List result = null;
+    if (useCache) {
+      cached = tableMeta.isCached();
+      //hit cache
+      if (cached) {
+        result = getCache(sql, paras);
+      }
+    } else {
+      logger.debug("This query not use cache.");
+      useCache = true;
+    }
+
+    if (result == null) {
+      result = DS.useDS(dataSourceMeta.getDsName()).query(dialect.countWith(sql), paras);
+      //add cache
+      if (cached) {
+        addCache(sql, paras, result);
+      }
+    }
     int size = result.size();
     if (size == 1)
       totalRow = ((Number) result.get(0)).longValue();
@@ -484,7 +531,7 @@ public class Record extends Entity<Record> implements Serializable {
   }
 
   //update  base
-  protected int update(String sql, Object... paras) {
+  protected boolean update(String sql, Object... paras) {
 
     boolean cached = tableMeta.isCached();
     //清除缓存
@@ -493,7 +540,8 @@ public class Record extends Entity<Record> implements Serializable {
     }
     if (devMode)
       checkTableName(tableMeta.getTableName(), sql);
-    return DS.useDS(dataSourceMeta.getDsName()).update(sql, paras);
+    int result = DS.useDS(dataSourceMeta.getDsName()).update(sql, paras);
+    return result > 0;
   }
 
 
@@ -533,8 +581,7 @@ public class Record extends Entity<Record> implements Serializable {
     checkNotNull(id, "You can't delete model without Primary Key.");
 
     String sql = dataSourceMeta.getDialect().delete(tableMeta.getTableName(), tableMeta.getPrimaryKey() + "=?");
-    int result = update(sql, id);
-    return result > 0;
+    return update(sql, id);
   }
 
   /**
@@ -548,8 +595,7 @@ public class Record extends Entity<Record> implements Serializable {
     checkNotNull(ids, "You can't delete model without Primary Keys.");
 
     String sql = dataSourceMeta.getDialect().delete(tableMeta.getTableName(), Joiner.on("=? AND ").join(tableMeta.getPrimaryKeys()) + "=?");
-    int result = update(sql, ids);
-    return result > 0;
+    return update(sql, ids);
   }
 
 
@@ -591,8 +637,8 @@ public class Record extends Entity<Record> implements Serializable {
       return false;
     }
 
-    int result = update(sql, paras);
-    if (result >= 1) {
+    boolean result = update(sql, paras);
+    if (result) {
       modifyAttrs.clear();
       return true;
     }
@@ -729,11 +775,6 @@ public class Record extends Entity<Record> implements Serializable {
     modifyAttrs.clear();
     return this;
   }
-
-  public int hashCode() {
-    return (attrs == null ? 0 : attrs.hashCode()) ^ (modifyAttrs == null ? 0 : modifyAttrs.hashCode());
-  }
-
 
   //////////////From Model////////////////////
 
@@ -889,7 +930,7 @@ public class Record extends Entity<Record> implements Serializable {
    */
   public boolean updateColsAll(String columns, Object... paras) {
     logger.warn("You must ensure that \"updateAll()\" method of safety.");
-    return update(dataSourceMeta.getDialect().update(tableMeta.getTableName(), columns.split(",")), paras) > 0;
+    return update(dataSourceMeta.getDialect().update(tableMeta.getTableName(), columns.split(",")), paras);
   }
 
   /**
@@ -901,7 +942,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return boolean
    */
   public boolean updateColsBy(String columns, String where, Object... paras) {
-    return update(dataSourceMeta.getDialect().update(tableMeta.getTableName(), getAlias(), where, columns.split(",")), paras) > 0;
+    return update(dataSourceMeta.getDialect().update(tableMeta.getTableName(), getAlias(), where, columns.split(",")), paras);
   }
 
   /**
@@ -911,7 +952,7 @@ public class Record extends Entity<Record> implements Serializable {
    */
   public boolean deleteAll() {
     logger.warn("You must ensure that \"deleteAll()\" method of safety.");
-    return update(dataSourceMeta.getDialect().delete(tableMeta.getTableName())) > 0;
+    return update(dataSourceMeta.getDialect().delete(tableMeta.getTableName()));
   }
 
   /**
@@ -922,7 +963,7 @@ public class Record extends Entity<Record> implements Serializable {
    * @return
    */
   public boolean deleteBy(String where, Object... paras) {
-    return update(dataSourceMeta.getDialect().delete(tableMeta.getTableName(), where), paras) > 0;
+    return update(dataSourceMeta.getDialect().delete(tableMeta.getTableName(), where), paras);
   }
 
   /**
@@ -955,10 +996,11 @@ public class Record extends Entity<Record> implements Serializable {
    * @return model
    */
   public Record setAlias(String alias) {
+    if (this.alias != null)
+      throw new ModelException("Model alias only set once.");
     this.alias = alias;
     return this;
   }
-
 }
 
 

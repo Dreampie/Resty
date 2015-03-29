@@ -20,12 +20,11 @@ public class RecordBuilder {
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
 
-    Record recordDAO = Record.useDS(dataSourceMeta, tableMeta);
     Record record;
     Map<String, Object> columns;
     Object value;
     while (rs.next()) {
-      record = recordDAO.reNew();
+      record = Record.useDS(dataSourceMeta, tableMeta);
       columns = record.getAttrs();
       for (int i = 1; i <= columnCount; i++) {
 

@@ -16,7 +16,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
-    <servlet.version>3.1.0</servlet.version>
+    <servlet.version>2.5</servlet.version>
     <fastjson.version>1.1.41</fastjson.version>
     <resty.version>${project.parent.version}</resty.version>
     <ehcache.version>2.6.6</ehcache.version>
@@ -34,9 +34,10 @@
       <scope>test</scope>
     </dependency>
 
+    <!--jdk1.6   不支持servlet3.0-->
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
+      <artifactId>servlet-api</artifactId>
       <version>${servlet.version}</version>
       <scope>provided</scope>
     </dependency>

@@ -16,6 +16,7 @@ public class TableMeta implements Serializable {
   private final static Logger logger = Logger.getLogger(TableMeta.class);
 
   private SortedMap<String, ColumnMeta> columnMetadata;
+  private final String pKeys;
   private final String primaryKey;
   private final String[] primaryKeys;
   private final boolean lockKey;
@@ -24,14 +25,15 @@ public class TableMeta implements Serializable {
   private final boolean cached;
 
   protected TableMeta(String dsName, String tableName, String pKeys, boolean lKey, boolean cached) {
-    modelClass = Record.class;
+    this.modelClass = null;
+    this.pKeys = pKeys;
     if (pKeys.contains(",")) {
-      lockKey = lKey;
-      primaryKeys = pKeys.split(",");
+      this.lockKey = lKey;
+      this.primaryKeys = pKeys.split(",");
       this.primaryKey = primaryKeys[0];
     } else {
-      primaryKeys = null;
-      lockKey = false;
+      this.primaryKeys = null;
+      this.lockKey = false;
       this.primaryKey = pKeys;
     }
     this.tableName = tableName;
@@ -39,19 +41,19 @@ public class TableMeta implements Serializable {
     this.dsName = dsName;
   }
 
-  protected TableMeta(String dsName, Class<? extends Base> modelClass) {
+  protected TableMeta(String dsName, Class<? extends Model> modelClass) {
     Table tableAnnotation = modelClass.getAnnotation(Table.class);
     checkNotNull(tableAnnotation, "Could not found @Table Annotation.");
     this.modelClass = modelClass;
-    String pKeys = tableAnnotation.primaryKey();
-    if (pKeys.contains(",")) {
-      lockKey = tableAnnotation.lockKey();
-      primaryKeys = pKeys.split(",");
-      this.primaryKey = primaryKeys[0];
+    this.pKeys = tableAnnotation.primaryKey();
+    if (this.pKeys.contains(",")) {
+      this.lockKey = tableAnnotation.lockKey();
+      this.primaryKeys = this.pKeys.split(",");
+      this.primaryKey = this.primaryKeys[0];
     } else {
-      primaryKeys = null;
-      lockKey = false;
-      this.primaryKey = pKeys;
+      this.primaryKeys = null;
+      this.lockKey = false;
+      this.primaryKey = this.pKeys;
     }
     this.tableName = tableAnnotation.name();
     this.cached = tableAnnotation.cached();
@@ -82,6 +84,9 @@ public class TableMeta implements Serializable {
     return columnMetadata != null && columnMetadata.isEmpty();
   }
 
+  public String getpKeys() {
+    return pKeys;
+  }
 
   public String getPrimaryKey() {
     return primaryKey;

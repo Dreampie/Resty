@@ -14,13 +14,16 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 public class Metadata {
 
   private static final Logger logger = Logger.getLogger(Metadata.class);
+
+  private static final String CONNECTOR = "@";
+
   private static String defaultDsName;
 
   private static Map<String, DataSourceMeta> dataSourceMetaMap = new HashMap<String, DataSourceMeta>();
 
-  private static Map<Class<? extends Entity>, TableMeta> modelTableMetaMap = new HashMap<Class<? extends Entity>, TableMeta>();
+  private static Map<String, TableMeta> tableMetaMap = new HashMap<String, TableMeta>();
 
-  private static Map<String, TableMeta> recordTableMetaMap = new HashMap<String, TableMeta>();
+  private static Map<Class<? extends Entity>, String> tableMetaClassMap = new HashMap<Class<? extends Entity>, String>();
 
   public static boolean hasDataSourceMeta(String dsName) {
     return dataSourceMetaMap.containsKey(dsName);
@@ -32,78 +35,88 @@ public class Metadata {
     return dsm;
   }
 
-  public static boolean hasModelTableMeta(Class<? extends Entity> modelClass) {
-    return modelTableMetaMap.containsKey(modelClass);
+  public static boolean hasTableMeta(String dsName, String tableName) {
+    return tableMetaMap.containsKey(getMark(dsName, tableName));
   }
 
-  public static TableMeta getModelTableMeta(Class<? extends Entity> modelClass) {
-    TableMeta mm = modelTableMetaMap.get(modelClass);
-    checkNotNull(mm, "Could not found ModelMetadata for this model:" + modelClass.getName());
+  public static boolean hasTableMeta(String mark) {
+    return tableMetaMap.containsKey(mark);
+  }
+
+  public static TableMeta getTableMeta(String dsName, String tableName) {
+    return getTableMeta(getMark(dsName, tableName));
+  }
+
+  public static TableMeta getTableMeta(Class<? extends Entity> clazz) {
+    return getTableMeta(tableMetaClassMap.get(clazz));
+  }
+
+  public static TableMeta getTableMeta(String mark) {
+    TableMeta mm = tableMetaMap.get(mark);
+    checkNotNull(mm, "Could not found TableMetadata for this dsName" + CONNECTOR + "tableName : " + mark);
     return mm;
   }
 
-  public static boolean hasRecordTableMeta(String dsName, String tableName) {
-    return recordTableMetaMap.containsKey(getRecordMark(dsName, tableName));
+  public static String getTableMetaMark(Class<? extends Entity> clazz) {
+    return tableMetaClassMap.get(clazz);
   }
 
-  public static TableMeta getRecordTableMeta(String dsName, String tableName) {
-    TableMeta mm = recordTableMetaMap.get(getRecordMark(dsName, tableName));
-    checkNotNull(mm, "Could not found ModelMetadata for this dsName : " + dsName + ", tableName : " + tableName);
-    return mm;
-  }
+  static DataSourceMeta addDataSourceMeta(DataSourceMeta dsm) {
+    String dsName = dsm.getDsName();
+    checkNotNull(dsName, "DataSourceName could not be null.");
+    if (dsName.contains(CONNECTOR))
+      throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for name '" + dsName + "'.");
 
-  public static void setDataSourceMetaMap(Map<String, DataSourceMeta> connMap) {
-    dataSourceMetaMap = connMap;
-  }
-
-  public static void addDataSourceMeta(DataSourceMeta dsm) {
-    dataSourceMetaMap.put(dsm.getDsName(), dsm);
-  }
-
-  public static void addDataSourceMeta(String dsName, DataSourceMeta conn) {
     if (dataSourceMetaMap.size() == 0) {
       defaultDsName = dsName;
     }
     if (dataSourceMetaMap.containsKey(dsName))
       logger.warn("Covering multiple data sources for dsName '%s'.", dsName);
-    dataSourceMetaMap.put(dsName, conn);
+    return dataSourceMetaMap.put(dsName, dsm);
   }
 
-  public static void closeDataSourceMeta() {
+  static void closeDataSourceMeta() {
     for (String dsName : dataSourceMetaMap.keySet()) {
       closeDataSourceMeta(dsName);
     }
   }
 
-  public static void closeDataSourceMeta(String dsName) {
+  static void closeDataSourceMeta(String dsName) {
     DataSourceMeta dataSourceMeta = dataSourceMetaMap.get(dsName);
     if (dataSourceMeta != null) {
       dataSourceMeta.close();
     }
   }
 
-  public static void setModelTableMetaMap(Map<Class<? extends Entity>, TableMeta> tableMetaMap) {
-    modelTableMetaMap = tableMetaMap;
+  static TableMeta addTableMeta(TableMeta tableMeta) {
+    return addTableMeta(tableMeta.getModelClass(), tableMeta);
   }
 
+  static TableMeta addTableMeta(Class<? extends Entity> clazz, TableMeta tableMeta) {
 
-  public static void addModelTableMeta(Class<? extends Entity> modelClass, TableMeta tableMeta) {
-    modelTableMetaMap.put(modelClass, tableMeta);
-  }
+    String dsName = tableMeta.getDsName();
+    checkNotNull(dsName, "DataSourceName could not be null.");
+    if (dsName.contains(CONNECTOR))
+      throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for name '" + dsName + "'.");
 
-  public static void setRecordTableMetaMap(Map<String, TableMeta> tableMetaMap) {
-    recordTableMetaMap = tableMetaMap;
-  }
+    String tableName = tableMeta.getTableName();
+    checkNotNull(tableName, "TableName could not be null.");
 
-  public static void addRecordTableMeta(String dsName, String tableName, TableMeta tableMeta) {
-    recordTableMetaMap.put(getRecordMark(dsName, tableName), tableMeta);
+    if (tableName.contains(CONNECTOR))
+      throw new IllegalArgumentException("TableName not support '" + CONNECTOR + "' for name '" + tableName + "'.");
+
+    String mark = getMark(dsName, tableName);
+    if (clazz != null) {
+      tableMetaClassMap.put(clazz, mark);
+    }
+    return tableMetaMap.put(mark, tableMeta);
   }
 
   public static String getDefaultDsName() {
     return defaultDsName;
   }
 
-  public static String getRecordMark(String dsName, String tableName) {
-    return dsName + "@" + tableName;
+  static String getMark(String dsName, String tableName) {
+    return dsName + CONNECTOR + tableName;
   }
 }

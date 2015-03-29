@@ -172,12 +172,7 @@ public abstract class Entity<M extends Entity> {
       return false;
     return o == this || this.getAttrs().equals(((Entity) o).getAttrs());
   }
-
-  public int hashCode() {
-    return getAttrs() == null ? 0 : getAttrs().hashCode();
-  }
-
-
+  
   /**
    * Get column of mysql type: varchar, char, enum, set, text, tinytext, mediumtext, longtext
    */

@@ -64,14 +64,15 @@ public class Metadata {
   static DataSourceMeta addDataSourceMeta(DataSourceMeta dsm) {
     String dsName = dsm.getDsName();
     checkNotNull(dsName, "DataSourceName could not be null.");
-    if (dsName.contains(CONNECTOR))
+    if (dsName.contains(CONNECTOR)) {
       throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for name '" + dsName + "'.");
-
+    }
     if (dataSourceMetaMap.size() == 0) {
       defaultDsName = dsName;
     }
-    if (dataSourceMetaMap.containsKey(dsName))
+    if (dataSourceMetaMap.containsKey(dsName)) {
       logger.warn("Covering multiple data sources for dsName '%s'.", dsName);
+    }
     return dataSourceMetaMap.put(dsName, dsm);
   }
 
@@ -96,15 +97,15 @@ public class Metadata {
 
     String dsName = tableMeta.getDsName();
     checkNotNull(dsName, "DataSourceName could not be null.");
-    if (dsName.contains(CONNECTOR))
+    if (dsName.contains(CONNECTOR)) {
       throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for name '" + dsName + "'.");
-
+    }
     String tableName = tableMeta.getTableName();
     checkNotNull(tableName, "TableName could not be null.");
 
-    if (tableName.contains(CONNECTOR))
+    if (tableName.contains(CONNECTOR)) {
       throw new IllegalArgumentException("TableName not support '" + CONNECTOR + "' for name '" + tableName + "'.");
-
+    }
     String mark = getMark(dsName, tableName);
     if (clazz != null) {
       tableMetaClassMap.put(clazz, mark);

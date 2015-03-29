@@ -36,6 +36,7 @@ public enum SessionCache {
 
   private final CacheManager cacheManager;
 
+  private final static String CONNECTOR = "#";
   //singleton
 
   private SessionCache() {
@@ -89,7 +90,7 @@ public enum SessionCache {
 
   static void logAccess(String defKey, String name, String access) {
     if (logger.isInfoEnabled()) {
-      logger.info(access + " " + defKey + "#" + name + '"');
+      logger.info(access + " " + defKey + CONNECTOR + name + '"');
     }
   }
 

@@ -1,6 +1,7 @@
 package cn.dreampie.example;
 
 import cn.dreampie.common.util.json.Jsoner;
+import cn.dreampie.orm.Record;
 import cn.dreampie.resource.user.model.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,8 +17,11 @@ public class JsonTest {
 
   @Test
   public void testJson() {
-    User user = new User();
-    user.set("id", 1);
+//    Record recordDAO = Record.use("sec_user");
+//    Record user = recordDAO.reNew().set("id", 1);
+    User user = new User().set("id", 1);
+
+
 //    String json = Jsoner.toJSONString(user);
 //    System.out.println(json);
 //    User t = Jsoner.parseObject("{\"key\":\"value\"}", User.class);
@@ -28,7 +32,8 @@ public class JsonTest {
     String json = Jsoner.toJSONString(user);
     System.out.println(json);
     final User u = Jsoner.parseObject(json, User.class);
-    System.out.println("" + u.getRoleId() + u.getUserInfos() + u.getPermissions() + u.getPermissionIds());
+
+//    System.out.println("" + u.getRoleId() + u.getUserInfos() + u.getPermissions() + u.getPermissionIds());
 
   }
 }

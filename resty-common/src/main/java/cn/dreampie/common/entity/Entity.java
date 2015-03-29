@@ -15,6 +15,14 @@ public abstract class Entity<M extends Entity> {
    */
   public abstract Map<String, Object> getAttrs();
 
+  /**
+   * check method for to json
+   *
+   * @return boolean
+   */
+  public boolean checkMethod() {
+    return false;
+  }
 
   public M putAttrs(Map<String, Object> attrs) {
     getAttrs().putAll(attrs);
@@ -172,7 +180,7 @@ public abstract class Entity<M extends Entity> {
       return false;
     return o == this || this.getAttrs().equals(((Entity) o).getAttrs());
   }
-  
+
   /**
    * Get column of mysql type: varchar, char, enum, set, text, tinytext, mediumtext, longtext
    */

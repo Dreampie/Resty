@@ -35,7 +35,11 @@ public enum ModelDeserializer implements ObjectDeserializer {
 
     try {
       Entity<?> e = (Entity<?>) clazz.newInstance();
-      return (T) e.putAttrs(deserialze(map, clazz));
+      if (e.checkMethod()) {
+        return (T) e.putAttrs(deserialze(map, clazz));
+      } else {
+        return (T) e.putAttrs(map);
+      }
     } catch (Exception e) {
       throw new JSONException("Unsupport type " + type, e);
     }

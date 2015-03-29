@@ -36,6 +36,7 @@ public abstract class Model<M extends Model> extends Entity<Model> implements Se
    */
   private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
 
+
   private M instance(String useDS, boolean useCache) {
     M instance = null;
     try {
@@ -77,6 +78,10 @@ public abstract class Model<M extends Model> extends Entity<Model> implements Se
     }
   }
 
+  public boolean checkMethod() {
+    return true;
+  }
+  
   protected <T> T getCache(String sql, Object[] paras) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {

@@ -33,17 +33,19 @@ public enum ModelSerializer implements ObjectSerializer {
 
     String mName;
     if (object instanceof Entity) {
-      Method[] methods = object.getClass().getDeclaredMethods();
-      JSONField fieldAnn = null;
-      for (Method m : methods) {
-        fieldAnn = m.getAnnotation(JSONField.class);
-        mName = m.getName();
-        if ((fieldAnn == null || fieldAnn.serialize()) && mName.length() > 3 && mName.startsWith("get")
-            && !hasMethod((Entity<?>) object, mName)) {
-          try {
-            m.invoke(object);
-          } catch (Exception e) {
-            throw new JSONException("Method could not invoke.", e);
+      if (((Entity) object).checkMethod()) {
+        Method[] methods = object.getClass().getDeclaredMethods();
+        JSONField fieldAnn = null;
+        for (Method m : methods) {
+          fieldAnn = m.getAnnotation(JSONField.class);
+          mName = m.getName();
+          if ((fieldAnn == null || fieldAnn.serialize()) && mName.length() > 3 && mName.startsWith("get")
+              && !hasMethod((Entity<?>) object, mName)) {
+            try {
+              m.invoke(object);
+            } catch (Exception e) {
+              throw new JSONException("Method could not invoke.", e);
+            }
           }
         }
       }

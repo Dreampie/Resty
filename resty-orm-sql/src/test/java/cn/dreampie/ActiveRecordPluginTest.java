@@ -6,6 +6,8 @@ import cn.dreampie.orm.Record;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
 import org.junit.Test;
 
+import java.util.Date;
+
 /**
  * Unit test for activeRecord plugin.
  */
@@ -16,13 +18,14 @@ public class ActiveRecordPluginTest {
 //    activeRecordPlugin.addIncludePaths("cn.dremapie.orm");
     activeRecordPlugin.start();
 
-    Record recordDAO = Record.use("ds2","test");
+    Record recordDAO = Record.use("sec_user","id,sid");
 
-    recordDAO.reNew().set("id2", 10).save();
+    Record r = recordDAO.reNew().set("sid", 10).set("username", "x").set("password","123").set("providername","default").set("created_at", new Date());
+    r.save();
 
-    recordDAO = Record.use("test").findColsByIds("id,id2", new Object[]{recordDAO.get("id"), recordDAO.get("id2")});
+    r = Record.use("sec_user").findColsByIds("id,sid", new Object[]{r.get("id"), r.get("sid")});
 
-    recordDAO.update();
+    r.update();
     //Record 解析支持
 //    Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());
 //    Record r = new Record().set("id", 1).set("long", "x");

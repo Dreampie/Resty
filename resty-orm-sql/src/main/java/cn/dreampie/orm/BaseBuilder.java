@@ -15,10 +15,10 @@ import java.util.Map;
 /**
  * Created by ice on 14-12-30.
  */
-public class ModelBuilder {
-  private static final Logger logger = Logger.getLogger(ModelBuilder.class);
+public class BaseBuilder {
+  private static final Logger logger = Logger.getLogger(BaseBuilder.class);
 
-  public static <T> List<T> build(ResultSet rs, Class<? extends Entity> modelClass) throws SQLException, InstantiationException, IllegalAccessException {
+  public static <T> List<T> build(ResultSet rs, Class<? extends Entity> modelClass, DataSourceMeta dataSourceMeta, TableMeta tableMeta) throws SQLException, InstantiationException, IllegalAccessException {
     List<T> result = new ArrayList<T>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
@@ -30,7 +30,11 @@ public class ModelBuilder {
     Map<String, Object> attrs;
     Object value;
     while (rs.next()) {
-      entity = modelClass.newInstance();
+      if (Record.class.isAssignableFrom(modelClass)) {
+        entity = Record.useDS(dataSourceMeta, tableMeta);
+      } else {
+        entity = modelClass.newInstance();
+      }
       attrs = entity.getAttrs();
       for (int i = 1; i <= columnCount; i++) {
 

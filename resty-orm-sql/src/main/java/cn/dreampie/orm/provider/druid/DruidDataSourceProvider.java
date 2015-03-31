@@ -65,7 +65,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
   // private boolean poolPreparedStatements = false;	// oracle、mysql 5.5 及以上版本建议为 true;
 
   // 只要maxPoolPreparedStatementPerConnectionSize>0,poolPreparedStatements就会被自动设定为true，使用oracle时可以设定此值。
-  private int maxPoolPreparedStatementPerConnectionSize = -1;
+  private int maxPoolPreparedStatementPerConnectionSize = 10;
 
   // 配置监控统计拦截的filters
   private String filters;  // 监控统计："stat"    防SQL注入："wall"     组合使用： "stat,wall"
@@ -103,7 +103,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.removeAbandoned = prop.getBoolean("db." + dsName + ".removeAbandoned", false);
     this.removeAbandonedTimeoutMillis = prop.getInt("db." + dsName + ".removeAbandonedTimeoutMillis", 300 * 1000);
     this.logAbandoned = prop.getBoolean("db." + dsName + ".logAbandoned", false);
-    this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize");
+    this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize", 10);
     buidDataSource();
   }
 

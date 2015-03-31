@@ -93,6 +93,7 @@ public class TableMeta implements Serializable {
   }
 
   public String[] getPrimaryKeys() {
+    checkNotNull(primaryKeys, "Failed to found table '%s' in primaryKeys.", getTableName());
     return primaryKeys;
   }
 
@@ -115,7 +116,7 @@ public class TableMeta implements Serializable {
    * @return Provides column metadata map, keyed by attribute name.
    */
   public SortedMap<String, ColumnMeta> getColumnMetadata() {
-    checkNotNull(columnMetadata, "Failed to find table: " + getTableName());
+    checkNotNull(columnMetadata, "Failed to found table: " + getTableName());
     return Collections.unmodifiableSortedMap(columnMetadata);
   }
 
@@ -130,14 +131,14 @@ public class TableMeta implements Serializable {
    * @param attribute attribute name, case insensitive.
    * @return true if this attribute is present in this meta model, false of not.
    */
-  boolean hasAttribute(String attribute) {
+  public boolean hasAttribute(String attribute) {
     return columnMetadata != null && columnMetadata.containsKey(attribute);
   }
 
 
   public String toString() {
     final StringBuilder t = new StringBuilder();
-    t.append("MetaModel: ").append(tableName).append(", ").append(modelClass).append("\n");
+    t.append("TableMeta: ").append(tableName).append(", ").append(modelClass == null ? "Record" : modelClass).append("\n");
     if (columnMetadata != null) {
       for (String key : columnMetadata.keySet()) {
         t.append(columnMetadata.get(key)).append(", ");

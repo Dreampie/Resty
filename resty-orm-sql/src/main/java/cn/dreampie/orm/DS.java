@@ -4,6 +4,7 @@ package cn.dreampie.orm;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.exception.DBException;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,7 +95,7 @@ public class DS {
 
   public <T> List<T> query(String sql, Object... paras) {
 
-    List result = new ArrayList();
+    List<T> result = new ArrayList<T>();
     Connection conn = null;
     PreparedStatement pst = null;
     ResultSet rs = null;
@@ -109,11 +110,11 @@ public class DS {
           for (int i = 0; i < colAmount; i++) {
             temp[i] = rs.getObject(i + 1);
           }
-          result.add(temp);
+          result.add((T) temp);
         }
       } else if (colAmount == 1) {
         while (rs.next()) {
-          result.add(rs.getObject(1));
+          result.add((T) rs.getObject(1));
         }
       }
     } catch (SQLException e) {
@@ -150,7 +151,6 @@ public class DS {
    * @see #queryFirst(String, Object...)
    */
   public <T> T queryFirst(String sql) {
-    // return queryFirst(sql, NULL_PARA_ARRAY);
     List<T> result = query(sql, NULL_PARA_ARRAY);
     return (result.size() > 0 ? result.get(0) : null);
   }
@@ -184,98 +184,49 @@ public class DS {
     return (String) queryColumn(sql, paras);
   }
 
-  public String queryStr(String sql) {
-    return (String) queryColumn(sql, NULL_PARA_ARRAY);
-  }
-
   public Integer queryInt(String sql, Object... paras) {
     return (Integer) queryColumn(sql, paras);
-  }
-
-  public Integer queryInt(String sql) {
-    return (Integer) queryColumn(sql, NULL_PARA_ARRAY);
   }
 
   public Long queryLong(String sql, Object... paras) {
     return (Long) queryColumn(sql, paras);
   }
 
-  public Long queryLong(String sql) {
-    return (Long) queryColumn(sql, NULL_PARA_ARRAY);
-  }
-
   public Double queryDouble(String sql, Object... paras) {
     return (Double) queryColumn(sql, paras);
-  }
-
-  public Double queryDouble(String sql) {
-    return (Double) queryColumn(sql, NULL_PARA_ARRAY);
   }
 
   public Float queryFloat(String sql, Object... paras) {
     return (Float) queryColumn(sql, paras);
   }
 
-  public Float queryFloat(String sql) {
-    return (Float) queryColumn(sql, NULL_PARA_ARRAY);
-  }
-
-  public java.math.BigDecimal queryBigDecimal(String sql, Object... paras) {
-    return (java.math.BigDecimal) queryColumn(sql, paras);
-  }
-
-  public java.math.BigDecimal queryBigDecimal(String sql) {
-    return (java.math.BigDecimal) queryColumn(sql, NULL_PARA_ARRAY);
+  public BigDecimal queryBigDecimal(String sql, Object... paras) {
+    return (BigDecimal) queryColumn(sql, paras);
   }
 
   public byte[] queryBytes(String sql, Object... paras) {
     return (byte[]) queryColumn(sql, paras);
   }
 
-  public byte[] queryBytes(String sql) {
-    return (byte[]) queryColumn(sql, NULL_PARA_ARRAY);
+  public Date queryDate(String sql, Object... paras) {
+    return (Date) queryColumn(sql, paras);
   }
 
-  public java.util.Date queryDate(String sql, Object... paras) {
-    return (java.util.Date) queryColumn(sql, paras);
+  public Time queryTime(String sql, Object... paras) {
+    return (Time) queryColumn(sql, paras);
   }
 
-  public java.util.Date queryDate(String sql) {
-    return (java.util.Date) queryColumn(sql, NULL_PARA_ARRAY);
-  }
-
-  public java.sql.Time queryTime(String sql, Object... paras) {
-    return (java.sql.Time) queryColumn(sql, paras);
-  }
-
-  public java.sql.Time queryTime(String sql) {
-    return (java.sql.Time) queryColumn(sql, NULL_PARA_ARRAY);
-  }
-
-  public java.sql.Timestamp queryTimestamp(String sql, Object... paras) {
-    return (java.sql.Timestamp) queryColumn(sql, paras);
-  }
-
-  public java.sql.Timestamp queryTimestamp(String sql) {
-    return (java.sql.Timestamp) queryColumn(sql, NULL_PARA_ARRAY);
+  public Timestamp queryTimestamp(String sql, Object... paras) {
+    return (Timestamp) queryColumn(sql, paras);
   }
 
   public Boolean queryBoolean(String sql, Object... paras) {
     return (Boolean) queryColumn(sql, paras);
   }
 
-  public Boolean queryBoolean(String sql) {
-    return (Boolean) queryColumn(sql, NULL_PARA_ARRAY);
-  }
-
   public Number queryNumber(String sql, Object... paras) {
     return (Number) queryColumn(sql, paras);
   }
-
-  public Number queryNumber(String sql) {
-    return (Number) queryColumn(sql, NULL_PARA_ARRAY);
-  }
-  // 26 queryXxx method under -----------------------------------------------
 
   /**
    * Execute sql update
@@ -295,16 +246,6 @@ public class DS {
     }
     return result;
   }
-
-
-  /**
-   * @param sql an SQL statement
-   * @see #update(String, Object...)
-   */
-  public int update(String sql) {
-    return update(sql, NULL_PARA_ARRAY);
-  }
-
 
   public boolean execute(String... sqls) {
     return execute(Arrays.asList(sqls));

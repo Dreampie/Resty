@@ -11,7 +11,7 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 
 /**
- * SqlReporter.
+ * SqlPrinter.
  */
 public class SqlPrinter implements InvocationHandler {
 
@@ -29,7 +29,8 @@ public class SqlPrinter implements InvocationHandler {
 
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
-      if (method.getName().equals("prepareStatement")) {
+      String methodName = method.getName();
+      if (methodName.equals("prepareStatement") || methodName.equals("prepareCall")) {
         String info = "Sql: " + args[0];
         if (logger.isInfoEnabled())
           logger.info(info);

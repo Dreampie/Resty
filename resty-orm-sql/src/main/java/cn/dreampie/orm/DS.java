@@ -52,14 +52,14 @@ public class DS {
   }
 
 
-  public static PreparedStatement getPreparedStatement(Connection connection, String primaryKey, String sql, Object[][] paras) throws SQLException {
+  public static PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[][] paras) throws SQLException {
     PreparedStatement pst = null;
     String key = primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey;
     String[] returnKeys = new String[paras.length];
     for (int i = 0; i < paras.length; i++) {
       returnKeys[i] = key;
     }
-    pst = connection.prepareStatement(sql, returnKeys);
+    pst = conn.prepareStatement(sql, returnKeys);
     final int batchSize = 1000;
     int count = 0;
     for (int i = 0; i < paras.length; i++) {
@@ -74,10 +74,10 @@ public class DS {
     return pst;
   }
 
-  private static Statement getPreparedStatement(Connection connection, List<String> sql) throws SQLException {
+  private static Statement getPreparedStatement(Connection conn, List<String> sql) throws SQLException {
     Statement stmt = null;
 
-    stmt = connection.createStatement();
+    stmt = conn.createStatement();
     final int batchSize = 1000;
     int count = 0;
     int size = sql.size();

@@ -57,12 +57,12 @@ public abstract class Entity<M extends Entity> {
   public abstract boolean hasAttr(String attr);
 
   /**
-   * Set attribute to model.
+   * Set attribute to entity.
    *
-   * @param attr  the attribute name of the model
+   * @param attr  the attribute name of the entity
    * @param value the value of the attribute
-   * @return this model
-   * @throws cn.dreampie.common.entity.exception.EntityException if the attribute is not exists of the model
+   * @return this entity
+   * @throws cn.dreampie.common.entity.exception.EntityException if the attribute is not exists of the entity
    */
   public M set(String attr, Object value) {
     if (hasAttr(attr)) {
@@ -74,11 +74,11 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
-   * Put key value pair to the model when the key is not attribute of the model.
+   * Put key value pair to the entity when the key is not attribute of the entity.
    *
    * @param attr  属性名称
    * @param value 属性值
-   * @return 当前model对象
+   * @return 当前entity对象
    */
   public M put(String attr, Object value) {
     if (hasAttr(attr))
@@ -90,7 +90,7 @@ public abstract class Entity<M extends Entity> {
   /**
    * Set attributes with Map.
    *
-   * @param attrs attributes of this model
+   * @param attrs attributes of this entity
    * @return this Model
    */
   public M setAttrs(Map<String, Object> attrs) {
@@ -100,13 +100,13 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
-   * Set attributes with other model.
+   * Set attributes with other entity.
    *
-   * @param model the Model
+   * @param entity the Model
    * @return this Model
    */
-  public M setAttrs(M model) {
-    return setAttrs(model.attrs);
+  public M setAttrs(M entity) {
+    return setAttrs(entity.attrs);
   }
 
   public M putAttrs(Map<String, Object> attrs) {
@@ -259,7 +259,7 @@ public abstract class Entity<M extends Entity> {
 
 
   /**
-   * Return attribute name of this model.
+   * Return attribute name of this entity.
    */
   public String[] getModifyAttrNames() {
     Set<String> attrNameSet = modifyAttrs.keySet();
@@ -267,7 +267,7 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
-   * Return attribute values of this model.
+   * Return attribute values of this entity.
    */
   public Object[] getModifyAttrValues() {
     Collection<Object> attrValueCollection = modifyAttrs.values();

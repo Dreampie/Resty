@@ -1,7 +1,6 @@
 package cn.dreampie.orm;
 
 import cn.dreampie.common.entity.Entity;
-import cn.dreampie.log.Logger;
 import cn.dreampie.orm.annotation.Table;
 import cn.dreampie.orm.dialect.Dialect;
 
@@ -127,11 +126,11 @@ public class TableMeta implements Serializable {
   /**
    * returns true if this attribute is present in this meta model. This method i case insensitive.
    *
-   * @param attribute attribute name, case insensitive.
+   * @param attr attribute name, case insensitive.
    * @return true if this attribute is present in this meta model, false of not.
    */
-  public boolean hasAttribute(String attribute) {
-    return columnMetadata != null && columnMetadata.containsKey(attribute);
+  public boolean hasAttr(String attr) {
+    return columnMetadata != null && columnMetadata.containsKey(attr);
   }
 
 

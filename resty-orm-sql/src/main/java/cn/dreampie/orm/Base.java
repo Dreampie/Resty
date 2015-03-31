@@ -2,12 +2,12 @@ package cn.dreampie.orm;
 
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
-import cn.dreampie.orm.exception.ModelException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -115,42 +115,9 @@ public abstract class Base<M extends Base> extends Entity<M> {
     }
   }
 
-
-  /**
-   * Set attribute to model.
-   *
-   * @param attr  the attribute name of the model
-   * @param value the value of the attribute
-   * @return this model
-   * @throws cn.dreampie.orm.exception.DBException if the attribute is not exists of the model
-   */
-  public M set(String attr, Object value) {
-    Map<String, Object> attrs = getAttrs();
-    Map<String, Object> modifyAttrs = getModifyAttrs();
-    if (getTableMeta().hasAttribute(attr)) {
-      attrs.put(attr, value);
-      modifyAttrs.put(attr, value);  // Add modify flag, update() need this flag.
-      return (M) this;
-    }
-    throw new DBException("The attribute name is not exists: " + attr);
+  public boolean hasAttr(String attr) {
+    return getTableMeta().hasAttr(attr);
   }
-
-  /**
-   * Put key value pair to the model when the key is not attribute of the model.
-   *
-   * @param attr  属性名称
-   * @param value 属性值
-   * @return 当前model对象
-   */
-  public M put(String attr, Object value) {
-    Map<String, Object> attrs = getAttrs();
-    Map<String, Object> modifyAttrs = getModifyAttrs();
-    if (getTableMeta().hasAttribute(attr))
-      modifyAttrs.put(attr, value);
-    attrs.put(attr, value);
-    return (M) this;
-  }
-
 
   /**
    * Check the table name. The table name must in sql.
@@ -230,9 +197,9 @@ public abstract class Base<M extends Base> extends Entity<M> {
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
     } catch (InstantiationException e) {
-      throw new ModelException(e.getMessage(), e);
+      throw new EntityException(e.getMessage(), e);
     } catch (IllegalAccessException e) {
-      throw new ModelException(e.getMessage(), e);
+      throw new EntityException(e.getMessage(), e);
     } finally {
       dsm.close(rs, pst, conn);
     }
@@ -352,7 +319,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
 
       result = pst.executeUpdate();
       getGeneratedKey(pst, tableMeta.getPrimaryKey());
-      getModifyAttrs().clear();
+      clearModifyAttrs();
       return result >= 1;
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
@@ -421,7 +388,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
         conn.commit();
       conn.setAutoCommit(autoCommit);
       for (M model : models) {
-        model.getModifyAttrs().clear();
+        model.clearModifyAttrs();
       }
       //判断是否是保存了所有数据
       for (int r : result) {
@@ -503,9 +470,8 @@ public abstract class Base<M extends Base> extends Entity<M> {
   public boolean update() {
 
     Map<String, Object> attrs = getAttrs();
-    Map<String, Object> modifyAttrs = getModifyAttrs();
 
-    if (modifyAttrs.isEmpty())
+    if (getModifyAttrs().isEmpty())
       return false;
 
     TableMeta tableMeta = getTableMeta();
@@ -547,7 +513,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
 
     boolean result = update(sql, paras);
     if (result) {
-      modifyAttrs.clear();
+      clearModifyAttrs();
       return true;
     }
     return false;

@@ -1,10 +1,8 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.common.entity.CaseInsensitiveMap;
-import cn.dreampie.orm.exception.ModelException;
+import cn.dreampie.common.entity.exception.EntityException;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -28,9 +26,9 @@ public abstract class Model<M extends Model> extends Base<M> implements Serializ
       instance.useDS = useDS;
       instance.useCache = useCache;
     } catch (InstantiationException e) {
-      throw new ModelException(e);
+      throw new EntityException(e);
     } catch (IllegalAccessException e) {
-      throw new ModelException(e);
+      throw new EntityException(e);
     }
     return instance;
   }
@@ -63,36 +61,6 @@ public abstract class Model<M extends Model> extends Base<M> implements Serializ
   }
 
   /**
-   * Attributes of this model
-   */
-  private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
-
-
-  /**
-   * Return attribute Map.
-   * <p/>
-   * Danger! The update method will ignore the attribute if you change it directly.
-   * You must use set method to change attribute that update method can handle it.
-   */
-  public Map<String, Object> getAttrs() {
-    return attrs;
-  }
-
-  /**
-   * Flag of column has been modified. update need this flag
-   */
-  private Map<String, Object> modifyAttrs = new CaseInsensitiveMap<Object>();
-
-  /**
-   * 获取已经修改了的属性
-   *
-   * @return Map<String, Object>
-   */
-  public Map<String, Object> getModifyAttrs() {
-    return modifyAttrs;
-  }
-
-  /**
    * 表的别名
    *
    * @return String
@@ -109,7 +77,7 @@ public abstract class Model<M extends Model> extends Base<M> implements Serializ
    */
   public M setAlias(String alias) {
     if (this.alias != null)
-      throw new ModelException("Model alias only set once.");
+      throw new EntityException("Model alias only set once.");
     this.alias = alias;
     return (M) this;
   }

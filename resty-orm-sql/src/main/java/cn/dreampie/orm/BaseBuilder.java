@@ -1,8 +1,8 @@
 package cn.dreampie.orm;
 
 import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.exception.ModelException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +10,6 @@ import java.io.Reader;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ice on 14-12-30.
@@ -27,7 +26,6 @@ public class BaseBuilder {
     buildLabelNamesAndTypes(rsmd, labelNames, types);
 
     Entity entity;
-    Map<String, Object> attrs;
     Object value;
     while (rs.next()) {
       if (Record.class.isAssignableFrom(modelClass)) {
@@ -35,7 +33,6 @@ public class BaseBuilder {
       } else {
         entity = modelClass.newInstance();
       }
-      attrs = entity.getAttrs();
       for (int i = 1; i <= columnCount; i++) {
 
         if (types[i] < Types.BLOB)
@@ -49,7 +46,7 @@ public class BaseBuilder {
         else
           value = rs.getObject(i);
 
-        attrs.put(labelNames[i], value);
+        entity.put(labelNames[i], value);
       }
       result.add((T) entity);
     }
@@ -74,9 +71,9 @@ public class BaseBuilder {
       is.read(data);
       return data;
     } catch (SQLException e) {
-      throw new ModelException(e.getMessage(), e);
+      throw new EntityException(e.getMessage(), e);
     } catch (IOException e) {
-      throw new ModelException(e.getMessage(), e);
+      throw new EntityException(e.getMessage(), e);
     } finally {
       try {
         if (is != null)
@@ -98,9 +95,9 @@ public class BaseBuilder {
       reader.read(buffer);
       return new String(buffer);
     } catch (SQLException e) {
-      throw new ModelException(e.getMessage(), e);
+      throw new EntityException(e.getMessage(), e);
     } catch (IOException e) {
-      throw new ModelException(e.getMessage(), e);
+      throw new EntityException(e.getMessage(), e);
     } finally {
       try {
         if (reader != null)

@@ -1,7 +1,6 @@
 package cn.dreampie.example;
 
 import cn.dreampie.common.util.json.Jsoner;
-import cn.dreampie.orm.Record;
 import cn.dreampie.resource.user.model.User;
 import org.junit.Before;
 import org.junit.Test;

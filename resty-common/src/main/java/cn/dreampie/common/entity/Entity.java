@@ -1,5 +1,6 @@
 package cn.dreampie.common.entity;
 
+import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.json.Jsoner;
 
 import java.math.BigDecimal;
@@ -13,36 +14,30 @@ import java.util.*;
  */
 public abstract class Entity<M extends Entity> {
 
-  /**
-   * Attributes of this model
-   */
-  public abstract Map<String, Object> getAttrs();
+  private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
 
+  /**
+   * Return attribute Map.
+   * Danger! The update method will ignore the attribute if you change it directly.
+   * You must use set method to change attribute that update method can handle it.
+   */
+  public Map<String, Object> getAttrs() {
+    return Collections.unmodifiableMap(attrs);
+  }
+
+  /**
+   * Flag of column has been modified. update need this flag
+   */
+  private Map<String, Object> modifyAttrs = new CaseInsensitiveMap<Object>();
 
   /**
    * 获取更新的属性列表
    *
    * @return Map<String, Object>
    */
-  public abstract Map<String, Object> getModifyAttrs();
-
-  /**
-   * Set attribute to model.
-   *
-   * @param attr  the attribute name of the model
-   * @param value the value of the attribute
-   * @return this model
-   */
-  public abstract M set(String attr, Object value);
-
-  /**
-   * Put key value pair to the model when the key is not attribute of the model.
-   *
-   * @param attr  属性名称
-   * @param value 属性值
-   * @return 当前model对象
-   */
-  public abstract M put(String attr, Object value);
+  public Map<String, Object> getModifyAttrs() {
+    return Collections.unmodifiableMap(modifyAttrs);
+  }
 
   /**
    * check method for to json
@@ -51,6 +46,45 @@ public abstract class Entity<M extends Entity> {
    */
   public boolean checkMethod() {
     return false;
+  }
+
+  /**
+   * 判断数据库是否拥有该属性
+   *
+   * @param attr 属性名
+   * @return boolean
+   */
+  public abstract boolean hasAttr(String attr);
+
+  /**
+   * Set attribute to model.
+   *
+   * @param attr  the attribute name of the model
+   * @param value the value of the attribute
+   * @return this model
+   * @throws cn.dreampie.common.entity.exception.EntityException if the attribute is not exists of the model
+   */
+  public M set(String attr, Object value) {
+    if (hasAttr(attr)) {
+      attrs.put(attr, value);
+      modifyAttrs.put(attr, value);  // Add modify flag, update() need this flag.
+      return (M) this;
+    }
+    throw new EntityException("The attribute name is not exists: " + attr);
+  }
+
+  /**
+   * Put key value pair to the model when the key is not attribute of the model.
+   *
+   * @param attr  属性名称
+   * @param value 属性值
+   * @return 当前model对象
+   */
+  public M put(String attr, Object value) {
+    if (hasAttr(attr))
+      modifyAttrs.put(attr, value);
+    attrs.put(attr, value);
+    return (M) this;
   }
 
   /**
@@ -72,7 +106,7 @@ public abstract class Entity<M extends Entity> {
    * @return this Model
    */
   public M setAttrs(M model) {
-    return setAttrs(model.getAttrs());
+    return setAttrs(model.attrs);
   }
 
   public M putAttrs(Map<String, Object> attrs) {
@@ -87,7 +121,7 @@ public abstract class Entity<M extends Entity> {
    * @param entity the entity
    */
   public M putAttrs(M entity) {
-    return putAttrs(entity.getAttrs());
+    return putAttrs(entity.attrs);
   }
 
 
@@ -95,18 +129,22 @@ public abstract class Entity<M extends Entity> {
    * Get column of any sql type
    */
   public <T> T get(String column) {
-    return (T) getAttrs().get(column);
+    return (T) attrs.get(column);
   }
 
   /**
    * Parse column to any type
    */
   public <T> T parse(String column, Class<T> clazz) {
-    Object value = getAttrs().get(column);
+    Object value = attrs.get(column);
     if (clazz.isAssignableFrom(value.getClass())) {
       return (T) value;
     } else {
-      return Jsoner.parseObject(Jsoner.toJSONString(value), clazz);
+      if (clazz.isAssignableFrom(String.class)) {
+        return (T) value.toString();
+      } else {
+        return Jsoner.parseObject(Jsoner.toJSONString(value), clazz);
+      }
     }
   }
 
@@ -115,7 +153,7 @@ public abstract class Entity<M extends Entity> {
    * Get column of any sql type. Returns defaultValue if null.
    */
   public <T> T get(String column, Object defaultValue) {
-    Object result = getAttrs().get(column);
+    Object result = attrs.get(column);
     return (T) (result != null ? result : defaultValue);
   }
 
@@ -126,7 +164,7 @@ public abstract class Entity<M extends Entity> {
    * @param column the column name of the entity
    */
   public M remove(String column) {
-    getAttrs().remove(column);
+    attrs.remove(column);
     return (M) this;
   }
 
@@ -138,7 +176,7 @@ public abstract class Entity<M extends Entity> {
   public M remove(String... columns) {
     if (columns != null)
       for (String c : columns)
-        this.getAttrs().remove(c);
+        this.attrs.remove(c);
     return (M) this;
   }
 
@@ -146,7 +184,7 @@ public abstract class Entity<M extends Entity> {
    * Remove attrs if it is null.
    */
   public M removeNull() {
-    for (java.util.Iterator<Map.Entry<String, Object>> it = getAttrs().entrySet().iterator(); it.hasNext(); ) {
+    for (java.util.Iterator<Map.Entry<String, Object>> it = attrs.entrySet().iterator(); it.hasNext(); ) {
       Map.Entry<String, Object> e = it.next();
       if (e.getValue() == null) {
         it.remove();
@@ -161,7 +199,6 @@ public abstract class Entity<M extends Entity> {
    * @param columns the column name of the entity
    */
   public M keep(String... columns) {
-    Map<String, Object> attrs = getAttrs();
     if (columns != null && columns.length > 0) {
       Map<String, Object> newAttrs = new HashMap<String, Object>(columns.length);
       for (String c : columns)
@@ -181,7 +218,6 @@ public abstract class Entity<M extends Entity> {
    * @param column the column name of the entity
    */
   public M keep(String column) {
-    Map<String, Object> attrs = getAttrs();
     if (attrs.containsKey(column)) {  // prevent put null value to the newAttrs
       Object keepIt = attrs.get(column);
       attrs.clear();
@@ -194,8 +230,13 @@ public abstract class Entity<M extends Entity> {
   /**
    * Remove all attrs of this entity.
    */
-  public M clear() {
-    getAttrs().clear();
+  public M clearAttrs() {
+    attrs.clear();
+    return (M) this;
+  }
+
+  public M clearModifyAttrs() {
+    modifyAttrs.clear();
     return (M) this;
   }
 
@@ -204,7 +245,7 @@ public abstract class Entity<M extends Entity> {
    * Return column name of this record.
    */
   public String[] getAttrNames() {
-    Set<String> attrNameSet = getAttrs().keySet();
+    Set<String> attrNameSet = attrs.keySet();
     return attrNameSet.toArray(new String[attrNameSet.size()]);
   }
 
@@ -212,7 +253,7 @@ public abstract class Entity<M extends Entity> {
    * Return column values of this record.
    */
   public Object[] getAttrValues() {
-    Collection<Object> attrValueCollection = getAttrs().values();
+    Collection<Object> attrValueCollection = attrs.values();
     return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
   }
 
@@ -221,7 +262,7 @@ public abstract class Entity<M extends Entity> {
    * Return attribute name of this model.
    */
   public String[] getModifyAttrNames() {
-    Set<String> attrNameSet = getModifyAttrs().keySet();
+    Set<String> attrNameSet = modifyAttrs.keySet();
     return attrNameSet.toArray(new String[attrNameSet.size()]);
   }
 
@@ -229,7 +270,7 @@ public abstract class Entity<M extends Entity> {
    * Return attribute values of this model.
    */
   public Object[] getModifyAttrValues() {
-    Collection<Object> attrValueCollection = getModifyAttrs().values();
+    Collection<Object> attrValueCollection = modifyAttrs.values();
     return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
   }
 
@@ -242,84 +283,84 @@ public abstract class Entity<M extends Entity> {
    * Return json string of this record.
    */
   public String toJson() {
-    return Jsoner.toJSONString(getAttrs());
+    return Jsoner.toJSONString(attrs);
   }
 
   /**
    * Get column of sql type: varchar, char, enum, set, text, tinytext, mediumtext, longtext
    */
   public String getStr(String column) {
-    return (String) getAttrs().get(column);
+    return (String) attrs.get(column);
   }
 
   /**
    * Get column of sql type: int, integer, tinyint(n) n > 1, smallint, mediumint
    */
   public Integer getInt(String column) {
-    return (Integer) getAttrs().get(column);
+    return (Integer) attrs.get(column);
   }
 
   /**
    * Get column of sql type: bigint
    */
   public Long getLong(String column) {
-    return (Long) getAttrs().get(column);
+    return (Long) attrs.get(column);
   }
 
   /**
    * Get column of sql type: unsigned bigint
    */
   public BigInteger getBigInteger(String column) {
-    return (BigInteger) getAttrs().get(column);
+    return (BigInteger) attrs.get(column);
   }
 
   /**
    * Get column of sql type: date, year
    */
   public Date getDate(String column) {
-    return (Date) getAttrs().get(column);
+    return (Date) attrs.get(column);
   }
 
   /**
    * Get column of sql type: time
    */
   public Time getTime(String column) {
-    return (Time) getAttrs().get(column);
+    return (Time) attrs.get(column);
   }
 
   /**
    * Get column of sql type: timestamp, datetime
    */
   public Timestamp getTimestamp(String column) {
-    return (Timestamp) getAttrs().get(column);
+    return (Timestamp) attrs.get(column);
   }
 
   /**
    * Get column of sql type: real, double
    */
   public Double getDouble(String column) {
-    return (Double) getAttrs().get(column);
+    return (Double) attrs.get(column);
   }
 
   /**
    * Get column of sql type: float
    */
   public Float getFloat(String column) {
-    return (Float) getAttrs().get(column);
+    return (Float) attrs.get(column);
   }
 
   /**
    * Get column of sql type: bit, tinyint(1)
    */
   public Boolean getBoolean(String column) {
-    return (Boolean) getAttrs().get(column);
+    return (Boolean) attrs.get(column);
   }
 
   /**
    * Get column of sql type: decimal, numeric
    */
   public BigDecimal getBigDecimal(String column) {
-    return (BigDecimal) getAttrs().get(column);
+    return (BigDecimal) attrs.get(column);
   }
 
   /**
@@ -327,14 +368,14 @@ public abstract class Entity<M extends Entity> {
    * I have not finished the test.
    */
   public byte[] getBytes(String column) {
-    return (byte[]) getAttrs().get(column);
+    return (byte[]) attrs.get(column);
   }
 
   /**
    * Get column of any type that extends from Number
    */
   public Number getNumber(String column) {
-    return (Number) getAttrs().get(column);
+    return (Number) attrs.get(column);
   }
 
 }

@@ -18,9 +18,9 @@ public class ActiveRecordPluginTest {
 //    activeRecordPlugin.addIncludePaths("cn.dremapie.orm");
     activeRecordPlugin.start();
 
-    Record recordDAO = Record.use("sec_user","id,sid");
+    Record recordDAO = Record.use("sec_user", "id,sid");
 
-    Record r = recordDAO.reNew().set("sid", 10).set("username", "x").set("password","123").set("providername","default").set("created_at", new Date());
+    Record r = recordDAO.reNew().set("sid", 10).set("username", "x").set("password", "123").set("providername", "default").set("created_at", new Date());
     r.save();
 
     r = Record.use("sec_user").findColsByIds("id,sid", new Object[]{r.get("id"), r.get("sid")});

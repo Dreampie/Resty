@@ -35,7 +35,7 @@ public class AppConfig extends Config {
 
   public void configPlugin(PluginLoader pluginLoader) {
     //第一个数据库
-    DruidDataSourceProvider ddsp=new DruidDataSourceProvider("default");
+    DruidDataSourceProvider ddsp = new DruidDataSourceProvider("default");
     ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(ddsp, true);
     activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
     pluginLoader.add(activeRecordPlugin);

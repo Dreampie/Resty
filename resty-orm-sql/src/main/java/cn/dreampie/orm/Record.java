@@ -1,10 +1,8 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.common.entity.CaseInsensitiveMap;
-import cn.dreampie.orm.exception.ModelException;
+import cn.dreampie.common.entity.exception.EntityException;
 
 import java.io.Serializable;
-import java.util.Map;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -152,33 +150,29 @@ public class Record extends Base<Record> implements Serializable {
     }
   }
 
-
+  /**
+   * 获取数据表的元数据
+   *
+   * @return TableMeta
+   */
   public TableMeta getTableMeta() {
     return tableMeta;
   }
 
+  /**
+   * 获取数据源的元数据
+   *
+   * @return DataSourceMeta
+   */
   protected DataSourceMeta getDataSourceMeta() {
     return dataSourceMeta;
   }
 
-  private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
-
   /**
-   * Return attrs map.
+   * 设置数据库查询别名
+   *
+   * @return String
    */
-  public Map<String, Object> getAttrs() {
-    return attrs;
-  }
-
-  /**
-   * Flag of column has been modified. update need this flag
-   */
-  private Map<String, Object> modifyAttrs = new CaseInsensitiveMap<Object>();
-
-  public Map<String, Object> getModifyAttrs() {
-    return modifyAttrs;
-  }
-
   public String getAlias() {
     return alias;
   }
@@ -191,7 +185,7 @@ public class Record extends Base<Record> implements Serializable {
    */
   public Record setAlias(String alias) {
     if (this.alias != null)
-      throw new ModelException("Model alias only set once.");
+      throw new EntityException("Model alias only set once.");
     this.alias = alias;
     return this;
   }

@@ -4,7 +4,6 @@ import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.WebResult;
 import cn.dreampie.common.util.Maper;
-import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.route.core.annotation.*;
 import cn.dreampie.security.Principal;

@@ -1,7 +1,6 @@
 package cn.dreampie.orm;
 
 
-import cn.dreampie.log.Logger;
 import cn.dreampie.orm.exception.DBException;
 
 import java.math.BigDecimal;

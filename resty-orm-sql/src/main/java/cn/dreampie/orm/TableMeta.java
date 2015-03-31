@@ -13,7 +13,6 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 
 
 public class TableMeta implements Serializable {
-  private final static Logger logger = Logger.getLogger(TableMeta.class);
 
   private SortedMap<String, ColumnMeta> columnMetadata;
   private final String pKeys;

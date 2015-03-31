@@ -16,7 +16,6 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  * DS. Professional database query and update tool.
  */
 public class DS {
-  private static final Logger logger = Logger.getLogger(DS.class);
 
   public static final String DEFAULT_PRIMARY_KAY = "id";
   public static final Object[] NULL_PARA_ARRAY = new Object[0];

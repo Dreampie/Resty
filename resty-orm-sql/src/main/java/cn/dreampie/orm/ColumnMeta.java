@@ -43,7 +43,7 @@ public class ColumnMeta implements Serializable {
 
 
   public String toString() {
-    return "[ columnName=" + columnName
+    return "ColumnMeta:[ columnName=" + columnName
         + ", typeName=" + typeName
         + ", columnSize=" + columnSize
         + "]";

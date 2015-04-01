@@ -58,7 +58,7 @@ public abstract class CacheManager {
     }
     if (logger.isInfoEnabled()) {
       String message = "Cache purged: " + (event.getType() == CacheEvent.CacheEventType.ALL
-          ? "all caches" : "table: " + event.getGroup());
+          ? "all caches" : "group '" + event.getGroup() + "'");
       logger.info(message);
     }
   }

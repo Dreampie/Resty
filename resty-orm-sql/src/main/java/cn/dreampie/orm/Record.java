@@ -24,7 +24,7 @@ public class Record extends Base<Record> implements Serializable {
    * @param cached    是否启用缓存
    */
   public Record(String tableName, boolean cached) {
-    this(tableName, DS.DEFAULT_PRIMARY_KAY, false, cached);
+    this(tableName, Base.DEFAULT_PRIMARY_KAY, false, cached);
   }
 
   /**

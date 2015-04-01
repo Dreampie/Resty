@@ -9,10 +9,8 @@ import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.math.BigDecimal;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +26,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
 
   private static final Logger logger = Logger.getLogger(Base.class);
   private static final boolean devMode = Constant.devMode;
+  public static final String DEFAULT_PRIMARY_KAY = "id";
 
   /**
    * 获取当前实例数据表的元数据
@@ -74,6 +73,21 @@ public abstract class Base<M extends Base> extends Entity<M> {
    * @return Model
    */
   public abstract M useDS(String useDS);
+
+  /**
+   * 获取表的别名
+   *
+   * @return Alias
+   */
+  protected abstract String getAlias();
+
+  /**
+   * 设置表的别名
+   *
+   * @param alias 别名
+   * @return model
+   */
+  protected abstract M setAlias(String alias);
 
   /**
    * 从缓存中读取数据
@@ -127,6 +141,53 @@ public abstract class Base<M extends Base> extends Entity<M> {
       throw new DBException("The table name: " + tableName + " not in your sql.");
   }
 
+  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[] paras) throws SQLException {
+    PreparedStatement pst = conn.prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
+
+    for (int i = 0; i < paras.length; i++) {
+      pst.setObject(i + 1, paras[i]);
+    }
+    return pst;
+  }
+
+
+  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[][] paras) throws SQLException {
+    PreparedStatement pst = null;
+    String key = primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey;
+    String[] returnKeys = new String[paras.length];
+    for (int i = 0; i < paras.length; i++) {
+      returnKeys[i] = key;
+    }
+    pst = conn.prepareStatement(sql, returnKeys);
+    final int batchSize = 1000;
+    int count = 0;
+    for (int i = 0; i < paras.length; i++) {
+      for (int j = 0; j < paras[i].length; j++) {
+        pst.setObject(j + 1, paras[i][j]);
+      }
+      pst.addBatch();
+      if (++count % batchSize == 0) {
+        pst.executeBatch();
+      }
+    }
+    return pst;
+  }
+
+  private static Statement getPreparedStatement(Connection conn, List<String> sql) throws SQLException {
+    Statement stmt = null;
+
+    stmt = conn.createStatement();
+    final int batchSize = 1000;
+    int count = 0;
+    int size = sql.size();
+    for (int i = 0; i < size; i++) {
+      stmt.addBatch(sql.get(i));
+      if (++count % batchSize == 0) {
+        stmt.executeBatch();
+      }
+    }
+    return stmt;
+  }
 
   /**
    * Get id after save method.
@@ -191,7 +252,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     ResultSet rs = null;
     try {
       conn = dsm.getConnection();
-      pst = DS.getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, paras);
+      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, paras);
       rs = pst.executeQuery();
       result = BaseBuilder.build(rs, getClass(), dsm, tableMeta);
     } catch (SQLException e) {
@@ -315,7 +376,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     int result = 0;
     try {
       conn = dsm.getConnection();
-      pst = DS.getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, getModifyAttrValues());
+      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, getModifyAttrValues());
 
       result = pst.executeUpdate();
       getGeneratedKey(pst, tableMeta.getPrimaryKey());
@@ -380,7 +441,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
       if (autoCommit)
         conn.setAutoCommit(false);
 
-      pst = DS.getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, paras);
+      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, paras);
       result = pst.executeBatch();
       getGeneratedKey(pst, tableMeta.getPrimaryKey(), models);
       //没有事务的情况下 手动提交
@@ -404,18 +465,110 @@ public abstract class Base<M extends Base> extends Entity<M> {
     }
   }
 
-
-  //update  base
+  /**
+   * update sql
+   *
+   * @param sql   sql
+   * @param paras 参数
+   * @return boolean
+   */
   public boolean update(String sql, Object... paras) {
     TableMeta tableMeta = getTableMeta();
+    DataSourceMeta dsm = getDataSourceMeta();
     //清除缓存
     if (tableMeta.isCached()) {
       purgeCache();
     }
     if (devMode)
       checkTableName(tableMeta.getTableName(), sql);
-    int result = DS.useDS(tableMeta.getDsName()).update(sql, paras);
+
+    int result = -1;
+    Connection conn = null;
+    PreparedStatement pst = null;
+    try {
+      conn = dsm.getConnection();
+      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
+      result = pst.executeUpdate();
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage(), e);
+    } finally {
+      dsm.close(pst, conn);
+    }
     return result > 0;
+  }
+
+  /**
+   * Execute sql update
+   */
+  public boolean execute(String... sqls) {
+    return execute(Arrays.asList(sqls));
+  }
+
+  /**
+   * Execute a batch of SQL INSERT, UPDATE, or DELETE queries.
+   * int[] result = DbPro.use().batch("myConfig", sqlList, 500);
+   *
+   * @param sqls The SQL list to execute.
+   * @return The number of rows updated per statement
+   */
+  public boolean execute(List<String> sqls) {
+
+    Statement stmt = null;
+    int[] result = null;
+    Connection conn = null;
+    Boolean autoCommit = null;
+    DataSourceMeta dsm = getDataSourceMeta();
+    try {
+      conn = dsm.getConnection();
+      autoCommit = conn.getAutoCommit();
+      if (autoCommit)
+        conn.setAutoCommit(false);
+
+      stmt = getPreparedStatement(conn, sqls);
+      result = stmt.executeBatch();
+      //没有事务的情况下 手动提交
+      if (dsm.getCurrentConnection() == null)
+        conn.commit();
+      conn.setAutoCommit(autoCommit);
+
+      for (int r : result) {
+        if (r < 1) {
+          return false;
+        }
+      }
+      return true;
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage(), e);
+    } finally {
+      dsm.close(stmt, conn);
+    }
+  }
+
+  /**
+   * 调用存储过程
+   * int CallableStatement.executeUpdate: 存储过程不返回结果集。
+   * ResultSet CallableStatement.executeQuery: 存储过程返回一个结果集。
+   * Boolean CallableStatement.execute: 存储过程返回多个结果集。
+   * int[] CallableStatement.executeBatch: 提交批处理命令到数据库执行。
+   *
+   * @param sql    存储过程的sql
+   * @param inCall 执行请求  返回结果
+   * @param <T>    返回类型
+   * @return T
+   */
+  public <T> T call(String sql, InCall inCall) {
+    Connection conn = null;
+    CallableStatement cstmt = null;
+    DataSourceMeta dsm = getDataSourceMeta();
+    try {
+      conn = dsm.getConnection();
+      cstmt = conn.prepareCall(sql);
+      return (T) inCall.call(cstmt);
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage(), e);
+    } finally {
+      dsm.close(cstmt, conn);
+    }
   }
 
   /**
@@ -705,55 +858,6 @@ public abstract class Base<M extends Base> extends Entity<M> {
   }
 
   /**
-   * 返回不确定的数据类型
-   *
-   * @param sql   sql语句
-   * @param paras sql参数
-   * @param <T>   返回的数据类型
-   * @return List<T>
-   */
-  public <T> List<T> query(String sql, Object... paras) {
-    DataSourceMeta dsm = getDataSourceMeta();
-    TableMeta tableMeta = getTableMeta();
-    Dialect dialect = getDialect();
-
-    boolean cached = false;
-    boolean useCache = isUseCache();
-    List<T> result = new ArrayList<T>();
-    if (useCache) {
-      cached = tableMeta.isCached();
-      //hit cache
-      if (cached) {
-        result = getCache(sql, paras);
-      }
-    } else {
-      logger.debug("This query not use cache.");
-    }
-
-    if (result == null) {
-      result = DS.useDS(dsm.getDsName()).query(dialect.countWith(sql), paras);
-      //add cache
-      if (cached) {
-        addCache(sql, paras, result);
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Execute sql query and return the first result. I recommend add "limit 1" in your sql.
-   *
-   * @param sql   an SQL statement that may contain one or more '?' IN parameter placeholders
-   * @param paras the parameters of sql
-   * @return Object[] if your sql has select more than one column,
-   * and it return Object if your sql has select only one column.
-   */
-  public <T> T queryFirst(String sql, Object... paras) {
-    List<T> result = query(sql, paras);
-    return result.size() > 0 ? result.get(0) : null;
-  }
-
-  /**
    * COUNT 函数求和
    *
    * @return Long
@@ -772,18 +876,145 @@ public abstract class Base<M extends Base> extends Entity<M> {
   }
 
   /**
-   * 获取表的别名
+   * 返回不确定的数据类型
    *
-   * @return Alias
+   * @param sql   sql语句
+   * @param paras sql参数
+   * @param <T>   返回的数据类型
+   * @return List<T>
    */
-  protected abstract String getAlias();
+  public <T> List<T> query(String sql, Object... paras) {
+
+    boolean cached = false;
+    boolean useCache = isUseCache();
+    TableMeta tableMeta = getTableMeta();
+
+    List<T> result = null;
+    if (useCache) {
+      cached = tableMeta.isCached();
+      //hit cache
+      if (cached) {
+        result = getCache(sql, paras);
+        if (result != null) {
+          return result;
+        }
+      }
+    } else {
+      logger.debug("This query not use cache.");
+    }
+
+    DataSourceMeta dsm = getDataSourceMeta();
+    Connection conn = null;
+    PreparedStatement pst = null;
+    ResultSet rs = null;
+    result = new ArrayList<T>();
+    try {
+      conn = dsm.getConnection();
+      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
+      rs = pst.executeQuery();
+      int colAmount = rs.getMetaData().getColumnCount();
+      if (colAmount > 1) {
+        while (rs.next()) {
+          Object[] temp = new Object[colAmount];
+          for (int i = 0; i < colAmount; i++) {
+            temp[i] = rs.getObject(i + 1);
+          }
+          result.add((T) temp);
+        }
+      } else if (colAmount == 1) {
+        while (rs.next()) {
+          result.add((T) rs.getObject(1));
+        }
+      }
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage(), e);
+    } finally {
+      dsm.close(rs, pst, conn);
+    }
+    //add cache
+    if (cached) {
+      addCache(sql, paras, result);
+    }
+    return result;
+  }
 
   /**
-   * 设置表的别名
+   * Execute sql query and return the first result. I recommend add "limit 1" in your sql.
    *
-   * @param alias 别名
-   * @return model
+   * @param sql   an SQL statement that may contain one or more '?' IN parameter placeholders
+   * @param paras the parameters of sql
+   * @return Object[] if your sql has select more than one column,
+   * and it return Object if your sql has select only one column.
    */
-  protected abstract M setAlias(String alias);
+  public <T> T queryFirst(String sql, Object... paras) {
+    List<T> result = query(sql, paras);
+    return result.size() > 0 ? result.get(0) : null;
+  }
 
+  /**
+   * Execute sql query just return one column.
+   *
+   * @param <T>   the type of the column that in your sql's select statement
+   * @param sql   an SQL statement that may contain one or more '?' IN parameter placeholders
+   * @param paras the parameters of sql
+   * @return List<T>
+   */
+  public <T> T queryColumn(String sql, Object... paras) {
+    List<T> result = query(sql, paras);
+    if (result.size() > 0) {
+      T temp = result.get(0);
+      if (temp instanceof Object[])
+        throw new DBException("Only one column can be queried.");
+      return temp;
+    }
+    return null;
+  }
+
+  public String queryStr(String sql, Object... paras) {
+    return (String) queryColumn(sql, paras);
+  }
+
+  public Integer queryInt(String sql, Object... paras) {
+    return (Integer) queryColumn(sql, paras);
+  }
+
+  public Long queryLong(String sql, Object... paras) {
+    return (Long) queryColumn(sql, paras);
+  }
+
+  public Double queryDouble(String sql, Object... paras) {
+    return (Double) queryColumn(sql, paras);
+  }
+
+  public Float queryFloat(String sql, Object... paras) {
+    return (Float) queryColumn(sql, paras);
+  }
+
+  public BigDecimal queryBigDecimal(String sql, Object... paras) {
+    return (BigDecimal) queryColumn(sql, paras);
+  }
+
+  public byte[] queryBytes(String sql, Object... paras) {
+    return (byte[]) queryColumn(sql, paras);
+  }
+
+  public Date queryDate(String sql, Object... paras) {
+    return (Date) queryColumn(sql, paras);
+  }
+
+  public Time queryTime(String sql, Object... paras) {
+    return (Time) queryColumn(sql, paras);
+  }
+
+  public Timestamp queryTimestamp(String sql, Object... paras) {
+    return (Timestamp) queryColumn(sql, paras);
+  }
+
+  public Boolean queryBoolean(String sql, Object... paras) {
+    return (Boolean) queryColumn(sql, paras);
+  }
+
+  public Number queryNumber(String sql, Object... paras) {
+    return (Number) queryColumn(sql, paras);
+  }
 }

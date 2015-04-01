@@ -1,6 +1,6 @@
 package cn.dreampie.example;
 
-import cn.dreampie.orm.DS;
+import cn.dreampie.orm.InCall;
 import cn.dreampie.orm.Page;
 import cn.dreampie.orm.Record;
 import cn.dreampie.resource.user.model.User;
@@ -10,6 +10,9 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.sql.CallableStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Date;
 import java.util.List;
 
@@ -91,7 +94,7 @@ public class SqlTest {
     for (User user : users) {
       user.set("username", "testupdate").update();
     }
-    DS.use().update("UPDATE sec_user SET username='c' WHERE username='a'");
+    User.dao.update("UPDATE sec_user SET username='c' WHERE username='a'");
     Record recordDAO = new Record("sec_user", true);
     List<Record> records = recordDAO.findAll();
     int i = 0;
@@ -105,7 +108,7 @@ public class SqlTest {
   @Test
   public void testExcute() {
     //批量执行sql语句
-    DS.use().execute("UPDATE sec_user SET username='b' WHERE username='c'", "UPDATE sec_user SET username='x' WHERE username='test'");
+    User.dao.execute("UPDATE sec_user SET username='b' WHERE username='c'", "UPDATE sec_user SET username='x' WHERE username='test'");
   }
 
 
@@ -129,7 +132,7 @@ public class SqlTest {
 
 //  @Test
 //  public void testProcess() {
-//    DS.use().call("{CALL PROCESS(?,?)}", new InCall() {
+//    User.dao.call("{CALL PROCESS(?,?)}", new InCall() {
 //      public Object call(CallableStatement cstmt) throws SQLException {
 //        cstmt.setInt(1, 1);
 //        cstmt.registerOutParameter(2, Types.BIGINT);

@@ -1,6 +1,5 @@
 package cn.dreampie.resource.user.model;
 
-import cn.dreampie.orm.DS;
 import cn.dreampie.orm.Model;
 import cn.dreampie.orm.annotation.Table;
 
@@ -29,7 +28,7 @@ public class User extends Model<User> {
   public Long getRoleId() {
     if (this.get("role_id") == null) {
       String sql = "SELECT user_role.role_id FROM sec_user_role user_role WHERE user_role.user_id=?";
-      this.put("role_id", DS.use().queryLong(sql, this.get("id")));
+      this.put("role_id", queryLong(sql, this.get("id")));
     }
     return this.get("role_id");
   }
@@ -37,7 +36,7 @@ public class User extends Model<User> {
   public List<String> getPermissions() {
     if (this.get("permissions") == null) {
       String sql = "SELECT permission.value FROM sec_permission permission WHERE permission.id in(SELECT rolePermission.permission_id FROM sec_role_permission rolePermission WHERE rolePermission.role_id=?)";
-      this.put("permissions", DS.use().query(sql, getRoleId()));
+      this.put("permissions", query(sql, getRoleId()));
     }
     return this.get("permissions");
   }
@@ -45,7 +44,7 @@ public class User extends Model<User> {
   public List<Long> getPermissionIds() {
     if (this.get("permission_ids") == null) {
       String sql = "SELECT permission.id FROM sec_permission permission WHERE permission.id in(SELECT rolePermission.permission_id FROM sec_role_permission rolePermission WHERE rolePermission.role_id=?)";
-      this.put("permission_ids", DS.use().query(sql, getRoleId()));
+      this.put("permission_ids", query(sql, getRoleId()));
     }
     return this.get("permission_ids");
   }

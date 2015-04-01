@@ -2,8 +2,8 @@ package cn.dreampie.route;
 
 
 import cn.dreampie.common.Plugin;
-import cn.dreampie.log.Logger;
 import cn.dreampie.route.config.*;
+import cn.dreampie.route.exception.PluginException;
 
 import java.util.List;
 
@@ -14,56 +14,59 @@ public class ConfigIniter {
   private static final PluginLoader PLUGIN_LOADER = new PluginLoader();
   private static final InterceptorLoader INTERCEPTOR_LOADER = new InterceptorLoader();
   private static final HandlerLoader HANDLER_LOADER = new HandlerLoader();
-  private static final Logger logger = Logger.getLogger(ConfigIniter.class);
 
-  // prevent new Config();
-  private ConfigIniter() {
-  }
-
-  /*
-   * Config order: constant, route, plugin, interceptor, handler
-   */
-  static void config(Config config) {
+  public ConfigIniter(Config config) {
     config.configConstant(CONSTANT_LOADER);
-    config.configResource(RESOURCE_LOADER);
     config.configPlugin(PLUGIN_LOADER);
-    startPlugins();  // very important!!!
+    startPlugins();//must start plugin before init other
+    config.configResource(RESOURCE_LOADER);
+    buildRrsource();//scan  resource class
     config.configInterceptor(INTERCEPTOR_LOADER);
     config.configHandler(HANDLER_LOADER);
   }
 
-  public static ConstantLoader getConstantLoader() {
+  public ConstantLoader getConstantLoader() {
     return CONSTANT_LOADER;
   }
 
-  public static ResourceLoader getResourceLoader() {
+  public ResourceLoader getResourceLoader() {
     return RESOURCE_LOADER;
   }
 
-  public static PluginLoader getPluginLoader() {
+  public PluginLoader getPluginLoader() {
     return PLUGIN_LOADER;
   }
 
-  public static InterceptorLoader getInterceptorLoader() {
+  public InterceptorLoader getInterceptorLoader() {
     return INTERCEPTOR_LOADER;
   }
 
-  public static HandlerLoader getHandlerLoader() {
+  public HandlerLoader getHandlerLoader() {
     return HANDLER_LOADER;
   }
 
-  private static void startPlugins() {
-    List<Plugin> pluginList = PLUGIN_LOADER.getPluginList();
-    if (pluginList == null)
-      return;
+  public void buildRrsource() {
+    RESOURCE_LOADER.build();
+  }
 
-    for (Plugin plugin : pluginList) {
-      try {
+  public void startPlugins() {
+    List<Plugin> plugins = PLUGIN_LOADER.getPlugins();
+    if (plugins != null) {
+      for (Plugin plugin : plugins) {
         if (!plugin.start()) {
-          logger.error("Plugin start error: " + plugin.getClass().getName());
+          throw new PluginException("Plugin start error: " + plugin.getClass().getName());
         }
-      } catch (Exception e) {
-        logger.error("Plugin start error: " + plugin.getClass().getName() + ". \n" + e.getMessage(), e);
+      }
+    }
+  }
+
+  public void stopPlugins() {
+    List<Plugin> plugins = PLUGIN_LOADER.getPlugins();
+    if (plugins != null) {
+      for (Plugin plugin : plugins) {
+        if (!plugin.stop()) {
+          throw new PluginException("Plugin stop error: " + plugin.getClass().getName());
+        }
       }
     }
   }

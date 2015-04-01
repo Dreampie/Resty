@@ -11,15 +11,15 @@ import java.util.List;
  */
 final public class PluginLoader {
 
-  private final List<Plugin> pluginList = new ArrayList<Plugin>();
+  private final List<Plugin> plugins = new ArrayList<Plugin>();
 
   public PluginLoader add(Plugin plugin) {
     if (plugin != null)
-      this.pluginList.add(plugin);
+      this.plugins.add(plugin);
     return this;
   }
 
-  public List<Plugin> getPluginList() {
-    return pluginList;
+  public List<Plugin> getPlugins() {
+    return plugins;
   }
 }

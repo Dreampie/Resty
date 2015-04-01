@@ -4,6 +4,7 @@ import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.exception.DBException;
 
+import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -25,17 +26,31 @@ public class TableMetaBuilder {
       conn = dsm.getDataSource().getConnection();
       for (TableMeta tableMeta : tableMetas) {
         temp = tableMeta;
-        tableMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
+        temp.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
         //添加到model元数据集合
-        Metadata.addTableMeta(tableMeta);
+        Metadata.addTableMeta(temp);
       }
     } catch (Exception e) {
-      if (temp != null)
-        throw new DBException("Could not create Table object, maybe the table " + temp.getTableName() + " is not exists.", e);
+      logAcess(dsm, temp, e);
     } finally {
       dsm.close(conn);
     }
     return tableMetas;
+  }
+
+  private static void logAcess(DataSourceMeta dsm, TableMeta temp, Exception e) {
+    String message = null;
+    Throwable throwable = e.getCause();
+    if (throwable instanceof ConnectException) {
+      message = "Could not connect dataSource for name '" + dsm.getDsName() + "'";
+    } else {
+      if (temp != null) {
+        message = "Could not create table object, maybe the table " + temp.getTableName() + " is not exists.";
+      } else {
+        message = throwable.getMessage();
+      }
+    }
+    throw new DBException(message, throwable);
   }
 
   public static TableMeta buildModel(TableMeta tableMeta, DataSourceMeta dsm) {
@@ -46,8 +61,7 @@ public class TableMetaBuilder {
       //添加到record元数据集合
       Metadata.addTableMeta(tableMeta);
     } catch (Exception e) {
-      if (tableMeta != null)
-        throw new DBException("Could not create Table object, maybe the table " + tableMeta.getTableName() + " is not exists.", e);
+      logAcess(dsm, tableMeta, e);
     } finally {
       dsm.close(conn);
     }

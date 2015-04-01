@@ -25,15 +25,14 @@ import java.util.Set;
  */
 public final class RestyFilter implements Filter {
 
+  private static final Logger logger = Logger.getLogger(RestyFilter.class);
+
+  private RestyIniter restyIniter;
   private Handler handler;
   private String encoding = Constant.encoding;
-  private Config config;
   public static final String PARAM_NAME_CONFIGCLASS = "configClass";
   public static final String PARAM_NAME_EXCLUSIONS = "exclusions";
   private Set<String> excludesPattern;
-
-  private static final RestyIniter restyIniter = RestyIniter.instance();
-  private static final Logger logger = Logger.getLogger(RestyFilter.class);
 
   public void init(FilterConfig filterConfig) throws ServletException {
     {
@@ -42,19 +41,25 @@ public final class RestyFilter implements Filter {
         excludesPattern = new HashSet<String>(Arrays.asList(exclusions.split("\\s*,\\s*")));
       }
     }
-    createConfig(filterConfig.getInitParameter(PARAM_NAME_CONFIGCLASS));
-
-    if (!restyIniter.init(config, filterConfig.getServletContext()))
-      throw new InitException("Resty init error!");
-
-    handler = restyIniter.getHandler();
+    try {
+      Config config = createConfig(filterConfig.getInitParameter(PARAM_NAME_CONFIGCLASS));
+      restyIniter = new RestyIniter(config, filterConfig.getServletContext());
+      handler = restyIniter.getHandler();
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+    }
   }
 
+  /**
+   * 判断是否是需要排除的请求
+   *
+   * @param requestURI 请求uri
+   * @return boolean
+   */
   public boolean isExclusion(String requestURI) {
     if (excludesPattern == null) {
       return false;
     }
-
     for (String pattern : excludesPattern) {
       if (AntPathMatcher.instance().matches(pattern, requestURI)) {
         return true;
@@ -75,7 +80,6 @@ public final class RestyFilter implements Filter {
     boolean[] isHandled = {false};
     //排除的参数
     if (!isExclusion(request.getRestPath())) {
-
       try {
         handler.handle(request, response, isHandled);
       } catch (WebException e) {
@@ -97,11 +101,21 @@ public final class RestyFilter implements Filter {
   }
 
   public void destroy() {
-    config.beforeStop();
-    restyIniter.stopPlugins();
+    try {
+      restyIniter.stop();
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+    }
   }
 
-  private void createConfig(String configClass) {
+  /**
+   * 读取配置类
+   *
+   * @param configClass class地址
+   * @return Config
+   */
+  private Config createConfig(String configClass) {
+    Config config = null;
     if (configClass != null) {
       Object temp = null;
       try {
@@ -109,15 +123,15 @@ public final class RestyFilter implements Filter {
       } catch (Exception e) {
         throw new InitException("Could not create instance of class: " + configClass, e);
       }
-
-      if (temp instanceof Config)
+      if (temp instanceof Config) {
         config = (Config) temp;
-      else
-        throw new InitException("Could not create instance of class: " + configClass + ". Please check the config in web.xml");
+      } else {
+        throw new InitException("Could not create instance of class: " + configClass + ". Please check the init in web.xml");
+      }
     } else {
       config = new Config();
-      logger.warn("Could not found config and start in no config.");
+      logger.warn("Could not found init and start in no init.");
     }
-
+    return config;
   }
 }

@@ -24,7 +24,6 @@ public class ActiveRecordPlugin implements Plugin {
 
   private DataSourceProvider dataSourceProvider;
   private String dsName;
-  private List<TableMeta> tableMetas;
   private boolean showSql = false;
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
@@ -90,7 +89,7 @@ public class ActiveRecordPlugin implements Plugin {
 
     DataSourceMeta dsm = new DataSourceMeta(dsName, dataSourceProvider, showSql);
     if (includeClasses.size() > 0) {
-      tableMetas = new ArrayList<TableMeta>();
+      List<TableMeta> tableMetas = new ArrayList<TableMeta>();
       TableMeta tableMeta = null;
       for (Class<? extends Model> modelClass : includeClasses) {
         boolean isexclude = false;

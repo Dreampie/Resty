@@ -106,7 +106,7 @@ public abstract class Entity<M extends Entity> {
    * @return this Model
    */
   public M setAttrs(M entity) {
-    return setAttrs(entity.getAttrs());
+    return (M)setAttrs(entity.getAttrs());
   }
 
   public M putAttrs(Map<String, Object> attrs) {
@@ -121,7 +121,7 @@ public abstract class Entity<M extends Entity> {
    * @param entity the entity
    */
   public M putAttrs(M entity) {
-    return putAttrs(entity.getAttrs());
+    return (M)putAttrs(entity.getAttrs());
   }
 
 

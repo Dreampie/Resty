@@ -41,7 +41,7 @@ public class SqlTest {
       userInfo.save();
     }
 
-    Record recordDAO = Record.use("sec_user");
+    Record recordDAO = new Record("sec_user", true);
     recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date()).save();
     Record r1 = recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
     Record r2 = recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
@@ -59,7 +59,7 @@ public class SqlTest {
       System.out.println(user.get("username"));
     }
 
-    Record recordDAO = Record.use("sec_user");
+    Record recordDAO = new Record("sec_user", true);
     List<Record> records = recordDAO.findAll();
     for (Record r : records) {
       System.out.println(r.get("username"));
@@ -76,7 +76,7 @@ public class SqlTest {
     for (User user : users.getList()) {
       System.out.println(user.get("username"));
     }
-    Record recordDAO = Record.use("sec_user");
+    Record recordDAO = new Record("sec_user", true);
     Page<Record> records = recordDAO.paginate(1, 10, "SELECT * FROM sec_user");
     for (Record record : records.getList()) {
       System.out.println(record.get("username"));
@@ -92,7 +92,7 @@ public class SqlTest {
       user.set("username", "testupdate").update();
     }
     DS.use().update("UPDATE sec_user SET username='c' WHERE username='a'");
-    Record recordDAO = Record.use("sec_user");
+    Record recordDAO = new Record("sec_user", true);
     List<Record> records = recordDAO.findAll();
     int i = 0;
     for (Record record : records) {
@@ -123,7 +123,7 @@ public class SqlTest {
       user.delete();
       i++;
     }
-    Record recordDAO = Record.use("sec_user");
+    Record recordDAO = new Record("sec_user", true);
     recordDAO.deleteById("1");
   }
 

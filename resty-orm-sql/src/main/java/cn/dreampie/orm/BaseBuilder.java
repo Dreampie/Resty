@@ -29,7 +29,7 @@ public class BaseBuilder {
     Object value;
     while (rs.next()) {
       if (Record.class.isAssignableFrom(modelClass)) {
-        entity = Record.useDS(dataSourceMeta, tableMeta);
+        entity = new Record(dataSourceMeta, tableMeta);
       } else {
         entity = modelClass.newInstance();
       }

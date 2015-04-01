@@ -21,9 +21,9 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
 Record的时代已经到来，你完全不用使用任何的model来执行你的数据
 ```java
-//使用use和useDS 方法来创建record的执行器  针对sec_user表
-Record recordDAO = Record.use("sec_user");
-//new 一个对象来保存数据
+//创建record的执行器  针对sec_user表 并开启缓存
+Record recordDAO = new Record("sec_user",true);
+//使用当前数据源和表数据 new一个对象来保存数据
 recordDAO.reNew().set("属性", "值").save();
 Record r1 = recordDAO.reNew().set("属性", "值");
 Record r2 = recordDAO.reNew().set("属性", "值");

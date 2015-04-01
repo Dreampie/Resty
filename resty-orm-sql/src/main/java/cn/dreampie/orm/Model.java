@@ -15,14 +15,19 @@ public abstract class Model<M extends Model> extends Base<M> implements Serializ
   private String useDS = null;
   private String alias;
 
+  /**
+   * 是否使用缓存
+   *
+   * @return boolean
+   */
   public boolean isUseCache() {
     return useCache;
   }
 
   private M instance(String useDS, boolean useCache) {
-    M instance = null;
+    Model instance = null;
     try {
-      instance = (M) getClass().newInstance();
+      instance = getClass().newInstance();
       instance.useDS = useDS;
       instance.useCache = useCache;
     } catch (InstantiationException e) {
@@ -30,9 +35,14 @@ public abstract class Model<M extends Model> extends Base<M> implements Serializ
     } catch (IllegalAccessException e) {
       throw new EntityException(e);
     }
-    return instance;
+    return (M) instance;
   }
 
+  /**
+   * 本次操作不使用缓存
+   *
+   * @return Model对象
+   */
   public M unCache() {
     if (this.useDS != null) {
       this.useCache = false;
@@ -46,6 +56,12 @@ public abstract class Model<M extends Model> extends Base<M> implements Serializ
     }
   }
 
+  /**
+   * 本次操作使用新数据源
+   *
+   * @param useDS 数据源名称
+   * @return Model对象
+   */
   public M useDS(String useDS) {
     checkNotNull(useDS, "DataSourceName could not be null.");
     if (!this.useCache) {

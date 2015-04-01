@@ -16,31 +16,34 @@ public class Record extends Base<Record> implements Serializable {
   private boolean useCache = true;
   protected String alias;
 
-  public boolean isUseCache() {
-    return useCache;
-  }
-
   private Record() {
   }
 
-  public static Record use(String tableName) {
-    return Record.use(tableName, false);
+  /**
+   * @param tableName 表名
+   * @param cached    是否启用缓存
+   */
+  public Record(String tableName, boolean cached) {
+    this(tableName, DS.DEFAULT_PRIMARY_KAY, false, cached);
   }
 
-  public static Record use(String tableName, boolean cached) {
-    return Record.use(tableName, DS.DEFAULT_PRIMARY_KAY, false, cached);
+  /**
+   * @param tableName 表名
+   * @param pKeys     主键id，多主键使用逗号分割 自增主键放在第一位
+   * @param cached    是否使用缓存
+   */
+  public Record(String tableName, String pKeys, boolean cached) {
+    this(tableName, pKeys, false, cached);
   }
 
-  public static Record use(String tableName, String pKeys) {
-    return Record.use(tableName, pKeys, false);
-  }
-
-  public static Record use(String tableName, String pKeys, boolean lockKey) {
-    return Record.use(tableName, pKeys, lockKey, false);
-  }
-
-  public static Record use(String tableName, String pKeys, boolean lockKey, boolean cached) {
-    return Record.useDS(Metadata.getDefaultDsName(), tableName, pKeys, lockKey, cached);
+  /**
+   * @param tableName 表名
+   * @param pKeys     主键id，多主键使用逗号分割 自增主键放在第一位
+   * @param lockKey   更新操作是是否是要求使用全部主键条件
+   * @param cached    是否使用缓存
+   */
+  public Record(String tableName, String pKeys, boolean lockKey, boolean cached) {
+    this(Metadata.getDefaultDsName(), tableName, pKeys, lockKey, cached);
   }
 
   /**
@@ -48,26 +51,22 @@ public class Record extends Base<Record> implements Serializable {
    *
    * @param dsName    数据源名称
    * @param tableName 表名
-   * @return Record执行对象
+   * @param pKeys     主键id，多主键使用逗号分割 自增主键放在第一位
+   * @param cached    是否使用缓存
    */
-  public static Record useDS(String dsName, String tableName) {
-    return Record.useDS(dsName, tableName, false);
+  public Record(String dsName, String tableName, String pKeys, boolean cached) {
+    this(dsName, tableName, pKeys, false, cached);
   }
 
-  public static Record useDS(String dsName, String tableName, boolean cached) {
-    return Record.useDS(dsName, tableName, DS.DEFAULT_PRIMARY_KAY, false, cached);
-  }
-
-  public static Record useDS(String dsName, String tableName, String pKeys) {
-    return Record.useDS(dsName, tableName, pKeys, false);
-  }
-
-  public static Record useDS(String dsName, String tableName, String pKeys, boolean lockKey) {
-    return Record.useDS(dsName, tableName, pKeys, lockKey, false);
-  }
-
-  public static Record useDS(String dsName, String tableName, String pKeys, boolean lockKey, boolean cached) {
-    return Record.useDS(Metadata.getDataSourceMeta(dsName), tableName, pKeys, lockKey, cached);
+  /**
+   * @param dsName    数据源名称
+   * @param tableName 表名
+   * @param pKeys     主键id，多主键使用逗号分割 自增主键放在第一位
+   * @param lockKey   更新操作是是否是要求使用全部主键条件
+   * @param cached    是否使用缓存
+   */
+  public Record(String dsName, String tableName, String pKeys, boolean lockKey, boolean cached) {
+    this(Metadata.getDataSourceMeta(dsName), tableName, pKeys, lockKey, cached);
   }
 
   /**
@@ -76,45 +75,50 @@ public class Record extends Base<Record> implements Serializable {
    * @param pKeys          主键id通过逗号拼接
    * @param lockKey        是否在更新的时候 要求必须使用全部主键
    * @param cached         使用对数据缓存
-   * @return Record执行对象
    */
-  public static Record useDS(DataSourceMeta dataSourceMeta, String tableName, String pKeys, boolean lockKey, boolean cached) {
+  public Record(DataSourceMeta dataSourceMeta, String tableName, String pKeys, boolean lockKey, boolean cached) {
     checkNotNull(dataSourceMeta, "Could not found dataSourceMeta.");
     checkNotNull(tableName, "Could not found tableName.");
-    Record record = new Record();
-    record.dataSourceMeta = dataSourceMeta;
+    this.dataSourceMeta = dataSourceMeta;
     String dsName = dataSourceMeta.getDsName();
     if (Metadata.hasTableMeta(dsName, tableName)) {
-      record.tableMeta = Metadata.getTableMeta(dsName, tableName);
+      this.tableMeta = Metadata.getTableMeta(dsName, tableName);
     } else {
-      record.tableMeta = TableMetaBuilder.buildModel(new TableMeta(dsName, tableName, pKeys, lockKey, cached), dataSourceMeta);
+      this.tableMeta = TableMetaBuilder.buildModel(new TableMeta(dsName, tableName, pKeys, lockKey, cached), dataSourceMeta);
     }
-    return record;
   }
 
-  public static Record useDS(DataSourceMeta dataSourceMeta, TableMeta tableMeta) {
-    Record record = new Record();
-    record.dataSourceMeta = dataSourceMeta;
-    record.tableMeta = tableMeta;
+  /**
+   * @param dataSourceMeta 数据源的元数据
+   * @param tableMeta      数据表的元数据
+   */
+  public Record(DataSourceMeta dataSourceMeta, TableMeta tableMeta) {
+    this.dataSourceMeta = dataSourceMeta;
+    this.tableMeta = tableMeta;
+  }
+
+  public Record reNew() {
+    return new Record(dataSourceMeta, tableMeta);
+  }
+
+  private Record instance(String useDS, boolean useCache) {
+    Record record;
+    if (useDS != null && !dataSourceMeta.getDsName().equals(useDS)) {
+      record = new Record(Metadata.getDataSourceMeta(useDS), tableMeta);
+    } else {
+      record = new Record(dataSourceMeta, tableMeta);
+    }
+    record.useCache = useCache;
     return record;
   }
 
   /**
-   * create new record
+   * 是否使用缓存
    *
-   * @return Record
+   * @return boolean
    */
-  public Record reNew() {
-    return Record.useDS(dataSourceMeta, tableMeta);
-  }
-
-  private Record instance(String useDS, boolean useCache) {
-    Record record = reNew();
-    if (useDS != null && !dataSourceMeta.getDsName().equals(useDS)) {
-      record.dataSourceMeta = Metadata.getDataSourceMeta(useDS);
-    }
-    record.useCache = useCache;
-    return record;
+  public boolean isUseCache() {
+    return useCache;
   }
 
   /**

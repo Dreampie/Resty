@@ -325,7 +325,7 @@ public class MultipartRequest {
   public String getFilesystemName(String name) {
     try {
       UploadedFile file = files.get(name);
-      return file.getFilesystemName();  // may be null
+      return file.getFileName();  // may be null
     } catch (Exception e) {
       return null;
     }

@@ -74,7 +74,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
         //如果已经是返回类型 不再处理
         if (!returnType.isAssignableFrom(obj.getClass())) {
           //如果是String类型
-          if (String.class.isAssignableFrom(returnType)) {
+          if (String.class == returnType) {
             map.put(key, obj.toString());
           } else {
             //判断是不是包含 Entity类型
@@ -101,7 +101,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                       map.put(key, newlist);
                     } else {
                       blist = (JSONArray) obj;
-                      if (String.class.isAssignableFrom(returnTypeClass)) {
+                      if (String.class == returnTypeClass) {
                         newblist = new ArrayList<String>();
                         for (Object e : blist) {
                           ((List<String>) newblist).add(e.toString());
@@ -109,7 +109,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                       } else {
                         newblist = new ArrayList<Object>();
                         for (Object e : blist) {
-                          if (e.getClass().isAssignableFrom(returnTypeClass))
+                          if (returnTypeClass.isAssignableFrom(e.getClass()))
                             ((List<Object>) newblist).add(e);
                           else
                             ((List<Object>) newblist).add(Jsoner.parseObject(Jsoner.toJSONString(e), returnTypeClass));
@@ -129,7 +129,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                       map.put(key, newset);
                     } else {
                       bset = (JSONArray) obj;
-                      if (String.class.isAssignableFrom(returnTypeClass)) {
+                      if (String.class == returnTypeClass) {
                         newbset = new HashSet<String>();
                         for (Object e : bset) {
                           ((Set<String>) newbset).add(e.toString());
@@ -137,7 +137,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                       } else {
                         newbset = new HashSet<Object>();
                         for (Object e : bset) {
-                          if (e.getClass().isAssignableFrom(returnTypeClass))
+                          if (returnTypeClass.isAssignableFrom(e.getClass()))
                             ((Set<Object>) newbset).add(e);
                           else
                             ((Set<Object>) newbset).add(Jsoner.parseObject(Jsoner.toJSONString(e), returnTypeClass));

@@ -4,10 +4,13 @@ package cn.dreampie.route.core;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
+import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.log.Logger;
+import cn.dreampie.route.core.multipart.MultipartBuilder;
+import cn.dreampie.route.core.multipart.MultipartParam;
 import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
@@ -51,12 +54,14 @@ public class Route {
   private final Validator[] validators;
   private final int[][] validsLineNumbers;
 
-  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Validator[] validators) {
+  private final MultipartBuilder multipartBuilder;
+
+  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Validator[] validators, MultipartBuilder multipartBuilder) {
     this.resourceClass = resourceClass;
     this.httpMethod = checkNotNull(httpMethod);
     this.pathPattern = checkNotNull(pathPattern);
     this.method = method;
-
+    this.multipartBuilder = multipartBuilder;
     this.interceptors = interceptors;
 
     this.allParamNames = paramAttribute.getNames();
@@ -168,13 +173,26 @@ public class Route {
     //otherParams
     Map<String, List<String>> otherParams = request.getQueryParams();
 
-    //print match route
-    printMatchRoute(params, otherParams);
+    //有文件上传
+    MultipartParam multipartParam = null;
+    if (multipartBuilder != null) {
+      multipartParam = multipartBuilder.readMultipart(request);
+    }
 
-    return new RouteMatch(pathPattern, restPath, extension, params, otherParams, request, response);
+    RouteMatch routeMatch = null;
+    //print match route
+    if (multipartParam != null) {
+      otherParams.putAll(multipartParam.getParameters());
+      printMatchRoute(params, otherParams, multipartParam.getUploadedFiles());
+      routeMatch = new RouteMatch(pathPattern, restPath, extension, params, otherParams, multipartParam.getUploadedFiles(), request, response);
+    } else {
+      printMatchRoute(params, otherParams, null);
+      routeMatch = new RouteMatch(pathPattern, restPath, extension, params, otherParams, null, request, response);
+    }
+    return routeMatch;
   }
 
-  private void printMatchRoute(Map<String, String> params, Map<String, List<String>> otherParams) {
+  private void printMatchRoute(Map<String, String> params, Map<String, List<String>> otherParams, Map<String, UploadedFile> fileParams) {
     if (Constant.showRoute && logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
@@ -190,8 +208,8 @@ public class Route {
         }
       }
       //print otherParams
-      sb.append("\nOtherParas   : ");
       if (otherParams != null) {
+        sb.append("\nOtherParas   : ");
         List<String> values;
         for (String key : otherParams.keySet()) {
           values = otherParams.get(key);
@@ -205,6 +223,18 @@ public class Route {
           sb.append("  ");
         }
       }
+
+      //print fileParams
+      if (fileParams != null) {
+        sb.append("\nFileParas    : ");
+        UploadedFile value;
+        for (String key : fileParams.keySet()) {
+          value = fileParams.get(key);
+          sb.append(key).append("=").append(value.getOriginalFileName()).append("(").append(value.getContentType()).append(")");
+          sb.append("  ");
+        }
+      }
+
       if (interceptors != null && interceptors.length > 0) {
         sb.append("\nInterceptors : ");
         int i = 0;
@@ -284,6 +314,10 @@ public class Route {
 
   public Validator[] getValidators() {
     return validators;
+  }
+
+  public MultipartBuilder getMultipartBuilder() {
+    return multipartBuilder;
   }
 
   // here comes the path pattern parsing logic

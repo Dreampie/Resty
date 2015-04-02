@@ -5,6 +5,8 @@ import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.route.config.InterceptorLoader;
 import cn.dreampie.route.config.ResourceLoader;
 import cn.dreampie.route.core.annotation.*;
+import cn.dreampie.route.core.multipart.FILE;
+import cn.dreampie.route.core.multipart.MultipartBuilder;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.interceptor.InterceptorBuilder;
 import cn.dreampie.route.valid.Validator;
@@ -41,6 +43,8 @@ public final class RouteBuilder {
     Interceptor[] defaultInters = interceptorLoader.getInterceptorArray();
     interceptorBuilder.addToInterceptorsMap(defaultInters);
 
+    //文件上传的注解
+    FILE file = null;
     DELETE delete = null;
     GET get = null;
     POST post = null;
@@ -49,6 +53,8 @@ public final class RouteBuilder {
     PATCH patch = null;
     String apiPath = "";
 
+    //文件上传构建器
+    MultipartBuilder multipartBuilder = null;
     Interceptor[] methodInters;
     //当前路由所有的拦截器 包括resource的和method的
     Interceptor[] routeInters;
@@ -78,51 +84,66 @@ public final class RouteBuilder {
         methodInters = interceptorBuilder.buildMethodInterceptors(method);
         routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
 
+        //文件上传 构建器
+        file = method.getAnnotation(FILE.class);
+        if (file != null) {
+          multipartBuilder = new MultipartBuilder(file.dir(), file.max(), file.encoding(), file.denieds());
+        } else {
+          multipartBuilder = null;
+        }
+
+        //delete 请求
         delete = method.getAnnotation(DELETE.class);
         if (delete != null) {
           validClasses = delete.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters, delete.des(), validators));
+          addRoute(new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters,
+              delete.des(), validators, multipartBuilder));
           continue;
         }
-
+        //get 请求
         get = method.getAnnotation(GET.class);
         if (get != null) {
           validClasses = get.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters, get.des(), validators));
+          addRoute(new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters,
+              get.des(), validators, multipartBuilder));
           continue;
         }
-
+        //post 请求
         post = method.getAnnotation(POST.class);
         if (post != null) {
           validClasses = post.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters, post.des(), validators));
+          addRoute(new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters,
+              post.des(), validators, multipartBuilder));
           continue;
         }
-
+        //put 请求
         put = method.getAnnotation(PUT.class);
         if (put != null) {
           validClasses = put.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters, put.des(), validators));
+          addRoute(new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters,
+              put.des(), validators, multipartBuilder));
           continue;
         }
-
+        //head 请求
         head = method.getAnnotation(HEAD.class);
         if (head != null) {
           validClasses = head.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters, head.des(), validators));
+          addRoute(new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters,
+              head.des(), validators, multipartBuilder));
           continue;
         }
-
+        //patch 请求
         patch = method.getAnnotation(PATCH.class);
         if (patch != null) {
           validClasses = patch.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters, patch.des(), validators));
+          addRoute(new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters,
+              patch.des(), validators, multipartBuilder));
           continue;
         }
       }

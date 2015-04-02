@@ -3,6 +3,7 @@ package cn.dreampie.route.core;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpStatus;
+import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.json.Jsoner;
@@ -56,12 +57,14 @@ public class RouteInvocation {
     else if (index++ == interceptors.length) {
       Resource resource = null;
       try {
+        //初始化resource
         resource = route.getResourceClass().newInstance();
         resource.setRouteMatch(routeMatch);
+
         //获取所有参数
         Params params = null;
-        //if use application/json to post
         HttpRequest request = routeMatch.getRequest();
+        //if use application/json to post
         //判断是否是application/json 传递数据的
         String contentType = request.getContentType();
         if (contentType != null && contentType.toLowerCase().contains(HttpTyper.ContentType.JSON.value())) {
@@ -69,6 +72,7 @@ public class RouteInvocation {
         } else {
           params = getFormParams();
         }
+
 
         //数据验证
         validate(params);
@@ -126,6 +130,33 @@ public class RouteInvocation {
   }
 
   /**
+   * 转换string类型参数
+   *
+   * @param params
+   * @param i
+   * @param paramType
+   * @param valueArr
+   * @param name
+   */
+  private void parseString(Params params, int i, Class paramType, List<String> valueArr, String name) {
+    String value;
+    Object obj;
+    if (valueArr != null && valueArr.size() > 0) {
+      //不支持数组参数
+      value = valueArr.get(0);
+      if (paramType == String.class) {
+        params.set(name, value);
+      } else {
+        obj = Jsoner.parseObject(value, paramType);
+        //转换为对应的对象类型
+        parse(params, i, paramType, obj, name);
+      }
+    } else {
+      params.set(name, null);
+    }
+  }
+
+  /**
    * 获取所有的请求参数
    *
    * @return 所有参数
@@ -141,6 +172,11 @@ public class RouteInvocation {
 
     Object obj = null;
 
+    //判断范型类型
+    Type[] typeArguments;
+
+    Class keyTypeClass;
+    Class valueTypeClass;
     for (String name : allParamNames) {
       paramType = route.getAllParamTypes().get(i);
 
@@ -151,19 +187,26 @@ public class RouteInvocation {
         } else
           params.set(name, Jsoner.parseObject(routeMatch.getPathParam(name), paramType));
       } else {//其他参数
-        valueArr = routeMatch.getOtherParam(name);
-        if (valueArr != null && valueArr.size() > 0) {
-          //不支持数组参数
-          value = valueArr.get(0);
-          if (paramType == String.class) {
-            params.set(name, value);
+        if (paramType == UploadedFile.class) {
+          params.set(name, routeMatch.getFileParam(name));
+        } else if (paramType == Map.class) {
+          typeArguments = ((ParameterizedType) route.getAllGenericParamTypes().get(i)).getActualTypeArguments();
+          if (typeArguments.length >= 2) {
+            keyTypeClass = (Class) typeArguments[0];
+            valueTypeClass = (Class) typeArguments[1];
+            if (keyTypeClass == String.class && valueTypeClass == UploadedFile.class) {
+              params.set(name, routeMatch.getFileParams());
+            } else {
+              valueArr = routeMatch.getOtherParam(name);
+              parseString(params, i, paramType, valueArr, name);
+            }
           } else {
-            obj = Jsoner.parseObject(value, paramType);
-            //转换为对应的对象类型
-            parse(params, i, paramType, obj, name);
+            valueArr = routeMatch.getOtherParam(name);
+            parseString(params, i, paramType, valueArr, name);
           }
         } else {
-          params.set(name, null);
+          valueArr = routeMatch.getOtherParam(name);
+          parseString(params, i, paramType, valueArr, name);
         }
       }
       i++;
@@ -234,6 +277,15 @@ public class RouteInvocation {
     return params;
   }
 
+  /**
+   * 把参数转到对应的类型
+   *
+   * @param params
+   * @param i
+   * @param paramType
+   * @param obj
+   * @param name
+   */
   private void parse(Params params, int i, Class paramType, Object obj, String name) {
     Type genericParamType;
     Class paramTypeClass;
@@ -246,7 +298,7 @@ public class RouteInvocation {
     JSONArray bset;
     Set<?> newbset;
 
-    if (obj.getClass().isAssignableFrom(paramType)) {
+    if (paramType.isAssignableFrom(obj.getClass())) {
       params.set(name, obj);
     } else {
       //判断参数需要的类型
@@ -274,7 +326,7 @@ public class RouteInvocation {
                 params.set(name, newlist);
               } else {
                 blist = (JSONArray) obj;
-                if (String.class.isAssignableFrom(paramTypeClass)) {
+                if (String.class == paramTypeClass) {
                   newblist = new ArrayList<String>();
                   for (Object e : blist) {
                     ((List<String>) newblist).add(e.toString());
@@ -282,7 +334,7 @@ public class RouteInvocation {
                 } else {
                   newblist = new ArrayList<Object>();
                   for (Object e : blist) {
-                    if (e.getClass().isAssignableFrom(paramTypeClass))
+                    if (paramTypeClass.isAssignableFrom(e.getClass()))
                       ((List<Object>) newblist).add(e);
                     else
                       ((List<Object>) newblist).add(Jsoner.parseObject(Jsoner.toJSONString(e), paramTypeClass));
@@ -303,7 +355,7 @@ public class RouteInvocation {
                 params.set(name, newset);
               } else {
                 bset = (JSONArray) obj;
-                if (String.class.isAssignableFrom(paramTypeClass)) {
+                if (String.class == paramTypeClass) {
                   newbset = new HashSet<String>();
                   for (Object e : bset) {
                     ((Set<String>) newbset).add(e.toString());
@@ -311,7 +363,7 @@ public class RouteInvocation {
                 } else {
                   newbset = new HashSet<Object>();
                   for (Object e : bset) {
-                    if (e.getClass().isAssignableFrom(paramTypeClass))
+                    if (paramTypeClass.isAssignableFrom(e.getClass()))
                       ((Set<Object>) newbset).add(e);
                     else
                       ((Set<Object>) newbset).add(Jsoner.parseObject(Jsoner.toJSONString(e), paramTypeClass));

@@ -3,6 +3,7 @@ package cn.dreampie.example;
 import cn.dreampie.client.Client;
 import cn.dreampie.client.ClientRequest;
 import cn.dreampie.client.HttpMethod;
+import cn.dreampie.client.ResponseData;
 import cn.dreampie.common.util.json.Jsoner;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -50,6 +51,25 @@ public class ClientTest {
     ClientRequest request = new ClientRequest("/users", HttpMethod.PUT);
     request.addParameter("user", "{\"id\":\"1\",\"username\":\"k\"}");
     System.out.println(client.build(request).ask());
+  }
+
+  @Test
+  public void testUpload() {
+    //upload
+    ClientRequest uploadRequest = new ClientRequest("/tests/resty", HttpMethod.POST);
+    uploadRequest.addUploadFiles("resty", ClientTest.class.getResource("/resty.jar").getFile());
+    uploadRequest.addParameter("des", "test file  paras  测试笔");
+    ResponseData uploadResult = client.build(uploadRequest).ask();
+    System.out.println(uploadResult.getData());
+  }
+
+  @Test
+  public void testDownload() {
+    //download  支持断点续传
+    ClientRequest downloadRequest = new ClientRequest("/tests/file", HttpMethod.GET);
+    downloadRequest.setDownloadFile(ClientTest.class.getResource("/resty.jar").getFile().replace(".jar", "x.jar"));
+    ResponseData downloadResult = client.build(downloadRequest).ask();
+    System.out.println(downloadResult.getData());
   }
 
   @Test

@@ -275,13 +275,13 @@ public void configPlugin(PluginLoader pluginLoader) {
   }
 ```
 
-8.上传文件，通过getFiles，getFile把文件写到服务器
+8.上传文件，注解配置把文件写到服务器
 
 ```java
   @POST("/files")
-  public UploadedFile file() {
-    //Hashtable<String, UploadedFile> uploadedFiles=getFiles();
-    return getFile(name);
+  @FILE(dir = "/upload/") //配置上传文件的相关信息
+  public UploadedFile file(UploadedFile file) {
+    return file;
   }
 ```
 

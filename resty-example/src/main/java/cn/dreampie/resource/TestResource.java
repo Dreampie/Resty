@@ -6,6 +6,7 @@ import cn.dreampie.common.http.WebResult;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.route.core.annotation.*;
+import cn.dreampie.route.core.multipart.FILE;
 import cn.dreampie.security.Principal;
 import cn.dreampie.security.Subject;
 
@@ -54,10 +55,10 @@ public class TestResource extends ApiResource {
 
   //上传文件
   @POST("/:filename")
-  public UploadedFile upload(String filename) {
+  @FILE
+  public UploadedFile upload(String filename, UploadedFile uploadedFile, String des) {
     //如果上传文件的同时 有参数
-    UploadedFile uploadedFile = getFile(filename);
-    System.out.println(getParameter("des"));
+    System.out.println(des);
     return uploadedFile;
   }
 

@@ -10,13 +10,13 @@ public class UploadedFile {
 
   private String dir;
   private String filename;
-  private String original;
+  private String originalFileName;
   private String type;
 
-  public UploadedFile(String dir, String filename, String original, String type) {
+  public UploadedFile(String dir, String filename, String originalFileName, String type) {
     this.dir = dir;
     this.filename = filename;
-    this.original = original;
+    this.originalFileName = originalFileName;
     this.type = type;
   }
 
@@ -24,12 +24,12 @@ public class UploadedFile {
     return type;
   }
 
-  public String getFilesystemName() {
+  public String getFileName() {
     return filename;
   }
 
   public String getOriginalFileName() {
-    return original;
+    return originalFileName;
   }
 
   public File getFile() {
@@ -38,5 +38,14 @@ public class UploadedFile {
     } else {
       return new File(dir + File.separator + filename);
     }
+  }
+
+  public String toString() {
+    return "UploadedFile{" +
+        "dir='" + dir + '\'' +
+        ", filename='" + filename + '\'' +
+        ", originalFileName='" + originalFileName + '\'' +
+        ", type='" + type + '\'' +
+        '}';
   }
 }

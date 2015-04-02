@@ -5,7 +5,6 @@ import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.UploadedFile;
 
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +14,6 @@ import java.util.Map;
 public abstract class Resource {
 
   private RouteMatch routeMatch;
-  private MultipartBuilder multipartBuilder;
 
   void setRouteMatch(RouteMatch routeMatch) {
     this.routeMatch = routeMatch;
@@ -46,66 +44,24 @@ public abstract class Resource {
     return value != null ? value.get(0) : null;
   }
 
+  public Map<String, UploadedFile> getFileParams() {
+    return routeMatch.getFileParams();
+  }
+
+  public UploadedFile getFileParamFirst() {
+    return routeMatch.getFileParamFirst();
+  }
+
+  public UploadedFile getFileParam(String filename) {
+    return routeMatch.getFileParam(filename);
+  }
+
   public HttpRequest getRequest() {
     return routeMatch.getRequest();
   }
 
   public HttpResponse getResponse() {
     return routeMatch.getResponse();
-  }
-
-  public void setMultipartBuilder(MultipartBuilder multipartBuilder) {
-    this.multipartBuilder = multipartBuilder;
-  }
-
-  public Hashtable<String, UploadedFile> getFiles(String saveDirectory, int maxPostSize, String encoding) {
-    if (multipartBuilder == null) {
-      multipartBuilder = new MultipartBuilder(getRequest(), saveDirectory, maxPostSize, encoding);
-    }
-    return multipartBuilder.getFiles();
-  }
-
-  public Hashtable<String, UploadedFile> getFiles(String saveDirectory, int maxPostSize) {
-    return getFiles(saveDirectory, maxPostSize, null);
-  }
-
-  public Hashtable<String, UploadedFile> getFiles(String saveDirectory, String encoding) {
-    return getFiles(saveDirectory, -1, encoding);
-  }
-
-  public Hashtable<String, UploadedFile> getFiles(String saveDirectory) {
-    return getFiles(saveDirectory, null);
-  }
-
-  public Hashtable<String, UploadedFile> getFiles() {
-    return getFiles(null);
-  }
-
-  public UploadedFile getFile() {
-    Hashtable<String, UploadedFile> uploadFiles = getFiles();
-    return uploadFiles.size() > 0 ? uploadFiles.values().iterator().next() : null;
-  }
-
-  public UploadedFile getFile(String filename) {
-    Hashtable<String, UploadedFile> uploadFiles = getFiles();
-    return uploadFiles.get(filename);
-  }
-
-  public Hashtable<String, List<String>> getParameters() {
-    if (multipartBuilder == null)
-      getFiles();//默认的上传文件
-    return multipartBuilder.getParameters();
-  }
-
-  public List<String> getParameter(String param) {
-    Hashtable<String, List<String>> parameters = getParameters();
-    return parameters.get(param);
-  }
-
-  public String getParameterFirst(String param) {
-    Hashtable<String, List<String>> parameters = getParameters();
-    List<String> value = parameters.get(param);
-    return value != null ? value.get(0) : null;
   }
 
 }

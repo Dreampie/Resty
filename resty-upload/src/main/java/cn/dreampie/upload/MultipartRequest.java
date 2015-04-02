@@ -184,7 +184,7 @@ public class MultipartRequest {
                           int maxPostSize,
                           String encoding,
                           FileRenamePolicy policy) throws IOException {
-    this(request, new File(saveDirectory), maxPostSize, encoding, policy);
+    this(request, new File(saveDirectory), maxPostSize, encoding, policy, null, null);
   }
 
   /**
@@ -210,7 +210,7 @@ public class MultipartRequest {
                           File saveDirectory,
                           int maxPostSize,
                           String encoding,
-                          FileRenamePolicy policy, String... denieds) throws IOException {
+                          FileRenamePolicy policy, String[] allows, String[] denieds) throws IOException {
     // Sanity check values
     if (request == null)
       throw new IllegalArgumentException("request cannot be null");
@@ -230,18 +230,21 @@ public class MultipartRequest {
     // and populate the meta objects which describe what we found
     MultipartParser parser =
         new MultipartParser(request, maxPostSize, true, true, encoding);
-    List<String> mimeTypes = Lister.of(denieds);
-    boolean checkType = mimeTypes.size() > 0;
-
+    List<String> deniedTypes = Lister.of(denieds);
+    List<String> allowTypes = Lister.of(allows);
 
     Part part;
+    FilePart filePart;
+    String name, value, contentType;
+    ParamPart paramPart;
+    Vector existingValues;
     while ((part = parser.readNextPart()) != null) {
-      String name = part.getName();
+      name = part.getName();
       if (part.isParam()) {
         // It's a parameter part, add it to the vector of values
-        ParamPart paramPart = (ParamPart) part;
-        String value = paramPart.getStringValue();
-        Vector existingValues = (Vector) parameters.get(name);
+        paramPart = (ParamPart) part;
+        value = paramPart.getStringValue();
+        existingValues = (Vector) parameters.get(name);
         if (existingValues == null) {
           existingValues = new Vector();
           parameters.put(name, existingValues);
@@ -249,9 +252,9 @@ public class MultipartRequest {
         existingValues.addElement(value);
       } else if (part.isFile()) {
         // It's a file part
-        FilePart filePart = (FilePart) part;
-
-        if (checkType && mimeTypes.contains(filePart.getContentType())) {
+        filePart = (FilePart) part;
+        contentType = filePart.getContentType();
+        if ((allowTypes.size() > 0 && !allowTypes.contains(contentType)) || (deniedTypes.size() > 0 && deniedTypes.contains(contentType))) {
           logger.warn("Denied upload file %s.", filePart.getFileName());
           continue;
         }

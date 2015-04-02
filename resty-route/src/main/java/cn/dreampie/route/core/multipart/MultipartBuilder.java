@@ -16,14 +16,14 @@ import java.io.IOException;
 public class MultipartBuilder {
   private String saveDirectory = Constant.uploadDirectory;
   private int maxPostSize = Constant.uploadMaxSize;
-  private String[] uploadDenieds = Constant.uploadDenieds;
+  private String[] uploadAllows;
   private String encoding = Constant.encoding;
   private FileRenamePolicy fileRenamePolicy = new DefaultFileRenamePolicy();
 
   public MultipartBuilder() {
   }
 
-  public MultipartBuilder(String saveDirectory, int maxPostSize, String encoding, String[] uploadDenieds) {
+  public MultipartBuilder(String saveDirectory, int maxPostSize, String encoding, String[] uploadAllows) {
     if (saveDirectory != null && !"".equals(saveDirectory)) {
       if (saveDirectory.startsWith("/"))
         this.saveDirectory = saveDirectory;
@@ -34,9 +34,7 @@ public class MultipartBuilder {
       this.maxPostSize = maxPostSize;
     if (encoding != null && !"".equals(encoding))
       this.encoding = encoding;
-    if (uploadDenieds != null && uploadDenieds.length > 0) {
-      this.uploadDenieds = uploadDenieds;
-    }
+    this.uploadAllows = uploadAllows;
   }
 
   public MultipartParam readMultipart(HttpRequest request) {
@@ -52,7 +50,7 @@ public class MultipartBuilder {
 
     MultipartParam multipartParam = null;
     try {
-      MultipartRequest multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamePolicy, uploadDenieds);
+      MultipartRequest multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamePolicy, uploadAllows, Constant.uploadDenieds);
       multipartParam = new MultipartParam(multipartRequest.getFiles(), multipartRequest.getParameters());
     } catch (IOException e) {
       throw new WebException(e.getMessage());

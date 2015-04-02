@@ -30,5 +30,5 @@ public @interface FILE {
 
   String encoding() default "";
 
-  String[] denieds() default {}; //file content type eg. text/xml
+  String[] allows() default {}; //file content type eg. text/xml
 }

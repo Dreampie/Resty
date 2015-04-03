@@ -25,7 +25,7 @@ public class DataSourceMeta {
   private String dsName;
   private DataSource dataSource;
   private Dialect dialect;
-
+  //不能使用static 让每个数据源都有一个connectionTL
   private final ThreadLocal<Connection> connectionTL = new ThreadLocal<Connection>();
 
   public DataSourceMeta(DataSourceProvider dataSourceProvider) {
@@ -65,8 +65,6 @@ public class DataSourceMeta {
       return conn;
     return showSql ? new SqlPrinter(dataSource.getConnection()).getConnection() : dataSource.getConnection();
   }
-
-
 
 
   public Connection getCurrentConnection() {

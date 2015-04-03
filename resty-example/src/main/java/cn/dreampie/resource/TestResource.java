@@ -4,6 +4,8 @@ import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.WebResult;
 import cn.dreampie.common.util.Maper;
+import cn.dreampie.orm.Record;
+import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.route.core.annotation.*;
 import cn.dreampie.route.core.multipart.FILE;
@@ -51,6 +53,17 @@ public class TestResource extends ApiResource {
     Map<String, String> map = Maper.of("a", "1", "b", "2");
     map.remove(key);
     return map;
+  }
+
+  @POST("/transaction")
+  @Transaction(name = {"default", "demo"})
+  public void transaction() {
+    User u = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456").set("created_at", new Date());
+    u.save();
+    Record record = new Record("demo", "sec_user", true);
+    Record user = record.reNew().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456").set("created_at", new Date());
+    user.save();
+//    throw new RuntimeException("xx");
   }
 
   //上传文件

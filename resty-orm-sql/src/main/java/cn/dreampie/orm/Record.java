@@ -32,9 +32,9 @@ public class Record extends Base<Record> implements Serializable {
    * @param pKeys     主键id，多主键使用逗号分割 自增主键放在第一位
    * @param cached    是否使用缓存
    */
-  public Record(String tableName, String pKeys, boolean cached) {
-    this(tableName, pKeys, false, cached);
-  }
+//  public Record(String tableName, String pKeys, boolean cached) {
+//    this(tableName, pKeys, false, cached);
+//  }
 
   /**
    * @param tableName 表名
@@ -47,8 +47,15 @@ public class Record extends Base<Record> implements Serializable {
   }
 
   /**
-   * 带DS结尾表示你要使用新的数据源
-   *
+   * @param dsName    数据源名称
+   * @param tableName 表名
+   * @param cached    是否使用缓存
+   */
+  public Record(String dsName, String tableName, boolean cached) {
+    this(dsName, tableName, DEFAULT_PRIMARY_KAY, cached);
+  }
+
+  /**
    * @param dsName    数据源名称
    * @param tableName 表名
    * @param pKeys     主键id，多主键使用逗号分割 自增主键放在第一位

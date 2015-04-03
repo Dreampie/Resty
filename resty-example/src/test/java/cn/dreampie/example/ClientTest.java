@@ -54,6 +54,12 @@ public class ClientTest {
   }
 
   @Test
+  public void testTransaction() {
+    ClientRequest request = new ClientRequest("/tests/transaction", HttpMethod.POST);
+    System.out.println(client.build(request).ask());
+  }
+
+  @Test
   public void testUpload() {
     //upload
     ClientRequest uploadRequest = new ClientRequest("/tests/resty", HttpMethod.POST);

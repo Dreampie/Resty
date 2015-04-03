@@ -39,6 +39,10 @@ public class AppConfig extends Config {
     ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(ddsp, true);
     activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
     pluginLoader.add(activeRecordPlugin);
+
+    DruidDataSourceProvider ddsp2 = new DruidDataSourceProvider("demo");
+    ActiveRecordPlugin activeRecordPlugin2 = new ActiveRecordPlugin(ddsp2, true);
+    pluginLoader.add(activeRecordPlugin2);
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {

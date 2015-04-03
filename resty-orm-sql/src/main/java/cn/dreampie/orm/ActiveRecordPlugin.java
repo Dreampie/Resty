@@ -23,7 +23,6 @@ public class ActiveRecordPlugin implements Plugin {
   private List<String> excludeClassPaths = new ArrayList<String>();
 
   private DataSourceProvider dataSourceProvider;
-  private String dsName;
   private boolean showSql = false;
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
@@ -31,7 +30,6 @@ public class ActiveRecordPlugin implements Plugin {
   }
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider, boolean showSql) {
-    this.dsName = dataSourceProvider.getDsName();
     this.dataSourceProvider = dataSourceProvider;
     this.showSql = showSql;
   }
@@ -87,7 +85,7 @@ public class ActiveRecordPlugin implements Plugin {
       }
     }
 
-    DataSourceMeta dsm = new DataSourceMeta(dsName, dataSourceProvider, showSql);
+    DataSourceMeta dsm = new DataSourceMeta(dataSourceProvider, showSql);
     if (includeClasses.size() > 0) {
       List<TableMeta> tableMetas = new ArrayList<TableMeta>();
       TableMeta tableMeta = null;
@@ -106,7 +104,7 @@ public class ActiveRecordPlugin implements Plugin {
           continue;
         }
         //add modelMeta
-        tableMeta = new TableMeta(dsName, modelClass);
+        tableMeta = new TableMeta(dataSourceProvider.getDsName(), modelClass);
         tableMetas.add(tableMeta);
         logger.info("AddMapping(" + tableMeta.getTableName() + ", " + modelClass.getName() + ")");
 

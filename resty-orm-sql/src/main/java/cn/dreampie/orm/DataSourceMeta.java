@@ -2,6 +2,7 @@ package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;
+import cn.dreampie.orm.exception.TransactionException;
 import cn.dreampie.orm.provider.DataSourceProvider;
 import com.alibaba.druid.pool.DruidDataSource;
 
@@ -27,12 +28,12 @@ public class DataSourceMeta {
 
   private final ThreadLocal<Connection> connectionTL = new ThreadLocal<Connection>();
 
-  public DataSourceMeta(String dsName, DataSourceProvider dataSourceProvider) {
-    this(dsName, dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), false);
+  public DataSourceMeta(DataSourceProvider dataSourceProvider) {
+    this(dataSourceProvider.getDsName(), dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), false);
   }
 
-  public DataSourceMeta(String dsName, DataSourceProvider dataSourceProvider, boolean showSql) {
-    this(dsName, dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), showSql);
+  public DataSourceMeta(DataSourceProvider dataSourceProvider, boolean showSql) {
+    this(dataSourceProvider.getDsName(), dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), showSql);
   }
 
   public DataSourceMeta(String dsName, DataSource dataSource, Dialect dialect) {
@@ -64,6 +65,9 @@ public class DataSourceMeta {
       return conn;
     return showSql ? new SqlPrinter(dataSource.getConnection()).getConnection() : dataSource.getConnection();
   }
+
+
+
 
   public Connection getCurrentConnection() {
     return connectionTL.get();

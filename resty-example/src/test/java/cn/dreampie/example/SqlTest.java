@@ -1,6 +1,5 @@
 package cn.dreampie.example;
 
-import cn.dreampie.orm.InCall;
 import cn.dreampie.orm.Page;
 import cn.dreampie.orm.Record;
 import cn.dreampie.resource.user.model.User;
@@ -10,9 +9,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import java.sql.CallableStatement;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Date;
 import java.util.List;
 

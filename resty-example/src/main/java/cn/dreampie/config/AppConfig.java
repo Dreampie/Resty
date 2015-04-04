@@ -3,6 +3,7 @@ package cn.dreampie.config;
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.orm.ActiveRecordPlugin;
+import cn.dreampie.orm.provider.c3p0.C3p0DataSourceProvider;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
 import cn.dreampie.route.config.*;
 import cn.dreampie.route.handler.cors.CORSHandler;
@@ -35,11 +36,12 @@ public class AppConfig extends Config {
 
   public void configPlugin(PluginLoader pluginLoader) {
     //第一个数据库
-    DruidDataSourceProvider ddsp = new DruidDataSourceProvider("default");
+    C3p0DataSourceProvider ddsp = new C3p0DataSourceProvider("default");
     ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(ddsp, true);
     activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
     pluginLoader.add(activeRecordPlugin);
 
+    //第二个数据库
     DruidDataSourceProvider ddsp2 = new DruidDataSourceProvider("demo");
     ActiveRecordPlugin activeRecordPlugin2 = new ActiveRecordPlugin(ddsp2, true);
     pluginLoader.add(activeRecordPlugin2);

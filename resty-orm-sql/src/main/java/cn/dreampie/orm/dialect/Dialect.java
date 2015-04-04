@@ -8,6 +8,8 @@ public interface Dialect {
 
   public String validQuery();
 
+  public String driverClass();
+
   public String select(String table);
 
   public String select(String table, String... columns);

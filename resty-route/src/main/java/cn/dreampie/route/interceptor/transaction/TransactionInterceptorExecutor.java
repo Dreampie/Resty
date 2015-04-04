@@ -12,11 +12,13 @@ import cn.dreampie.route.interceptor.Interceptor;
 public class TransactionInterceptorExecutor {
 
   private String dsName;
+  private boolean readonly;
   private int level;
 
 
-  public TransactionInterceptorExecutor(String dsName, int level) {
+  public TransactionInterceptorExecutor(String dsName, boolean readonly, int level) {
     this.dsName = dsName;
+    this.readonly = readonly;
     this.level = level;
   }
 
@@ -24,7 +26,7 @@ public class TransactionInterceptorExecutor {
   public void transaction(Interceptor interceptor, RouteInvocation ri) {
     TransactionManager transactionManager = new TransactionManager(Metadata.getDataSourceMeta(dsName));
     try {
-      transactionManager.begin(level);
+      transactionManager.begin(readonly, level);
 
       interceptor.intercept(ri);
 

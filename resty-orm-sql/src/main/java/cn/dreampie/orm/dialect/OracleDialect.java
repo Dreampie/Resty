@@ -12,6 +12,10 @@ public class OracleDialect extends DefaultDialect {
     return "SELECT 1 FROM dual";
   }
 
+  public String driverClass() {
+    return "oracle.jdbc.driver.OralceDriver";
+  }
+
   public String paginateWith(int pageNumber, int pageSize, String sql) {
     int satrt = (pageNumber - 1) * pageSize + 1;
     int end = pageNumber * pageSize;

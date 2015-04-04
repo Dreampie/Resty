@@ -12,11 +12,13 @@ import java.lang.reflect.Method;
 public class TransactionExecutor {
 
   private String dsName;
+  private boolean readonly;
   private int level;
 
 
-  public TransactionExecutor(String dsName, int level) {
+  public TransactionExecutor(String dsName, boolean readonly, int level) {
     this.dsName = dsName;
+    this.readonly = readonly;
     this.level = level;
   }
 
@@ -24,10 +26,10 @@ public class TransactionExecutor {
   public void transaction(TransactionAspect aspect, InvocationHandler ih, Object proxy, Method method, Object[] args) {
     TransactionManager transactionManager = new TransactionManager(Metadata.getDataSourceMeta(dsName));
     try {
-      transactionManager.begin(level);
+      transactionManager.begin(readonly, level);
 
       aspect.aspect(ih, proxy, method, args);
-      
+
       transactionManager.commit();
     } catch (Throwable t) {
       transactionManager.rollback();

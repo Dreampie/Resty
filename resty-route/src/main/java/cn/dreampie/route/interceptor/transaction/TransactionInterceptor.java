@@ -27,10 +27,11 @@ public class TransactionInterceptor implements Interceptor {
         if (names.length == 0) {
           names = new String[]{Metadata.getDefaultDsName()};
         }
+        boolean[] readonly = transactionAnn.readonly();
         int[] levels = transactionAnn.level();
         excutors = new TransactionInterceptorExecutor[names.length];
         for (int i = 0; i < names.length; i++) {
-          excutors[i] = new TransactionInterceptorExecutor(names[i], levels.length == 1 ? levels[0] : levels[i]);
+          excutors[i] = new TransactionInterceptorExecutor(names[i], readonly.length == 1 ? readonly[0] : readonly[i], levels.length == 1 ? levels[0] : levels[i]);
         }
         excutorsTL.set(excutors);
       }

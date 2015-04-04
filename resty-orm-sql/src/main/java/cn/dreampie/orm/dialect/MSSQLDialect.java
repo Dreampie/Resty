@@ -21,6 +21,10 @@ public class MSSQLDialect extends DefaultDialect {
     return "select 1";
   }
 
+  public String driverClass() {
+    return "com.microsoft.jdbc.sqlserver.SQLServerDriver";
+  }
+
   public String paginateWith(int pageNumber, int pageSize, String sql) {
     int offset = pageSize * (pageNumber - 1);
 

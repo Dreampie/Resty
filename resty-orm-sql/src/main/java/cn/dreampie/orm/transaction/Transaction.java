@@ -14,5 +14,7 @@ import java.sql.Connection;
 public @interface Transaction {
   String[] name() default {};
 
+  boolean[] readonly() default false;
+
   int[] level() default Connection.TRANSACTION_READ_COMMITTED;
 }

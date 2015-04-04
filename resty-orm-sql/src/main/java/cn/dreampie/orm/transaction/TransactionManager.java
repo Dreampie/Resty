@@ -13,6 +13,7 @@ import java.sql.SQLException;
 public class TransactionManager {
   private final static Logger logger = Logger.getLogger(TransactionExecutor.class);
   private DataSourceMeta dataSourceMeta;
+  private Boolean isReadonly;
   private Boolean autoCommit;
 
   public TransactionManager(DataSourceMeta dataSourceMeta) {
@@ -23,7 +24,7 @@ public class TransactionManager {
    * 开始事务
    */
   public void begin() {
-    begin(Connection.TRANSACTION_READ_COMMITTED);
+    begin(false, Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
@@ -31,18 +32,23 @@ public class TransactionManager {
    *
    * @param level 事务级别
    */
-  public void begin(int level) throws TransactionException {
+  public void begin(boolean readonly, int level) throws TransactionException {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
       if (conn == null) {
         conn = dataSourceMeta.getConnection();
         dataSourceMeta.setCurrentConnection(conn);
       }
-      autoCommit = conn.getAutoCommit();
-      conn.setTransactionIsolation(level);
-      if (conn.getAutoCommit()) {
-        conn.setAutoCommit(false);
+      if (!readonly) {
+        autoCommit = conn.getAutoCommit();
+        if (conn.getAutoCommit()) {
+          conn.setAutoCommit(false);
+        }
+      } else {
+        isReadonly = conn.isReadOnly();
+        conn.setReadOnly(true);
       }
+      conn.setTransactionIsolation(level);
     } catch (SQLException e) {
       throw new TransactionException(e.getMessage(), e.getCause());
     }
@@ -54,7 +60,7 @@ public class TransactionManager {
   public void commit() throws TransactionException {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
-      if (conn != null) {
+      if (conn != null && !isReadonly) {
         if (!conn.getAutoCommit()) {
           conn.commit();
         }
@@ -75,6 +81,10 @@ public class TransactionManager {
           conn.setAutoCommit(autoCommit);
           autoCommit = null;
         }
+        if (isReadonly != null) {
+          conn.setReadOnly(isReadonly);
+          isReadonly = null;
+        }
         dataSourceMeta.rmCurrentConnection();
         dataSourceMeta.close(conn);
       }
@@ -89,7 +99,7 @@ public class TransactionManager {
   public void rollback() {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
-      if (conn != null) {
+      if (conn != null && !isReadonly) {
         conn.rollback();
       }
     } catch (SQLException e) {

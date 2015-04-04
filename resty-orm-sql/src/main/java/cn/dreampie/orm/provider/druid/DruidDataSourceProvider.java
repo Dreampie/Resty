@@ -43,6 +43,25 @@ public class DruidDataSourceProvider implements DataSourceProvider {
   // 配置发生错误时多久重连
   private long timeBetweenConnectErrorMillis = DruidDataSource.DEFAULT_TIME_BETWEEN_CONNECT_ERROR_MILLIS;
 
+  private boolean testWhileIdle = true;
+  private boolean testOnBorrow = false;
+  private boolean testOnReturn = false;
+  // 是否打开连接泄露自动检测
+  private boolean removeAbandoned = false;
+
+  // 连接长时间没有使用，被认为发生泄露时长
+  private long removeAbandonedTimeoutMillis = 300 * 1000;
+  // 发生泄露时是否需要输出 log，建议在开启连接泄露检测时开启，方便排错
+  private boolean logAbandoned = false;
+  // 是否缓存preparedStatement，即PSCache，对支持游标的数据库性能提升巨大，如 oracle、mysql 5.5 及以上版本
+
+  // private boolean poolPreparedStatements = false;	// oracle、mysql 5.5 及以上版本建议为 true;
+  // 只要maxPoolPreparedStatementPerConnectionSize>0,poolPreparedStatements就会被自动设定为true，使用oracle时可以设定此值。
+  private int maxPoolPreparedStatementPerConnectionSize = 10;
+
+  // 配置监控统计拦截的filters
+  private String filters;  // 监控统计："stat"    防SQL注入："wall"     组合使用： "stat,wall"
+
   /**
    * hsqldb - "select 1 from INFORMATION_SCHEMA.SYSTEM_USERS"
    * Oracle - "select 1 from dual"
@@ -50,26 +69,6 @@ public class DruidDataSourceProvider implements DataSourceProvider {
    * mysql - "select 1"
    */
   private String validationQuery = "select 1";
-  private boolean testWhileIdle = true;
-  private boolean testOnBorrow = false;
-  private boolean testOnReturn = false;
-
-  // 是否打开连接泄露自动检测
-  private boolean removeAbandoned = false;
-  // 连接长时间没有使用，被认为发生泄露时长
-  private long removeAbandonedTimeoutMillis = 300 * 1000;
-  // 发生泄露时是否需要输出 log，建议在开启连接泄露检测时开启，方便排错
-  private boolean logAbandoned = false;
-
-  // 是否缓存preparedStatement，即PSCache，对支持游标的数据库性能提升巨大，如 oracle、mysql 5.5 及以上版本
-  // private boolean poolPreparedStatements = false;	// oracle、mysql 5.5 及以上版本建议为 true;
-
-  // 只要maxPoolPreparedStatementPerConnectionSize>0,poolPreparedStatements就会被自动设定为true，使用oracle时可以设定此值。
-  private int maxPoolPreparedStatementPerConnectionSize = 10;
-
-  // 配置监控统计拦截的filters
-  private String filters;  // 监控统计："stat"    防SQL注入："wall"     组合使用： "stat,wall"
-
   private DruidDataSource ds;
   private Dialect dialect;
 
@@ -87,7 +86,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.password = prop.get("db." + dsName + ".password");
     checkNotNull(this.password, "Could not found database password for " + "db." + dsName + ".password");
     this.dialect = DialectFactory.get(prop.get("db." + dsName + ".dialect", "mysql"));
-    this.driverClass = prop.get("db." + dsName + ".driver");
+    this.driverClass = prop.get("db." + dsName + ".driver", dialect.driverClass());
     this.filters = prop.get("db." + dsName + ".filters");
     this.initialSize = prop.getInt("db." + dsName + ".initialSize", 10);
     this.minIdle = prop.getInt("db." + dsName + ".minIdle", 10);
@@ -96,7 +95,6 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.timeBetweenEvictionRunsMillis = prop.getLong("db." + dsName + ".timeBetweenEvictionRunsMillis", DruidDataSource.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS);
     this.minEvictableIdleTimeMillis = prop.getLong("db." + dsName + ".minEvictableIdleTimeMillis", DruidDataSource.DEFAULT_MIN_EVICTABLE_IDLE_TIME_MILLIS);
     this.timeBetweenConnectErrorMillis = prop.getLong("db." + dsName + ".timeBetweenConnectErrorMillis", DruidDataSource.DEFAULT_TIME_BETWEEN_CONNECT_ERROR_MILLIS);
-    this.validationQuery = this.dialect.validQuery();
     this.testWhileIdle = prop.getBoolean("db." + dsName + ".testWhileIdle", true);
     this.testOnBorrow = prop.getBoolean("db." + dsName + ".testOnBorrow", false);
     this.testOnReturn = prop.getBoolean("db." + dsName + ".testOnReturn", false);
@@ -104,6 +102,8 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.removeAbandonedTimeoutMillis = prop.getInt("db." + dsName + ".removeAbandonedTimeoutMillis", 300 * 1000);
     this.logAbandoned = prop.getBoolean("db." + dsName + ".logAbandoned", false);
     this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize", 10);
+
+    this.validationQuery = prop.get("db." + dsName + ".validationQuery", this.dialect.validQuery());
     buidDataSource();
   }
 
@@ -123,7 +123,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.password = password;
     checkNotNull(this.password, "Could not found database password for custom.");
     this.dialect = DialectFactory.get(dbType);
-    this.driverClass = driverClass;
+    this.driverClass = driverClass == null ? dialect.driverClass() : driverClass;
     buidDataSource();
   }
 

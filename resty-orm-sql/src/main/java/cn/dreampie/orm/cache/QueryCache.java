@@ -83,7 +83,7 @@ public enum QueryCache {
 
   static void logAccess(String group, String query, Object[] params, String access) {
     if (logger.isInfoEnabled()) {
-      StringBuilder log = new StringBuilder().append(access).append(" ").append(group).append(CONNECTOR).append(query).append('"');
+      StringBuilder log = new StringBuilder().append(access).append(" ").append(group).append(" ").append(query).append(" ");
       if (params != null && params.length > 0) {
         log.append(", with parameters: ").append('<');
         Joiner.on(">, <").join(log, params);

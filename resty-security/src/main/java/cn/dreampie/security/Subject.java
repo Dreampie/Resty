@@ -1,6 +1,5 @@
 package cn.dreampie.security;
 
-import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.pattern.AntPathMatcher;
@@ -12,22 +11,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static cn.dreampie.common.util.Checker.checkNotNull;
-
 /**
  * Created by wangrenhui on 14/12/23.
  */
 public class Subject {
   private static final Logger logger = Logger.getLogger(Subject.class);
 
-  private static boolean cacheEnabled = Constant.cacheEnabled;
-  private static AuthenticateService authenticateService;
+  private static Credentials credentials;
   private static PasswordService passwordService;
   private static int rememberDay;
 
-  static void init(int rememberDay, AuthenticateService authenticateService, PasswordService passwordService) {
+  static void init(int rememberDay, Credentials credentials, PasswordService passwordService) {
     Subject.rememberDay = rememberDay;
-    Subject.authenticateService = authenticateService;
+    Subject.credentials = credentials;
     Subject.passwordService = passwordService;
   }
 
@@ -56,32 +52,29 @@ public class Subject {
    * @return
    */
   public static void login(String username, String password, boolean rememberMe) {
-    if (authenticateService != null) {
-      Principal principal = authenticateService.findByUsername(username);
-      if (principal != null && passwordService.match(password, principal.getPasswordHash())) {
-        //清理已经登陆的对象
-        Session.current().clearPrincipal();
-        Session.current().set(Session.SESSION_DEF_KEY, null);
-        //授权用户
-        //时间
-        long expires = -1;
-        if (rememberMe) {
-          Calendar cal = Calendar.getInstance();
-          cal.add(Calendar.DATE, rememberDay);
-          expires = cal.getTimeInMillis();
-        }
+    Principal principal = credentials.findByUsername(username);
+    if (principal != null && passwordService.match(password, principal.getPasswordHash())) {
+      //清理已经登陆的对象
+      Session.current().clearPrincipal();
+      Session.current().set(Session.SESSION_DEF_KEY, null);
+      //授权用户
+      //时间
+      long expires = -1;
+      if (rememberMe) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, rememberDay);
+        expires = cal.getTimeInMillis();
+      }
 
-        Session.current().setExpires(expires);
-        String sessionKey = UUID.randomUUID().toString();
-        Session.current().authenticateAs(principal);
-        Session.current().set(Session.SESSION_DEF_KEY, sessionKey);
-        //add cache
-        SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, username, principal);
-        logger.info("Session authentication as " + username);
-      } else
-        throw new WebException(HttpStatus.UNAUTHORIZED);
+      Session.current().setExpires(expires);
+      String sessionKey = UUID.randomUUID().toString();
+      Session.current().authenticateAs(principal);
+      Session.current().set(Session.SESSION_DEF_KEY, sessionKey);
+      //add cache
+      SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, username, principal);
+      logger.info("Session authentication as " + username);
     } else {
-      throw new WebException(HttpStatus.UNAUTHORIZED, "AuthenticateService not found!");
+      throw new WebException(HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -117,19 +110,10 @@ public class Subject {
    * @return
    */
   public static String need(String httpMethod, String path) {
-    Set<Credential> credentials = null;
-    if (cacheEnabled) {
-      credentials = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
+    Set<Credential> credentialSet = credentials.loadAllCredentials();
 
-      if (credentials == null) {
-        credentials = authenticateService.loadAllCredentials();
-      }
-    } else {
-      credentials = authenticateService.loadAllCredentials();
-    }
-    checkNotNull(credentials, "LoadAllPermissions not get permissions data.");
     String method;
-    for (Credential credential : credentials) {
+    for (Credential credential : credentialSet) {
       method = credential.getMethod();
       if ((method.equals("*") || method.equals(httpMethod))
           && AntPathMatcher.instance().match(credential.getAntPath(), path)) {

@@ -1,20 +1,16 @@
 package cn.dreampie.security;
 
 
-import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
-import cn.dreampie.security.cache.SessionCache;
 import cn.dreampie.security.sign.CookieSigner;
 import cn.dreampie.security.sign.Signer;
 
 import java.util.Map;
 import java.util.UUID;
-
-import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
  * Created by ice on 14-12-24.
@@ -25,12 +21,11 @@ public class SessionBuilder {
 
   private final static Logger logger = Logger.getLogger(SessionBuilder.class);
 
-  private final boolean cacheEnabled = Constant.cacheEnabled;
   private final Sessions sessions;
   private final Signer signer;
   private final SessionCookieDescriptor sessionCookieDescriptor;
   private final Session emptySession;
-  private final AuthenticateService authenticateService;
+  private final Credentials credentials;
   private final int expires;
 
   public SessionBuilder(int expires, int limit, int rememberDay, AuthenticateService authenticateService) {
@@ -38,15 +33,14 @@ public class SessionBuilder {
   }
 
   public SessionBuilder(int expires, int limit, int rememberDay, AuthenticateService authenticateService, PasswordService passwordService) {
-    Subject.init(rememberDay, authenticateService, passwordService);
     this.expires = expires;
     this.sessions = new Sessions(expires, limit);
     this.signer = new CookieSigner();
     this.sessionCookieDescriptor = new SessionCookieDescriptor();
     this.emptySession = new Session(Maper.of(Session.SESSION_DEF_KEY, UUID.randomUUID().toString()), null, -1);
-    this.authenticateService = authenticateService;
-    //load  all  cache
-    SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, authenticateService.loadAllCredentials());
+    this.credentials = new Credentials(authenticateService, expires);
+
+    Subject.init(rememberDay, credentials, passwordService);
   }
 
   /**
@@ -161,25 +155,10 @@ public class SessionBuilder {
         if (principalName != null && !"".equals(principalName.trim())) {
           //判断 是否使用了 remeberme 或失效
           Sessions.SessionDatas sessionDatas = sessions.getSessions(principalName);
-          if (sessionDatas == null || (sessionDatas != null && !sessionDatas.containsSessionKey(cookieValues.get(Session.SESSION_DEF_KEY)))) {
+          if (sessionDatas == null || (!sessionDatas.containsSessionKey(cookieValues.get(Session.SESSION_DEF_KEY)))) {
             return emptySession;
           }
-          //是否使用cache
-          if (cacheEnabled) {
-            //通过cache 来获取对象相关的值
-            principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, principalName);
-            //cache 已经失效  从接口获取用户数据
-            if (principal == null) {
-              principal = authenticateService.findByUsername(principalName);
-              if (principal != null)
-                SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, principalName, principal);
-            }
-          } else {
-            principal = authenticateService.findByUsername(principalName);
-          }
-
-          //检测用户数据
-          checkNotNull(principal, "FindByName not get user data.");
+          principal = credentials.findByUsername(principalName);
         }
         return new Session(cookieValues, principal, expiration);
       } else {
@@ -189,7 +168,7 @@ public class SessionBuilder {
   }
 
   private Map<String, String> readEntries(String cookie) {
-    return Jsoner.parseObject(cookie, Map.class);
+    return (Map<String, String>) Jsoner.parseObject(cookie, Map.class);
   }
 
   private void updateSessionInClient(HttpResponse resp, Session session) {

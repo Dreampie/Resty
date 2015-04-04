@@ -90,7 +90,7 @@ public enum SessionCache {
 
   static void logAccess(String defKey, String name, String access) {
     if (logger.isInfoEnabled()) {
-      logger.info(access + " " + defKey + CONNECTOR + name + '"');
+      logger.info(access + " " + defKey + " " + name + " ");
     }
   }
 

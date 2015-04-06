@@ -60,9 +60,11 @@ public class TransactionManager {
   public void commit() throws TransactionException {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
-      if (conn != null && !isReadonly) {
-        if (!conn.getAutoCommit()) {
-          conn.commit();
+      if (conn != null) {
+        if (isReadonly == null || !isReadonly) {
+          if (!conn.getAutoCommit()) {
+            conn.commit();
+          }
         }
       }
     } catch (SQLException e) {
@@ -99,8 +101,10 @@ public class TransactionManager {
   public void rollback() {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
-      if (conn != null && !isReadonly) {
-        conn.rollback();
+      if (conn != null) {
+        if (isReadonly == null || !isReadonly) {
+          conn.rollback();
+        }
       }
     } catch (SQLException e) {
       logger.error("Could not rollback " + dataSourceMeta.getDsName() + " connection.", e.getCause());

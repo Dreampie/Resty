@@ -24,10 +24,6 @@ public abstract class DefaultDialect implements Dialect {
   protected final Pattern orderPattern = Pattern.compile("\\s*ORDER\\s*BY\\s*",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
-  public String select(String table) {
-    return "SELECT * FROM " + table;
-  }
-
   protected String getAlias(String alias) {
     if (null != alias && !"".equals(alias.trim())) {
       alias = " " + alias;
@@ -55,6 +51,9 @@ public abstract class DefaultDialect implements Dialect {
     }
   }
 
+  public String select(String table) {
+    return "SELECT * FROM " + table;
+  }
 
   public String select(String table, String... columns) {
     if (columns == null || columns.length <= 0) return select(table);
@@ -63,11 +62,12 @@ public abstract class DefaultDialect implements Dialect {
 
 
   public String select(String table, String alias, String where) {
-    return where != null ? "SELECT * FROM " + table + getAlias(alias) + " WHERE " + where : select(table, alias);
+    if (where == null || "".equals(where.trim())) return select(table);
+    return "SELECT * FROM " + table + getAlias(alias) + " WHERE " + where;
   }
 
   public String select(String table, String alias, String where, String... columns) {
-    if (where == null) return select(table, columns);
+    if (where == null || "".equals(where.trim())) return select(table, columns);
     if (columns == null || columns.length <= 0) return select(table, alias, where);
     return "SELECT " + Joiner.on(", ").join(getPrefix(alias, columns)) + " FROM " + table + getAlias(alias) + " WHERE " + where;
   }
@@ -97,19 +97,21 @@ public abstract class DefaultDialect implements Dialect {
 
 
   public String delete(String table, String where) {
+    if (where == null || "".equals(where.trim())) return delete(table);
     return "DELETE FROM " + table + " WHERE " + where;
   }
 
 
   public String update(String table, String... columns) {
+    if (columns == null || columns.length <= 0) throw new NullPointerException("Could not found columns to update.");
     return "UPDATE " + table + " SET " + Joiner.on("=?, ").join(columns) + "=?";
   }
 
   public String update(String table, String alias, String where, String... columns) {
-    if (where == null) return update(table, columns);
+    if (where == null || "".equals(where.trim())) return update(table, columns);
+    if (columns == null || columns.length <= 0) throw new NullPointerException("Could not found columns to update.");
     return "UPDATE " + table + getAlias(alias) + " SET " + Joiner.on("=?, ").join(getPrefix(alias, columns)) + "=? WHERE " + where;
   }
-
 
   public String count(String table) {
     return "SELECT COUNT(*) FROM " + table;
@@ -117,6 +119,7 @@ public abstract class DefaultDialect implements Dialect {
 
 
   public String count(String table, String alias, String where) {
+    if (where == null || "".equals(where.trim())) return count(table);
     return "SELECT COUNT(*) FROM " + table + getAlias(alias) + " WHERE " + where;
   }
 

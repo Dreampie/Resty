@@ -148,8 +148,12 @@ public class RouteInvocation {
         params.set(name, value);
       } else {
         obj = Jsoner.parseObject(value, paramType);
-        //转换为对应的对象类型
-        parse(params, i, paramType, obj, name);
+        if (obj == null) {
+          params.set(name, null);
+        } else {
+          //转换为对应的对象类型
+          parse(params, i, paramType, obj, name);
+        }
       }
     } else {
       params.set(name, null);
@@ -252,8 +256,9 @@ public class RouteInvocation {
       if (pathParamNames.contains(name)) {
         if (paramType == String.class) {
           params.set(name, routeMatch.getPathParam(name));
-        } else
+        } else {
           params.set(name, Jsoner.parseObject(routeMatch.getPathParam(name), paramType));
+        }
       } else {//其他参数
         if (hasJsonParam) {
           obj = paramsMap.get(name);
@@ -298,7 +303,9 @@ public class RouteInvocation {
     JSONArray bset;
     Set<?> newbset;
 
-    if (paramType.isAssignableFrom(obj.getClass())) {
+    if (obj == null) {
+      params.set(name, null);
+    } else if (paramType.isAssignableFrom(obj.getClass())) {
       params.set(name, obj);
     } else {
       //判断参数需要的类型

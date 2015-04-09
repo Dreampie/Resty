@@ -105,7 +105,7 @@ final public class ResourceLoader {
           continue;
         }
         this.add(resource);
-        logger.debug("resources.add(" + resource.getName() + ")");
+        logger.info("resources.add(" + resource.getName() + ")");
       }
     } else {
       logger.warn("Could not load any resources.");

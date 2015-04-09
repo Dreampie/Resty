@@ -89,8 +89,9 @@ public class ActiveRecordPlugin implements Plugin {
     if (includeClasses.size() > 0) {
       List<TableMeta> tableMetas = new ArrayList<TableMeta>();
       TableMeta tableMeta = null;
+      boolean isexclude = false;
       for (Class<? extends Model> modelClass : includeClasses) {
-        boolean isexclude = false;
+        isexclude = false;
         if (excludeClassPaths.size() > 0) {
           for (String excludepath : excludeClassPaths) {
             if (modelClass.getName().startsWith(excludepath)) {
@@ -113,6 +114,8 @@ public class ActiveRecordPlugin implements Plugin {
       }
       //model 元数据
       TableMetaBuilder.buildModel(tableMetas, dsm);
+    } else {
+      logger.warn("Could not load any model.");
     }
     //Record 解析支持
     Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());

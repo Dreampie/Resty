@@ -81,13 +81,34 @@ final public class ResourceLoader {
   }
 
   public void build() {
-    List<Class<? extends Resource>> resourceClasses = ClassScaner.of(Resource.class).includepaths(includeResourcePaths).search();
-    for (Class resource : resourceClasses) {
-      if (excludeResources.contains(resource)) {
-        continue;
+    if (includeResourcePaths.size() > 0) {
+      if (includeResources.size() <= 0) {
+        includeResources = ClassScaner.of(Resource.class).includepaths(includeResourcePaths).search();
+      } else {
+        includeResources.addAll(ClassScaner.of(Resource.class).includepaths(includeResourcePaths).<Resource>search());
       }
-      this.add(resource);
-      logger.debug("resources.add(" + resource.getName() + ")");
+    }
+    boolean isexclude = false;
+    if (includeResources.size() > 0) {
+      for (Class resource : includeResources) {
+        isexclude = false;
+        if (excludeResourcePaths.size() > 0) {
+          for (String excludepath : excludeResourcePaths) {
+            if (resource.getName().startsWith(excludepath)) {
+              logger.debug("Exclude Resource:" + resource.getName());
+              isexclude = true;
+              break;
+            }
+          }
+        }
+        if (isexclude || excludeResources.contains(resource)) {
+          continue;
+        }
+        this.add(resource);
+        logger.debug("resources.add(" + resource.getName() + ")");
+      }
+    } else {
+      logger.warn("Could not load any resources.");
     }
   }
 

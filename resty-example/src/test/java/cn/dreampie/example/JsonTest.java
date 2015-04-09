@@ -16,7 +16,7 @@ public class JsonTest {
 
   @Test
   public void testJson() {
-//    Record recordDAO = Record.use("sec_user");
+//    Record recordDAO =new Record("sec_user",true);
 //    Record user = recordDAO.reNew().set("id", 1);
     User user = new User().set("id", 1);
 

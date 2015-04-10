@@ -135,7 +135,7 @@ public class ClientRequest {
   }
 
 
-  public void addUploadFiles(String name, String filepath) {
+  public void addUploadFile(String name, String filepath) {
     this.uploadFiles.put(name, filepath);
   }
 

@@ -69,10 +69,10 @@ public class TestResource extends ApiResource {
   //上传文件
   @POST("/:filename")
   @FILE
-  public UploadedFile upload(String filename, UploadedFile uploadedFile, String des) {
-    //如果上传文件的同时 有参数
+  public UploadedFile upload(String filename, UploadedFile testfile, String des) {
+    //如果上传文件的同时 有参数  注意UploadedFile  参数的名字 需要和input的name对应
     System.out.println(des);
-    return uploadedFile;
+    return testfile;
   }
 
   //下载文件

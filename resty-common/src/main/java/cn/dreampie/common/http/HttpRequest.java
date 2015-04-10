@@ -51,7 +51,7 @@ public class HttpRequest extends AbstractRequest {
   }
 
   public String getRealPath(String path) {
-    return request.getServletContext().getRealPath("/");
+    return request.getSession().getServletContext().getRealPath("/");
   }
 
 

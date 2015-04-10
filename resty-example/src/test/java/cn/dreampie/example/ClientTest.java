@@ -63,7 +63,7 @@ public class ClientTest {
   public void testUpload() {
     //upload
     ClientRequest uploadRequest = new ClientRequest("/tests/resty", HttpMethod.POST);
-    uploadRequest.addUploadFiles("resty", ClientTest.class.getResource("/resty.jar").getFile());
+    uploadRequest.addUploadFile("resty", ClientTest.class.getResource("/resty.jar").getFile());
     uploadRequest.addParameter("des", "test file  paras  测试笔");
     ResponseData uploadResult = client.build(uploadRequest).ask();
     System.out.println(uploadResult.getData());

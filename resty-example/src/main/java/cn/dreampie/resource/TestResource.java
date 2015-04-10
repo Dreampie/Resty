@@ -31,7 +31,7 @@ public class TestResource extends ApiResource {
 
   @GET
   public WebResult get() {
-    Subject.login("userq", "123");
+//    Subject.login("userq", "123");
     //如果需要返回请求状态  new WebResult
     return new WebResult(HttpStatus.OK, Maper.of("a", "1", "b", "2"));
   }

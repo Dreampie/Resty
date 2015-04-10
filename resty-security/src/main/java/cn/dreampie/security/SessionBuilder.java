@@ -12,6 +12,8 @@ import cn.dreampie.security.sign.Signer;
 import java.util.Map;
 import java.util.UUID;
 
+import static cn.dreampie.common.util.Checker.checkNotNull;
+
 /**
  * Created by ice on 14-12-24.
  */
@@ -159,6 +161,8 @@ public class SessionBuilder {
             return emptySession;
           }
           principal = credentials.findByUsername(principalName);
+          //检测用户数据
+          checkNotNull(principal, "Could not get user data.");
         }
         return new Session(cookieValues, principal, expiration);
       } else {

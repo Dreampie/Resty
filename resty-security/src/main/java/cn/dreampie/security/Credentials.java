@@ -70,17 +70,19 @@ public class Credentials {
       }
     } else {
       principal = principals.get(username);
+      boolean find = false;
       if (principals.size() > 1000 || principals.size() <= 0 || System.currentTimeMillis() > lastAccess) {
-        principal = principals.put(username, authenticateService.findByUsername(username));
+        principal = authenticateService.findByUsername(username);
+        principals.put(username, principal);
         lastAccess = System.currentTimeMillis() + expires;
+        find = true;
       }
       //如果还没有用户数据
-      if (principal == null) {
-        principal = principals.put(username, authenticateService.findByUsername(username));
+      if (!find && principal == null) {
+        principal = authenticateService.findByUsername(username);
+        principals.put(username, principal);
       }
     }
-    //检测用户数据
-    checkNotNull(principal, "Could not get user data.");
     return principal;
   }
 }

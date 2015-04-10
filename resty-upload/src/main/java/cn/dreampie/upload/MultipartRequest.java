@@ -279,32 +279,6 @@ public class MultipartRequest {
   }
 
   /**
-   * Constructor with an old signature, kept for backward compatibility.
-   * Without this constructor, a servlet compiled against a previous version
-   * of this class (pre 1.4) would have to be recompiled to link with this
-   * version.  This constructor supports the linking via the old signature.
-   * Callers must simply be careful to pass in an HttpRequest.
-   */
-  public MultipartRequest(ServletRequest request,
-                          String saveDirectory) throws IOException {
-    this(new HttpRequest((HttpServletRequest) request), saveDirectory);
-  }
-
-  /**
-   * Constructor with an old signature, kept for backward compatibility.
-   * Without this constructor, a servlet compiled against a previous version
-   * of this class (pre 1.4) would have to be recompiled to link with this
-   * version.  This constructor supports the linking via the old signature.
-   * Callers must simply be careful to pass in an HttpRequest.
-   */
-  public MultipartRequest(ServletRequest request,
-                          String saveDirectory,
-                          int maxPostSize) throws IOException {
-    this(new HttpRequest((HttpServletRequest) request), saveDirectory, maxPostSize);
-  }
-
-
-  /**
    * Returns the names of all the uploaded files as an Enumeration of
    * Strings.  It returns an empty Enumeration if there are no uploaded
    * files.  Each file name is the name specified by the form, not by

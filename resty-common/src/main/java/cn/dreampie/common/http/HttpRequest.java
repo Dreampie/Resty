@@ -1,6 +1,7 @@
 package cn.dreampie.common.http;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -15,10 +16,12 @@ import java.util.*;
  */
 public class HttpRequest extends AbstractRequest {
   private final HttpServletRequest request;
+  private final ServletContext servletContext;
   private Map<String, List<String>> queryParams;
 
-  public HttpRequest(HttpServletRequest request) {
+  public HttpRequest(HttpServletRequest request, ServletContext servletContext) {
     this.request = request;
+    this.servletContext = servletContext;
   }
 
 
@@ -51,7 +54,7 @@ public class HttpRequest extends AbstractRequest {
   }
 
   public String getRealPath(String path) {
-    return request.getSession().getServletContext().getRealPath("/");
+    return servletContext.getRealPath(path);
   }
 
 

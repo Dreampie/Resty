@@ -95,7 +95,7 @@ final public class ResourceLoader {
         if (excludeResourcePaths.size() > 0) {
           for (String excludepath : excludeResourcePaths) {
             if (resource.getName().startsWith(excludepath)) {
-              logger.debug("Exclude Resource:" + resource.getName());
+              logger.debug("Exclude resource:" + resource.getName());
               isexclude = true;
               break;
             }
@@ -105,7 +105,7 @@ final public class ResourceLoader {
           continue;
         }
         this.add(resource);
-        logger.info("resources.add(" + resource.getName() + ")");
+        logger.info("Resources.add(" + resource.getName() + ")");
       }
     } else {
       logger.warn("Could not load any resources.");

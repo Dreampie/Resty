@@ -54,7 +54,7 @@ public final class Constant {
       else
         uploadDenieds = uploadDeniedStr.split(",");
       showRoute = constants.getBoolean("app.showRoute", false);
-      apiPrefix = constants.get("app.showRoute", "/api");
+      apiPrefix = constants.get("app.apiPrefix", "/api");
 
       CacheManager cm = null;
       if (cacheEnabled) {

@@ -107,7 +107,7 @@ public class ActiveRecordPlugin implements Plugin {
         //add modelMeta
         tableMeta = new TableMeta(dataSourceProvider.getDsName(), modelClass);
         tableMetas.add(tableMeta);
-        logger.info("AddMapping(" + tableMeta.getTableName() + ", " + modelClass.getName() + ")");
+        logger.info("Models.add(" + tableMeta.getTableName() + ", " + modelClass.getName() + ")");
 
         //json  config
         Jsoner.addConfig(modelClass, ModelSerializer.instance(), ModelDeserializer.instance());

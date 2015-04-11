@@ -48,7 +48,7 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
         existingCookie.setPath("/");
         existingCookie.setValue(value);
         existingCookie.setMaxAge(expiration);
-        existingCookie.setHttpOnly(httpOnly);
+//        existingCookie.setHttpOnly(httpOnly);
         response.addCookie(existingCookie);
       } else {
         // we have an existing cookie on another path: clear it, and add a new cookie on root path
@@ -59,14 +59,14 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
         Cookie c = new Cookie(cookie, value);
         c.setPath("/");
         c.setMaxAge(expiration);
-        c.setHttpOnly(httpOnly);
+//        c.setHttpOnly(httpOnly);
         response.addCookie(c);
       }
     } else {
       Cookie c = new Cookie(cookie, value);
       c.setPath("/");
       c.setMaxAge(expiration);
-      c.setHttpOnly(httpOnly);
+//      c.setHttpOnly(httpOnly);
       response.addCookie(c);
     }
     return this;

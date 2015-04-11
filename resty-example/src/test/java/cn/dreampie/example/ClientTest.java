@@ -30,7 +30,7 @@ public class ClientTest {
   @Test
   public void testLogin() {
     ClientRequest request = new ClientRequest("/sessions", HttpMethod.POST);
-    request.addParameter("username", "asdasda").addParameter("password", "1232").addParameter("rememberMe", "true");
+    request.addParameter("username", "asdasda").addParameter("password", "123").addParameter("rememberMe", "true");
     System.out.println(client.build(request).ask());
   }
 
@@ -81,7 +81,6 @@ public class ClientTest {
   @Test
   public void testSave() {
     ClientRequest request = new ClientRequest("/users/1", HttpMethod.POST);
-    request.addHeader("Content-Type", "application/json;charset=utf-8");
     request.setJsonParameter(Jsoner.toJSONString(
         new HashMap<String, Object>() {
           {

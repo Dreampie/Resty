@@ -33,7 +33,7 @@ public class ClientRequest {
 
   public ClientRequest(String restUrl, String method, String encoding, Map<String, String> parameters) {
     this(restUrl, method, encoding, parameters,
-        Maper.<String, String>of("Content-Type", "application/x-www-form-urlencoded;charset=utf-8", "User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36"));
+        Maper.of("Content-Type", "application/x-www-form-urlencoded;charset=" + encoding, "User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36"));
   }
 
   public ClientRequest(String restUrl, String method, String encoding, Map<String, String> parameters, Map<String, String> headers) {
@@ -85,6 +85,7 @@ public class ClientRequest {
   }
 
   public void setJsonParameter(String jsonParameter) {
+    this.addHeader("Content-Type", "application/json;charset=" + encoding);
     this.jsonParameter = jsonParameter;
   }
 

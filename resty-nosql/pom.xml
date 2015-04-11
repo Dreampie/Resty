@@ -36,6 +36,12 @@
     </dependency>
 
     <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-cache</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongo-java-driver</artifactId>
       <version>${mongodb.version}</version>

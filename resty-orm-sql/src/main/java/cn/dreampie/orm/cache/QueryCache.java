@@ -1,6 +1,8 @@
-package cn.dreampie.cache;
+package cn.dreampie.orm.cache;
 
 
+import cn.dreampie.cache.CacheEvent;
+import cn.dreampie.cache.CacheManager;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;

@@ -10,8 +10,6 @@ import cn.dreampie.common.util.Lister;
 import cn.dreampie.log.Logger;
 import cn.dreampie.upload.multipart.*;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;

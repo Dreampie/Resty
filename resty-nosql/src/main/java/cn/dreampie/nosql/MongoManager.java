@@ -1,8 +1,8 @@
 package cn.dreampie.nosql;
 
+import cn.dreampie.cache.CacheEvent;
+import cn.dreampie.cache.CacheManager;
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.cache.CacheEvent;
-import cn.dreampie.orm.cache.CacheManager;
 import com.mongodb.*;
 
 import java.net.InetAddress;

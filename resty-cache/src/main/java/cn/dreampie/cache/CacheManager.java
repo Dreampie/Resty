@@ -1,5 +1,6 @@
-package cn.dreampie.orm.cache;
+package cn.dreampie.cache;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 
 import java.util.ArrayList;
@@ -12,6 +13,29 @@ public abstract class CacheManager {
   private final static Logger logger = Logger.getLogger(CacheManager.class);
 
   List<CacheEventListener> listeners = new ArrayList<CacheEventListener>();
+
+  public final static CacheManager MANAGER;
+
+  static {
+    CacheManager cacheManager = null;
+    if (Constant.cacheEnabled) {
+      if (Constant.cacheManager == null) {
+        cacheManager = new EHCacheManager();
+      } else {
+        try {
+          Class cacheClass = Class.forName(Constant.cacheManager);
+          cacheManager = (CacheManager) cacheClass.newInstance();
+        } catch (ClassNotFoundException e) {
+          logger.error("Could not found CacheManager Class.", e);
+        } catch (InstantiationException e) {
+          logger.error("Could not init CacheManager Class.", e);
+        } catch (IllegalAccessException e) {
+          logger.error("Could not access CacheManager Class.", e);
+        }
+      }
+    }
+    MANAGER = cacheManager;
+  }
 
   /**
    * Returns a cached item. Can return null if not found.

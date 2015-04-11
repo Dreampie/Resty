@@ -32,7 +32,7 @@
 
     <dependency>
       <groupId>cn.dreampie</groupId>
-      <artifactId>resty-log</artifactId>
+      <artifactId>resty-common</artifactId>
       <version>${resty.version}</version>
     </dependency>
 

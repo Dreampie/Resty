@@ -37,13 +37,6 @@
     </dependency>
 
     <dependency>
-      <groupId>cn.dreampie</groupId>
-      <artifactId>resty-cache</artifactId>
-      <version>${resty.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>fastjson</artifactId>
       <version>${fastjson.version}</version>

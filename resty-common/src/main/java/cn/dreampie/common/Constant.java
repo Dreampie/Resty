@@ -3,8 +3,6 @@ package cn.dreampie.common;
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.cache.CacheManager;
-import cn.dreampie.orm.cache.EHCacheManager;
 
 import java.io.File;
 
@@ -21,7 +19,7 @@ public final class Constant {
   public final static String uploadDirectory;
   public final static Integer uploadMaxSize;// 10 Meg
   public final static String[] uploadDenieds;//set file content type eg. text/xml
-  public final static CacheManager cacheManager;// 缓存工具
+  public final static String cacheManager;// 缓存工具
   public final static boolean showRoute;
   public final static String apiPrefix;
 
@@ -55,26 +53,7 @@ public final class Constant {
         uploadDenieds = uploadDeniedStr.split(",");
       showRoute = constants.getBoolean("app.showRoute", false);
       apiPrefix = constants.get("app.apiPrefix", "/api");
-
-      CacheManager cm = null;
-      if (cacheEnabled) {
-        String cacheManagerClassStr = constants.get("app.cacheManager");
-        if (cacheManagerClassStr == null) {
-          cm = new EHCacheManager();
-        } else {
-          try {
-            Class cacheClass = Class.forName(cacheManagerClassStr);
-            cm = (CacheManager) cacheClass.newInstance();
-          } catch (ClassNotFoundException e) {
-            logger.error("Could not found CacheManager Class.", e);
-          } catch (InstantiationException e) {
-            logger.error("Could not init CacheManager Class.", e);
-          } catch (IllegalAccessException e) {
-            logger.error("Could not access CacheManager Class.", e);
-          }
-        }
-      }
-      cacheManager = cm;
+      cacheManager = constants.get("app.cacheManager");
     }
   }
 }

@@ -1,11 +1,11 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.cache.QueryCache;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 

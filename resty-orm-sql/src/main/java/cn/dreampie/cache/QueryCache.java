@@ -1,4 +1,4 @@
-package cn.dreampie.orm.cache;
+package cn.dreampie.cache;
 
 
 import cn.dreampie.common.Constant;
@@ -24,7 +24,7 @@ public enum QueryCache {
   //singleton
 
   private QueryCache() {
-    cacheManager = Constant.cacheManager;
+    cacheManager = CacheManager.MANAGER;
   }
 
 

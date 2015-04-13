@@ -36,7 +36,7 @@ public class StreamReader {
 
     if (file.exists()) {
       if (contentLength == 0) {
-        logger.warn("File was found, don't download " + file.getPath());
+        logger.warn("File download was complete, don't download " + file.getPath());
         return file.getPath();
       }
       long start = file.length();

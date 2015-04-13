@@ -17,6 +17,7 @@
     <module>resty-security</module>
     <module>resty-client</module>
     <module>resty-quartz</module>
+    <module>resty-mail</module>
   </modules>
   <name>resty</name>
   <url>http://maven.apache.org</url>

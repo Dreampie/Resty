@@ -16,6 +16,7 @@ import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.Validator;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
@@ -151,13 +152,19 @@ public class Route {
     String restPath = request.getRestPath();
 
     String extension = "";
-    if (restPath.contains(".")) {
-      int index = restPath.lastIndexOf(".");
-      extension = restPath.substring(index + 1);
-      if (RenderFactory.contains(extension)) {
-        restPath = restPath.substring(0, index);
-      } else {
-        extension = "";
+
+    Type returnType = method.getGenericReturnType();// 返回类型
+    if (File.class.isAssignableFrom(returnType.getClass())) {
+      extension = "file";
+    } else {
+      if (restPath.contains(".")) {
+        int index = restPath.lastIndexOf(".");
+        extension = restPath.substring(index + 1);
+        if (RenderFactory.contains(extension)) {
+          restPath = restPath.substring(0, index);
+        } else {
+          extension = "";
+        }
       }
     }
 

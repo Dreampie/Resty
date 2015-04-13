@@ -8,10 +8,8 @@ import cn.dreampie.common.http.WebResult;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.handler.Handler;
-import cn.dreampie.route.render.FileRender;
 
 import javax.servlet.ServletException;
-import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -55,12 +53,7 @@ public final class RouteHandler extends Handler {
       } else {
         result = invokeResult;
       }
-      //file render
-      if (result instanceof File) {
-        new FileRender().render(request, response, result);
-      } else {
-        routeMatch.getRender().render(request, response, result);
-      }
+      routeMatch.getRender().render(request, response, result);
     } else {
       String restPath = request.getRestPath();
       if (!restPath.equals("/")) {

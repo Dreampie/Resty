@@ -18,17 +18,17 @@ package cn.dreampie.route.core.multipart;
 import java.lang.annotation.*;
 
 /**
- *  上传文件时使用改方法 设置文件相关参数
+ * 上传文件时使用改方法 设置文件相关参数
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
 public @interface FILE {
-  String dir() default "";
+  String dir() default "";//文件上传的目录
 
-  int max() default -1;//10 Meg
+  int max() default -1;//上传的大小限制，默认最大10M
 
-  String encoding() default "";
+  String encoding() default "";//文件编码格式
 
-  String[] allows() default {}; //file content type eg. text/xml
+  String[] allows() default {}; //file content type eg. text/xml 允许上传的文件类型
 }

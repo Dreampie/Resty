@@ -23,6 +23,10 @@ public class JndiDataSourceProvider implements DataSourceProvider {
     this("default", jndiName, null);
   }
 
+  public JndiDataSourceProvider(String dsName, String jndiName){
+    this(dsName, jndiName, null);
+  }
+
   public JndiDataSourceProvider(String dsName, String jndiName, String dialect) {
     this.dsName = dsName;
     Context ctx;

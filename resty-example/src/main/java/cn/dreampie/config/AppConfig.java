@@ -5,6 +5,7 @@ import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.provider.c3p0.C3p0DataSourceProvider;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
+import cn.dreampie.orm.provider.jndi.JndiDataSourceProvider;
 import cn.dreampie.route.config.*;
 import cn.dreampie.route.handler.cors.CORSHandler;
 import cn.dreampie.route.interceptor.security.SecurityInterceptor;
@@ -14,7 +15,6 @@ import cn.dreampie.route.interceptor.transaction.TransactionInterceptor;
  * Created by ice on 14-12-29.
  */
 public class AppConfig extends Config {
-  private static Prop prop = Proper.use("application.properties");
 
   public void configConstant(ConstantLoader constantLoader) {
     //通过后缀来返回不同的数据类型  你可以自定义自己的  render  如：FreemarkerRender
@@ -37,15 +37,19 @@ public class AppConfig extends Config {
 
   public void configPlugin(PluginLoader pluginLoader) {
     //第一个数据库
-    C3p0DataSourceProvider ddsp = new C3p0DataSourceProvider("default");
-    ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(ddsp, true);
-    activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
-    pluginLoader.add(activeRecordPlugin);
+    C3p0DataSourceProvider cdsp = new C3p0DataSourceProvider("default");
+    ActiveRecordPlugin activeRecordCdsp = new ActiveRecordPlugin(cdsp, true);
+    activeRecordCdsp.addIncludePaths("cn.dreampie.resource");
+    pluginLoader.add(activeRecordCdsp);
 
     //第二个数据库
-    DruidDataSourceProvider ddsp2 = new DruidDataSourceProvider("demo");
-    ActiveRecordPlugin activeRecordPlugin2 = new ActiveRecordPlugin(ddsp2, true);
-    pluginLoader.add(activeRecordPlugin2);
+    DruidDataSourceProvider ddsp = new DruidDataSourceProvider("demo");
+    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp, true);
+    pluginLoader.add(activeRecordDdsp);
+
+    JndiDataSourceProvider jdsp=new JndiDataSourceProvider("jndiDs","jndiName");
+    ActiveRecordPlugin activeRecordJdsp = new ActiveRecordPlugin(ddsp, true);
+    pluginLoader.add(activeRecordJdsp);
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {

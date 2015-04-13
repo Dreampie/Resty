@@ -14,6 +14,11 @@ import java.util.Set;
  */
 public class MyAuthenticateService implements AuthenticateService {
 
+  /**
+   * 查询用户信息  这儿new一个用户对象来模拟
+   * @param username 登录的用户名
+   * @return 用户权限对象
+   */
   public Principal findByUsername(String username) {
     DefaultPasswordService defaultPasswordService = new DefaultPasswordService();
 
@@ -25,6 +30,10 @@ public class MyAuthenticateService implements AuthenticateService {
     return principal;
   }
 
+  /**
+   * 加载全部的权限信息
+   * @return 权限集合
+   */
   public Set<Credential> loadAllCredentials() {
     Set<Credential> credentials = new HashSet<Credential>();
     credentials.add(new Credential("*", "/api/v1.0/users/**", "users"));

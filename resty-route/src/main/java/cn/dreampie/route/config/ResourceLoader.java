@@ -4,8 +4,8 @@ import cn.dreampie.common.util.ClassScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.core.Resource;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Routes.
@@ -13,11 +13,11 @@ import java.util.List;
 final public class ResourceLoader {
   private static final Logger logger = Logger.getLogger(ResourceLoader.class);
 
-  private final List<Class<? extends Resource>> resources = new ArrayList<Class<? extends Resource>>();
-  private List<Class<? extends Resource>> excludeResources = new ArrayList<Class<? extends Resource>>();
-  private List<Class<? extends Resource>> includeResources = new ArrayList<Class<? extends Resource>>();
-  private List<String> includeResourcePaths = new ArrayList<String>();
-  private List<String> excludeResourcePaths = new ArrayList<String>();
+  private final Set<Class<? extends Resource>> resources = new HashSet<Class<? extends Resource>>();
+  private Set<Class<? extends Resource>> excludeResources = new HashSet<Class<? extends Resource>>();
+  private Set<Class<? extends Resource>> includeResources = new HashSet<Class<? extends Resource>>();
+  private Set<String> includeResourcePaths = new HashSet<String>();
+  private Set<String> excludeResourcePaths = new HashSet<String>();
 
   public ResourceLoader add(ResourceLoader resourceLoader) {
     if (resourceLoader != null) {
@@ -45,7 +45,7 @@ final public class ResourceLoader {
     return this;
   }
 
-  public ResourceLoader addExcludeClasses(List<Class<? extends Resource>> clazzes) {
+  public ResourceLoader addExcludeClasses(Set<Class<? extends Resource>> clazzes) {
     if (clazzes != null) {
       excludeResources.addAll(clazzes);
     }
@@ -66,7 +66,7 @@ final public class ResourceLoader {
     return this;
   }
 
-  public ResourceLoader addIncludeClasses(List<Class<? extends Resource>> clazzes) {
+  public ResourceLoader addIncludeClasses(Set<Class<? extends Resource>> clazzes) {
     if (clazzes != null) {
       includeResources.addAll(clazzes);
     }
@@ -112,7 +112,7 @@ final public class ResourceLoader {
     }
   }
 
-  public List<Class<? extends Resource>> getResources() {
+  public Set<Class<? extends Resource>> getResources() {
     return resources;
   }
 }

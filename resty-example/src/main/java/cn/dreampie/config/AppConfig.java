@@ -1,11 +1,8 @@
 package cn.dreampie.config;
 
-import cn.dreampie.common.util.properties.Prop;
-import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.provider.c3p0.C3p0DataSourceProvider;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
-import cn.dreampie.orm.provider.jndi.JndiDataSourceProvider;
 import cn.dreampie.route.config.*;
 import cn.dreampie.route.handler.cors.CORSHandler;
 import cn.dreampie.route.interceptor.security.SecurityInterceptor;
@@ -47,9 +44,9 @@ public class AppConfig extends Config {
     ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp, true);
     pluginLoader.add(activeRecordDdsp);
 
-    JndiDataSourceProvider jdsp=new JndiDataSourceProvider("jndiDs","jndiName");
-    ActiveRecordPlugin activeRecordJdsp = new ActiveRecordPlugin(ddsp, true);
-    pluginLoader.add(activeRecordJdsp);
+//    JndiDataSourceProvider jdsp = new JndiDataSourceProvider("jndiDs", "jndiName");
+//    ActiveRecordPlugin activeRecordJdsp = new ActiveRecordPlugin(ddsp, true);
+//    pluginLoader.add(activeRecordJdsp);
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {

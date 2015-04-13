@@ -6,9 +6,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -17,11 +18,11 @@ import java.util.jar.JarFile;
  */
 public class ClassScaner {
 
-  private List<String> includepaths = new ArrayList<String>();
+  private Set<String> includepaths = new HashSet<String>();
 
-  private static <T> List<Class<? extends T>> extraction(Class<T> clazz, List<String> classFileList) {
-    List<Class<? extends T>> classList = new ArrayList<Class<? extends T>>();
-    for (String classFile : classFileList) {
+  private static <T> Set<Class<? extends T>> extraction(Class<T> clazz, Set<String> classFileSet) {
+    Set<Class<? extends T>> classSet = new HashSet<Class<? extends T>>();
+    for (String classFile : classFileSet) {
       Class<?> classInFile = null;
       try {
         classInFile = Class.forName(classFile);
@@ -29,11 +30,11 @@ public class ClassScaner {
         throw new RuntimeException(e.getMessage(), e);
       }
       if (clazz.isAssignableFrom(classInFile) && clazz != classInFile) {
-        classList.add((Class<? extends T>) classInFile);
+        classSet.add((Class<? extends T>) classInFile);
       }
     }
 
-    return classList;
+    return classSet;
   }
 
   public static ClassScaner of(Class target) {
@@ -46,11 +47,11 @@ public class ClassScaner {
    * @param baseDirName    查找的文件夹路径
    * @param targetFileName 需要查找的文件名
    */
-  private static List<String> findFiles(String baseDirName, String targetFileName) {
+  private static Set<String> findFiles(String baseDirName, String targetFileName) {
     /**
      * 算法简述： 从某个给定的需查找的文件夹出发，搜索该文件夹的所有子文件夹及文件， 若为文件，则进行匹配，匹配成功则加入结果集，若为子文件夹，则进队列。 队列不空，重复上述操作，队列为空，程序结束，返回结果。
      */
-    List<String> classFiles = new ArrayList<String>();
+    Set<String> classFiles = new HashSet<String>();
     //判断class路径
     Enumeration<URL> baseURLs = null;
     try {
@@ -90,10 +91,10 @@ public class ClassScaner {
    *
    * @param baseDirName    路径
    * @param targetFileName 文件匹配
-   * @return
+   * @return Set
    */
-  private static List<String> findPathFiles(String baseDirName, String targetFileName) {
-    List<String> classFiles = new ArrayList<String>();
+  private static Set<String> findPathFiles(String baseDirName, String targetFileName) {
+    Set<String> classFiles = new HashSet<String>();
     String tempName = null;
     // 判断目录是否存在
     File baseDir = null;
@@ -102,16 +103,16 @@ public class ClassScaner {
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
-    if (!baseDir.exists() || !baseDir.isDirectory()) {
+    if (baseDir == null || !baseDir.exists() || !baseDir.isDirectory()) {
       throw new RuntimeException("search error：" + baseDirName + "is not a dir！");
     } else {
       String[] filelist = baseDir.list();
       String classname = null;
       String tem = null;
-      for (int i = 0; i < filelist.length; i++) {
-        File readfile = new File(baseDirName + File.separator + filelist[i]);
+      for (String aFilelist : filelist) {
+        File readfile = new File(baseDirName + File.separator + aFilelist);
         if (readfile.isDirectory()) {
-          classFiles.addAll(findPathFiles(baseDirName + File.separator + filelist[i], targetFileName));
+          classFiles.addAll(findPathFiles(baseDirName + File.separator + aFilelist, targetFileName));
         } else {
           tempName = readfile.getName();
           if (ClassScaner.wildcardMatch(targetFileName, tempName)) {
@@ -173,14 +174,12 @@ public class ClassScaner {
 
   public ClassScaner includepaths(String... classpaths) {
     if (classpaths != null) {
-      for (String classpath : classpaths) {
-        this.includepaths.add(classpath);
-      }
+      Collections.addAll(this.includepaths, classpaths);
     }
     return this;
   }
 
-  public ClassScaner includepaths(List<String> classpaths) {
+  public ClassScaner includepaths(Set<String> classpaths) {
     if (classpaths != null) {
       for (String classpath : classpaths) {
         this.includepaths.add(classpath);
@@ -190,9 +189,9 @@ public class ClassScaner {
   }
 
 
-  public <T> List<Class<? extends T>> search() {
+  public <T> Set<Class<? extends T>> search() {
     if (includepaths.size() <= 0) {
-      List<String> classFileList = new ArrayList<String>();
+      Set<String> classFileSet = new HashSet<String>();
       Enumeration<URL> resources = null;
       try {
         resources = ClassScaner.class.getClassLoader().getResources("");
@@ -202,19 +201,19 @@ public class ClassScaner {
       URL resource = null;
       while (resources.hasMoreElements()) {
         resource = resources.nextElement();
-        classFileList.addAll(findPathFiles(resource.getPath(), "*.class"));
+        classFileSet.addAll(findPathFiles(resource.getPath(), "*.class"));
       }
 
-//      classFileList.addAll(findjarFiles(libDir, includeJars, null));
+//      classFileSet.addAll(findjarFiles(libDir, includeJars, null));
 
-      return extraction(target, classFileList);
+      return extraction(target, classFileSet);
     } else {
-      List<String> classFileList = new ArrayList<String>();
+      Set<String> classFileSet = new HashSet<String>();
       for (String classpath : includepaths) {
-        classFileList.addAll(findFiles(classpath, "*.class"));
-//        classFileList.addAll(findjarFiles(libDir, includeJars, null));
+        classFileSet.addAll(findFiles(classpath, "*.class"));
+//        classFileSet.addAll(findjarFiles(libDir, includeJars, null));
       }
-      return extraction(target, classFileList);
+      return extraction(target, classFileSet);
     }
   }
 
@@ -225,8 +224,8 @@ public class ClassScaner {
    * @param includeJars
    * @param includeJars jar文件地址 <a href="http://my.oschina.net/u/556800" target="_blank" rel="nofollow">@return</a>
    */
-  private List<String> findjarFiles(String baseDirName, final List<String> includeJars, String packageName) {
-    List<String> classFiles = new ArrayList<String>();
+  private Set<String> findjarFiles(String baseDirName, final Set<String> includeJars, String packageName) {
+    Set<String> classFiles = new HashSet<String>();
     try {
       // 判断目录是否存在
       File baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
@@ -239,8 +238,8 @@ public class ClassScaner {
             return includeJars.contains(name);
           }
         });
-        for (int i = 0; i < filelist.length; i++) {
-          classFiles.addAll(findJarFile(baseDirName + File.separator + filelist[i], packageName));
+        for (String aFilelist : filelist) {
+          classFiles.addAll(findJarFile(baseDirName + File.separator + aFilelist, packageName));
         }
       }
 
@@ -259,16 +258,15 @@ public class ClassScaner {
    * @return list
    * @throws java.io.IOException 文件读取异常
    */
-  private static List<String> findJarFile(String filePath, String packageName) throws IOException {
-    List<String> classFiles = new ArrayList<String>();
+  private static Set<String> findJarFile(String filePath, String packageName) throws IOException {
     JarFile localJarFile = new JarFile(new File(filePath));
-    classFiles = findInJar(localJarFile, packageName);
+    Set<String> classFiles = findInJar(localJarFile, packageName);
     localJarFile.close();
     return classFiles;
   }
 
-  private static List<String> findInJar(JarFile localJarFile, String packageName) {
-    List<String> classFiles = new ArrayList<String>();
+  private static Set<String> findInJar(JarFile localJarFile, String packageName) {
+    Set<String> classFiles = new HashSet<String>();
     Enumeration<JarEntry> entries = localJarFile.entries();
     while (entries.hasMoreElements()) {
       JarEntry jarEntry = entries.nextElement();

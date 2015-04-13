@@ -12,17 +12,32 @@ import cn.dreampie.route.interceptor.InterceptorBuilder;
 import cn.dreampie.route.valid.Validator;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
- * ActionMapping
+ * Route Mapping
  */
 public final class RouteBuilder {
 
   private ResourceLoader resourceLoader;
   private InterceptorLoader interceptorLoader;
 
-  private List<Route> routes = new ArrayList<Route>();
+  //对routes排序
+  private Set<Route> routes = new TreeSet<Route>(
+      new Comparator<Route>() {
+        public int compare(Route a, Route b) {
+          String one = a.getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
+          String two = b.getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
+          int result = two.length() - one.length();
+          if (result == 0) {
+            return one.compareTo(two);
+          }
+          return result;
+        }
+      });
 
   public RouteBuilder(ResourceLoader resourceLoader, InterceptorLoader interceptorLoader) {
     this.resourceLoader = resourceLoader;
@@ -148,19 +163,6 @@ public final class RouteBuilder {
         }
       }
     }
-    //对routes排序
-    Collections.sort(routes, new Comparator() {
-      public int compare(Object a, Object b) {
-        String one = ((Route) a).getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
-        String two = ((Route) b).getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
-        int result = two.length() - one.length();
-        if (result == 0) {
-          return one.compareTo(two);
-        }
-        return result;
-      }
-    });
-
   }
 
   /**
@@ -207,7 +209,7 @@ public final class RouteBuilder {
     return apiPath;
   }
 
-  public List<Route> getRoutes() {
+  public Set<Route> getRoutes() {
     return routes;
   }
 }

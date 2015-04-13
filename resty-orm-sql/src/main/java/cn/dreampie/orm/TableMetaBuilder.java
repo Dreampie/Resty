@@ -9,7 +9,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 
 /**
@@ -19,7 +19,7 @@ public class TableMetaBuilder {
 
   private static final Logger logger = Logger.getLogger(TableMetaBuilder.class);
 
-  public static List<TableMeta> buildModel(List<TableMeta> tableMetas, DataSourceMeta dsm) {
+  public static Set<TableMeta> buildModel(Set<TableMeta> tableMetas, DataSourceMeta dsm) {
     TableMeta temp = null;
     Connection conn = null;
     try {

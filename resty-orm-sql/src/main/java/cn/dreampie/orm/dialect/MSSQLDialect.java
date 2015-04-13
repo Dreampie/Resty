@@ -3,7 +3,6 @@ package cn.dreampie.orm.dialect;
 import cn.dreampie.orm.exception.DBException;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by ice on 15-1-12.

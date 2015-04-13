@@ -84,7 +84,7 @@ public abstract class DefaultDialect implements Dialect {
     if (!where.startsWith(" ")) {
       where = " " + where;
     }
-    
+
     Matcher om = orderPattern.matcher(where);
     if (om.find()) {
       if (om.start() == 0) {

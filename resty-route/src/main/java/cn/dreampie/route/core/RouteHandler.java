@@ -13,6 +13,7 @@ import cn.dreampie.route.render.FileRender;
 import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * ActionHandler
@@ -33,7 +34,8 @@ public final class RouteHandler extends Handler {
     RouteMatch routeMatch = null;
     Route route = null;
 
-    for (Route r : routeBuilder.getRoutes()) {
+    Set<Route> routeSet = routeBuilder.getRoutes();
+    for (Route r : routeSet) {
       routeMatch = r.match(request, response);
       if (routeMatch != null) {
         route = r;

@@ -2,7 +2,6 @@ package cn.dreampie.common.util.json;
 
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.util.Stringer;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;

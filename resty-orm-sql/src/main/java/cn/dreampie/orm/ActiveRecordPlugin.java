@@ -8,8 +8,8 @@ import cn.dreampie.common.util.json.ModelSerializer;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.provider.DataSourceProvider;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * ActiveRecord plugin.
@@ -17,10 +17,10 @@ import java.util.List;
 public class ActiveRecordPlugin implements Plugin {
   private static final Logger logger = Logger.getLogger(ActiveRecordPlugin.class);
 
-  private List<Class<? extends Model>> excludeClasses = new ArrayList<Class<? extends Model>>();
-  private List<Class<? extends Model>> includeClasses = new ArrayList<Class<? extends Model>>();
-  private List<String> includeClassPaths = new ArrayList<String>();
-  private List<String> excludeClassPaths = new ArrayList<String>();
+  private Set<Class<? extends Model>> excludeClasses = new HashSet<Class<? extends Model>>();
+  private Set<Class<? extends Model>> includeClasses = new HashSet<Class<? extends Model>>();
+  private Set<String> includeClassPaths = new HashSet<String>();
+  private Set<String> excludeClassPaths = new HashSet<String>();
 
   private DataSourceProvider dataSourceProvider;
   private boolean showSql = false;
@@ -41,7 +41,7 @@ public class ActiveRecordPlugin implements Plugin {
     return this;
   }
 
-  public ActiveRecordPlugin addExcludeClasses(List<Class<? extends Model>> clazzes) {
+  public ActiveRecordPlugin addExcludeClasses(Set<Class<? extends Model>> clazzes) {
     if (clazzes != null) {
       excludeClasses.addAll(clazzes);
     }
@@ -62,7 +62,7 @@ public class ActiveRecordPlugin implements Plugin {
     return this;
   }
 
-  public ActiveRecordPlugin addIncludeClasses(List<Class<? extends Model>> clazzes) {
+  public ActiveRecordPlugin addIncludeClasses(Set<Class<? extends Model>> clazzes) {
     if (clazzes != null) {
       includeClasses.addAll(clazzes);
     }
@@ -87,7 +87,7 @@ public class ActiveRecordPlugin implements Plugin {
 
     DataSourceMeta dsm = new DataSourceMeta(dataSourceProvider, showSql);
     if (includeClasses.size() > 0) {
-      List<TableMeta> tableMetas = new ArrayList<TableMeta>();
+      Set<TableMeta> tableMetas = new HashSet<TableMeta>();
       TableMeta tableMeta = null;
       boolean isexclude = false;
       for (Class<? extends Model> modelClass : includeClasses) {

@@ -20,7 +20,7 @@ public class JsonRender extends Render {
     } else if (out instanceof String) {
       write(request, response, (String) out);
     } else {
-      String json = Jsoner.toJSONString(out);
+      String json = Jsoner.toJSON(out);
       write(request, response, json);
     }
   }

@@ -17,7 +17,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <servlet.version>2.5</servlet.version>
-    <fastjson.version>1.1.41</fastjson.version>
+    <fastjson.version>1.2.5</fastjson.version>
     <resty.version>${project.parent.version}</resty.version>
     <ehcache.version>2.6.6</ehcache.version>
     <c3p0.version>0.9.1.2</c3p0.version>

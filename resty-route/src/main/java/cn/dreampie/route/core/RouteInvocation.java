@@ -147,7 +147,7 @@ public class RouteInvocation {
       if (paramType == String.class) {
         params.set(name, value);
       } else {
-        obj = Jsoner.parseObject(value, paramType);
+        obj = Jsoner.toObject(value, paramType);
         if (obj == null) {
           params.set(name, null);
         } else {
@@ -189,7 +189,7 @@ public class RouteInvocation {
         if (paramType == String.class) {
           params.set(name, routeMatch.getPathParam(name));
         } else
-          params.set(name, Jsoner.parseObject(routeMatch.getPathParam(name), paramType));
+          params.set(name, Jsoner.toObject(routeMatch.getPathParam(name), paramType));
       } else {//其他参数
         if (paramType == UploadedFile.class) {
           params.set(name, routeMatch.getFileParam(name));
@@ -246,7 +246,7 @@ public class RouteInvocation {
     boolean hasJsonParam = null != json && !"".equals(json);
     Map<String, Object> paramsMap = null;
     if (hasJsonParam) {
-      paramsMap = Jsoner.parseObject(json, Map.class);
+      paramsMap = Jsoner.toObject(json, Map.class);
       hasJsonParam = paramsMap != null && paramsMap.size() > 0;
     }
     for (String name : allParamNames) {
@@ -257,7 +257,7 @@ public class RouteInvocation {
         if (paramType == String.class) {
           params.set(name, routeMatch.getPathParam(name));
         } else {
-          params.set(name, Jsoner.parseObject(routeMatch.getPathParam(name), paramType));
+          params.set(name, Jsoner.toObject(routeMatch.getPathParam(name), paramType));
         }
       } else {//其他参数
         if (hasJsonParam) {
@@ -344,7 +344,7 @@ public class RouteInvocation {
                     if (paramTypeClass.isAssignableFrom(e.getClass()))
                       ((List<Object>) newblist).add(e);
                     else
-                      ((List<Object>) newblist).add(Jsoner.parseObject(Jsoner.toJSONString(e), paramTypeClass));
+                      ((List<Object>) newblist).add(Jsoner.toObject(Jsoner.toJSON(e), paramTypeClass));
                   }
                 }
                 params.set(name, newblist);
@@ -373,14 +373,14 @@ public class RouteInvocation {
                     if (paramTypeClass.isAssignableFrom(e.getClass()))
                       ((Set<Object>) newbset).add(e);
                     else
-                      ((Set<Object>) newbset).add(Jsoner.parseObject(Jsoner.toJSONString(e), paramTypeClass));
+                      ((Set<Object>) newbset).add(Jsoner.toObject(Jsoner.toJSON(e), paramTypeClass));
                   }
                 }
                 params.set(name, newbset);
               }
             }
           } else {
-            params.set(name, Jsoner.parseObject(Jsoner.toJSONString(obj), paramType));
+            params.set(name, Jsoner.toObject(Jsoner.toJSON(obj), paramType));
           }
         }
       } catch (Exception e) {

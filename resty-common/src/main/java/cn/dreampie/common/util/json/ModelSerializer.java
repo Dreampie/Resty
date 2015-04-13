@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
-import com.alibaba.fastjson.serializer.SerializeWriter;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -24,10 +23,9 @@ public enum ModelSerializer implements ObjectSerializer {
   }
 
 
-  public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType) throws IOException {
-    SerializeWriter write = serializer.getWriter();
+  public void write(JSONSerializer serializer, Object object, Object fieldName, Type fieldType, int features) throws IOException {
     if (object == null) {
-      write.writeNull();
+      serializer.writeNull();
       return;
     }
 
@@ -40,7 +38,7 @@ public enum ModelSerializer implements ObjectSerializer {
           fieldAnn = m.getAnnotation(JSONField.class);
           mName = m.getName();
           if ((fieldAnn == null || fieldAnn.serialize()) && mName.length() > 3 && mName.startsWith("get")
-              && !hasMethod((Entity<?>) object, mName)) {
+              && !hasMethod((Entity) object, mName)) {
             try {
               m.invoke(object);
             } catch (Exception e) {
@@ -49,12 +47,12 @@ public enum ModelSerializer implements ObjectSerializer {
           }
         }
       }
-      serializer.write(((Entity<?>) object).getAttrs());
+      serializer.write(((Entity) object).getAttrs());
     }
 
   }
 
-  private boolean hasMethod(Entity<?> object, String mName) {
+  private boolean hasMethod(Entity object, String mName) {
     Map<String, Object> attrs = object.getAttrs();
     String name = mName.replace("get", "");
     return attrs.containsKey(Stringer.firstLowerCase(name))

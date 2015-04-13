@@ -2,8 +2,16 @@ package cn.dreampie.example;
 
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.resource.user.model.User;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ice on 14-12-31.
@@ -21,18 +29,23 @@ public class JsonTest {
     User user = new User().set("id", 1);
 
 
-//    String json = Jsoner.toJSONString(user);
+//    String json = Jsoner.toJSON(user);
 //    System.out.println(json);
-//    User t = Jsoner.parseObject("{\"key\":\"value\"}", User.class);
+//    User t = Jsoner.toObject("{\"key\":\"value\"}", User.class);
 //    System.out.println(t.get("key"));
 //
-//    String[] a = Jsoner.parseObject(Jsoner.toJSONString(new String[]{"a", "b", "c"}), String[].class);
+//    String[] a = Jsoner.toObject(Jsoner.toJSON(new String[]{"a", "b", "c"}), String[].class);
 
-    String json = Jsoner.toJSONString(user);
+    String json = Jsoner.toJSON(user);
     System.out.println(json);
-    final User u = Jsoner.parseObject(json, User.class);
+    final User u = Jsoner.toObject(json, User.class);
 
 //    System.out.println("" + u.getRoleId() + u.getUserInfos() + u.getPermissions() + u.getPermissionIds());
 
+    Map<String, Date> map = new HashMap<String, Date>();
+    map.put("date", new Timestamp(new Date().getTime()));
+    System.out.println(Jsoner.toJSON(map));
+    Map<String, Long> m = Jsoner.toObject("{k:1}", new TypeReference<Map<String, Long>>() {
+    });
   }
 }

@@ -21,9 +21,25 @@ import java.util.regex.Pattern;
  */
 public abstract class DefaultDialect implements Dialect {
 
+
+  protected final Pattern selectPattern = Pattern.compile("^\\s*SELECT\\s*",
+      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
   protected final Pattern orderPattern = Pattern.compile("\\s*ORDER\\s*BY\\s*",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
+  protected final Pattern groupPattern = Pattern.compile("\\s*GROUP\\s*BY\\s*",
+      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
+  protected final Pattern havingPattern = Pattern.compile("\\s*HAVING\\s*",
+      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
+  /**
+   * 获取别名
+   *
+   * @param alias 别名
+   * @return String
+   */
   protected String getAlias(String alias) {
     if (null != alias && !"".equals(alias.trim())) {
       alias = " " + alias;
@@ -33,6 +49,13 @@ public abstract class DefaultDialect implements Dialect {
     return alias;
   }
 
+  /**
+   * 获取前缀
+   *
+   * @param alias   别名
+   * @param columns 列
+   * @return 列数组
+   */
   protected String[] getPrefix(String alias, String... columns) {
     if (null != alias && !"".equals(alias.trim()) && columns.length > 0) {
       String[] newColumns = new String[columns.length];
@@ -51,6 +74,41 @@ public abstract class DefaultDialect implements Dialect {
     }
   }
 
+  /**
+   * 拼接where条件
+   *
+   * @param where 条件
+   * @return String
+   */
+  public String getWhere(String where) {
+    if (!where.startsWith(" ")) {
+      where = " " + where;
+    }
+    
+    Matcher om = orderPattern.matcher(where);
+    if (om.find()) {
+      if (om.start() == 0) {
+        return where;
+      }
+    }
+
+    Matcher gm = groupPattern.matcher(where);
+    if (gm.find()) {
+      if (gm.start() == 0) {
+        return where;
+      }
+    }
+
+    Matcher hm = havingPattern.matcher(where);
+    if (hm.find()) {
+      if (hm.start() == 0) {
+        return where;
+      }
+    }
+
+    return " WHERE" + where;
+  }
+
   public String select(String table) {
     return "SELECT * FROM " + table;
   }
@@ -63,13 +121,13 @@ public abstract class DefaultDialect implements Dialect {
 
   public String select(String table, String alias, String where) {
     if (where == null || "".equals(where.trim())) return select(table);
-    return "SELECT * FROM " + table + getAlias(alias) + " WHERE " + where;
+    return "SELECT * FROM " + table + getAlias(alias) + getWhere(where);
   }
 
   public String select(String table, String alias, String where, String... columns) {
     if (where == null || "".equals(where.trim())) return select(table, columns);
     if (columns == null || columns.length <= 0) return select(table, alias, where);
-    return "SELECT " + Joiner.on(", ").join(getPrefix(alias, columns)) + " FROM " + table + getAlias(alias) + " WHERE " + where;
+    return "SELECT " + Joiner.on(", ").join(getPrefix(alias, columns)) + " FROM " + table + getAlias(alias) + getWhere(where);
   }
 
   protected void appendQuestions(StringBuilder sql, int count) {
@@ -98,7 +156,7 @@ public abstract class DefaultDialect implements Dialect {
 
   public String delete(String table, String where) {
     if (where == null || "".equals(where.trim())) return delete(table);
-    return "DELETE FROM " + table + " WHERE " + where;
+    return "DELETE FROM " + table + getWhere(where);
   }
 
 
@@ -110,7 +168,7 @@ public abstract class DefaultDialect implements Dialect {
   public String update(String table, String alias, String where, String... columns) {
     if (where == null || "".equals(where.trim())) return update(table, columns);
     if (columns == null || columns.length <= 0) throw new NullPointerException("Could not found columns to update.");
-    return "UPDATE " + table + getAlias(alias) + " SET " + Joiner.on("=?, ").join(getPrefix(alias, columns)) + "=? WHERE " + where;
+    return "UPDATE " + table + getAlias(alias) + " SET " + Joiner.on("=?, ").join(getPrefix(alias, columns)) + "=?" + getWhere(where);
   }
 
   public String count(String table) {
@@ -120,20 +178,19 @@ public abstract class DefaultDialect implements Dialect {
 
   public String count(String table, String alias, String where) {
     if (where == null || "".equals(where.trim())) return count(table);
-    return "SELECT COUNT(*) FROM " + table + getAlias(alias) + " WHERE " + where;
+    return "SELECT COUNT(*) FROM " + table + getAlias(alias) + getWhere(where);
   }
 
   public String countWith(String sql) {
     Matcher om = orderPattern.matcher(sql);
     if (om.find()) {
-      int oindex = om.end();
-      if (oindex > sql.lastIndexOf(")")) {
+      int index = om.end();
+      if (index > sql.lastIndexOf(")")) {
         sql = sql.substring(0, om.start());
       }
     }
     return "SELECT COUNT(*) FROM (" + sql + ") count_alias";
   }
-
 
   public String paginate(int pageNumber, int pageSize, String table) {
     return paginateWith(pageNumber, pageSize, select(table));

@@ -10,9 +10,6 @@ import java.util.regex.Pattern;
  */
 public class MSSQLDialect extends DefaultDialect {
 
-  protected final Pattern selectPattern = Pattern.compile("^\\s*SELECT\\s*",
-      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
   public String getDbType() {
     return "mssql";
   }

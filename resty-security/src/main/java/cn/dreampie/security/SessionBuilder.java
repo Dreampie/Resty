@@ -172,7 +172,7 @@ public class SessionBuilder {
   }
 
   private Map<String, String> readEntries(String cookie) {
-    return (Map<String, String>) Jsoner.parseObject(cookie, Map.class);
+    return (Map<String, String>) Jsoner.toObject(cookie, Map.class);
   }
 
   private void updateSessionInClient(HttpResponse resp, Session session) {
@@ -194,7 +194,7 @@ public class SessionBuilder {
     } else {
       Map<String, String> map = Maper.copyOf(sessionMap);
       map.put(EXPIRES, Long.toString(session.getExpires()));
-      String sessionJson = Jsoner.toJSONString(map);
+      String sessionJson = Jsoner.toJSON(map);
       return Maper.of(sessionCookieDescriptor.getCookieName(), sessionJson,
           sessionCookieDescriptor.getCookieSignatureName(), signer.sign(sessionJson));
     }

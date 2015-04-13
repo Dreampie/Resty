@@ -2,6 +2,7 @@ package cn.dreampie.common.util.json;
 
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.util.Stringer;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
@@ -24,9 +25,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
     return INSTANCE;
   }
 
-
   public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-
     Map<String, Object> map = parser.parseObject();
     Class<?> clazz = (Class<?>) type;
     if (clazz.isInterface()) {
@@ -34,7 +33,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
     }
 
     try {
-      Entity<?> e = (Entity<?>) clazz.newInstance();
+      Entity e = (Entity) clazz.newInstance();
       if (e.checkMethod()) {
         return (T) e.putAttrs(deserialze(map, clazz));
       } else {
@@ -55,14 +54,14 @@ public enum ModelDeserializer implements ObjectDeserializer {
     Class<?> returnType = null;
 
     List<Map<String, Object>> list = null;
-    List<Entity<?>> newlist = null;
+    List<Entity> newlist = null;
 
     JSONArray blist = null;
     List<?> newblist = null;
 
     Class returnTypeClass = null;
 
-    Set<Entity<?>> newset = null;
+    Set<Entity> newset = null;
 
     JSONArray bset = null;
     Set<?> newbset = null;
@@ -80,7 +79,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
             //判断是不是包含 Entity类型
             if (obj instanceof JSONObject) {
               if (Entity.class.isAssignableFrom(returnType)) {
-                Entity<?> e = (Entity<?>) returnType.newInstance();
+                Entity e = (Entity) returnType.newInstance();
                 e.putAttrs(deserialze((Map<String, Object>) obj, returnType));
                 map.put(key, e);
               }
@@ -92,9 +91,9 @@ public enum ModelDeserializer implements ObjectDeserializer {
                   if (List.class.isAssignableFrom(returnType)) {
                     if (Entity.class.isAssignableFrom(returnTypeClass)) {
                       list = (List<Map<String, Object>>) obj;
-                      newlist = new ArrayList<Entity<?>>();
+                      newlist = new ArrayList<Entity>();
                       for (Map<String, Object> mp : list) {
-                        Entity<?> e = (Entity<?>) returnTypeClass.newInstance();
+                        Entity e = (Entity) returnTypeClass.newInstance();
                         e.putAttrs(deserialze(mp, returnTypeClass));
                         newlist.add(e);
                       }
@@ -112,7 +111,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                           if (returnTypeClass.isAssignableFrom(e.getClass()))
                             ((List<Object>) newblist).add(e);
                           else
-                            ((List<Object>) newblist).add(Jsoner.parseObject(Jsoner.toJSONString(e), returnTypeClass));
+                            ((List<Object>) newblist).add(Jsoner.toObject(Jsoner.toJSON(e), returnTypeClass));
                         }
                       }
                       map.put(key, newblist);
@@ -120,9 +119,9 @@ public enum ModelDeserializer implements ObjectDeserializer {
                   } else if (Set.class.isAssignableFrom(returnType)) {
                     if (Entity.class.isAssignableFrom(returnTypeClass)) {
                       list = (List<Map<String, Object>>) obj;
-                      newset = new HashSet<Entity<?>>();
+                      newset = new HashSet<Entity>();
                       for (Map<String, Object> mp : list) {
-                        Entity<?> e = (Entity<?>) returnTypeClass.newInstance();
+                        Entity e = (Entity) returnTypeClass.newInstance();
                         e.putAttrs(deserialze(mp, returnTypeClass));
                         newset.add(e);
                       }
@@ -140,7 +139,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                           if (returnTypeClass.isAssignableFrom(e.getClass()))
                             ((Set<Object>) newbset).add(e);
                           else
-                            ((Set<Object>) newbset).add(Jsoner.parseObject(Jsoner.toJSONString(e), returnTypeClass));
+                            ((Set<Object>) newbset).add(Jsoner.toObject(Jsoner.toJSON(e), returnTypeClass));
                         }
                       }
                       map.put(key, newbset);
@@ -148,7 +147,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
                   }
                 }
               } else {
-                map.put(key, Jsoner.parseObject(Jsoner.toJSONString(obj), returnType));
+                map.put(key, Jsoner.toObject(Jsoner.toJSON(obj), returnType));
               }
           }
         }

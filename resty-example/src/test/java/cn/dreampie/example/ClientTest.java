@@ -81,7 +81,7 @@ public class ClientTest {
   @Test
   public void testSave() {
     ClientRequest request = new ClientRequest("/users/1", HttpMethod.POST);
-    request.setJsonParameter(Jsoner.toJSONString(
+    request.setJsonParameter(Jsoner.toJSON(
         new HashMap<String, Object>() {
           {
             put("users", new ArrayList<Map>() {

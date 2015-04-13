@@ -143,7 +143,7 @@ public abstract class Entity<M extends Entity> {
       if (clazz.isAssignableFrom(String.class)) {
         return (T) value.toString();
       } else {
-        return Jsoner.parseObject(Jsoner.toJSONString(value), clazz);
+        return Jsoner.toObject(Jsoner.toJSON(value), clazz);
       }
     }
   }
@@ -283,7 +283,7 @@ public abstract class Entity<M extends Entity> {
    * Return json string of this record.
    */
   public String toJson() {
-    return Jsoner.toJSONString(attrs);
+    return Jsoner.toJSON(attrs);
   }
 
   /**

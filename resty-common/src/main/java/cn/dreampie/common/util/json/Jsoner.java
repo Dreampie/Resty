@@ -21,9 +21,10 @@ public class Jsoner {
   private static SerializeConfig config = SerializeConfig.getGlobalInstance();
 
   static {
-    config.put(Date.class, new SimpleDateFormatSerializer(JSON.DEFFAULT_DATE_FORMAT));
-    config.put(Timestamp.class, new SimpleDateFormatSerializer(JSON.DEFFAULT_DATE_FORMAT));
-    config.put(Time.class, new SimpleDateFormatSerializer(JSON.DEFFAULT_DATE_FORMAT));
+    config.put(java.util.Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
+    config.put(java.sql.Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd"));
+    config.put(java.sql.Timestamp.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss.SSS"));
+    config.put(java.sql.Time.class, new SimpleDateFormatSerializer("HH:mm:ss"));
   }
 
   private static ParserConfig parserConfig = ParserConfig.getGlobalInstance();

@@ -28,14 +28,6 @@ public class MailSender {
 
   /**
    * @param subject    主题
-   * @param recipients 收件人
-   */
-  public static SimpleEmail getSimpleEmail(String subject, String... recipients) throws EmailException {
-    return getSimpleEmail(subject, null, recipients);
-  }
-
-  /**
-   * @param subject    主题
    * @param body       内容
    * @param recipients 收件人
    */
@@ -123,8 +115,8 @@ public class MailSender {
    * @param subject    主题
    * @param recipients 收件人
    */
-  public static MultiPartEmail getMultiPartEmail(String subject, String... recipients) {
-    return getMultiPartEmail(subject, null, null, recipients);
+  public static MultiPartEmail getMultiPartEmail(String subject, String body, String... recipients) {
+    return getMultiPartEmail(subject, body, null, recipients);
   }
 
   /**
@@ -137,8 +129,7 @@ public class MailSender {
     try {
       MultiPartEmail multiPartEmail = new MultiPartEmail();
       configEmail(subject, multiPartEmail, recipients);
-      if (body != null)
-        multiPartEmail.setMsg(body);
+      multiPartEmail.setMsg(body);
       // add the attachment
       if (attachment != null)
         multiPartEmail.attach(attachment);

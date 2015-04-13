@@ -10,6 +10,8 @@ import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.*;
 
 import java.lang.reflect.Type;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -20,6 +22,8 @@ public class Jsoner {
 
   static {
     config.put(Date.class, new SimpleDateFormatSerializer(JSON.DEFFAULT_DATE_FORMAT));
+    config.put(Timestamp.class, new SimpleDateFormatSerializer(JSON.DEFFAULT_DATE_FORMAT));
+    config.put(Time.class, new SimpleDateFormatSerializer(JSON.DEFFAULT_DATE_FORMAT));
   }
 
   private static ParserConfig parserConfig = ParserConfig.getGlobalInstance();

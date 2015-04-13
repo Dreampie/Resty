@@ -114,11 +114,10 @@ public class FileRender extends Render {
         } catch (IOException ie) {
           // 忽略 ClientAbortException 之类的异常
         } catch (Exception e) {
-          logger.error(e.getMessage(), e);
+          throw new WebException(e.getMessage());
         }
-
       } else {
-        throw new WebException("File render object isn't a file.");
+        logger.warn("File render object isn't a file.");
       }
     }
   }

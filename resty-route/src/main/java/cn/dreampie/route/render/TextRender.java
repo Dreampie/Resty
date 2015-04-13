@@ -11,11 +11,10 @@ import cn.dreampie.common.util.HttpTyper;
 public class TextRender extends Render {
 
   public void render(HttpRequest request, HttpResponse response, Object out) {
-    response.setContentType(HttpTyper.ContentType.TEXT.toString());
-    if (out == null) {
-      write(request, response, "");
-    } else {
+    if (out != null) {
+      response.setContentType(HttpTyper.ContentType.TEXT.toString());
       write(request, response, out.toString());
     }
   }
+
 }

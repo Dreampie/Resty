@@ -33,7 +33,10 @@ public final class RouteBuilder {
           String two = b.getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
           int result = two.length() - one.length();
           if (result == 0) {
-            return one.compareTo(two);
+            result = a.getHttpMethod().compareTo(b.getHttpMethod());
+            if (result == 0) {
+              return a.getPathPattern().compareTo(b.getPathPattern());
+            }
           }
           return result;
         }

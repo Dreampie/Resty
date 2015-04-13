@@ -10,9 +10,6 @@ import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.*;
 
 import java.lang.reflect.Type;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Date;
 
 /**
  * Created by ice on 14-12-31.

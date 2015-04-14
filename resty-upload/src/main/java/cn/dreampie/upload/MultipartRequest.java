@@ -6,6 +6,8 @@ package cn.dreampie.upload;
 
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.UploadedFile;
+import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.Lister;
 import cn.dreampie.log.Logger;
 import cn.dreampie.upload.multipart.*;
@@ -211,9 +213,9 @@ public class MultipartRequest {
                           FileRenamePolicy policy, String[] allows, String[] denieds) throws IOException {
     // Sanity check values
     if (request == null)
-      throw new IllegalArgumentException("request cannot be null");
+      throw new IllegalArgumentException("Request cannot be null.");
     if (maxPostSize <= 0) {
-      throw new IllegalArgumentException("maxPostSize must be positive");
+      throw new IllegalArgumentException("MaxPostSize must be positive.");
     }
 
     // Check saveDirectory is truly a directory
@@ -222,7 +224,7 @@ public class MultipartRequest {
 
     // Check saveDirectory is writable
     if (!saveDirectory.canWrite())
-      throw new IllegalArgumentException("Not writable: " + saveDirectory);
+      throw new IOException("Not writable: " + saveDirectory);
 
     // Parse the incoming multipart, storing files in the dir provided, 
     // and populate the meta objects which describe what we found
@@ -253,8 +255,8 @@ public class MultipartRequest {
         filePart = (FilePart) part;
         contentType = filePart.getContentType();
         if ((allowTypes.size() > 0 && !allowTypes.contains(contentType)) || (deniedTypes.size() > 0 && deniedTypes.contains(contentType))) {
-          logger.warn("Denied upload file %s.", filePart.getFileName());
-          continue;
+          throw new WebException("Denied upload file type '" + filePart.getContentType() + "'.");
+          //continue;
         }
 
         String fileName = filePart.getFileName();
@@ -270,7 +272,7 @@ public class MultipartRequest {
         } else {
           // The field did not contain a file
           files.put(name, new UploadedFile(null, null, null, null));
-          logger.info("Upload empty file %s.", name);
+          logger.warn("Upload empty file %s.", name);
         }
       }
     }

@@ -66,7 +66,8 @@ public class HttpTyper {
     HTML("text/html"),
     XML("text/xml"),
     JSON("application/json"),
-    JAVASCRIPT("application/javascript");
+    JAVASCRIPT("application/javascript"),
+    MULTIPART("multipart/form-data");
 
     private final String value;
 

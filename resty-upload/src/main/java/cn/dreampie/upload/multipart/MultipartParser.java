@@ -1,6 +1,8 @@
 package cn.dreampie.upload.multipart;
 
 import cn.dreampie.common.http.HttpRequest;
+import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.util.HttpTyper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -147,27 +149,25 @@ public class MultipartParser {
       type = type1;
     }
     // If neither value is null, choose the longer value
-    else if (type1 != null && type2 != null) {
+    else if (type1 != null) {
       type = (type1.length() > type2.length() ? type1 : type2);
     }
 
-    if (type == null ||
-        !type.toLowerCase().startsWith("multipart/form-data")) {
-      throw new IOException("Posted content type isn't multipart/form-data");
+    if (type == null || !type.toLowerCase().startsWith(HttpTyper.ContentType.MULTIPART.value())) {
+      throw new WebException("Posted content type isn't '" + HttpTyper.ContentType.MULTIPART.value() + "'.");
     }
-
     // Check the content length to prevent denial of service attacks
     int length = req.getContentLength();
     if (length > maxSize) {
-      throw new IOException("Posted content length of " + length +
-          " exceeds limit of " + maxSize);
+      throw new WebException("Posted content length of " + length +
+          " exceeds limit of " + maxSize + ".");
     }
 
     // Get the boundary string; it's included in the content type.
     // Should look something like "------------------------12012133613061"
     String boundary = extractBoundary(type);
     if (boundary == null) {
-      throw new IOException("Separation boundary was not specified");
+      throw new IOException("File separation boundary was not specified.");
     }
 
     InputStream is = req.getContentStream();

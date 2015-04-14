@@ -43,7 +43,9 @@ public class TransactionAspect implements Aspect {
           excutors[i] = new TransactionExecutor(names[i], readonly.length == 1 ? readonly[0] : readonly[i], levels.length == 1 ? levels[0] : levels[i]);
         }
       }
-    } else {
+    }
+
+    if (excutors != null) {
       if (index < excutors.length) {
         result = excutors[index++].transaction(this, ih, proxy, method, args);
       } else if (index++ == excutors.length) {
@@ -51,9 +53,11 @@ public class TransactionAspect implements Aspect {
         excutors = null;
         result = ih.invoke(proxy, method, args);
       }
+      return result;
+    } else {
+      return ih.invoke(proxy, method, args);
     }
 
-    return result;
   }
 
 }

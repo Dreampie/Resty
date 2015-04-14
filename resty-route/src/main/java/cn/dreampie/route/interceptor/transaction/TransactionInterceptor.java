@@ -36,7 +36,9 @@ public class TransactionInterceptor implements Interceptor {
         }
         excutorsTL.set(excutors);
       }
-    } else {
+    }
+
+    if (excutors != null) {
       if (index < excutors.length) {
         indexTL.set(index + 1);
         result = excutors[index].transaction(this, ri);
@@ -44,8 +46,10 @@ public class TransactionInterceptor implements Interceptor {
         indexTL.set(index + 1);
         result = ri.invoke();
       }
+      return result;
+    } else {
+      return ri.invoke();
     }
-    return result;
   }
 
 }

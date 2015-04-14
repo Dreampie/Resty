@@ -89,19 +89,19 @@ public class ActiveRecordPlugin implements Plugin {
     if (includeClasses.size() > 0) {
       Set<TableMeta> tableMetas = new HashSet<TableMeta>();
       TableMeta tableMeta = null;
-      boolean isexclude = false;
+      boolean isExclude = false;
       for (Class<? extends Model> modelClass : includeClasses) {
-        isexclude = false;
+        isExclude = false;
         if (excludeClassPaths.size() > 0) {
           for (String excludepath : excludeClassPaths) {
             if (modelClass.getName().startsWith(excludepath)) {
               logger.debug("Exclude model:" + modelClass.getName());
-              isexclude = true;
+              isExclude = true;
               break;
             }
           }
         }
-        if (isexclude || excludeClasses.contains(modelClass)) {
+        if (isExclude || excludeClasses.contains(modelClass)) {
           continue;
         }
         //add modelMeta

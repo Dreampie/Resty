@@ -88,20 +88,20 @@ final public class ResourceLoader {
         includeResources.addAll(ClassScaner.of(Resource.class).includepaths(includeResourcePaths).<Resource>search());
       }
     }
-    boolean isexclude = false;
+    boolean isExclude = false;
     if (includeResources.size() > 0) {
       for (Class resource : includeResources) {
-        isexclude = false;
+        isExclude = false;
         if (excludeResourcePaths.size() > 0) {
           for (String excludepath : excludeResourcePaths) {
             if (resource.getName().startsWith(excludepath)) {
               logger.debug("Exclude resource:" + resource.getName());
-              isexclude = true;
+              isExclude = true;
               break;
             }
           }
         }
-        if (isexclude || excludeResources.contains(resource)) {
+        if (isExclude || excludeResources.contains(resource)) {
           continue;
         }
         this.add(resource);

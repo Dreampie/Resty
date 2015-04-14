@@ -89,15 +89,32 @@ public final class RestyFilter implements Filter {
           logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error - " + e.getMessage());
         }
       } catch (Exception e) {
-        response.setStatus(HttpStatus.BAD_REQUEST);
-        RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getMessage());
-        if (logger.isErrorEnabled()) {
-          logger.error(request.getRestPath(), e);
+        responseException(request, response, e);
+      } finally {
+        try {
+          response.close();
+        } catch (Exception e) {
+          responseException(request, response, e);
         }
       }
     }
     if (!isHandled[0])
       chain.doFilter(servletRequest, servletResponse);
+  }
+
+  /**
+   * 输出严重异常
+   *
+   * @param request  request
+   * @param response response
+   * @param e        exception
+   */
+  public void responseException(HttpRequest request, HttpResponse response, Exception e) {
+    response.setStatus(HttpStatus.BAD_REQUEST);
+    RenderFactory.getByUrl(request.getRestPath()).render(request, response, e.getMessage());
+    if (logger.isErrorEnabled()) {
+      logger.error(request.getRestPath(), e);
+    }
   }
 
   public void destroy() {

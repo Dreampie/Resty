@@ -28,16 +28,6 @@ public abstract class Render {
       writer.print(content);
     } catch (IOException e) {
       throw new WebException(e.getMessage());
-    } finally {
-      try {
-        if (writer != null) {
-          writer.flush();
-          writer.close();
-        }
-        response.close();
-      } catch (Exception e) {
-        throw new WebException(e.getMessage());
-      }
     }
   }
 
@@ -48,16 +38,6 @@ public abstract class Render {
       ImageIO.write(content, type.value(), outputStream);
     } catch (Exception e) {
       throw new WebException(e.getMessage());
-    } finally {
-      try {
-        if (outputStream != null) {
-          outputStream.flush();
-          outputStream.close();
-        }
-        response.close();
-      } catch (Exception e) {
-        throw new WebException(e.getMessage());
-      }
     }
   }
 }

@@ -9,4 +9,7 @@ import cn.dreampie.resource.user.model.User;
 public interface UserService {
   @Transaction
   public User save(User u);
+
+  @Transaction
+  public User update(User u);
 }

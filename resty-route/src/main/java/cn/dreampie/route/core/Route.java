@@ -203,7 +203,7 @@ public class Route {
       sb.append("\nPathParas    : ");
       if (params.size() > 0) {
         for (String key : params.keySet()) {
-          sb.append(key).append("=").append(params.get(key));
+          sb.append(key).append(" = <").append(params.get(key)).append(">");
           sb.append("  ");
         }
       }
@@ -214,11 +214,11 @@ public class Route {
         for (String key : otherParams.keySet()) {
           values = otherParams.get(key);
           if (values.size() == 1) {
-            sb.append(key).append("=").append(values.get(0));
+            sb.append(key).append(" = <").append(values.get(0)).append(">");
           } else {
-            sb.append(key).append("[]={");
+            sb.append(key).append("[] = <{");
             sb.append(Joiner.on(",").join(values));
-            sb.append("}");
+            sb.append("}>");
           }
           sb.append("  ");
         }
@@ -230,7 +230,7 @@ public class Route {
         UploadedFile value;
         for (String key : fileParams.keySet()) {
           value = fileParams.get(key);
-          sb.append(key).append("=").append(value.getOriginalFileName()).append("(").append(value.getContentType()).append(")");
+          sb.append(key).append(" = <").append(value.getOriginalFileName()).append("(").append(value.getContentType()).append(")>");
           sb.append("  ");
         }
       }

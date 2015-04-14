@@ -48,7 +48,7 @@ public class SecurityInterceptor implements Interceptor {
       this.sessionBuilder = new SessionBuilder(expires, limit, rememberDay, authenticateService);
   }
 
-  public Object intercept(RouteInvocation ri) {
+  public void intercept(RouteInvocation ri) {
     HttpRequest request = ri.getRouteMatch().getRequest();
     HttpResponse response = ri.getRouteMatch().getResponse();
 
@@ -57,13 +57,11 @@ public class SecurityInterceptor implements Interceptor {
     //检测权限
     Subject.check(request.getHttpMethod(), request.getRestPath());
     //执行resource
-    Object result = ri.invoke();
+    ri.invoke();
     //把session  写入cookie
     sessionBuilder.out(oldSession, response);
     //保存session到cache
     sessionBuilder.buildSessionMetadata(request, oldSession);
-
-    return result;
   }
 
 }

@@ -88,7 +88,7 @@ public enum QueryCache {
       StringBuilder log = new StringBuilder().append(access).append(" ").append(group).append(" ").append(query).append(" ");
       if (params != null && params.length > 0) {
         log.append(", with parameters: ").append('<');
-        Joiner.on(">, <").join(log, params);
+        log.append(Joiner.on(">, <").join(params));
         log.append('>');
       }
       logger.info(log.toString());

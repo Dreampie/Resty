@@ -2,9 +2,12 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.http.HttpRequest;
+import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.http.result.HttpStatus;
+import cn.dreampie.common.http.result.ImageResult;
+import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.common.util.json.ModelDeserializer;
@@ -12,11 +15,14 @@ import cn.dreampie.common.util.json.ObjectCastException;
 import cn.dreampie.common.util.stream.StreamReader;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
+import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.ValidResult;
 import cn.dreampie.route.valid.Validator;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 
+import java.awt.image.RenderedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -50,10 +56,9 @@ public class RouteInvocation {
   /**
    * Invoke the route.
    */
-  public Object invoke() {
-    Object result = null;
+  public void invoke() {
     if (index < interceptors.length) {
-      result = interceptors[index++].intercept(this);
+      interceptors[index++].intercept(this);
     } else if (index++ == interceptors.length) {
       Resource resource = null;
       try {
@@ -75,10 +80,14 @@ public class RouteInvocation {
 
         //数据验证
         validate(params);
-        //执行方法
+        //执行方法的参数
         Object[] args = params.getValues();
         route.getMethod().setAccessible(true);
-        result = route.getMethod().invoke(resource, args);
+
+        //执行方法
+        Object invokeResult = route.getMethod().invoke(resource, args);
+        //输出结果
+        render(invokeResult);
       } catch (ObjectCastException e) {
         logger.warn("Argument type convert error - " + e.getMessage());
         throw new WebException("Argument type convert error - " + e.getMessage());
@@ -98,7 +107,35 @@ public class RouteInvocation {
         throw new WebException("Route method access error - " + e.getMessage());
       }
     }
-    return result;
+  }
+
+  /**
+   * 输出内容
+   *
+   * @param invokeResult invokeResult
+   */
+  private void render(Object invokeResult) {
+    Object result = null;
+    HttpRequest request = routeMatch.getRequest();
+    HttpResponse response = routeMatch.getResponse();
+    //通过特定的webresult返回并携带状态码
+    if (invokeResult instanceof WebResult) {
+      WebResult webResult = (WebResult) invokeResult;
+      response.setStatus(webResult.getStatus());
+      result = webResult.getResult();
+    } else {
+      result = invokeResult;
+    }
+    //file render
+    if (result instanceof File) {
+      RenderFactory.get("file").render(request, response, result);
+    } else
+      //image render
+      if (result instanceof ImageResult || result instanceof RenderedImage) {
+        RenderFactory.get("image").render(request, response, result);
+      } else {
+        routeMatch.getRender().render(request, response, result);
+      }
   }
 
   /**

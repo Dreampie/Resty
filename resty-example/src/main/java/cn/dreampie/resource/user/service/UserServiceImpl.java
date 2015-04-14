@@ -19,6 +19,12 @@ public class UserServiceImpl implements UserService {
       userInfo.set("user_id", u.get("id"));
       userInfo.save();
     }
+    update(u);
+    return u;
+  }
+
+  public User update(User u) {
+    u.update();
     return u;
   }
 }

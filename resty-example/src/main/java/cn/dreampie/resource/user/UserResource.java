@@ -2,15 +2,14 @@ package cn.dreampie.resource.user;
 
 import cn.dreampie.orm.Page;
 import cn.dreampie.orm.transaction.AspectFactory;
-import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.orm.transaction.TransactionAspect;
 import cn.dreampie.resource.ApiResource;
 import cn.dreampie.resource.user.model.User;
-import cn.dreampie.resource.user.model.UserInfo;
 import cn.dreampie.resource.user.service.UserService;
 import cn.dreampie.resource.user.service.UserServiceImpl;
 import cn.dreampie.route.core.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -70,26 +69,27 @@ public class UserResource extends ApiResource {
 
 
   @GET("/transactions")
-  @Transaction
+//  @Transaction
   public User transaction() {
-    User u = new User().set("username", "test").set("providername", "test").set("password", "123456").set("sid", "1");
-    UserInfo userInfo = null;
-    if (u.get("user_info") == null) {
-      userInfo = new UserInfo().set("gender", 0);
-    } else {
-      userInfo = u.get("user_info");
-    }
-    if (u.save()) {
-      userInfo.set("user_id", u.get("id"));
-      userInfo.save();
+    User u = new User().set("username", "test").set("providername", "test").set("password", "123456").set("sid", "1").set("created_at", new Date());
+//    UserInfo userInfo = null;
+//    if (u.get("user_info") == null) {
+//      userInfo = new UserInfo().set("gender", 0);
+//    } else {
+//      userInfo = u.get("user_info");
+//    }
+//    if (u.save()) {
+//      userInfo.set("user_id", u.get("id"));
+//      userInfo.save();
 
 //      int[] a = new int[0];
 //      System.out.println(a[2]);  报错 让事务回滚
-    }
-    u.set("id", u.get("id")).set("username", "x").update();
-    return u;
+//    }
+//    u.set("id", u.get("id")).set("username", "x").update();
+//    return u;
     //service层的事务
-    //return userService.save(new User().set("username", "test").set("providername", "test").set("password", "123456"));
+    userService.save(u);
+    return null;
   }
 
 }

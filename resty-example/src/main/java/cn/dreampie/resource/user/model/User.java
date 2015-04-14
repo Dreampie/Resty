@@ -19,14 +19,14 @@ public class User extends Model<User> {
   // 支持驼峰和下划线 两种属性名字和驼峰方法的映射 (userInfos也可以使用下划线模式 user_infos全小写 也会映射到getUserInfos()方法)
   // 个人喜欢数据库和属性 都使用下划线的方式
   public List<UserInfo> getUserInfos() {
-    if (this.get("user_infos") == null) {
+    if (this.get("user_infos") == null && this.get("id") != null) {
       this.put("user_infos", UserInfo.dao.findBy("user_id=?", this.get("id")));
     }
     return this.get("user_infos");
   }
 
   public Long getRoleId() {
-    if (this.get("role_id") == null) {
+    if (this.get("role_id") == null && this.get("id") != null) {
       String sql = "SELECT user_role.role_id FROM sec_user_role user_role WHERE user_role.user_id=?";
       this.put("role_id", queryLong(sql, this.get("id")));
     }
@@ -34,17 +34,19 @@ public class User extends Model<User> {
   }
 
   public List<String> getPermissions() {
-    if (this.get("permissions") == null) {
+    Long roleId = getRoleId();
+    if (this.get("permissions") == null && roleId != null) {
       String sql = "SELECT permission.value FROM sec_permission permission WHERE permission.id in(SELECT rolePermission.permission_id FROM sec_role_permission rolePermission WHERE rolePermission.role_id=?)";
-      this.put("permissions", query(sql, getRoleId()));
+      this.put("permissions", query(sql, roleId));
     }
     return this.get("permissions");
   }
 
   public List<Long> getPermissionIds() {
-    if (this.get("permission_ids") == null) {
+    Long roleId = getRoleId();
+    if (this.get("permission_ids") == null && roleId != null) {
       String sql = "SELECT permission.id FROM sec_permission permission WHERE permission.id in(SELECT rolePermission.permission_id FROM sec_role_permission rolePermission WHERE rolePermission.role_id=?)";
-      this.put("permission_ids", query(sql, getRoleId()));
+      this.put("permission_ids", query(sql, roleId));
     }
     return this.get("permission_ids");
   }

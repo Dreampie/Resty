@@ -68,8 +68,6 @@ public class ClassScaner {
         String basePath = baseURL.getFile();
 
         // 如果是以文件的形式保存在服务器上
-//      if ("file".equals(protocol)) {
-//      } else
         if ("jar".equals(protocol)) {
           String[] paths = basePath.split("!/");
           // 获取jar
@@ -104,7 +102,7 @@ public class ClassScaner {
       e.printStackTrace();
     }
     if (baseDir == null || !baseDir.exists() || !baseDir.isDirectory()) {
-      throw new RuntimeException("search error：" + baseDirName + "is not a dir！");
+      throw new RuntimeException("Search error：" + baseDirName + "is not a dir！");
     } else {
       String[] filelist = baseDir.list();
       String classname = null;
@@ -188,40 +186,28 @@ public class ClassScaner {
     return this;
   }
 
-
+  /**
+   * 搜索目录
+   *
+   * @param <T> 返回的lcass类型
+   * @return 搜索到的class
+   */
   public <T> Set<Class<? extends T>> search() {
-    if (includepaths.size() <= 0) {
-      Set<String> classFileSet = new HashSet<String>();
-      Enumeration<URL> resources = null;
-      try {
-        resources = ClassScaner.class.getClassLoader().getResources("");
-      } catch (IOException e) {
-        throw new RuntimeException(e.getMessage(), e);
-      }
-      URL resource = null;
-      while (resources.hasMoreElements()) {
-        resource = resources.nextElement();
-        classFileSet.addAll(findPathFiles(resource.getPath(), "*.class"));
-      }
-
-//      classFileSet.addAll(findjarFiles(libDir, includeJars, null));
-
-      return extraction(target, classFileSet);
-    } else {
+    Set<Class<? extends T>> classSet = new HashSet<Class<? extends T>>();
+    if (includepaths.size() > 0) {
       Set<String> classFileSet = new HashSet<String>();
       for (String classpath : includepaths) {
         classFileSet.addAll(findFiles(classpath, "*.class"));
-//        classFileSet.addAll(findjarFiles(libDir, includeJars, null));
       }
-      return extraction(target, classFileSet);
+      classSet = extraction(target, classFileSet);
     }
+    return classSet;
   }
 
   /**
    * 查找jar包中的class
    *
    * @param baseDirName jar路径
-   * @param includeJars
    * @param includeJars jar文件地址 <a href="http://my.oschina.net/u/556800" target="_blank" rel="nofollow">@return</a>
    */
   private Set<String> findjarFiles(String baseDirName, final Set<String> includeJars, String packageName) {
@@ -230,7 +216,7 @@ public class ClassScaner {
       // 判断目录是否存在
       File baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
       if (!baseDir.exists() || !baseDir.isDirectory()) {
-        throw new RuntimeException("file serach error：" + baseDirName + " is not a dir！");
+        throw new RuntimeException("Jar file search error：" + baseDirName + " is not a dir！");
       } else {
         String[] filelist = baseDir.list(new FilenameFilter() {
 

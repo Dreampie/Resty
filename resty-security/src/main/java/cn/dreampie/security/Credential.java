@@ -8,22 +8,22 @@ public class Credential {
   public static final String CREDENTIAL_DEF_KEY = "_credential";
   public static final String CREDENTIAL_ALL_KEY = "_allCredentials";
 
-  private String method;
+  private String httpMethod;
   private String antPath;
   private String value;
 
-  public Credential(String method, String antPath, String value) {
-    this.method = method.toUpperCase();
+  public Credential(String httpMethod, String antPath, String value) {
+    this.httpMethod = httpMethod.toUpperCase();
     this.antPath = antPath;
     this.value = value;
   }
 
-  public String getMethod() {
-    return method;
+  public String getHttpMethod() {
+    return httpMethod;
   }
 
-  public void setMethod(String method) {
-    this.method = method;
+  public void setHttpMethod(String httpMethod) {
+    this.httpMethod = httpMethod;
   }
 
   public String getAntPath() {

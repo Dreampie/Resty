@@ -7,7 +7,7 @@ VALUES (1,'超级管理员','R_ADMIN','',0, current_timestamp),
        (4,'分部','R_USER','',2,current_timestamp);
 
 -- create permission--
-INSERT INTO sec_permission(id, name,method, value, url, intro,pid, created_at)
+INSERT INTO sec_permission(id, name,httpMethod, value, url, intro,pid, created_at)
 VALUES (1,'管理员目录','*','P_D_ADMIN','/admin/**','',0,current_timestamp),
        (2,'角色权限管理','*','P_ROLE','/admin/role/**','',1,current_timestamp),
        (3,'用户管理','*','P_USER','/admin/user/**','',1,current_timestamp),

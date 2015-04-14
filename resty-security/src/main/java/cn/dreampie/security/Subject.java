@@ -103,7 +103,7 @@ public class Subject {
 
 
   /**
-   * 当前的路径需要的权限值
+   * 当前api需要的权限值
    *
    * @param httpMethod
    * @param path
@@ -114,7 +114,7 @@ public class Subject {
 
     String method;
     for (Credential credential : credentialSet) {
-      method = credential.getMethod();
+      method = credential.getHttpMethod();
       if ((method.equals("*") || method.equals(httpMethod))
           && AntPathMatcher.instance().match(credential.getAntPath(), path)) {
         return credential.getValue();
@@ -145,7 +145,7 @@ public class Subject {
   }
 
   /**
-   * 判断是否用权限
+   * 判断是否有当前api权限
    *
    * @param httpMethod
    * @param path

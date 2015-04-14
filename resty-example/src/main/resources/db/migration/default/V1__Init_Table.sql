@@ -77,7 +77,7 @@ CREATE TABLE sec_permission (
   COMMENT '名称',
   value      VARCHAR(50) NOT NULL
   COMMENT '值',
-  method     VARCHAR(10) NOT NULL
+  httpMethod VARCHAR(10) NOT NULL
   COMMENT '请求方法',
   url        VARCHAR(255) COMMENT 'url地址',
   intro      VARCHAR(255) COMMENT '简介',

@@ -7,7 +7,6 @@ package cn.dreampie.upload;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.exception.WebException;
-import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.Lister;
 import cn.dreampie.log.Logger;
 import cn.dreampie.upload.multipart.*;

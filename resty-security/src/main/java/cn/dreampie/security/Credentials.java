@@ -3,9 +3,7 @@ package cn.dreampie.security;
 import cn.dreampie.common.Constant;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -16,7 +14,19 @@ public class Credentials {
 
   private final AuthenticateService authenticateService;
   private final long expires;
-  private Set<Credential> credentials;
+  private Set<Credential> credentials = new TreeSet<Credential>(new Comparator<Credential>() {
+    public int compare(Credential a, Credential b) {
+      int result = b.getAntPath().length() - a.getAntPath().length();
+      if (result == 0) {
+        result = a.getHttpMethod().compareTo(b.getHttpMethod());
+        if (result == 0) {
+          return a.getAntPath().compareTo(b.getAntPath());
+        }
+      }
+      return result;
+    }
+  });
+
   private Map<String, Principal> principals = new HashMap<String, Principal>();
   private long lastAccess;
 
@@ -38,12 +48,12 @@ public class Credentials {
       //load  all  cache
       credentialSet = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
       if (credentialSet == null) {
-        credentialSet = authenticateService.loadAllCredentials();
+        credentialSet = newSet(authenticateService.loadAllCredentials());
         SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, credentialSet);
       }
     } else {
       if (credentials == null || credentials.size() <= 0 || System.currentTimeMillis() > lastAccess) {
-        credentials = authenticateService.loadAllCredentials();
+        credentials = newSet(authenticateService.loadAllCredentials());
         lastAccess = System.currentTimeMillis() + expires;
       }
       credentialSet = credentials;
@@ -84,5 +94,11 @@ public class Credentials {
       }
     }
     return principal;
+  }
+
+  public Set<Credential> newSet(Set<Credential> credentialSet) {
+    credentials.clear();
+    credentials.addAll(credentialSet);
+    return credentials;
   }
 }

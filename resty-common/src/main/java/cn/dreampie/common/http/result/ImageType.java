@@ -7,14 +7,14 @@ public enum ImageType {
 
   PNG("png"), JPG("jpg"), GIF("gif"), BMP("bmp");
 
-  private final String type;
+  private final String value;
 
-  private ImageType(String type) {
-    this.type = type;
+  private ImageType(String value) {
+    this.value = value;
   }
 
-  public String getType() {
-    return type;
+  public String value() {
+    return value;
   }
 
 }

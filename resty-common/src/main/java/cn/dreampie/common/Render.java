@@ -45,7 +45,7 @@ public abstract class Render {
     OutputStream outputStream = null;
     try {
       outputStream = response.getOutputStream();
-      ImageIO.write(content, type.getType(), outputStream);
+      ImageIO.write(content, type.value(), outputStream);
     } catch (Exception e) {
       throw new WebException(e.getMessage());
     } finally {

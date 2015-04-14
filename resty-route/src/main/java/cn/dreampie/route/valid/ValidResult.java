@@ -1,6 +1,6 @@
 package cn.dreampie.route.valid;
 
-import cn.dreampie.common.http.HttpStatus;
+import cn.dreampie.common.http.result.HttpStatus;
 
 import java.util.HashMap;
 import java.util.Map;

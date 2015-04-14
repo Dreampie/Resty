@@ -1,6 +1,7 @@
 package cn.dreampie.common.http;
 
 import cn.dreampie.common.Response;
+import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;

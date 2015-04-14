@@ -2,9 +2,9 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.http.HttpRequest;
-import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.common.util.json.ModelDeserializer;
@@ -72,7 +72,6 @@ public class RouteInvocation {
         } else {
           params = getFormParams();
         }
-
 
         //数据验证
         validate(params);

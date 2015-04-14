@@ -1,8 +1,8 @@
 package cn.dreampie.resource;
 
-import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.UploadedFile;
-import cn.dreampie.common.http.WebResult;
+import cn.dreampie.common.http.result.HttpStatus;
+import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.orm.Record;
 import cn.dreampie.orm.transaction.Transaction;

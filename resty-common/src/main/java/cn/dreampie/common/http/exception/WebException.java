@@ -1,6 +1,6 @@
 package cn.dreampie.common.http.exception;
 
-import cn.dreampie.common.http.HttpStatus;
+import cn.dreampie.common.http.result.HttpStatus;
 
 /**
  * Created by ice on 14-12-19.

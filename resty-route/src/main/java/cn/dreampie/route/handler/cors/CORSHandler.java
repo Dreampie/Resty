@@ -2,8 +2,8 @@ package cn.dreampie.route.handler.cors;
 
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.Lister;
 import cn.dreampie.log.Logger;

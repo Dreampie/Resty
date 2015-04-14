@@ -1,6 +1,7 @@
 package cn.dreampie.common.http;
 
 import cn.dreampie.common.Response;
+import cn.dreampie.common.http.result.HttpStatus;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;

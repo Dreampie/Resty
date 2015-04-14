@@ -3,8 +3,8 @@ package cn.dreampie.route.render;
 import cn.dreampie.common.Render;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.log.Logger;
 
 import java.io.*;

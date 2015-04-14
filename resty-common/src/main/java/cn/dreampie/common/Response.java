@@ -1,6 +1,6 @@
 package cn.dreampie.common;
 
-import cn.dreampie.common.http.HttpStatus;
+import cn.dreampie.common.http.result.HttpStatus;
 
 import java.io.IOException;
 import java.io.OutputStream;

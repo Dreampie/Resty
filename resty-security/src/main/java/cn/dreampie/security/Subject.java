@@ -1,7 +1,7 @@
 package cn.dreampie.security;
 
-import cn.dreampie.common.http.HttpStatus;
 import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.pattern.AntPathMatcher;
 import cn.dreampie.log.Logger;
 import cn.dreampie.security.cache.SessionCache;

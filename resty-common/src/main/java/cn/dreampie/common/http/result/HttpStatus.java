@@ -1,4 +1,4 @@
-package cn.dreampie.common.http;
+package cn.dreampie.common.http.result;
 
 /**
  * Created by ice on 14-12-19.

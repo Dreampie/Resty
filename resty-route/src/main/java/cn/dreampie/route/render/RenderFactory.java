@@ -11,15 +11,12 @@ import java.util.Map;
 public class RenderFactory {
 
   private static String defaultExtension = "json";
-  private static String[] imageTypes = new String[]{"png", "jpg", "gif", "bmp"};
 
   private static Map<String, Render> renderMap = new HashMap<String, Render>() {{
     put("json", new JsonRender());
     put("text", new TextRender());
     put("file", new FileRender());
-    for (String type : imageTypes) {
-      put(type, new ImageRender(type));
-    }
+    put("image", new ImageRender());
   }};
 
 

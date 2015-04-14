@@ -23,12 +23,13 @@ public class TransactionExecutor {
   }
 
 
-  public void transaction(TransactionAspect aspect, InvocationHandler ih, Object proxy, Method method, Object[] args) {
+  public Object transaction(TransactionAspect aspect, InvocationHandler ih, Object proxy, Method method, Object[] args) {
     TransactionManager transactionManager = new TransactionManager(Metadata.getDataSourceMeta(dsName));
+    Object result = null;
     try {
       transactionManager.begin(readonly, level);
 
-      aspect.aspect(ih, proxy, method, args);
+      result = aspect.aspect(ih, proxy, method, args);
 
       transactionManager.commit();
     } catch (Throwable t) {
@@ -37,5 +38,6 @@ public class TransactionExecutor {
     } finally {
       transactionManager.end();
     }
+    return result;
   }
 }

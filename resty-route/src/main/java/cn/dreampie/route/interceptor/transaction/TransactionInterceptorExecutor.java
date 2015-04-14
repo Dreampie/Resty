@@ -23,12 +23,13 @@ public class TransactionInterceptorExecutor {
   }
 
 
-  public void transaction(Interceptor interceptor, RouteInvocation ri) {
+  public Object transaction(Interceptor interceptor, RouteInvocation ri) {
     TransactionManager transactionManager = new TransactionManager(Metadata.getDataSourceMeta(dsName));
+    Object result = null;
     try {
       transactionManager.begin(readonly, level);
 
-      interceptor.intercept(ri);
+      result = interceptor.intercept(ri);
 
       transactionManager.commit();
     } catch (Throwable t) {
@@ -37,5 +38,6 @@ public class TransactionInterceptorExecutor {
     } finally {
       transactionManager.end();
     }
+    return result;
   }
 }

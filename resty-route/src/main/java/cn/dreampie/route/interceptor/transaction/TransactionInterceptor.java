@@ -18,6 +18,7 @@ public class TransactionInterceptor implements Interceptor {
   };
 
   public Object intercept(RouteInvocation ri) {
+    Object result = null;
     int index = indexTL.get();
     TransactionInterceptorExecutor[] excutors = excutorsTL.get();
     if (excutors == null) {
@@ -35,17 +36,16 @@ public class TransactionInterceptor implements Interceptor {
         }
         excutorsTL.set(excutors);
       }
-    }
-
-    if (excutors != null && excutors.length > 0) {
+    } else {
       if (index < excutors.length) {
         indexTL.set(index + 1);
-        excutors[index].transaction(this, ri);
+        result = excutors[index].transaction(this, ri);
       } else if (index == excutors.length) {
         indexTL.set(index + 1);
+        result = ri.invoke();
       }
     }
-    return ri.invoke();
+    return result;
   }
 
 }

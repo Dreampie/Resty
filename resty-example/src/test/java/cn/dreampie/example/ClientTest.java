@@ -55,7 +55,7 @@ public class ClientTest {
 
   @Test
   public void testTransaction() {
-    ClientRequest request = new ClientRequest("/tests/transaction", HttpMethod.POST);
+    ClientRequest request = new ClientRequest("/tests", HttpMethod.GET);
     System.out.println(client.build(request).ask());
   }
 

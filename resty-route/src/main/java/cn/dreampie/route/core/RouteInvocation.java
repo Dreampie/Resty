@@ -52,9 +52,9 @@ public class RouteInvocation {
    */
   public Object invoke() {
     Object result = null;
-    if (index < interceptors.length)
+    if (index < interceptors.length) {
       result = interceptors[index++].intercept(this);
-    else if (index++ == interceptors.length) {
+    } else if (index++ == interceptors.length) {
       Resource resource = null;
       try {
         //初始化resource

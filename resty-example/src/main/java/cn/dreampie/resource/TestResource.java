@@ -30,10 +30,11 @@ public class TestResource extends ApiResource {
   }
 
   @GET
+  @Transaction(readonly = true)
   public WebResult get() {
 //    Subject.login("userq", "123");
     //如果需要返回请求状态  new WebResult
-    return new WebResult(HttpStatus.OK, Maper.of("a", "1", "b", "2"));
+    return new WebResult(HttpStatus.OK, User.dao.findAll());
   }
 
   @POST("/tests")

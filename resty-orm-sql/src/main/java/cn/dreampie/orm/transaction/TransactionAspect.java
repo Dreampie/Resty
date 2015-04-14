@@ -28,6 +28,7 @@ public class TransactionAspect implements Aspect {
       logger.info("Instance an TransactionAspect to add transaction for method %s.", method.getName());
       return new TransactionAspect(0, excutors).aspect(ih, proxy, method, args);
     }
+    Object result = null;
     if (excutors == null) {
       Transaction transactionAnn = method.getAnnotation(Transaction.class);
       if (transactionAnn != null) {
@@ -42,18 +43,17 @@ public class TransactionAspect implements Aspect {
           excutors[i] = new TransactionExecutor(names[i], readonly.length == 1 ? readonly[0] : readonly[i], levels.length == 1 ? levels[0] : levels[i]);
         }
       }
-    }
-
-    if (excutors != null && excutors.length > 0) {
-      if (index < excutors.length)
-        excutors[index++].transaction(this, ih, proxy, method, args);
-      else if (index++ == excutors.length) {
-        index = 0;
+    } else {
+      if (index < excutors.length) {
+        result = excutors[index++].transaction(this, ih, proxy, method, args);
+      } else if (index++ == excutors.length) {
+        index = -1;
         excutors = null;
+        result = ih.invoke(proxy, method, args);
       }
     }
 
-    return ih.invoke(proxy, method, args);
+    return result;
   }
 
 }

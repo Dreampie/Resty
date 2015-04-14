@@ -26,12 +26,12 @@ public abstract class Render {
     try {
       writer = response.getWriter();
       writer.print(content);
-      writer.flush();
     } catch (IOException e) {
       throw new WebException(e.getMessage());
     } finally {
       try {
         if (writer != null) {
+          writer.flush();
           writer.close();
         }
         response.close();

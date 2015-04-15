@@ -1,8 +1,6 @@
-// Copyright (C) 1999-2001 by Jason Hunter <jhunter_AT_acm_DOT_org>.
-// All rights reserved.  Use of this class is limited.
-// Please see the LICENSE for more information.
-
 package cn.dreampie.upload.multipart;
+
+import cn.dreampie.common.util.stream.FileRenamer;
 
 import java.io.*;
 
@@ -40,9 +38,9 @@ public class FilePart extends Part {
   private PartInputStream partInput;
 
   /**
-   * file rename policy
+   * file rename renamer
    */
-  private FileRenamePolicy policy;
+  private FileRenamer renamer;
 
   /**
    * Construct a file part; this is called by the parser.
@@ -69,10 +67,10 @@ public class FilePart extends Part {
   }
 
   /**
-   * Puts in place the specified policy for handling file name collisions.
+   * Puts in place the specified renamer for handling file name collisions.
    */
-  public void setRenamePolicy(FileRenamePolicy policy) {
-    this.policy = policy;
+  public void setRenamePolicy(FileRenamer policy) {
+    this.renamer = policy;
   }
 
   /**
@@ -157,8 +155,8 @@ public class FilePart extends Part {
           // ignoring the filename it arrived with
           file = fileOrDirectory;
         }
-        if (policy != null) {
-          file = policy.rename(file);
+        if (renamer != null) {
+          file = renamer.rename(file);
           fileName = file.getName();
         }
         fileOut = new BufferedOutputStream(new FileOutputStream(file));

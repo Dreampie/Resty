@@ -1,8 +1,4 @@
-// Copyright (C) 2002 by Jason Hunter <jhunter_AT_acm_DOT_org>.
-// All rights reserved.  Use of this class is limited.
-// Please see the LICENSE for more information.
-
-package cn.dreampie.upload.multipart;
+package cn.dreampie.common.util.stream;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +16,7 @@ import java.io.IOException;
  * @version 1.0, 2002/04/30, initial revision, thanks to Yoonjung Lee
  *          for this idea
  */
-public class DefaultFileRenamePolicy implements FileRenamePolicy {
+public class DefaultFileRenamer implements FileRenamer {
 
   // This method does not need to be synchronized because createNewFile()
   // is atomic and used here to mark when a file name is chosen

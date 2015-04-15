@@ -1,7 +1,3 @@
-// Copyright (C) 1999-2001 by Jason Hunter <jhunter_AT_acm_DOT_org>.
-// All rights reserved.  Use of this class is limited.
-// Please see the LICENSE for more information.
-
 package cn.dreampie.upload.multipart;
 
 import java.io.FilterOutputStream;

@@ -1,8 +1,4 @@
-// Copyright (C) 2002 by Jason Hunter <jhunter_AT_acm_DOT_org>.
-// All rights reserved.  Use of this class is limited.
-// Please see the LICENSE for more information.
-
-package cn.dreampie.upload.multipart;
+package cn.dreampie.common.util.stream;
 
 import java.io.File;
 
@@ -14,12 +10,10 @@ import java.io.File;
  * @version 1.0, 2002/04/30, initial revision, thanks to Changshin Lee for
  *          the basic idea
  */
-public interface FileRenamePolicy {
+public interface FileRenamer {
 
   /**
    * Returns a File object holding a new name for the specified file.
-   *
-   * @see FilePart#writeTo(java.io.File fileOrDirectory)
    */
   public File rename(File f);
 

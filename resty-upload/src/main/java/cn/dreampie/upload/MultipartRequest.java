@@ -1,15 +1,15 @@
-// Copyright (C) 1998-2001 by Jason Hunter <jhunter_AT_acm_DOT_org>.
-// All rights reserved.  Use of this class is limited.
-// Please see the LICENSE for more information.
-
 package cn.dreampie.upload;
 
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.Lister;
+import cn.dreampie.common.util.stream.FileRenamer;
 import cn.dreampie.log.Logger;
-import cn.dreampie.upload.multipart.*;
+import cn.dreampie.upload.multipart.FilePart;
+import cn.dreampie.upload.multipart.MultipartParser;
+import cn.dreampie.upload.multipart.ParamPart;
+import cn.dreampie.upload.multipart.Part;
 
 import java.io.File;
 import java.io.IOException;
@@ -133,7 +133,7 @@ public class MultipartRequest {
   public MultipartRequest(HttpRequest request,
                           String saveDirectory,
                           int maxPostSize,
-                          FileRenamePolicy policy) throws IOException {
+                          FileRenamer policy) throws IOException {
     this(request, saveDirectory, maxPostSize, null, policy);
   }
 
@@ -182,7 +182,7 @@ public class MultipartRequest {
                           String saveDirectory,
                           int maxPostSize,
                           String encoding,
-                          FileRenamePolicy policy) throws IOException {
+                          FileRenamer policy) throws IOException {
     this(request, new File(saveDirectory), maxPostSize, encoding, policy, null, null);
   }
 
@@ -209,7 +209,7 @@ public class MultipartRequest {
                           File saveDirectory,
                           int maxPostSize,
                           String encoding,
-                          FileRenamePolicy policy, String[] allows, String[] denieds) throws IOException {
+                          FileRenamer policy, String[] allows, String[] denieds) throws IOException {
     // Sanity check values
     if (request == null)
       throw new IllegalArgumentException("Request cannot be null.");

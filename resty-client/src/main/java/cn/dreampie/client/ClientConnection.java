@@ -2,6 +2,8 @@ package cn.dreampie.client;
 
 import cn.dreampie.client.exception.ClientException;
 import cn.dreampie.common.util.HttpTyper;
+import cn.dreampie.common.util.stream.DefaultFileRenamer;
+import cn.dreampie.common.util.stream.FileRenamer;
 import cn.dreampie.log.Logger;
 
 import javax.net.ssl.*;
@@ -27,6 +29,8 @@ public class ClientConnection {
 
   protected String apiUrl;
 
+  protected FileRenamer renamer = new DefaultFileRenamer();
+
   protected ClientConnection(String apiUrl) {
     this(apiUrl, null);
   }
@@ -43,6 +47,18 @@ public class ClientConnection {
     //add cookieManager
     cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
     CookieHandler.setDefault(cookieManager);
+  }
+
+  /**
+   * 文件重名规则
+   *
+   * @param renamer 重命名工具
+   */
+  public void setRenamer(FileRenamer renamer) {
+    if (renamer == null) {
+      throw new ClientException("FileRenamer must not null.");
+    }
+    this.renamer = renamer;
   }
 
   /**

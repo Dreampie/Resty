@@ -39,13 +39,18 @@ public class Client extends ClientConnection {
   }
 
   public Client build(ClientRequest clientRequest) {
-    if (clientRequest == null)
+    if (clientRequest == null) {
       throw new ClientException("ClientRequest must not null.");
+    }
     this.clientRequest.set(clientRequest);
     return this;
   }
 
-
+  /**
+   * 执行请求 并获取返回值
+   *
+   * @return responseData
+   */
   public ResponseData ask() {
     HttpURLConnection conn = null;
     try {
@@ -122,6 +127,9 @@ public class Client extends ClientConnection {
           // Write it to that dir the user supplied,
           // with the filename it arrived with
           file = new File(fileOrDirectory, fileName);
+          if (renamer != null) {
+            file = renamer.rename(file);
+          }
         } else {
           // Write it to the file the user supplied,
           // ignoring the filename it arrived with

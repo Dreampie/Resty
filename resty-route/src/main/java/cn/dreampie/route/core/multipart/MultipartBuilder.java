@@ -3,9 +3,9 @@ package cn.dreampie.route.core.multipart;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.util.stream.DefaultFileRenamer;
+import cn.dreampie.common.util.stream.FileRenamer;
 import cn.dreampie.upload.MultipartRequest;
-import cn.dreampie.upload.multipart.DefaultFileRenamePolicy;
-import cn.dreampie.upload.multipart.FileRenamePolicy;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ public class MultipartBuilder {
   private int maxPostSize = Constant.uploadMaxSize;
   private String[] uploadAllows;
   private String encoding = Constant.encoding;
-  private FileRenamePolicy fileRenamePolicy = new DefaultFileRenamePolicy();
+  private FileRenamer fileRenamer = new DefaultFileRenamer();
 
   public MultipartBuilder() {
   }
@@ -50,7 +50,7 @@ public class MultipartBuilder {
 
     MultipartParam multipartParam = null;
     try {
-      MultipartRequest multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamePolicy, uploadAllows, Constant.uploadDenieds);
+      MultipartRequest multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamer, uploadAllows, Constant.uploadDenieds);
       multipartParam = new MultipartParam(multipartRequest.getFiles(), multipartRequest.getParameters());
     } catch (IOException e) {
       throw new WebException(e.getMessage());

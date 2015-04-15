@@ -84,14 +84,14 @@ public enum QueryCache {
   }
 
   static void logAccess(String group, String query, Object[] params, String access) {
-    if (logger.isInfoEnabled()) {
-      StringBuilder log = new StringBuilder().append(access).append(" ").append(group).append(" ").append(query).append(" ");
+    if (logger.isDebugEnabled()) {
+      StringBuilder log = new StringBuilder().append(access).append(", group: {").append(group).append("}, query: {").append(query).append("} ");
       if (params != null && params.length > 0) {
-        log.append(", with parameters: ").append('<');
-        log.append(Joiner.on(">, <").join(params));
-        log.append('>');
+        log.append(", params: ").append('{');
+        log.append(Joiner.on("}, {").join(params));
+        log.append('}');
       }
-      logger.info(log.toString());
+      logger.debug(log.toString());
     }
   }
 

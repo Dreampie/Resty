@@ -56,13 +56,13 @@ public enum SessionCache {
   /**
    * Adds an item to cache. Expected some lists of objects returned from "select" queries.
    *
-   * @param defKey - name of cache type  principal or  session.
-   * @param name   -  name of  cache
-   * @param value  object to cache.
+   * @param group - key of cache type  principal or  session.
+   * @param key   -  key of  cache
+   * @param value object to cache.
    */
-  public void add(String defKey, String name, Object value) {
+  public void add(String group, String key, Object value) {
     if (enabled) {
-      cacheManager.addCache(defKey, name, value);
+      cacheManager.addCache(group, key, value);
     }
   }
 
@@ -70,33 +70,33 @@ public enum SessionCache {
   /**
    * Returns an item from cache, or null if nothing found.
    *
-   * @param defKey - name of cache type  principal or  session.
-   * @param name   -  name of  cache
+   * @param group - key of cache type  principal or  session.
+   * @param key   -  key of  cache
    * @return cache object or null if nothing found.
    */
-  public <T> T get(String defKey, String name) {
+  public <T> T get(String group, String key) {
 
     if (enabled) {
-      Object item = cacheManager.getCache(defKey, name);
+      Object item = cacheManager.getCache(group, key);
       if (item == null) {
-        logAccess(defKey, name, "Miss");
+        logAccess(group, key, "Miss");
       } else {
-        logAccess(defKey, name, "Hit");
+        logAccess(group, key, "Hit");
         return (T) item;
       }
     }
     return null;
   }
 
-  static void logAccess(String defKey, String name, String access) {
-    if (logger.isInfoEnabled()) {
-      logger.info(access + " " + defKey + " " + name + " ");
+  static void logAccess(String group, String key, String access) {
+    if (logger.isDebugEnabled()) {
+      logger.debug(access + ", group: {" + group + "}, key: {" + key + "}");
     }
   }
 
-  public void remove(String defKey, String name) {
+  public void remove(String group, String key) {
     if (enabled) {
-      cacheManager.removeCache(defKey, name);
+      cacheManager.removeCache(group, key);
     }
   }
 
@@ -105,11 +105,11 @@ public enum SessionCache {
    * This method purges (removes) all caches associated with a table, if caching is enabled and
    * a corresponding model is marked cached.
    *
-   * @param defKey name whose caches are to be purged.
+   * @param group key whose caches are to be purged.
    */
-  public void flush(String defKey) {
+  public void flush(String group) {
     if (enabled) {
-      cacheManager.flush(new CacheEvent(defKey, getClass().getName()));
+      cacheManager.flush(new CacheEvent(group, getClass().getName()));
     }
   }
 

@@ -34,6 +34,7 @@ public class Route {
   private static final Logger logger = Logger.getLogger(Route.class);
 
   public static final String DEFAULT_PATTERN = "([^\\/]+)";
+
   private final String httpMethod;
   private final String pathPattern;
   private final String stdPathPattern;
@@ -120,8 +121,8 @@ public class Route {
       sb.append("\nMethod       : ").append(method.getName());
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
       //print params
-      StringBuilder sbPath = new StringBuilder("\nPathParas    : ");
-      StringBuilder sbOther = new StringBuilder("\nOtherParas   : ");
+      StringBuilder sbPath = new StringBuilder("\nPathParams   : ");
+      StringBuilder sbOther = new StringBuilder("\nOtherParams  : ");
       int pSize = allParamNames.size();
       String pName;
       if (pSize > 0) {
@@ -200,25 +201,21 @@ public class Route {
       sb.append("\nMethod       : ").append(method.getName());
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
       //print pathParams
-      sb.append("\nPathParas    : ");
+      sb.append("\nPathParams   : ");
       if (params.size() > 0) {
         for (String key : params.keySet()) {
-          sb.append(key).append(" = <").append(params.get(key)).append(">");
+          sb.append(key).append(" = {").append(params.get(key)).append("}");
           sb.append("  ");
         }
       }
       //print otherParams
       if (otherParams != null) {
-        sb.append("\nOtherParas   : ");
+        sb.append("\nOtherParams  : ");
         List<String> values;
         for (String key : otherParams.keySet()) {
           values = otherParams.get(key);
-          if (values.size() == 1) {
-            sb.append(key).append(" = <").append(values.get(0)).append(">");
-          } else {
-            sb.append(key).append("[] = <{");
-            sb.append(Joiner.on(",").join(values));
-            sb.append("}>");
+          if (values.size() >= 1) {
+            sb.append(key).append(" = {").append(values.get(0)).append("}");
           }
           sb.append("  ");
         }
@@ -226,11 +223,11 @@ public class Route {
 
       //print fileParams
       if (fileParams != null) {
-        sb.append("\nFileParas    : ");
+        sb.append("\nFileParams   : ");
         UploadedFile value;
         for (String key : fileParams.keySet()) {
           value = fileParams.get(key);
-          sb.append(key).append(" = <").append(value.getOriginalFileName()).append("(").append(value.getContentType()).append(")>");
+          sb.append(key).append(" = {").append(value.getOriginalFileName()).append("(").append(value.getContentType()).append(")}");
           sb.append("  ");
         }
       }

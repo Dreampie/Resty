@@ -62,9 +62,12 @@ public class DataSourceMeta {
     Connection conn = connectionTL.get();
     if (conn != null)
       return conn;
-    return showSql ? new SqlPrinter(dataSource.getConnection()).getConnection() : dataSource.getConnection();
+    return dataSource.getConnection();
   }
 
+  public boolean isShowSql() {
+    return showSql;
+  }
 
   public Connection getCurrentConnection() {
     return connectionTL.get();

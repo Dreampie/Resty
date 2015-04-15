@@ -24,7 +24,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public abstract class Base<M extends Base> extends Entity<M> {
 
-  private static final Logger logger = Logger.getLogger(Base.class);
+  private static final Logger logger = Logger.getLogger(Model.class);
   private static final boolean devMode = Constant.devMode;
   public static final String DEFAULT_PRIMARY_KAY = "id";
 
@@ -92,15 +92,15 @@ public abstract class Base<M extends Base> extends Entity<M> {
   /**
    * 从缓存中读取数据
    *
-   * @param sql   sql语句
-   * @param paras sql参数
-   * @param <T>   返回的数据类型
+   * @param sql    sql语句
+   * @param params sql参数
+   * @param <T>    返回的数据类型
    * @return T
    */
-  protected <T> T getCache(String sql, Object[] paras) {
+  protected <T> T getCache(String sql, Object[] params) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      return (T) QueryCache.instance().get(getClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, paras);
+      return (T) QueryCache.instance().get(getClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params);
     }
     return null;
   }
@@ -108,14 +108,14 @@ public abstract class Base<M extends Base> extends Entity<M> {
   /**
    * 添加到缓存
    *
-   * @param sql   sql语句
-   * @param paras sql参数
-   * @param cache 要缓存的数据
+   * @param sql    sql语句
+   * @param params sql参数
+   * @param cache  要缓存的数据
    */
-  protected void addCache(String sql, Object[] paras, Object cache) {
+  protected void addCache(String sql, Object[] params, Object cache) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().add(getClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, paras, cache);
+      QueryCache.instance().add(getClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params, cache);
     }
   }
 
@@ -141,29 +141,68 @@ public abstract class Base<M extends Base> extends Entity<M> {
       throw new DBException("The table name: " + tableName + " not in your sql.");
   }
 
-  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[] paras) throws SQLException {
+  private void logSql(String sql, Object[][] params) {
+    if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
+      StringBuilder log = new StringBuilder("Sql: {").append(sql).append("} ");
+      if (params != null && params.length > 0) {
+        for (Object[] para : params) {
+          log.append(", params: ").append('{');
+          log.append(Joiner.on("}, {").join(para));
+          log.append('}');
+        }
+      }
+      log.append('\n');
+      logger.info(log.toString());
+    }
+  }
+
+  private void logSql(String sql, Object[] params) {
+    if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
+      StringBuilder log = new StringBuilder("Sql: {").append(sql).append("} ");
+      if (params != null && params.length > 0) {
+        log.append(", params: ").append('{');
+        log.append(Joiner.on("}, {").join(params));
+        log.append('}');
+      }
+      logger.info(log.toString());
+    }
+  }
+
+  private void logSql(List<String> sqls) {
+    if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
+      logger.info("Sqls: " + '{' + Joiner.on("}, {").join(sqls) + '}');
+    }
+  }
+
+  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[] params) throws SQLException {
+    //打印sql语句
+    logSql(sql, params);
+
     PreparedStatement pst = conn.prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
 
-    for (int i = 0; i < paras.length; i++) {
-      pst.setObject(i + 1, paras[i]);
+    for (int i = 0; i < params.length; i++) {
+      pst.setObject(i + 1, params[i]);
     }
     return pst;
   }
 
 
-  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[][] paras) throws SQLException {
+  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[][] params) throws SQLException {
+    //打印sql语句
+    logSql(sql, params);
+
     PreparedStatement pst = null;
     String key = primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey;
-    String[] returnKeys = new String[paras.length];
-    for (int i = 0; i < paras.length; i++) {
+    String[] returnKeys = new String[params.length];
+    for (int i = 0; i < params.length; i++) {
       returnKeys[i] = key;
     }
     pst = conn.prepareStatement(sql, returnKeys);
     final int batchSize = 1000;
     int count = 0;
-    for (int i = 0; i < paras.length; i++) {
-      for (int j = 0; j < paras[i].length; j++) {
-        pst.setObject(j + 1, paras[i][j]);
+    for (Object[] para : params) {
+      for (int j = 0; j < para.length; j++) {
+        pst.setObject(j + 1, para[j]);
       }
       pst.addBatch();
       if (++count % batchSize == 0) {
@@ -173,15 +212,16 @@ public abstract class Base<M extends Base> extends Entity<M> {
     return pst;
   }
 
-  private static Statement getPreparedStatement(Connection conn, List<String> sql) throws SQLException {
+  private Statement getPreparedStatement(Connection conn, List<String> sqls) throws SQLException {
+    //打印sql语句
+    logSql(sqls);
     Statement stmt = null;
 
     stmt = conn.createStatement();
     final int batchSize = 1000;
     int count = 0;
-    int size = sql.size();
-    for (int i = 0; i < size; i++) {
-      stmt.addBatch(sql.get(i));
+    for (String aSql : sqls) {
+      stmt.addBatch(aSql);
       if (++count % batchSize == 0) {
         stmt.executeBatch();
       }
@@ -220,11 +260,11 @@ public abstract class Base<M extends Base> extends Entity<M> {
   /**
    * Find model.
    *
-   * @param sql   an SQL statement that may contain one or more '?' IN parameter placeholders
-   * @param paras the parameters of sql
+   * @param sql    an SQL statement that may contain one or more '?' IN parameter placeholders
+   * @param params the parameters of sql
    * @return the list of Model
    */
-  public List<M> find(String sql, Object... paras) {
+  public List<M> find(String sql, Object... params) {
     List<M> result = null;
     boolean cached = false;
     boolean useCache = isUseCache();
@@ -234,7 +274,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
       cached = tableMeta.isCached();
       //hit cache
       if (cached) {
-        result = getCache(sql, paras);
+        result = getCache(sql, params);
       }
       if (result != null) {
         return result;
@@ -252,7 +292,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     ResultSet rs = null;
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, paras);
+      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, params);
       rs = pst.executeQuery();
       result = BaseBuilder.build(rs, getClass(), dsm, tableMeta);
     } catch (SQLException e) {
@@ -266,7 +306,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     }
     //add cache
     if (cached) {
-      addCache(sql, paras, result);
+      addCache(sql, params, result);
     }
     return result;
   }
@@ -274,12 +314,12 @@ public abstract class Base<M extends Base> extends Entity<M> {
   /**
    * Find first model. I recommend add "limit 1" in your sql.
    *
-   * @param sql   an SQL statement that may contain one or more '?' IN parameter placeholders
-   * @param paras the parameters of sql
+   * @param sql    an SQL statement that may contain one or more '?' IN parameter placeholders
+   * @param params the parameters of sql
    * @return Model
    */
-  public M findFirst(String sql, Object... paras) {
-    List<M> result = find(sql, paras);
+  public M findFirst(String sql, Object... params) {
+    List<M> result = find(sql, params);
     return result.size() > 0 ? result.get(0) : null;
   }
 
@@ -321,10 +361,10 @@ public abstract class Base<M extends Base> extends Entity<M> {
    * @param pageNumber 页码
    * @param pageSize   每页数量
    * @param sql        sql语句
-   * @param paras      参数
+   * @param params     参数
    * @return
    */
-  public Page<M> paginate(int pageNumber, int pageSize, String sql, Object... paras) {
+  public Page<M> paginate(int pageNumber, int pageSize, String sql, Object... params) {
     checkArgument(pageNumber >= 1 && pageSize >= 1, "pageNumber and pageSize must be more than 0");
 
 
@@ -334,7 +374,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     long totalRow = 0;
     int totalPage = 0;
 
-    List result = query(dialect.countWith(sql), paras);
+    List result = query(dialect.countWith(sql), params);
     int size = result.size();
     if (size == 1)
       totalRow = ((Number) result.get(0)).longValue();
@@ -349,7 +389,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     }
 
     // --------
-    List<M> list = find(dialect.paginateWith(pageNumber, pageSize, sql), paras);
+    List<M> list = find(dialect.paginateWith(pageNumber, pageSize, sql), params);
     return new Page<M>(list, pageNumber, pageSize, totalPage, (int) totalRow);
   }
 
@@ -422,11 +462,11 @@ public abstract class Base<M extends Base> extends Entity<M> {
     String sql = dialect.insert(tableMeta.getTableName(), columns);
 
     //参数
-    Object[][] paras = new Object[models.size()][columns.length];
+    Object[][] params = new Object[models.size()][columns.length];
 
-    for (int i = 0; i < paras.length; i++) {
-      for (int j = 0; j < paras[i].length; j++) {
-        paras[i][j] = models.get(i).get(columns[j]);
+    for (int i = 0; i < params.length; i++) {
+      for (int j = 0; j < params[i].length; j++) {
+        params[i][j] = models.get(i).get(columns[j]);
       }
     }
 
@@ -441,7 +481,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
       if (autoCommit)
         conn.setAutoCommit(false);
 
-      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, paras);
+      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, params);
       result = pst.executeBatch();
       getGeneratedKey(pst, tableMeta.getPrimaryKey(), models);
       //没有事务的情况下 手动提交
@@ -468,11 +508,11 @@ public abstract class Base<M extends Base> extends Entity<M> {
   /**
    * update sql
    *
-   * @param sql   sql
-   * @param paras 参数
+   * @param sql    sql
+   * @param params 参数
    * @return boolean
    */
-  public boolean update(String sql, Object... paras) {
+  public boolean update(String sql, Object... params) {
     TableMeta tableMeta = getTableMeta();
     DataSourceMeta dsm = getDataSourceMeta();
     //清除缓存
@@ -487,7 +527,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     PreparedStatement pst = null;
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
+      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, params);
       result = pst.executeUpdate();
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
@@ -635,7 +675,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     checkNotNull(id, "You can't update model without Primary Key " + pKey + ".");
 
     String where = null;
-    Object[] paras = null;
+    Object[] params = null;
     Object[] modifys = getModifyAttrValues();
     //锁定主键 更新的时候 使用所有主键作为条件
     if (tableMeta.isLockKey()) {
@@ -647,14 +687,14 @@ public abstract class Base<M extends Base> extends Entity<M> {
         ids[i] = attrs.get(idKey);
         i++;
       }
-      paras = new Object[ids.length + modifys.length];
-      System.arraycopy(modifys, 0, paras, 0, modifys.length);
-      System.arraycopy(ids, 0, paras, modifys.length, ids.length);
+      params = new Object[ids.length + modifys.length];
+      System.arraycopy(modifys, 0, params, 0, modifys.length);
+      System.arraycopy(ids, 0, params, modifys.length, ids.length);
       where = Joiner.on("=?,").join(tableMeta.getPrimaryKeys());
     } else {
-      paras = new Object[1 + modifys.length];
-      System.arraycopy(modifys, 0, paras, 0, modifys.length);
-      paras[modifys.length] = id;
+      params = new Object[1 + modifys.length];
+      System.arraycopy(modifys, 0, params, 0, modifys.length);
+      params[modifys.length] = id;
       where = pKey;
     }
     String[] modifyNames = getModifyAttrNames();
@@ -664,7 +704,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
       return false;
     }
 
-    boolean result = update(sql, paras);
+    boolean result = update(sql, params);
     if (result) {
       clearModifyAttrs();
       return true;
@@ -694,12 +734,12 @@ public abstract class Base<M extends Base> extends Entity<M> {
   /**
    * 根据where条件查询model集合
    *
-   * @param where 条件
-   * @param paras 参数
+   * @param where  条件
+   * @param params 参数
    * @return list
    */
-  public List<M> findBy(String where, Object... paras) {
-    return find(getDialect().select(getTableMeta().getTableName(), getAlias(), where), paras);
+  public List<M> findBy(String where, Object... params) {
+    return find(getDialect().select(getTableMeta().getTableName(), getAlias(), where), params);
   }
 
   /**
@@ -707,11 +747,11 @@ public abstract class Base<M extends Base> extends Entity<M> {
    *
    * @param colums 列 用逗号分割
    * @param where  条件
-   * @param paras  参数
+   * @param params 参数
    * @return model集合
    */
-  public List<M> findColsBy(String colums, String where, Object... paras) {
-    return find(getDialect().select(getTableMeta().getTableName(), getAlias(), where, colums.split(",")), paras);
+  public List<M> findColsBy(String colums, String where, Object... params) {
+    return find(getDialect().select(getTableMeta().getTableName(), getAlias(), where, colums.split(",")), params);
   }
 
   /**
@@ -719,11 +759,11 @@ public abstract class Base<M extends Base> extends Entity<M> {
    *
    * @param topNumber 前几位
    * @param where     条件
-   * @param paras     参数
+   * @param params    参数
    * @return list
    */
-  public List<M> findTopBy(int topNumber, String where, Object... paras) {
-    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where), paras).getList();
+  public List<M> findTopBy(int topNumber, String where, Object... params) {
+    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where), params).getList();
   }
 
   /**
@@ -732,22 +772,22 @@ public abstract class Base<M extends Base> extends Entity<M> {
    * @param topNumber 前几位
    * @param columns   列 用逗号分割
    * @param where     条件
-   * @param paras     参数
+   * @param params    参数
    * @return list
    */
-  public List<M> findColsTopBy(int topNumber, String columns, String where, Object... paras) {
-    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), paras).getList();
+  public List<M> findColsTopBy(int topNumber, String columns, String where, Object... params) {
+    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params).getList();
   }
 
   /**
    * 根据条件查询第一个对象
    *
-   * @param where 条件
-   * @param paras 参数
+   * @param where  条件
+   * @param params 参数
    * @return model对象
    */
-  public M findFirstBy(String where, Object... paras) {
-    return findFirst(getDialect().select(getTableMeta().getTableName(), getAlias(), where), paras);
+  public M findFirstBy(String where, Object... params) {
+    return findFirst(getDialect().select(getTableMeta().getTableName(), getAlias(), where), params);
   }
 
   /**
@@ -755,11 +795,11 @@ public abstract class Base<M extends Base> extends Entity<M> {
    *
    * @param columns 列 用逗号分割
    * @param where   条件
-   * @param paras   参数
+   * @param params  参数
    * @return model对象
    */
-  public M findColsFirstBy(String columns, String where, Object... paras) {
-    return findFirst(getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
+  public M findColsFirstBy(String columns, String where, Object... params) {
+    return findFirst(getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params);
   }
 
   /**
@@ -791,11 +831,11 @@ public abstract class Base<M extends Base> extends Entity<M> {
    * @param pageNumber 页码
    * @param pageSize   每页大小
    * @param where      条件
-   * @param paras      参数
+   * @param params     参数
    * @return 分页对象
    */
-  public Page<M> paginateBy(int pageNumber, int pageSize, String where, Object... paras) {
-    return paginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), getAlias(), where), paras);
+  public Page<M> paginateBy(int pageNumber, int pageSize, String where, Object... params) {
+    return paginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), getAlias(), where), params);
   }
 
   /**
@@ -805,23 +845,23 @@ public abstract class Base<M extends Base> extends Entity<M> {
    * @param pageSize   每页大小
    * @param columns    列  用逗号分割
    * @param where      条件
-   * @param paras      参数
+   * @param params     参数
    * @return 分页对象
    */
-  public Page<M> paginateColsBy(int pageNumber, int pageSize, String columns, String where, Object... paras) {
-    return paginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
+  public Page<M> paginateColsBy(int pageNumber, int pageSize, String columns, String where, Object... params) {
+    return paginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params);
   }
 
   /**
    * 更新全部传入的列  UPDATE table SET name=?,age=? 参数 "abc",20
    *
    * @param columns 通过逗号分隔的列名 "name,age"
-   * @param paras   按列名顺序排列参数   "abc",20
+   * @param params  按列名顺序排列参数   "abc",20
    * @return boolean
    */
-  public boolean updateColsAll(String columns, Object... paras) {
+  public boolean updateColsAll(String columns, Object... params) {
     logger.warn("You must ensure that \"updateAll()\" method of safety.");
-    return update(getDialect().update(getTableMeta().getTableName(), columns.split(",")), paras);
+    return update(getDialect().update(getTableMeta().getTableName(), columns.split(",")), params);
   }
 
   /**
@@ -829,11 +869,11 @@ public abstract class Base<M extends Base> extends Entity<M> {
    *
    * @param columns 通过逗号分隔的列   "name,age"
    * @param where   条件 x=?
-   * @param paras   按列名顺序排列参数   "abc",20,12
+   * @param params  按列名顺序排列参数   "abc",20,12
    * @return boolean
    */
-  public boolean updateColsBy(String columns, String where, Object... paras) {
-    return update(getDialect().update(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), paras);
+  public boolean updateColsBy(String columns, String where, Object... params) {
+    return update(getDialect().update(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params);
   }
 
   /**
@@ -849,12 +889,12 @@ public abstract class Base<M extends Base> extends Entity<M> {
   /**
    * 根据条件删除数据
    *
-   * @param where 条件
-   * @param paras 参数
+   * @param where  条件
+   * @param params 参数
    * @return
    */
-  public boolean deleteBy(String where, Object... paras) {
-    return update(getDialect().delete(getTableMeta().getTableName(), where), paras);
+  public boolean deleteBy(String where, Object... params) {
+    return update(getDialect().delete(getTableMeta().getTableName(), where), params);
   }
 
   /**
@@ -871,19 +911,19 @@ public abstract class Base<M extends Base> extends Entity<M> {
    *
    * @return Long
    */
-  public Long countBy(String where, Object... paras) {
-    return queryFirst(getDialect().count(getTableMeta().getTableName(), getAlias(), where), paras);
+  public Long countBy(String where, Object... params) {
+    return queryFirst(getDialect().count(getTableMeta().getTableName(), getAlias(), where), params);
   }
 
   /**
    * 返回不确定的数据类型
    *
-   * @param sql   sql语句
-   * @param paras sql参数
-   * @param <T>   返回的数据类型
+   * @param sql    sql语句
+   * @param params sql参数
+   * @param <T>    返回的数据类型
    * @return List<T>
    */
-  public <T> List<T> query(String sql, Object... paras) {
+  public <T> List<T> query(String sql, Object... params) {
 
     boolean cached = false;
     boolean useCache = isUseCache();
@@ -894,7 +934,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
       cached = tableMeta.isCached();
       //hit cache
       if (cached) {
-        result = getCache(sql, paras);
+        result = getCache(sql, params);
         if (result != null) {
           return result;
         }
@@ -910,7 +950,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     result = new ArrayList<T>();
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, paras);
+      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, params);
       rs = pst.executeQuery();
       int colAmount = rs.getMetaData().getColumnCount();
       if (colAmount > 1) {
@@ -933,7 +973,7 @@ public abstract class Base<M extends Base> extends Entity<M> {
     }
     //add cache
     if (cached) {
-      addCache(sql, paras, result);
+      addCache(sql, params, result);
     }
     return result;
   }
@@ -941,26 +981,26 @@ public abstract class Base<M extends Base> extends Entity<M> {
   /**
    * Execute sql query and return the first result. I recommend add "limit 1" in your sql.
    *
-   * @param sql   an SQL statement that may contain one or more '?' IN parameter placeholders
-   * @param paras the parameters of sql
+   * @param sql    an SQL statement that may contain one or more '?' IN parameter placeholders
+   * @param params the parameters of sql
    * @return Object[] if your sql has select more than one column,
    * and it return Object if your sql has select only one column.
    */
-  public <T> T queryFirst(String sql, Object... paras) {
-    List<T> result = query(sql, paras);
+  public <T> T queryFirst(String sql, Object... params) {
+    List<T> result = query(sql, params);
     return result.size() > 0 ? result.get(0) : null;
   }
 
   /**
    * Execute sql query just return one column.
    *
-   * @param <T>   the type of the column that in your sql's select statement
-   * @param sql   an SQL statement that may contain one or more '?' IN parameter placeholders
-   * @param paras the parameters of sql
+   * @param <T>    the type of the column that in your sql's select statement
+   * @param sql    an SQL statement that may contain one or more '?' IN parameter placeholders
+   * @param params the parameters of sql
    * @return List<T>
    */
-  public <T> T queryColumn(String sql, Object... paras) {
-    List<T> result = query(sql, paras);
+  public <T> T queryColumn(String sql, Object... params) {
+    List<T> result = query(sql, params);
     if (result.size() > 0) {
       T temp = result.get(0);
       if (temp instanceof Object[])
@@ -970,51 +1010,51 @@ public abstract class Base<M extends Base> extends Entity<M> {
     return null;
   }
 
-  public String queryStr(String sql, Object... paras) {
-    return (String) queryColumn(sql, paras);
+  public String queryStr(String sql, Object... params) {
+    return (String) queryColumn(sql, params);
   }
 
-  public Integer queryInt(String sql, Object... paras) {
-    return (Integer) queryColumn(sql, paras);
+  public Integer queryInt(String sql, Object... params) {
+    return (Integer) queryColumn(sql, params);
   }
 
-  public Long queryLong(String sql, Object... paras) {
-    return (Long) queryColumn(sql, paras);
+  public Long queryLong(String sql, Object... params) {
+    return (Long) queryColumn(sql, params);
   }
 
-  public Double queryDouble(String sql, Object... paras) {
-    return (Double) queryColumn(sql, paras);
+  public Double queryDouble(String sql, Object... params) {
+    return (Double) queryColumn(sql, params);
   }
 
-  public Float queryFloat(String sql, Object... paras) {
-    return (Float) queryColumn(sql, paras);
+  public Float queryFloat(String sql, Object... params) {
+    return (Float) queryColumn(sql, params);
   }
 
-  public BigDecimal queryBigDecimal(String sql, Object... paras) {
-    return (BigDecimal) queryColumn(sql, paras);
+  public BigDecimal queryBigDecimal(String sql, Object... params) {
+    return (BigDecimal) queryColumn(sql, params);
   }
 
-  public byte[] queryBytes(String sql, Object... paras) {
-    return (byte[]) queryColumn(sql, paras);
+  public byte[] queryBytes(String sql, Object... params) {
+    return (byte[]) queryColumn(sql, params);
   }
 
-  public Date queryDate(String sql, Object... paras) {
-    return (Date) queryColumn(sql, paras);
+  public Date queryDate(String sql, Object... params) {
+    return (Date) queryColumn(sql, params);
   }
 
-  public Time queryTime(String sql, Object... paras) {
-    return (Time) queryColumn(sql, paras);
+  public Time queryTime(String sql, Object... params) {
+    return (Time) queryColumn(sql, params);
   }
 
-  public Timestamp queryTimestamp(String sql, Object... paras) {
-    return (Timestamp) queryColumn(sql, paras);
+  public Timestamp queryTimestamp(String sql, Object... params) {
+    return (Timestamp) queryColumn(sql, params);
   }
 
-  public Boolean queryBoolean(String sql, Object... paras) {
-    return (Boolean) queryColumn(sql, paras);
+  public Boolean queryBoolean(String sql, Object... params) {
+    return (Boolean) queryColumn(sql, params);
   }
 
-  public Number queryNumber(String sql, Object... paras) {
-    return (Number) queryColumn(sql, paras);
+  public Number queryNumber(String sql, Object... params) {
+    return (Number) queryColumn(sql, params);
   }
 }

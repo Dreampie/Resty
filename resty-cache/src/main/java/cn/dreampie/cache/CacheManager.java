@@ -77,13 +77,13 @@ public abstract class CacheManager {
       try {
         listener.onFlush(event);
       } catch (Throwable e) {
-        logger.warn("failed to propagate cache event: %s to listener: %s", event, listener, e);
+        logger.warn("Failed to propagate cache event: %s to listener: %s", event, listener, e);
       }
     }
-    if (logger.isInfoEnabled()) {
+    if (logger.isDebugEnabled()) {
       String message = "Cache purged: " + (event.getType() == CacheEvent.CacheEventType.ALL
           ? "all caches" : "group '" + event.getGroup() + "'");
-      logger.info(message);
+      logger.debug(message);
     }
   }
 

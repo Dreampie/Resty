@@ -11,7 +11,13 @@ import java.util.Enumeration;
 public class Filer {
 
   public static File mkDirs(String path) {
-    File file = new File(path);
+    return mkDirs(new File(path));
+  }
+
+  public static File mkDirs(File file) {
+    if (file == null) {
+      throw new FileException("File could not be null.");
+    }
     File parent = file.getParentFile();
     if (!parent.exists()) {
       if (!parent.mkdirs()) {

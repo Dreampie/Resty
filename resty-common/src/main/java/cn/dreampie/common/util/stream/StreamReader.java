@@ -30,7 +30,7 @@ public class StreamReader {
   }
 
 
-  public static String readFile(InputStream is, int contentLength, String writeFile) throws IOException {
+  public static String readFile(InputStream is, int contentLength, File writeFile) throws IOException {
     //判断文件目录是否存在 如果不存在 创建
     File file = Filer.mkDirs(writeFile);
 

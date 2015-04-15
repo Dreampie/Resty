@@ -5,6 +5,7 @@ import cn.dreampie.common.util.Maper;
 import cn.dreampie.common.util.stream.StreamReader;
 import cn.dreampie.log.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -99,9 +100,35 @@ public class Client extends ClientConnection {
           logger.warn("Api " + clientRequest.get().getRestUrl() + " response is null!!");
         }
       }
+
       //是否是下载文件
       if (clientRequest.get().getDownloadFile() != null) {
-        return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), clientRequest.get().getDownloadFile()));//服务器端在这种下载的情况下  返回总是大1 未知原因
+        File file = null;
+        File fileOrDirectory = new File(clientRequest.get().getDownloadFile());
+        if (fileOrDirectory.isDirectory()) {
+          String fileName = null;
+          String contentDisposition = conn.getHeaderField("Content-Disposition");
+          if (contentDisposition != null) {
+            String fileNameBefore = "filename=";
+            int fileNameIndex = contentDisposition.indexOf(fileNameBefore);
+
+            if (fileNameIndex > -1) {
+              fileName = contentDisposition.substring(fileNameIndex + fileNameBefore.length());
+            }
+          }
+          if (fileName == null) {
+            throw new ClientException("Server not return filename, you must set it.");
+          }
+          // Write it to that dir the user supplied,
+          // with the filename it arrived with
+          file = new File(fileOrDirectory, fileName);
+        } else {
+          // Write it to the file the user supplied,
+          // ignoring the filename it arrived with
+          file = fileOrDirectory;
+        }
+
+        return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file));//服务器端在这种下载的情况下  返回总是大1 未知原因
       } else {
         return new ResponseData(httpCode, StreamReader.readString(is));
       }

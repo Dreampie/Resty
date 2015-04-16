@@ -26,6 +26,7 @@ public class StreamReader {
     }
     String result = response.toString();
     logger.debug("Read object in response is: %s", result);
+    rd.close();
     return result;
   }
 

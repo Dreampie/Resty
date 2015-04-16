@@ -63,7 +63,7 @@ public class ClientTest {
   public void testUpload() {
     //upload
     ClientRequest uploadRequest = new ClientRequest("/tests/resty", HttpMethod.POST);
-    uploadRequest.addUploadFile("resty", ClientTest.class.getResource("/resty.jar").getFile());
+    uploadRequest.addUploadFile("testfile", ClientTest.class.getResource("/resty.jar").getFile());
     uploadRequest.addParam("des", "test file  paras  测试笔");
     ResponseData uploadResult = client.build(uploadRequest).ask();
     System.out.println(uploadResult.getData());
@@ -73,7 +73,7 @@ public class ClientTest {
   public void testDownload() {
     //download  支持断点续传
     ClientRequest downloadRequest = new ClientRequest("/tests/file", HttpMethod.GET);
-    downloadRequest.setDownloadFile(ClientTest.class.getResource("/").getFile(), true);
+    downloadRequest.setDownloadFile(ClientTest.class.getResource("/").getFile(), false);
     ResponseData downloadResult = client.build(downloadRequest).ask();
     System.out.println(downloadResult.getData());
   }

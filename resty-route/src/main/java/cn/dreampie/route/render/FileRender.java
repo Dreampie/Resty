@@ -105,8 +105,6 @@ public class FileRender extends Render {
                 outputStream.write(bytes, 0, n);
               }
             }
-            outputStream.flush();
-            outputStream.close();
             bis.close();
           } else {
             throw new WebException(HttpStatus.NOT_FOUND, "File not found " + file.getName());

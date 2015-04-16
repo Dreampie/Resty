@@ -26,16 +26,19 @@ public class MultipartBuilder {
 
   public MultipartBuilder(String saveDirectory, boolean overwrite, int maxPostSize, String encoding, String[] uploadAllows) {
     if (saveDirectory != null && !"".equals(saveDirectory)) {
-      if (saveDirectory.startsWith("/"))
+      if (saveDirectory.startsWith("/")) {
         this.saveDirectory = saveDirectory;
-      else
+      } else {
         this.saveDirectory = saveDirectory;
+      }
     }
     this.overwrite = overwrite;
-    if (maxPostSize > 0)
+    if (maxPostSize > 0) {
       this.maxPostSize = maxPostSize;
-    if (encoding != null && !"".equals(encoding))
+    }
+    if (encoding != null && !"".equals(encoding)) {
       this.encoding = encoding;
+    }
     this.uploadAllows = uploadAllows;
   }
 
@@ -56,7 +59,7 @@ public class MultipartBuilder {
     if (!overwrite && renamer != null) {
       fileRenamer = renamer;
     }
-    
+
     try {
       MultipartRequest multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamer, uploadAllows, Constant.uploadDenieds);
       multipartParam = new MultipartParam(multipartRequest.getFiles(), multipartRequest.getParameters());

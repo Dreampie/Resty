@@ -150,6 +150,10 @@ public class Route {
       return null;
     }
     String restPath = request.getRestPath();
+    Matcher m = pattern.matcher(restPath);
+    if (!m.matches()) {
+      return null;
+    }
 
     String extension = "";
     if (restPath.contains(".")) {
@@ -160,11 +164,6 @@ public class Route {
       } else {
         extension = "";
       }
-    }
-
-    Matcher m = pattern.matcher(restPath);
-    if (!m.matches()) {
-      return null;
     }
     //pathParams
     Map<String, String> params = new HashMap<String, String>();
@@ -203,8 +202,9 @@ public class Route {
       //print pathParams
       sb.append("\nPathParams   : ");
       if (params.size() > 0) {
-        for (String key : params.keySet()) {
-          sb.append(key).append(" = {").append(params.get(key)).append("}");
+        Set<Map.Entry<String, String>> paramsEntrySet = params.entrySet();
+        for (Map.Entry<String, String> paramsEntry : paramsEntrySet) {
+          sb.append(paramsEntry.getKey()).append(" = {").append(paramsEntry.getValue()).append("}");
           sb.append("  ");
         }
       }
@@ -212,10 +212,11 @@ public class Route {
       if (otherParams != null) {
         sb.append("\nOtherParams  : ");
         List<String> values;
-        for (String key : otherParams.keySet()) {
-          values = otherParams.get(key);
+        Set<Map.Entry<String, List<String>>> otherParamsEntrySet = otherParams.entrySet();
+        for (Map.Entry<String, List<String>> otherParamsEntry : otherParamsEntrySet) {
+          values = otherParamsEntry.getValue();
           if (values.size() >= 1) {
-            sb.append(key).append(" = {").append(values.get(0)).append("}");
+            sb.append(otherParamsEntry.getKey()).append(" = {").append(values.get(0)).append("}");
           }
           sb.append("  ");
         }
@@ -225,9 +226,10 @@ public class Route {
       if (fileParams != null) {
         sb.append("\nFileParams   : ");
         UploadedFile value;
-        for (String key : fileParams.keySet()) {
-          value = fileParams.get(key);
-          sb.append(key).append(" = {").append(value.getOriginalFileName()).append("(").append(value.getContentType()).append(")}");
+        Set<Map.Entry<String, UploadedFile>> fileParamsEntrySet = fileParams.entrySet();
+        for (Map.Entry<String, UploadedFile> fileParamsEntry : fileParamsEntrySet) {
+          value = fileParamsEntry.getValue();
+          sb.append(fileParamsEntry.getKey()).append(" = {").append(value.getOriginalFileName()).append("(").append(value.getContentType()).append(")}");
           sb.append("  ");
         }
       }
@@ -236,8 +238,9 @@ public class Route {
         sb.append("\nInterceptors : ");
         int i = 0;
         for (Interceptor interceptor : interceptors) {
-          if (i > 0)
+          if (i > 0) {
             sb.append("\n               ");
+          }
           Class<? extends Interceptor> ic = interceptor.getClass();
           sb.append(ic.getName()).append("(").append(ic.getSimpleName()).append(".java:").append(interceptorsLineNumbers[i][0]).append(")");
           i++;

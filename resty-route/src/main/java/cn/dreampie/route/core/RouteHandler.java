@@ -10,6 +10,7 @@ import cn.dreampie.route.handler.Handler;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -30,13 +31,25 @@ public final class RouteHandler extends Handler {
 
     RouteMatch routeMatch = null;
     Route route = null;
+    //请求的rest路径
+    String restPath = request.getRestPath();
+    Map<String, Set<Route>> routesMap = routeBuilder.getRoutesMap();
+    Set<Route> routesSet;
 
-    Set<Route> routeSet = routeBuilder.getRoutes();
-    for (Route r : routeSet) {
-      routeMatch = r.match(request, response);
-      if (routeMatch != null) {
-        route = r;
-        break;
+    Set<Map.Entry<String, Set<Route>>> routesEntrySet = routesMap.entrySet();
+    for (Map.Entry<String, Set<Route>> routesEntry : routesEntrySet) {
+      if (restPath.startsWith(routesEntry.getKey())) {
+        routesSet = routesEntry.getValue();
+        for (Route r : routesSet) {
+          routeMatch = r.match(request, response);
+          if (routeMatch != null) {
+            route = r;
+            break;
+          }
+        }
+        if (routeMatch != null) {
+          break;
+        }
       }
     }
 
@@ -44,7 +57,6 @@ public final class RouteHandler extends Handler {
     if (routeMatch != null) {
       new RouteInvocation(route, routeMatch).invoke();
     } else {
-      String restPath = request.getRestPath();
       if (!restPath.equals("/")) {
         if (restPath.startsWith(Constant.apiPrefix)) {
           // no route matched

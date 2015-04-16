@@ -15,6 +15,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  * Created by ice on 14-12-19.
  */
 public class RouteMatch {
+
   private final String pattern;
   private final String path;
   private final Render render;

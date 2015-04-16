@@ -48,12 +48,12 @@ public class Credentials {
       //load  all  cache
       credentialSet = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
       if (credentialSet == null) {
-        credentialSet = newSet(authenticateService.loadAllCredentials());
+        credentialSet = newCredentialSet(authenticateService.loadAllCredentials());
         SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, credentialSet);
       }
     } else {
       if (credentials == null || credentials.size() <= 0 || System.currentTimeMillis() > lastAccess) {
-        credentials = newSet(authenticateService.loadAllCredentials());
+        credentials = newCredentialSet(authenticateService.loadAllCredentials());
         lastAccess = System.currentTimeMillis() + expires;
       }
       credentialSet = credentials;
@@ -96,7 +96,7 @@ public class Credentials {
     return principal;
   }
 
-  public Set<Credential> newSet(Set<Credential> credentialSet) {
+  public Set<Credential> newCredentialSet(Set<Credential> credentialSet) {
     credentials.clear();
     credentials.addAll(credentialSet);
     return credentials;

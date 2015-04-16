@@ -12,10 +12,7 @@ import cn.dreampie.route.interceptor.InterceptorBuilder;
 import cn.dreampie.route.valid.Validator;
 
 import java.lang.reflect.Method;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Route Mapping
@@ -24,23 +21,16 @@ public final class RouteBuilder {
 
   private ResourceLoader resourceLoader;
   private InterceptorLoader interceptorLoader;
-
   //对routes排序
-  private Set<Route> routes = new TreeSet<Route>(
-      new Comparator<Route>() {
-        public int compare(Route a, Route b) {
-          String one = a.getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
-          String two = b.getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
-          int result = two.length() - one.length();
-          if (result == 0) {
-            result = a.getHttpMethod().compareTo(b.getHttpMethod());
-            if (result == 0) {
-              return a.getPathPattern().compareTo(b.getPathPattern());
-            }
-          }
-          return result;
-        }
-      });
+  private Map<String, Set<Route>> routesMap = new TreeMap<String, Set<Route>>(new Comparator<String>() {
+    public int compare(String k1, String k2) {
+      int result = k2.length() - k1.length();
+      if (result == 0) {
+        return k1.compareTo(k2);
+      }
+      return result;
+    }
+  });
 
   public RouteBuilder(ResourceLoader resourceLoader, InterceptorLoader interceptorLoader) {
     this.resourceLoader = resourceLoader;
@@ -48,12 +38,26 @@ public final class RouteBuilder {
   }
 
   public void addRoute(Route route) {
-    for (Route r : routes) {
-      if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern())) {
-        throw new IllegalArgumentException("Same path pattern " + r.getHttpMethod() + " " + r.getPattern());
-      }
+    String pattern = route.getPattern();
+    int defaultPatternIndex = pattern.indexOf(Route.DEFAULT_PATTERN);
+    String routeStart;
+    if (defaultPatternIndex > -1) {
+      routeStart = pattern.substring(0, defaultPatternIndex - 1);
+    } else {
+      routeStart = pattern;
     }
-    routes.add(route);
+
+    if (routesMap.containsKey(routeStart)) {
+      Set<Route> routeSet = routesMap.get(routeStart);
+      for (Route r : routeSet) {
+        if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern())) {
+          throw new IllegalArgumentException("Same path pattern " + r.getHttpMethod() + " " + r.getPattern());
+        }
+      }
+      routesMap.get(routeStart).add(route);
+    } else {
+      routesMap.put(routeStart, newRouteSet(route));
+    }
   }
 
   public void build() {
@@ -212,8 +216,29 @@ public final class RouteBuilder {
     return apiPath;
   }
 
-  public Set<Route> getRoutes() {
-    return routes;
+  public Map<String, Set<Route>> getRoutesMap() {
+    return Collections.unmodifiableMap(routesMap);
+  }
+
+
+  public Set<Route> newRouteSet(final Route route) {
+    return new TreeSet<Route>(
+        new Comparator<Route>() {
+          public int compare(Route a, Route b) {
+            String one = a.getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
+            String two = b.getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
+            int result = two.length() - one.length();
+            if (result == 0) {
+              result = a.getHttpMethod().compareTo(b.getHttpMethod());
+              if (result == 0) {
+                return a.getPathPattern().compareTo(b.getPathPattern());
+              }
+            }
+            return result;
+          }
+        }) {{
+      add(route);
+    }};
   }
 }
 

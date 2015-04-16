@@ -53,7 +53,7 @@ public enum ModelSerializer implements ObjectSerializer {
   }
 
   private boolean hasMethod(Entity object, String mName) {
-    Map<String, Object> attrs = object.getAttrs();
+    Map<String, Object> attrs = (Map<String, Object>) object.getAttrs();
     String name = mName.replace("get", "");
     return attrs.containsKey(Stringer.firstLowerCase(name))
         || attrs.containsKey(Stringer.underlineCase(name));

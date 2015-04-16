@@ -26,6 +26,8 @@ import java.lang.annotation.*;
 public @interface FILE {
   String dir() default "";//文件上传的目录
 
+  boolean overwrite() default false;
+
   int max() default -1;//上传的大小限制，默认最大10M
 
   String encoding() default "";//文件编码格式

@@ -2,6 +2,7 @@ package cn.dreampie.client;
 
 import cn.dreampie.client.exception.ClientException;
 import cn.dreampie.common.util.Maper;
+import cn.dreampie.common.util.stream.FileRenamer;
 import cn.dreampie.common.util.stream.StreamReader;
 import cn.dreampie.log.Logger;
 
@@ -42,7 +43,7 @@ public class Client extends ClientConnection {
     if (clientRequest == null) {
       throw new ClientException("ClientRequest must not null.");
     }
-    this.clientRequest.set(clientRequest);
+    this.clientRequestTL.set(clientRequest);
     return this;
   }
 
@@ -84,6 +85,8 @@ public class Client extends ClientConnection {
     int httpCode = conn.getResponseCode();
     logger.debug("Connection done. The server's response code is: %s", httpCode);
     InputStream is = null;
+
+    ClientRequest clientRequest = clientRequestTL.get();
     try {
       if (httpCode == HttpURLConnection.HTTP_OK || httpCode == HttpURLConnection.HTTP_PARTIAL) {
         logger.debug("Reading an OK (%s) response", httpCode);
@@ -96,20 +99,21 @@ public class Client extends ClientConnection {
         return null;
       } else if (loginRequest != null && httpCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
         logger.info("Relogin to server.");
-        if (!clientRequest.get().equals(loginRequest))
-          return login(clientRequest.get());
+        if (!clientRequest.equals(loginRequest))
+          return login(clientRequest);
       }
       if (is == null) {
         is = conn.getErrorStream();
         if (is == null) {
-          logger.warn("Api " + clientRequest.get().getRestUrl() + " response is null!!");
+          logger.warn("Api " + clientRequest.getRestUrl() + " response is null!!");
         }
       }
 
       //是否是下载文件
-      if (clientRequest.get().getDownloadFile() != null) {
+      String downloadFile = clientRequest.getDownloadFile();
+      if (downloadFile != null) {
         File file = null;
-        File fileOrDirectory = new File(clientRequest.get().getDownloadFile());
+        File fileOrDirectory = new File(downloadFile);
         if (fileOrDirectory.isDirectory()) {
           String fileName = null;
           String contentDisposition = conn.getHeaderField("Content-Disposition");
@@ -118,7 +122,7 @@ public class Client extends ClientConnection {
             int fileNameIndex = contentDisposition.indexOf(fileNameBefore);
 
             if (fileNameIndex > -1) {
-              fileName = contentDisposition.substring(fileNameIndex + fileNameBefore.length());
+              fileName = contentDisposition.substring(fileNameIndex + 9);
             }
           }
           if (fileName == null) {
@@ -127,16 +131,18 @@ public class Client extends ClientConnection {
           // Write it to that dir the user supplied,
           // with the filename it arrived with
           file = new File(fileOrDirectory, fileName);
-          if (renamer != null) {
-            file = renamer.rename(file);
-          }
         } else {
           // Write it to the file the user supplied,
           // ignoring the filename it arrived with
           file = fileOrDirectory;
         }
 
-        return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file));//服务器端在这种下载的情况下  返回总是大1 未知原因
+        FileRenamer fileRenamer = null;
+        if (!clientRequest.isOverwrite() && renamer != null) {
+          fileRenamer = renamer;
+        }
+
+        return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());//服务器端在这种下载的情况下  返回总是大1 未知原因
       } else {
         return new ResponseData(httpCode, StreamReader.readString(is));
       }

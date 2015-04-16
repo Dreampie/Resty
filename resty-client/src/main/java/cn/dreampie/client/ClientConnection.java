@@ -24,7 +24,7 @@ public class ClientConnection {
   private static final Logger logger = Logger.getLogger(ClientConnection.class);
 
   protected ClientRequest loginRequest;
-  protected ThreadLocal<ClientRequest> clientRequest = new ThreadLocal<ClientRequest>();
+  protected ThreadLocal<ClientRequest> clientRequestTL = new ThreadLocal<ClientRequest>();
   protected CookieManager cookieManager = new CookieManager();
 
   protected String apiUrl;
@@ -42,8 +42,9 @@ public class ClientConnection {
   protected ClientConnection(String apiUrl, ClientRequest loginRequest, ClientRequest clientRequest) {
     this.apiUrl = apiUrl;
     this.loginRequest = loginRequest;
-    if (clientRequest != null)
-      this.clientRequest.set(clientRequest);
+    if (clientRequest != null) {
+      this.clientRequestTL.set(clientRequest);
+    }
     //add cookieManager
     cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
     CookieHandler.setDefault(cookieManager);
@@ -100,25 +101,27 @@ public class ClientConnection {
   }
 
   protected HttpURLConnection getHttpConnection() throws IOException, NoSuchAlgorithmException, NoSuchProviderException, KeyManagementException {
+    ClientRequest clientRequest = clientRequestTL.get();
+
     URL _url = null;
     HttpURLConnection conn = null;
-    String method = clientRequest.get().getMethod();
+    String method = clientRequest.getMethod();
     //使用OutPutStream输出参数
     if (HttpMethod.POST.contains(method)) {
-      _url = new URL(apiUrl + clientRequest.get().getRestUrl());
+      _url = new URL(apiUrl + clientRequest.getRestUrl());
       conn = openHttpURLConnection(_url, method);
 
       conn.setDoOutput(true);
       conn.setUseCaches(false);
       //是上传文件
-      Map<String, String> uploadFiles = clientRequest.get().getUploadFiles();
+      Map<String, String> uploadFiles = clientRequest.getUploadFiles();
       if (uploadFiles != null && uploadFiles.size() > 0) {
 
         String boundary = "---------------------------" + getRandomString(13); //boundary就是request头和上传文件内容的分隔符
         conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
 
         // params
-        Map<String, String> params = clientRequest.get().getParameters();
+        Map<String, String> params = clientRequest.getParameters();
 
         DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
         if (params != null && params.size() > 0) {
@@ -135,7 +138,7 @@ public class ClientConnection {
           writer.write(builder.toString().getBytes());
         }
         //上传文件
-        writeUploadFiles(boundary, clientRequest.get().getUploadFiles(), writer);
+        writeUploadFiles(boundary, clientRequest.getUploadFiles(), writer);
 
         byte[] endData = ("\r\n--" + boundary + "--\r\n").getBytes();
         writer.write(endData);
@@ -143,13 +146,13 @@ public class ClientConnection {
         writer.close();
       } else {
         //没有文件上传
-        String contentType = clientRequest.get().getHeaders().get("Content-Type");
+        String contentType = clientRequest.getHeaders().get("Content-Type");
         String requestParameters;
         //application/json  传递参数
         if (contentType != null && contentType.toLowerCase().contains(HttpTyper.ContentType.JSON.value())) {
-          requestParameters = clientRequest.get().getJsonParameter();
+          requestParameters = clientRequest.getJsonParameter();
         } else {
-          requestParameters = clientRequest.get().getEncodedParameters();
+          requestParameters = clientRequest.getEncodedParameters();
         }
         //写入参数
         if (requestParameters != null && !"".equals(requestParameters)) {
@@ -162,7 +165,7 @@ public class ClientConnection {
         }
       }
     } else {
-      _url = new URL(apiUrl + clientRequest.get().getEncodedUrl());
+      _url = new URL(apiUrl + clientRequest.getEncodedUrl());
       conn = openHttpURLConnection(_url, method);
     }
 
@@ -172,8 +175,8 @@ public class ClientConnection {
       ((HttpsURLConnection) conn).setHostnameVerifier(trustAnyHostnameVerifier);
     }
 
-    conn.setConnectTimeout(clientRequest.get().getConnectTimeOut());
-    conn.setReadTimeout(clientRequest.get().getReadTimeOut());
+    conn.setConnectTimeout(clientRequest.getConnectTimeOut());
+    conn.setReadTimeout(clientRequest.getReadTimeOut());
 
 
     return conn;
@@ -199,12 +202,7 @@ public class ClientConnection {
 
       String filename = file.getName();
       String contentType = HttpTyper.getContentTypeFromExtension(filename);
-      StringBuilder builder = new StringBuilder();
-      builder.append("\r\n").append("--").append(boundary).append("\r\n");
-      builder.append("Content-Disposition: form-data; name=\"").append(key).append("\"; filename=\"").append(filename).append("\"\r\n");
-      builder.append("Content-Type:").append(contentType).append("\r\n\r\n");
-
-      writer.write(builder.toString().getBytes());
+      writer.write(("\r\n" + "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + key + "\"; filename=\"" + filename + "\"\r\n" + "Content-Type:" + contentType + "\r\n\r\n").getBytes());
 
       DataInputStream in = new DataInputStream(new FileInputStream(file));
       int bytes = 0;
@@ -227,12 +225,14 @@ public class ClientConnection {
   private HttpURLConnection openHttpURLConnection(URL _url, String method) throws IOException {
     logger.info("Open connection for api " + _url.getPath());
 
+    ClientRequest clientRequest = clientRequestTL.get();
+
     HttpURLConnection.setFollowRedirects(true);
     HttpURLConnection conn;
     conn = (HttpURLConnection) _url.openConnection();
     conn.setRequestMethod(method);
 
-    String downloadFile = clientRequest.get().getDownloadFile();
+    String downloadFile = clientRequest.getDownloadFile();
     if (downloadFile != null) {
       File file = new File(downloadFile);
       if (file.exists()) {
@@ -240,7 +240,7 @@ public class ClientConnection {
         conn.setRequestProperty("RANGE", "bytes=" + file.length() + "-");
       }
     }
-    Map<String, String> headers = clientRequest.get().getHeaders();
+    Map<String, String> headers = clientRequest.getHeaders();
     if (headers != null && !headers.isEmpty())
       for (Map.Entry<String, String> entry : headers.entrySet())
         conn.setRequestProperty(entry.getKey(), entry.getValue());

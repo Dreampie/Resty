@@ -290,10 +290,7 @@ public class MultipartParser {
         origname = dispInfo[3];
       } else if (headerline.toLowerCase().startsWith("content-type:")) {
         // Get the content type, or null if none specified
-        String type = extractContentType(headerline);
-        if (type != null) {
-          contentType = type;
-        }
+        contentType = extractContentType(headerline);
       }
     }
 

@@ -73,7 +73,7 @@ public class ClientTest {
   public void testDownload() {
     //download  支持断点续传
     ClientRequest downloadRequest = new ClientRequest("/tests/file", HttpMethod.GET);
-    downloadRequest.setDownloadFile(ClientTest.class.getResource("/resty.jar").getFile().replace(".jar", "x.jar"));
+    downloadRequest.setDownloadFile(ClientTest.class.getResource("/").getFile(), true);
     ResponseData downloadResult = client.build(downloadRequest).ask();
     System.out.println(downloadResult.getData());
   }

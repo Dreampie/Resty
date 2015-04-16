@@ -227,8 +227,7 @@ public class MultipartRequest {
 
     // Parse the incoming multipart, storing files in the dir provided, 
     // and populate the meta objects which describe what we found
-    MultipartParser parser =
-        new MultipartParser(request, maxPostSize, true, true, encoding);
+    MultipartParser parser = new MultipartParser(request, maxPostSize, true, true, encoding);
     List<String> deniedTypes = Lister.of(denieds);
     List<String> allowTypes = Lister.of(allows);
 

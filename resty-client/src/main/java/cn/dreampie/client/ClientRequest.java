@@ -16,6 +16,7 @@ public class ClientRequest {
   private Map<String, String> headers = Maper.of();
   private int connectTimeOut = 10000;
   private int readTimeOut = 10000;
+  private boolean overwrite = false;
   private String downloadFile;
   private Map<String, String> uploadFiles = Maper.of();
 
@@ -123,8 +124,17 @@ public class ClientRequest {
     this.readTimeOut = readTimeOut;
   }
 
+  public boolean isOverwrite() {
+    return overwrite;
+  }
+
   public void setDownloadFile(String downloadFile) {
     this.downloadFile = downloadFile;
+  }
+
+  public void setDownloadFile(String downloadFile, boolean overwrite) {
+    this.downloadFile = downloadFile;
+    this.overwrite = overwrite;
   }
 
   public String getDownloadFile() {

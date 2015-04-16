@@ -116,8 +116,7 @@ public class HttpRequest extends AbstractRequest {
     Map<String, String> cookies = new LinkedHashMap<String, String>();
     Cookie[] requestCookies = request.getCookies();
     if (requestCookies != null) {
-      for (int i = 0; i < requestCookies.length; i++) {
-        Cookie cookie = requestCookies[i];
+      for (Cookie cookie : requestCookies) {
         cookies.put(cookie.getName(), cookie.getValue());
       }
     }

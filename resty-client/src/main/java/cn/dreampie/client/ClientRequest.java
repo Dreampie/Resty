@@ -7,6 +7,8 @@ import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Set;
 
+import static cn.dreampie.common.util.Checker.checkNotNull;
+
 public class ClientRequest {
   private String restUrl;
   private String method;
@@ -38,8 +40,8 @@ public class ClientRequest {
   }
 
   public ClientRequest(String restUrl, String method, String encoding, Map<String, String> parameters, Map<String, String> headers) {
-    this.restUrl = restUrl;
-    this.method = method;
+    this.restUrl = checkNotNull(restUrl);
+    this.method = checkNotNull(method);
     this.encoding = encoding;
     this.parameters = parameters;
     this.headers = headers;

@@ -13,8 +13,8 @@ public class ClientRequest {
   private String restUrl;
   private String method;
   private String encoding;
-  private Map<String, String> parameters = Maper.of();
-  private String jsonParameter;
+  private Map<String, String> params = Maper.of();
+  private String jsonParam;
   private Map<String, String> headers = Maper.of();
   private int connectTimeOut = 10000;
   private int readTimeOut = 10000;
@@ -30,20 +30,20 @@ public class ClientRequest {
     this(restUrl, method, encoding, Maper.<String, String>of());
   }
 
-  public ClientRequest(String restUrl, String method, Map<String, String> parameters) {
-    this(restUrl, method, "UTF-8", parameters);
+  public ClientRequest(String restUrl, String method, Map<String, String> params) {
+    this(restUrl, method, "UTF-8", params);
   }
 
-  public ClientRequest(String restUrl, String method, String encoding, Map<String, String> parameters) {
-    this(restUrl, method, encoding, parameters,
+  public ClientRequest(String restUrl, String method, String encoding, Map<String, String> params) {
+    this(restUrl, method, encoding, params,
         Maper.of("Content-Type", "application/x-www-form-urlencoded;charset=" + encoding, "User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36"));
   }
 
-  public ClientRequest(String restUrl, String method, String encoding, Map<String, String> parameters, Map<String, String> headers) {
+  public ClientRequest(String restUrl, String method, String encoding, Map<String, String> params, Map<String, String> headers) {
     this.restUrl = checkNotNull(restUrl);
     this.method = checkNotNull(method);
     this.encoding = encoding;
-    this.parameters = parameters;
+    this.params = params;
     this.headers = headers;
   }
 
@@ -59,8 +59,8 @@ public class ClientRequest {
     return this.encoding;
   }
 
-  public Map<String, String> getParameters() {
-    return this.parameters;
+  public Map<String, String> getParams() {
+    return this.params;
   }
 
   public Map<String, String> getHeaders() {
@@ -78,22 +78,22 @@ public class ClientRequest {
     return this;
   }
 
-  public ClientRequest addParameter(String name, String value) {
-    this.parameters.put(name, value);
+  public ClientRequest addParam(String name, String value) {
+    this.params.put(name, value);
     return this;
   }
 
-  public String getJsonParameter() {
-    return jsonParameter;
+  public String getJsonParam() {
+    return jsonParam;
   }
 
-  public void setJsonParameter(String jsonParameter) {
+  public void setJsonParam(String jsonParam) {
     this.addHeader("Content-Type", "application/json;charset=" + encoding);
-    this.jsonParameter = jsonParameter;
+    this.jsonParam = jsonParam;
   }
 
-  public void setParameters(Map<String, String> parameters) {
-    this.parameters = parameters;
+  public void setParams(Map<String, String> params) {
+    this.params = params;
   }
 
   public ClientRequest addHeader(String key, String value) {
@@ -157,61 +157,61 @@ public class ClientRequest {
     this.uploadFiles = uploadFiles;
   }
 
-  public String getEncodedParameters() throws UnsupportedEncodingException {
-    String encodedParameters = "";
-    if (!this.parameters.isEmpty()) {
-      Set<String> parameterKeys = this.parameters.keySet();
-      boolean isFirstParameter = true;
+  public String getEncodedParams() throws UnsupportedEncodingException {
+    String encodedParams = "";
+    if (!this.params.isEmpty()) {
+      Set<String> paramKeys = this.params.keySet();
+      boolean isFirstParam = true;
       String value = null;
-      for (String key : parameterKeys) {
-        value = this.parameters.get(key);
+      for (String key : paramKeys) {
+        value = this.params.get(key);
         if (value == null) continue;
-        if (isFirstParameter) {
-          encodedParameters += key + "=" + URLEncoder.encode(value, this.getEncoding());
-          isFirstParameter = false;
+        if (isFirstParam) {
+          encodedParams += key + "=" + URLEncoder.encode(value, this.getEncoding());
+          isFirstParam = false;
         } else {
-          encodedParameters += "&" + key + "=" + URLEncoder.encode(value, this.getEncoding());
+          encodedParams += "&" + key + "=" + URLEncoder.encode(value, this.getEncoding());
         }
       }
     }
 
-    return encodedParameters.trim();
+    return encodedParams.trim();
   }
 
-  public String getUnEncodedParameters() {
-    String parameters = "";
-    if (!this.parameters.isEmpty()) {
-      Set<String> parameterKeys = this.parameters.keySet();
-      boolean isFirstParameter = true;
+  public String getUnEncodedParams() {
+    String params = "";
+    if (!this.params.isEmpty()) {
+      Set<String> paramKeys = this.params.keySet();
+      boolean isFirstParam = true;
       String value = null;
-      for (String key : parameterKeys) {
-        value = this.parameters.get(key);
+      for (String key : paramKeys) {
+        value = this.params.get(key);
         if (value == null) continue;
-        if (isFirstParameter) {
-          parameters += key + "=" + value;
-          isFirstParameter = false;
+        if (isFirstParam) {
+          params += key + "=" + value;
+          isFirstParam = false;
         } else {
-          parameters += "&" + key + "=" + value;
+          params += "&" + key + "=" + value;
         }
       }
     }
 
-    return parameters.trim();
+    return params.trim();
   }
 
   public String getEncodedUrl() throws UnsupportedEncodingException {
     String encodedUrl = this.getRestUrl();
-    if (!this.parameters.isEmpty()) {
+    if (!this.params.isEmpty()) {
       encodedUrl += "?";
-      Set<String> parameterKeys = this.parameters.keySet();
-      boolean isFirstParameter = true;
+      Set<String> paramKeys = this.params.keySet();
+      boolean isFirstParam = true;
       String value = null;
-      for (String key : parameterKeys) {
-        value = this.parameters.get(key);
+      for (String key : paramKeys) {
+        value = this.params.get(key);
         if (value == null) continue;
-        if (isFirstParameter) {
+        if (isFirstParam) {
           encodedUrl += key + "=" + URLEncoder.encode(value, this.getEncoding());
-          isFirstParameter = false;
+          isFirstParam = false;
         } else {
           encodedUrl += "&" + key + "=" + URLEncoder.encode(value, this.getEncoding());
         }
@@ -222,17 +222,17 @@ public class ClientRequest {
 
   public String getUnEncodedUrl() {
     String url = this.getRestUrl();
-    if (!this.parameters.isEmpty()) {
+    if (!this.params.isEmpty()) {
       url += "?";
-      Set<String> parameterKeys = this.parameters.keySet();
-      boolean isFirstParameter = true;
+      Set<String> paramKeys = this.params.keySet();
+      boolean isFirstParam = true;
       String value = null;
-      for (String key : parameterKeys) {
-        value = this.parameters.get(key);
+      for (String key : paramKeys) {
+        value = this.params.get(key);
         if (value == null) continue;
-        if (isFirstParameter) {
+        if (isFirstParam) {
           url += key + "=" + value;
-          isFirstParameter = false;
+          isFirstParam = false;
         } else {
           url += "&" + key + "=" + value;
         }

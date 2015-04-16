@@ -13,7 +13,7 @@ import java.util.Vector;
 /**
  * A utility class to handle <code>multipart/form-data</code> requests,
  * the kind of requests that support file uploads.  This class uses a
- * "pull" model where the reading of incoming files and parameters is
+ * "pull" model where the reading of incoming files and params is
  * controlled by the client code, which allows incoming files to be stored
  * into any <code>OutputStream</code>.  If you wish to use an API which
  * resembles <code>HttpRequest</code>, use the "push" model

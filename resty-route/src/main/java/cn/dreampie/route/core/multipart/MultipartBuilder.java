@@ -62,7 +62,7 @@ public class MultipartBuilder {
 
     try {
       MultipartRequest multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamer, uploadAllows, Constant.uploadDenieds);
-      multipartParam = new MultipartParam(multipartRequest.getFiles(), multipartRequest.getParameters());
+      multipartParam = new MultipartParam(multipartRequest.getFiles(), multipartRequest.getParams());
     } catch (IOException e) {
       throw new WebException(e.getMessage());
     }

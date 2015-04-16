@@ -30,7 +30,7 @@ public class ClientTest {
   @Test
   public void testLogin() {
     ClientRequest request = new ClientRequest("/sessions", HttpMethod.POST);
-    request.addParameter("username", "asdasda").addParameter("password", "123").addParameter("rememberMe", "true");
+    request.addParam("username", "asdasda").addParam("password", "123").addParam("rememberMe", "true");
     System.out.println(client.build(request).ask());
   }
 
@@ -49,7 +49,7 @@ public class ClientTest {
   @Test
   public void testUpdate() {
     ClientRequest request = new ClientRequest("/users", HttpMethod.PUT);
-    request.addParameter("user", "{\"id\":\"1\",\"username\":\"k\"}");
+    request.addParam("user", "{\"id\":\"1\",\"username\":\"k\"}");
     System.out.println(client.build(request).ask());
   }
 
@@ -64,7 +64,7 @@ public class ClientTest {
     //upload
     ClientRequest uploadRequest = new ClientRequest("/tests/resty", HttpMethod.POST);
     uploadRequest.addUploadFile("resty", ClientTest.class.getResource("/resty.jar").getFile());
-    uploadRequest.addParameter("des", "test file  paras  测试笔");
+    uploadRequest.addParam("des", "test file  paras  测试笔");
     ResponseData uploadResult = client.build(uploadRequest).ask();
     System.out.println(uploadResult.getData());
   }
@@ -81,7 +81,7 @@ public class ClientTest {
   @Test
   public void testSave() {
     ClientRequest request = new ClientRequest("/users/1", HttpMethod.POST);
-    request.setJsonParameter(Jsoner.toJSON(
+    request.setJsonParam(Jsoner.toJSON(
         new HashMap<String, Object>() {
           {
             put("users", new ArrayList<Map>() {

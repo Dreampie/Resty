@@ -121,7 +121,7 @@ public class ClientConnection {
         conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
 
         // params
-        Map<String, String> params = clientRequest.getParameters();
+        Map<String, String> params = clientRequest.getParams();
 
         DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
         if (params != null && params.size() > 0) {
@@ -147,19 +147,19 @@ public class ClientConnection {
       } else {
         //没有文件上传
         String contentType = clientRequest.getHeaders().get("Content-Type");
-        String requestParameters;
+        String requestParams;
         //application/json  传递参数
         if (contentType != null && contentType.toLowerCase().contains(HttpTyper.ContentType.JSON.value())) {
-          requestParameters = clientRequest.getJsonParameter();
+          requestParams = clientRequest.getJsonParam();
         } else {
-          requestParameters = clientRequest.getEncodedParameters();
+          requestParams = clientRequest.getEncodedParams();
         }
         //写入参数
-        if (requestParameters != null && !"".equals(requestParameters)) {
+        if (requestParams != null && !"".equals(requestParams)) {
           DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
-          logger.debug("Request out method " + method + ",out parameters " + requestParameters);
+          logger.debug("Request out method " + method + ",out parameters " + requestParams);
 
-          writer.writeBytes(requestParameters);
+          writer.writeBytes(requestParams);
           writer.flush();
           writer.close();
         }

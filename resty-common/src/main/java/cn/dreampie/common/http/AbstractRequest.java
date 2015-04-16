@@ -20,11 +20,11 @@ public abstract class AbstractRequest implements Request {
   public String toString() {
     StringBuilder sb = new StringBuilder("[resty request] ");
     sb.append(getHttpMethod()).append(" ").append(getRestPath());
-    dumpParameters(sb);
+    dumpParams(sb);
     return sb.toString();
   }
 
-  private void dumpParameters(StringBuilder sb) {
+  private void dumpParams(StringBuilder sb) {
     Map<String, List<String>> queryParams = getQueryParams();
     if (queryParams.isEmpty()) {
       return;

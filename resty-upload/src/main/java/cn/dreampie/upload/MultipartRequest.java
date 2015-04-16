@@ -54,7 +54,7 @@ public class MultipartRequest {
   private static final Logger logger = Logger.getLogger(MultipartRequest.class);
   private static final int DEFAULT_MAX_POST_SIZE = 1024 * 1024;  // 1 Meg
 
-  protected Hashtable<String, List<String>> parameters = new Hashtable<String, List<String>>();  // name - Vector of values
+  protected Hashtable<String, List<String>> params = new Hashtable<String, List<String>>();  // name - Vector of values
   protected Hashtable<String, UploadedFile> files = new Hashtable<String, UploadedFile>();       // name - UploadedFile
 
   /**
@@ -242,10 +242,10 @@ public class MultipartRequest {
         // It's a parameter part, add it to the vector of values
         paramPart = (ParamPart) part;
         value = paramPart.getStringValue();
-        existingValues = (Vector) parameters.get(name);
+        existingValues = (Vector) params.get(name);
         if (existingValues == null) {
           existingValues = new Vector();
-          parameters.put(name, existingValues);
+          params.put(name, existingValues);
         }
         existingValues.addElement(value);
       } else if (part.isFile()) {
@@ -371,8 +371,8 @@ public class MultipartRequest {
    *
    * @return a Param objects.
    */
-  public Hashtable<String, List<String>> getParameters() {
-    return parameters;
+  public Hashtable<String, List<String>> getParams() {
+    return params;
   }
 }
 

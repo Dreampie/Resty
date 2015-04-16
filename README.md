@@ -171,7 +171,7 @@ public void configPlugin(PluginLoader pluginLoader) {
 
   //post
   ClientRequest postRequest = new ClientRequest("/tests", HttpMethod.POST);
-  postRequest.addParameter("test", Jsoner.toJSONString(Maper.of("a", "谔谔")));
+  postRequest.addParam("test", Jsoner.toJSONString(Maper.of("a", "谔谔")));
   ResponseData postResult = client.build(postRequest).ask();
   System.out.println(postResult.getData());
 
@@ -190,7 +190,7 @@ public void configPlugin(PluginLoader pluginLoader) {
   //upload
   ClientRequest uploadRequest = new ClientRequest("/tests/resty", HttpMethod.POST);
   uploadRequest.addUploadFiles("resty", ClientTest.class.getResource("/resty.jar").getFile());
-  uploadRequest.addParameter("des", "test file  paras  测试笔");
+  uploadRequest.addParam("des", "test file  paras  测试笔");
   ResponseData uploadResult = client.build(uploadRequest).ask();
   System.out.println(uploadResult.getData());
 

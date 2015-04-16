@@ -10,11 +10,11 @@ import java.util.List;
  */
 public class MultipartParam {
   private Hashtable<String, UploadedFile> uploadedFiles;
-  private Hashtable<String, List<String>> parameters;  // name - Vector of values
+  private Hashtable<String, List<String>> params;  // name - Vector of values
 
-  public MultipartParam(Hashtable<String, UploadedFile> uploadedFiles, Hashtable<String, List<String>> parameters) {
+  public MultipartParam(Hashtable<String, UploadedFile> uploadedFiles, Hashtable<String, List<String>> params) {
     this.uploadedFiles = uploadedFiles;
-    this.parameters = parameters;
+    this.params = params;
   }
 
   public Hashtable<String, UploadedFile> getUploadedFiles() {
@@ -32,20 +32,20 @@ public class MultipartParam {
     return null;
   }
 
-  public Hashtable<String, List<String>> getParameters() {
-    return parameters;
+  public Hashtable<String, List<String>> getParams() {
+    return params;
   }
 
-  public List<String> getParameter(String name) {
-    if (parameters != null) {
-      return parameters.get(name);
+  public List<String> getParam(String name) {
+    if (params != null) {
+      return params.get(name);
     }
     return null;
   }
 
-  public String getParameterFirst(String name) {
-    if (parameters != null) {
-      List<String> value = parameters.get(name);
+  public String getParamFirst(String name) {
+    if (params != null) {
+      List<String> value = params.get(name);
       return value != null && value.size() > 0 ? value.get(0) : null;
     }
     return null;

@@ -81,9 +81,9 @@ public class HttpRequest extends AbstractRequest {
 
   public Map<String, List<String>> getQueryParams() {
     if (queryParams == null) {
-      Map<String, String[]> parameterMap = getParameterMap();
+      Map<String, String[]> paramMap = getParamMap();
       Map<String, List<String>> params = new HashMap<String, List<String>>();
-      for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+      for (Map.Entry<String, String[]> entry : paramMap.entrySet()) {
         params.put(entry.getKey(), Arrays.asList(entry.getValue()));
       }
       queryParams = params;
@@ -91,7 +91,7 @@ public class HttpRequest extends AbstractRequest {
     return queryParams;
   }
 
-  protected Map<String, String[]> getParameterMap() {
+  protected Map<String, String[]> getParamMap() {
     return request.getParameterMap();
   }
 

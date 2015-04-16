@@ -28,7 +28,7 @@ public class ThreadTest {
             begin.await();
             // execute your logic
             ClientRequest request = new ClientRequest("/sessions", HttpMethod.POST);
-            request.addParameter("username", "testuser" + finalI).addParameter("password", "123").addParameter("rememberMe", "true");
+            request.addParam("username", "testuser" + finalI).addParam("password", "123").addParam("rememberMe", "true");
             System.out.println(client.build(request).ask());
 
             Thread.sleep((long) (Math.random() * 10000));

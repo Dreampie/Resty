@@ -182,7 +182,7 @@ public class Route {
     RouteMatch routeMatch = null;
     //print match route
     if (multipartParam != null) {
-      otherParams.putAll(multipartParam.getParameters());
+      otherParams.putAll(multipartParam.getParams());
       printMatchRoute(params, otherParams, multipartParam.getUploadedFiles());
       routeMatch = new RouteMatch(pathPattern, restPath, extension, params, otherParams, multipartParam.getUploadedFiles(), request, response);
     } else {

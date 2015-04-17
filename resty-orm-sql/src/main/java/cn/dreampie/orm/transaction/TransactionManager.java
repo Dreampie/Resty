@@ -50,7 +50,7 @@ public class TransactionManager {
       }
       conn.setTransactionIsolation(level);
     } catch (SQLException e) {
-      throw new TransactionException(e.getMessage(), e.getCause());
+      throw new TransactionException(e.getMessage(), e);
     }
   }
 
@@ -68,7 +68,7 @@ public class TransactionManager {
         }
       }
     } catch (SQLException e) {
-      throw new TransactionException(e.getMessage(), e.getCause());
+      throw new TransactionException(e.getMessage(), e);
     }
   }
 
@@ -91,7 +91,7 @@ public class TransactionManager {
         dataSourceMeta.close(conn);
       }
     } catch (SQLException e) {
-      logger.error("Could not end " + dataSourceMeta.getDsName() + " connection.", e.getCause());
+      logger.error("Could not end " + dataSourceMeta.getDsName() + " connection.", e);
     }
   }
 
@@ -107,7 +107,7 @@ public class TransactionManager {
         }
       }
     } catch (SQLException e) {
-      logger.error("Could not rollback " + dataSourceMeta.getDsName() + " connection.", e.getCause());
+      logger.error("Could not rollback " + dataSourceMeta.getDsName() + " connection.", e);
     }
   }
 }

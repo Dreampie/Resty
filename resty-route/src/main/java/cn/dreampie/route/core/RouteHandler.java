@@ -33,22 +33,26 @@ public final class RouteHandler extends Handler {
     Route route = null;
     //请求的rest路径
     String restPath = request.getRestPath();
-    Map<String, Set<Route>> routesMap = routeBuilder.getRoutesMap();
+    Map<String, Map<String, Set<Route>>> routesMap = routeBuilder.getRoutesMap();
     Set<Route> routesSet;
-
-    Set<Map.Entry<String, Set<Route>>> routesEntrySet = routesMap.entrySet();
-    for (Map.Entry<String, Set<Route>> routesEntry : routesEntrySet) {
-      if (restPath.startsWith(routesEntry.getKey())) {
-        routesSet = routesEntry.getValue();
-        for (Route r : routesSet) {
-          routeMatch = r.match(request, response);
+    String httpMethod = request.getHttpMethod();
+    //httpmethod区分
+    if (routesMap.containsKey(httpMethod)) {
+      Set<Map.Entry<String, Set<Route>>> routesEntrySet = routesMap.get(httpMethod).entrySet();
+      //url区分
+      for (Map.Entry<String, Set<Route>> routesEntry : routesEntrySet) {
+        if (restPath.startsWith(routesEntry.getKey())) {
+          routesSet = routesEntry.getValue();
+          for (Route r : routesSet) {
+            routeMatch = r.match(request, response);
+            if (routeMatch != null) {
+              route = r;
+              break;
+            }
+          }
           if (routeMatch != null) {
-            route = r;
             break;
           }
-        }
-        if (routeMatch != null) {
-          break;
         }
       }
     }

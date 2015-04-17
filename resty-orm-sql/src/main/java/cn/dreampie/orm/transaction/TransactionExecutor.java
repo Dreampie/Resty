@@ -34,7 +34,7 @@ public class TransactionExecutor {
       transactionManager.commit();
     } catch (Throwable t) {
       transactionManager.rollback();
-      throw new TransactionException(t.getMessage(), t.getCause());
+      throw new TransactionException(t.getMessage(), t);
     } finally {
       transactionManager.end();
     }

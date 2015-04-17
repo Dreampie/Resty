@@ -46,7 +46,7 @@ public final class RestyFilter implements Filter {
       restyIniter = new RestyIniter(config, filterConfig.getServletContext());
       handler = restyIniter.getHandler();
     } catch (Exception e) {
-      throw new ServletException(e.getCause());
+      throw new ServletException(e);
     }
   }
 

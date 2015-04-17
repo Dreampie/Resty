@@ -22,15 +22,7 @@ public final class RouteBuilder {
   private ResourceLoader resourceLoader;
   private InterceptorLoader interceptorLoader;
   //对routes排序
-  private Map<String, Set<Route>> routesMap = new TreeMap<String, Set<Route>>(new Comparator<String>() {
-    public int compare(String k1, String k2) {
-      int result = k2.length() - k1.length();
-      if (result == 0) {
-        return k1.compareTo(k2);
-      }
-      return result;
-    }
-  });
+  private Map<String, Map<String, Set<Route>>> routesMap=new HashMap<String, Map<String, Set<Route>>>();
 
   public RouteBuilder(ResourceLoader resourceLoader, InterceptorLoader interceptorLoader) {
     this.resourceLoader = resourceLoader;
@@ -46,17 +38,25 @@ public final class RouteBuilder {
     } else {
       routeStart = pattern;
     }
-
-    if (routesMap.containsKey(routeStart)) {
-      Set<Route> routeSet = routesMap.get(routeStart);
-      for (Route r : routeSet) {
-        if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern())) {
-          throw new IllegalArgumentException("Same path pattern " + r.getHttpMethod() + " " + r.getPattern());
+    String httpMethod = route.getHttpMethod();
+    //httpMethod区分
+    if (routesMap.containsKey(httpMethod)) {
+      Map<String, Set<Route>> routesHttpMethodMap = routesMap.get(httpMethod);
+      //url区分
+      if (routesHttpMethodMap.containsKey(routeStart)) {
+        Set<Route> routes = routesHttpMethodMap.get(routeStart);
+        //判断重复
+        for (Route r : routes) {
+          if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern())) {
+            throw new IllegalArgumentException("Same path pattern " + r.getHttpMethod() + " " + r.getPattern());
+          }
         }
+        routesMap.get(httpMethod).get(routeStart).add(route);
+      } else {
+        routesMap.get(httpMethod).put(routeStart, newRouteSet(route));
       }
-      routesMap.get(routeStart).add(route);
     } else {
-      routesMap.put(routeStart, newRouteSet(route));
+      routesMap.put(httpMethod, newRouteMap(routeStart, route));
     }
   }
 
@@ -216,10 +216,23 @@ public final class RouteBuilder {
     return apiPath;
   }
 
-  public Map<String, Set<Route>> getRoutesMap() {
+  public Map<String, Map<String, Set<Route>>> getRoutesMap() {
     return Collections.unmodifiableMap(routesMap);
   }
 
+  public Map<String, Set<Route>> newRouteMap(final String routeStart, final Route route) {
+    return new TreeMap<String, Set<Route>>(new Comparator<String>() {
+      public int compare(String k1, String k2) {
+        int result = k2.length() - k1.length();
+        if (result == 0) {
+          return k1.compareTo(k2);
+        }
+        return result;
+      }
+    }) {{
+      put(routeStart, newRouteSet(route));
+    }};
+  }
 
   public Set<Route> newRouteSet(final Route route) {
     return new TreeSet<Route>(

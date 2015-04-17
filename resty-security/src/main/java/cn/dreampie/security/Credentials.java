@@ -14,18 +14,7 @@ public class Credentials {
 
   private final AuthenticateService authenticateService;
   private final long expires;
-  private Set<Credential> credentials = new TreeSet<Credential>(new Comparator<Credential>() {
-    public int compare(Credential a, Credential b) {
-      int result = b.getAntPath().length() - a.getAntPath().length();
-      if (result == 0) {
-        result = a.getHttpMethod().compareTo(b.getHttpMethod());
-        if (result == 0) {
-          return a.getAntPath().compareTo(b.getAntPath());
-        }
-      }
-      return result;
-    }
-  });
+  private Set<Credential> credentials;
 
   private Map<String, Principal> principals = new HashMap<String, Principal>();
   private long lastAccess;
@@ -96,9 +85,23 @@ public class Credentials {
     return principal;
   }
 
-  public Set<Credential> newCredentialSet(Set<Credential> credentialSet) {
-    credentials.clear();
-    credentials.addAll(credentialSet);
-    return credentials;
+
+  public Set<Credential> newCredentialSet(final Set<Credential> credentialSet) {
+    return new TreeSet<Credential>(new Comparator<Credential>() {
+      public int compare(Credential a, Credential b) {
+        int result = b.getAntPath().length() - a.getAntPath().length();
+        if (result == 0) {
+          result = a.getHttpMethod().compareTo(b.getHttpMethod());
+          if (result == 0) {
+            return a.getAntPath().compareTo(b.getAntPath());
+          }
+        }
+        return result;
+      }
+    }) {{
+      addAll(credentialSet);
+    }};
   }
+
+
 }

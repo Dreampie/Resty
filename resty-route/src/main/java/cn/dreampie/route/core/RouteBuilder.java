@@ -22,41 +22,39 @@ public final class RouteBuilder {
   private ResourceLoader resourceLoader;
   private InterceptorLoader interceptorLoader;
   //对routes排序
-  private Map<String, Map<String, Set<Route>>> routesMap=new HashMap<String, Map<String, Set<Route>>>();
+  private Map<String, Map<String, Set<Route>>> routesMap = new HashMap<String, Map<String, Set<Route>>>();
 
   public RouteBuilder(ResourceLoader resourceLoader, InterceptorLoader interceptorLoader) {
     this.resourceLoader = resourceLoader;
     this.interceptorLoader = interceptorLoader;
   }
 
-  public void addRoute(Route route) {
-    String pattern = route.getPattern();
-    int defaultPatternIndex = pattern.indexOf(Route.DEFAULT_PATTERN);
-    String routeStart;
-    if (defaultPatternIndex > -1) {
-      routeStart = pattern.substring(0, defaultPatternIndex - 1);
-    } else {
-      routeStart = pattern;
-    }
+  /**
+   * 添加route
+   *
+   * @param apiPath
+   * @param route
+   */
+  public void addRoute(String apiPath, Route route) {
     String httpMethod = route.getHttpMethod();
     //httpMethod区分
     if (routesMap.containsKey(httpMethod)) {
       Map<String, Set<Route>> routesHttpMethodMap = routesMap.get(httpMethod);
       //url区分
-      if (routesHttpMethodMap.containsKey(routeStart)) {
-        Set<Route> routes = routesHttpMethodMap.get(routeStart);
+      if (routesHttpMethodMap.containsKey(apiPath)) {
+        Set<Route> routes = routesHttpMethodMap.get(apiPath);
         //判断重复
         for (Route r : routes) {
           if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern())) {
             throw new IllegalArgumentException("Same path pattern " + r.getHttpMethod() + " " + r.getPattern());
           }
         }
-        routesMap.get(httpMethod).get(routeStart).add(route);
+        routesMap.get(httpMethod).get(apiPath).add(route);
       } else {
-        routesMap.get(httpMethod).put(routeStart, newRouteSet(route));
+        routesMap.get(httpMethod).put(apiPath, newRouteSet(route));
       }
     } else {
-      routesMap.put(httpMethod, newRouteMap(routeStart, route));
+      routesMap.put(httpMethod, newRouteMap(apiPath, route));
     }
   }
 
@@ -119,7 +117,7 @@ public final class RouteBuilder {
         if (delete != null) {
           validClasses = delete.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters,
               delete.des(), validators, multipartBuilder));
           continue;
         }
@@ -128,7 +126,7 @@ public final class RouteBuilder {
         if (get != null) {
           validClasses = get.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters,
               get.des(), validators, multipartBuilder));
           continue;
         }
@@ -137,7 +135,7 @@ public final class RouteBuilder {
         if (post != null) {
           validClasses = post.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters,
               post.des(), validators, multipartBuilder));
           continue;
         }
@@ -146,7 +144,7 @@ public final class RouteBuilder {
         if (put != null) {
           validClasses = put.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters,
               put.des(), validators, multipartBuilder));
           continue;
         }
@@ -155,7 +153,7 @@ public final class RouteBuilder {
         if (head != null) {
           validClasses = head.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters,
               head.des(), validators, multipartBuilder));
           continue;
         }
@@ -164,7 +162,7 @@ public final class RouteBuilder {
         if (patch != null) {
           validClasses = patch.valid();
           validators = getValidators(validClasses);
-          addRoute(new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters,
               patch.des(), validators, multipartBuilder));
           continue;
         }
@@ -200,7 +198,7 @@ public final class RouteBuilder {
    * 获取api部分
    *
    * @param resourceClazz resource class
-   * @return url
+   * @return url apiPath
    */
   private String getApi(Class<? extends Resource> resourceClazz) {
     API api;
@@ -220,7 +218,14 @@ public final class RouteBuilder {
     return Collections.unmodifiableMap(routesMap);
   }
 
-  public Map<String, Set<Route>> newRouteMap(final String routeStart, final Route route) {
+  /**
+   * 创建一个对key排序的map
+   *
+   * @param apiPath apiPath
+   * @param route   route
+   * @return map
+   */
+  public Map<String, Set<Route>> newRouteMap(final String apiPath, final Route route) {
     return new TreeMap<String, Set<Route>>(new Comparator<String>() {
       public int compare(String k1, String k2) {
         int result = k2.length() - k1.length();
@@ -230,10 +235,16 @@ public final class RouteBuilder {
         return result;
       }
     }) {{
-      put(routeStart, newRouteSet(route));
+      put(apiPath, newRouteSet(route));
     }};
   }
 
+  /**
+   * 创建一个排序的route
+   *
+   * @param route route
+   * @return Set
+   */
   public Set<Route> newRouteSet(final Route route) {
     return new TreeSet<Route>(
         new Comparator<Route>() {

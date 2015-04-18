@@ -60,27 +60,24 @@ public class Credentials {
       if (credentialMap.containsKey(httpMethod)) {
         //通过httpMethod来获取认证Map
         credentials = credentialMap.get(httpMethod);
-        if (credentials.size() > 0) {
-          credentialsEntrySet = credentials.entrySet();
-          for (Map.Entry<String, Set<Credential>> credentialsEntry : credentialsEntrySet) {
-            //如果有相同的前半部分
-            if (antPath.startsWith(credentialsEntry.getKey())) {
-              credentialsEntry.getValue().add(credential);
-              wasAdd = true;
-              break;
-            }
+        credentialsEntrySet = credentials.entrySet();
+        for (Map.Entry<String, Set<Credential>> credentialsEntry : credentialsEntrySet) {
+          //如果有相同的前半部分
+          if (antPath.startsWith(credentialsEntry.getKey())) {
+            credentialsEntry.getValue().add(credential);
+            wasAdd = true;
+            break;
           }
-          //如果没有找到相同前缀的
-          if (!wasAdd) {
-            if (credentials.containsKey(antPathKey)) {
-              credentials.get(antPathKey).add(credential);
-            } else {
-              credentials.put(antPathKey, newCredentialDESCSet(credential));
-            }
-          }
-        } else {
-          credentialMap.put(httpMethod, newCredentialMap(antPathKey, credential));
         }
+        //如果没有找到相同前缀的
+        if (!wasAdd) {
+          if (credentials.containsKey(antPathKey)) {
+            credentials.get(antPathKey).add(credential);
+          } else {
+            credentials.put(antPathKey, newCredentialDESCSet(credential));
+          }
+        }
+
       } else {
         credentialMap.put(httpMethod, newCredentialMap(antPathKey, credential));
       }

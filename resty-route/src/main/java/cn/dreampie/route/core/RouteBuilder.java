@@ -1,5 +1,6 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.route.config.InterceptorLoader;
@@ -22,7 +23,7 @@ public final class RouteBuilder {
   private ResourceLoader resourceLoader;
   private InterceptorLoader interceptorLoader;
   //对routes排序
-  private Map<String, Map<String, Set<Route>>> routesMap = new HashMap<String, Map<String, Set<Route>>>();
+  private Map<String, Map<String, Set<Route>>> routesMap = new CaseInsensitiveMap<Map<String, Set<Route>>>();
 
   public RouteBuilder(ResourceLoader resourceLoader, InterceptorLoader interceptorLoader) {
     this.resourceLoader = resourceLoader;
@@ -51,7 +52,7 @@ public final class RouteBuilder {
         }
         routesMap.get(httpMethod).get(apiPath).add(route);
       } else {
-        routesMap.get(httpMethod).put(apiPath, newRouteSet(route));
+        routesMap.get(httpMethod).put(apiPath, newRouteDESCSet(route));
       }
     } else {
       routesMap.put(httpMethod, newRouteMap(apiPath, route));
@@ -235,17 +236,17 @@ public final class RouteBuilder {
         return result;
       }
     }) {{
-      put(apiPath, newRouteSet(route));
+      put(apiPath, newRouteDESCSet(route));
     }};
   }
 
   /**
-   * 创建一个排序的route
+   * 创建一个倒排序的route
    *
    * @param route route
    * @return Set
    */
-  public Set<Route> newRouteSet(final Route route) {
+  public Set<Route> newRouteDESCSet(final Route route) {
     return new TreeSet<Route>(
         new Comparator<Route>() {
           public int compare(Route a, Route b) {

@@ -9,6 +9,7 @@ public class Credential {
   public static final String CREDENTIAL_ALL_KEY = "_allCredentials";
 
   private String httpMethod;
+  private int parentId;
   private String antPath;
   private String value;
 

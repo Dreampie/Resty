@@ -13,7 +13,7 @@ import cn.dreampie.security.*;
 public class SecurityInterceptor implements Interceptor {
 
   private final SessionBuilder sessionBuilder;
-  private static final int expires = 20 * 60 * 1000;
+  private static final int expires = 30 * 60 * 1000;
   private static final int rememberDay = 7;
   private static final int limit = 100;
 

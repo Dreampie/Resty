@@ -1,6 +1,7 @@
 package cn.dreampie.security;
 
 import cn.dreampie.common.Constant;
+import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.security.cache.SessionCache;
 
 import java.util.*;
@@ -14,7 +15,7 @@ public class Credentials {
 
   private final AuthenticateService authenticateService;
   private final long expires;
-  private Set<Credential> credentials;
+  private Map<String, Map<String, Set<Credential>>> credentialMap = new CaseInsensitiveMap<Map<String, Set<Credential>>>();
 
   private Map<String, Principal> principals = new HashMap<String, Principal>();
   private long lastAccess;
@@ -27,29 +28,89 @@ public class Credentials {
   }
 
   /**
+   * 添加倒认证map
+   *
+   * @param credentialSet 认证set
+   */
+  private Map<String, Map<String, Set<Credential>>> addCredentials(Set<Credential> credentialSet) {
+    Map<String, Map<String, Set<Credential>>> credentialMap = new CaseInsensitiveMap<Map<String, Set<Credential>>>();
+
+    Map<String, Set<Credential>> credentials;
+    Set<Map.Entry<String, Set<Credential>>> credentialsEntrySet;
+    String httpMethod;
+    String antPath;
+    int sIndex = -1;
+    String antPathKey;
+    boolean wasAdd = false;
+    for (Credential credential : credentialSet) {
+      httpMethod = credential.getHttpMethod();
+      antPath = credential.getAntPath();
+
+      sIndex = antPath.indexOf('*');
+      if (sIndex > 0) {
+        if (antPath.charAt(sIndex - 1) == '/') {
+          antPathKey = antPath.substring(0, sIndex - 1);
+        } else {
+          antPathKey = antPath.substring(0, sIndex);
+        }
+      } else {
+        antPathKey = antPath;
+      }
+
+      if (credentialMap.containsKey(httpMethod)) {
+        //通过httpMethod来获取认证Map
+        credentials = credentialMap.get(httpMethod);
+        if (credentials.size() > 0) {
+          credentialsEntrySet = credentials.entrySet();
+          for (Map.Entry<String, Set<Credential>> credentialsEntry : credentialsEntrySet) {
+            //如果有相同的前半部分
+            if (antPath.startsWith(credentialsEntry.getKey())) {
+              credentialsEntry.getValue().add(credential);
+              wasAdd = true;
+              break;
+            }
+          }
+          //如果没有找到相同前缀的
+          if (!wasAdd) {
+            if (credentials.containsKey(antPathKey)) {
+              credentials.get(antPathKey).add(credential);
+            } else {
+              credentials.put(antPathKey, newCredentialDESCSet(credential));
+            }
+          }
+        } else {
+          credentialMap.put(httpMethod, newCredentialMap(antPathKey, credential));
+        }
+      } else {
+        credentialMap.put(httpMethod, newCredentialMap(antPathKey, credential));
+      }
+    }
+    return credentialMap;
+  }
+
+
+  /**
    * 获取全部凭据
    *
    * @return 全部凭据
    */
-  public Set<Credential> loadAllCredentials() {
-    Set<Credential> credentialSet = null;
+  public Map<String, Map<String, Set<Credential>>> loadAllCredentials() {
     if (Constant.cacheEnabled) {
       //load  all  cache
-      credentialSet = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
-      if (credentialSet == null) {
-        credentialSet = newCredentialSet(authenticateService.loadAllCredentials());
-        SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, credentialSet);
+      credentialMap = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
+      if (credentialMap == null) {
+        credentialMap = addCredentials(authenticateService.loadAllCredentials());
+        SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, credentialMap);
       }
     } else {
-      if (credentials == null || credentials.size() <= 0 || System.currentTimeMillis() > lastAccess) {
-        credentials = newCredentialSet(authenticateService.loadAllCredentials());
+      if (credentialMap.size() <= 0 || System.currentTimeMillis() > lastAccess) {
+        credentialMap = addCredentials(newCredentialASCSet(authenticateService.loadAllCredentials()));
         lastAccess = System.currentTimeMillis() + expires;
       }
-      credentialSet = credentials;
     }
     //检测权限数据
-    checkNotNull(credentialSet, "Could not get credentials data.");
-    return credentialSet;
+    checkNotNull(credentialMap, "Could not get credentials data.");
+    return credentialMap;
   }
 
   /**
@@ -85,8 +146,34 @@ public class Credentials {
     return principal;
   }
 
+  /**
+   * 创建一个对key排序的map
+   *
+   * @param antPathKey antPathKey
+   * @param credential credential
+   * @return map
+   */
+  public Map<String, Set<Credential>> newCredentialMap(final String antPathKey, final Credential credential) {
+    return new TreeMap<String, Set<Credential>>(new Comparator<String>() {
+      public int compare(String k1, String k2) {
+        int result = k2.length() - k1.length();
+        if (result == 0) {
+          return k1.compareTo(k2);
+        }
+        return result;
+      }
+    }) {{
+      put(antPathKey, newCredentialDESCSet(credential));
+    }};
+  }
 
-  public Set<Credential> newCredentialSet(final Set<Credential> credentialSet) {
+  /**
+   * 创建一个排序的认证的Set
+   *
+   * @param credential 认证的Set
+   * @return 排序后的Set
+   */
+  public Set<Credential> newCredentialDESCSet(final Credential credential) {
     return new TreeSet<Credential>(new Comparator<Credential>() {
       public int compare(Credential a, Credential b) {
         int result = b.getAntPath().length() - a.getAntPath().length();
@@ -99,9 +186,30 @@ public class Credentials {
         return result;
       }
     }) {{
-      addAll(credentialSet);
+      add(credential);
     }};
   }
 
-
+  /**
+   * 升序的Set
+   *
+   * @param credentialSet 认证Set
+   * @return Set
+   */
+  public Set<Credential> newCredentialASCSet(final Set<Credential> credentialSet) {
+    return new TreeSet<Credential>(new Comparator<Credential>() {
+      public int compare(Credential a, Credential b) {
+        int result = a.getAntPath().length() - b.getAntPath().length();
+        if (result == 0) {
+          result = a.getHttpMethod().compareTo(b.getHttpMethod());
+          if (result == 0) {
+            return a.getAntPath().compareTo(b.getAntPath());
+          }
+        }
+        return result;
+      }
+    }) {{
+      addAll(credentialSet);
+    }};
+  }
 }

@@ -105,19 +105,48 @@ public class Subject {
   /**
    * 当前api需要的权限值
    *
-   * @param httpMethod
-   * @param path
-   * @return
+   * @param httpMethod httpMethod
+   * @param path       path
+   * @return value
    */
   public static String need(String httpMethod, String path) {
-    Set<Credential> credentialSet = credentials.loadAllCredentials();
+    Map<String, Map<String, Set<Credential>>> credentialMap = credentials.loadAllCredentials();
 
-    String method;
-    for (Credential credential : credentialSet) {
-      method = credential.getHttpMethod();
-      if ((method.equals("*") || method.equals(httpMethod))
-          && AntPathMatcher.instance().match(credential.getAntPath(), path)) {
-        return credential.getValue();
+    String value;
+    if (credentialMap.containsKey(httpMethod)) {
+      //匹配method的map
+      value = matchPath(httpMethod, path, credentialMap);
+      if (value == null) {
+        value = matchPath("*", path, credentialMap);
+      }
+    } else {
+      value = matchPath("*", path, credentialMap);
+    }
+    return value;
+  }
+
+  /**
+   * 匹配规则，优先httpMethod，其次相同的起始位置
+   *
+   * @param httpMethod    httpMethod
+   * @param path          path
+   * @param credentialMap credentialMap
+   * @return value
+   */
+  private static String matchPath(String httpMethod, String path, Map<String, Map<String, Set<Credential>>> credentialMap) {
+    Map<String, Set<Credential>> credentials = credentialMap.get(httpMethod);
+    if (credentials.size() > 0) {
+      Set<Map.Entry<String, Set<Credential>>> credentialsEntry = credentials.entrySet();
+      Set<Credential> credentialSet;
+      for (Map.Entry<String, Set<Credential>> credentialEntry : credentialsEntry) {
+        if (path.startsWith(credentialEntry.getKey())) {
+          credentialSet = credentialEntry.getValue();
+          for (Credential credential : credentialSet) {
+            if (AntPathMatcher.instance().match(credential.getAntPath(), path)) {
+              return credential.getValue();
+            }
+          }
+        }
       }
     }
     return null;
@@ -126,8 +155,8 @@ public class Subject {
   /**
    * 检测权限
    *
-   * @param httpMethod
-   * @param path
+   * @param httpMethod httpMethod
+   * @param path       path
    */
   public static void check(String httpMethod, String path) {
     String needCredential = need(httpMethod, path);
@@ -147,9 +176,9 @@ public class Subject {
   /**
    * 判断是否有当前api权限
    *
-   * @param httpMethod
-   * @param path
-   * @return
+   * @param httpMethod httpMethod
+   * @param path       path
+   * @return boolean
    */
   public static boolean has(String httpMethod, String path) {
     String needCredential = need(httpMethod, path);

@@ -1,5 +1,7 @@
 package cn.dreampie.example;
 
+import cn.dreampie.orm.callable.FindCall;
+import cn.dreampie.orm.callable.QueryCall;
 import cn.dreampie.orm.Page;
 import cn.dreampie.orm.Record;
 import cn.dreampie.resource.user.model.User;
@@ -9,6 +11,10 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.sql.CallableStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Date;
 import java.util.List;
 
@@ -126,16 +132,30 @@ public class SqlTest {
     recordDAO.deleteById("1");
   }
 
-//  @Test
-//  public void testProcess() {
-//    User.dao.call("{CALL PROCESS(?,?)}", new InCall() {
-//      public Object call(CallableStatement cstmt) throws SQLException {
-//        cstmt.setInt(1, 1);
-//        cstmt.registerOutParameter(2, Types.BIGINT);
-//        cstmt.execute();
-//        int result = cstmt.getInt(1);
-//        return result;
-//      }
-//    });
-//  }
+  @Test
+  public void testProcess() {
+   Integer r= User.dao.queryCall("{CALL PROCESS(?,?)}", new QueryCall() {
+     public Object call(CallableStatement cstmt) throws SQLException {
+       cstmt.setInt(1, 1);
+       cstmt.registerOutParameter(2, Types.BIGINT);
+       cstmt.execute();
+       return cstmt.getInt(1);
+     }
+   });
+
+   User user =User.dao.findCallFirst("{CALL PROCESS(?,?)}", new FindCall() {
+     public ResultSet call(CallableStatement cstmt) throws SQLException {
+       //操作
+       return null;
+     }
+   });
+
+
+    List<User> userList =User.dao.findCall("{CALL PROCESS(?,?)}", new FindCall() {
+      public ResultSet call(CallableStatement cstmt) throws SQLException {
+        //操作
+        return null;
+      }
+    });
+  }
 }

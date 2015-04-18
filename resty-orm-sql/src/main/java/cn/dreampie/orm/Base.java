@@ -6,6 +6,8 @@ import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.cache.QueryCache;
+import cn.dreampie.orm.callable.FindCall;
+import cn.dreampie.orm.callable.QueryCall;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
@@ -591,24 +593,67 @@ public abstract class Base<M extends Base> extends Entity<M> {
    * Boolean CallableStatement.execute: 存储过程返回多个结果集。
    * int[] CallableStatement.executeBatch: 提交批处理命令到数据库执行。
    *
-   * @param sql    存储过程的sql
-   * @param inCall 执行请求  返回结果
-   * @param <T>    返回类型
+   * @param sql       存储过程的sql
+   * @param queryCall 执行请求  返回结果
+   * @param <T>       返回类型
    * @return T
    */
-  public <T> T call(String sql, InCall inCall) {
+  public <T> T queryCall(String sql, QueryCall queryCall) {
     Connection conn = null;
     CallableStatement cstmt = null;
     DataSourceMeta dsm = getDataSourceMeta();
     try {
       conn = dsm.getConnection();
       cstmt = conn.prepareCall(sql);
-      return (T) inCall.call(cstmt);
+      Object result = queryCall.call(cstmt);
+      return (T) result;
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
     } finally {
       dsm.close(cstmt, conn);
     }
+  }
+
+  /**
+   * 返回一个Model的结果集
+   *
+   * @param sql
+   * @param findCall
+   * @return
+   */
+  public List<M> findCall(String sql, FindCall findCall) {
+    Connection conn = null;
+    CallableStatement cstmt = null;
+    DataSourceMeta dsm = getDataSourceMeta();
+    TableMeta tableMeta = getTableMeta();
+    List<M> result = null;
+
+    try {
+      conn = dsm.getConnection();
+      cstmt = conn.prepareCall(sql);
+      result = BaseBuilder.build(findCall.call(cstmt), getClass(), dsm, tableMeta);
+      return result;
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage(), e);
+    } catch (InstantiationException e) {
+      throw new EntityException(e.getMessage(), e);
+    } catch (IllegalAccessException e) {
+      throw new EntityException(e.getMessage(), e);
+    } finally {
+      dsm.close(cstmt, conn);
+    }
+  }
+
+  /**
+   * 返回一个Model
+   *
+   * @param sql
+   * @param findCall
+   * @return
+   */
+  public M findCallFirst(String sql, FindCall findCall) {
+    List<M> result = findCall(sql, findCall);
+    return result.size() > 0 ? result.get(0) : null;
   }
 
   /**

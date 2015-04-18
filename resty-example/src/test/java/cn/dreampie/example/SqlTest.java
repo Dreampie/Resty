@@ -1,9 +1,9 @@
 package cn.dreampie.example;
 
-import cn.dreampie.orm.callable.FindCall;
-import cn.dreampie.orm.callable.QueryCall;
 import cn.dreampie.orm.Page;
 import cn.dreampie.orm.Record;
+import cn.dreampie.orm.callable.ObjectCall;
+import cn.dreampie.orm.callable.ResultSetCall;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.resource.user.model.UserInfo;
 import org.junit.Before;
@@ -132,26 +132,43 @@ public class SqlTest {
     recordDAO.deleteById("1");
   }
 
-  @Test
+  //@Test
   public void testProcess() {
-   Integer r= User.dao.queryCall("{CALL PROCESS(?,?)}", new QueryCall() {
-     public Object call(CallableStatement cstmt) throws SQLException {
-       cstmt.setInt(1, 1);
-       cstmt.registerOutParameter(2, Types.BIGINT);
-       cstmt.execute();
-       return cstmt.getInt(1);
-     }
-   });
+    //返回一个指定类型的值
+    Integer r = User.dao.queryCall("{CALL PROCESS(?,?)}", new ObjectCall() {
+      public Object call(CallableStatement cstmt) throws SQLException {
+        cstmt.setInt(1, 1);
+        cstmt.registerOutParameter(2, Types.BIGINT);
+        cstmt.execute();
+        cstmt.executeQuery();
+        return cstmt.getInt(2);
+      }
+    });
 
-   User user =User.dao.findCallFirst("{CALL PROCESS(?,?)}", new FindCall() {
-     public ResultSet call(CallableStatement cstmt) throws SQLException {
-       //操作
-       return null;
-     }
-   });
+    //返回ResultSet结果集 查询的某个类型的值
+    String str = User.dao.queryCallFirst("{CALL PROCESS(?,?)}", new ResultSetCall() {
+          public ResultSet call(CallableStatement cstmt) throws SQLException {
+            return null;
+          }
+        }
+    );
+    //返回ResultSet结果集 查询的某个类型的值
+    List<String> rs = User.dao.queryCall("{CALL PROCESS(?,?)}", new ResultSetCall() {
+          public ResultSet call(CallableStatement cstmt) throws SQLException {
+            return null;
+          }
+        }
+    );
+    //返回ResultSet结果集 封装成User的model对象
+    User user = User.dao.findCallFirst("{CALL PROCESS(?,?)}", new ResultSetCall() {
+      public ResultSet call(CallableStatement cstmt) throws SQLException {
+        //操作
+        return null;
+      }
+    });
 
-
-    List<User> userList =User.dao.findCall("{CALL PROCESS(?,?)}", new FindCall() {
+    //返回ResultSet结果集 封装成user的集合类型
+    List<User> userList = User.dao.findCall("{CALL PROCESS(?,?)}", new ResultSetCall() {
       public ResultSet call(CallableStatement cstmt) throws SQLException {
         //操作
         return null;

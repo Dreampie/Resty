@@ -6,8 +6,8 @@ import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.cache.QueryCache;
-import cn.dreampie.orm.callable.FindCall;
-import cn.dreampie.orm.callable.QueryCall;
+import cn.dreampie.orm.callable.ObjectCall;
+import cn.dreampie.orm.callable.ResultSetCall;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
@@ -587,76 +587,6 @@ public abstract class Base<M extends Base> extends Entity<M> {
   }
 
   /**
-   * 调用存储过程
-   * int CallableStatement.executeUpdate: 存储过程不返回结果集。
-   * ResultSet CallableStatement.executeQuery: 存储过程返回一个结果集。
-   * Boolean CallableStatement.execute: 存储过程返回多个结果集。
-   * int[] CallableStatement.executeBatch: 提交批处理命令到数据库执行。
-   *
-   * @param sql       存储过程的sql
-   * @param queryCall 执行请求  返回结果
-   * @param <T>       返回类型
-   * @return T
-   */
-  public <T> T queryCall(String sql, QueryCall queryCall) {
-    Connection conn = null;
-    CallableStatement cstmt = null;
-    DataSourceMeta dsm = getDataSourceMeta();
-    try {
-      conn = dsm.getConnection();
-      cstmt = conn.prepareCall(sql);
-      Object result = queryCall.call(cstmt);
-      return (T) result;
-    } catch (SQLException e) {
-      throw new DBException(e.getMessage(), e);
-    } finally {
-      dsm.close(cstmt, conn);
-    }
-  }
-
-  /**
-   * 返回一个Model的结果集
-   *
-   * @param sql
-   * @param findCall
-   * @return
-   */
-  public List<M> findCall(String sql, FindCall findCall) {
-    Connection conn = null;
-    CallableStatement cstmt = null;
-    DataSourceMeta dsm = getDataSourceMeta();
-    TableMeta tableMeta = getTableMeta();
-    List<M> result = null;
-
-    try {
-      conn = dsm.getConnection();
-      cstmt = conn.prepareCall(sql);
-      result = BaseBuilder.build(findCall.call(cstmt), getClass(), dsm, tableMeta);
-      return result;
-    } catch (SQLException e) {
-      throw new DBException(e.getMessage(), e);
-    } catch (InstantiationException e) {
-      throw new EntityException(e.getMessage(), e);
-    } catch (IllegalAccessException e) {
-      throw new EntityException(e.getMessage(), e);
-    } finally {
-      dsm.close(cstmt, conn);
-    }
-  }
-
-  /**
-   * 返回一个Model
-   *
-   * @param sql
-   * @param findCall
-   * @return
-   */
-  public M findCallFirst(String sql, FindCall findCall) {
-    List<M> result = findCall(sql, findCall);
-    return result.size() > 0 ? result.get(0) : null;
-  }
-
-  /**
    * Delete model.
    */
   public boolean delete() {
@@ -992,25 +922,12 @@ public abstract class Base<M extends Base> extends Entity<M> {
     Connection conn = null;
     PreparedStatement pst = null;
     ResultSet rs = null;
-    result = new ArrayList<T>();
+
     try {
       conn = dsm.getConnection();
       pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, params);
       rs = pst.executeQuery();
-      int colAmount = rs.getMetaData().getColumnCount();
-      if (colAmount > 1) {
-        while (rs.next()) {
-          Object[] temp = new Object[colAmount];
-          for (int i = 0; i < colAmount; i++) {
-            temp[i] = rs.getObject(i + 1);
-          }
-          result.add((T) temp);
-        }
-      } else if (colAmount == 1) {
-        while (rs.next()) {
-          result.add((T) rs.getObject(1));
-        }
-      }
+      result = readQueryResult(rs);
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
     } finally {
@@ -1019,6 +936,33 @@ public abstract class Base<M extends Base> extends Entity<M> {
     //add cache
     if (cached) {
       addCache(sql, params, result);
+    }
+    return result;
+  }
+
+  /**
+   * 读取result list
+   *
+   * @param rs  rs
+   * @param <T> T
+   * @return list
+   * @throws SQLException
+   */
+  private <T> List<T> readQueryResult(ResultSet rs) throws SQLException {
+    List<T> result = new ArrayList<T>();
+    int colAmount = rs.getMetaData().getColumnCount();
+    if (colAmount > 1) {
+      while (rs.next()) {
+        Object[] temp = new Object[colAmount];
+        for (int i = 0; i < colAmount; i++) {
+          temp[i] = rs.getObject(i + 1);
+        }
+        result.add((T) temp);
+      }
+    } else if (colAmount == 1) {
+      while (rs.next()) {
+        result.add((T) rs.getObject(1));
+      }
     }
     return result;
   }
@@ -1037,69 +981,152 @@ public abstract class Base<M extends Base> extends Entity<M> {
   }
 
   /**
-   * Execute sql query just return one column.
+   * 返回单个对象的存储过程
    *
-   * @param <T>    the type of the column that in your sql's select statement
-   * @param sql    an SQL statement that may contain one or more '?' IN parameter placeholders
-   * @param params the parameters of sql
-   * @return List<T>
+   * @param sql
+   * @param objectCall
+   * @param <T>
+   * @return
    */
-  public <T> T queryColumn(String sql, Object... params) {
-    List<T> result = query(sql, params);
-    if (result.size() > 0) {
-      T temp = result.get(0);
-      if (temp instanceof Object[])
-        throw new DBException("Only one column can be queried.");
-      return temp;
+  public <T> T queryCall(String sql, ObjectCall objectCall) {
+    Connection conn = null;
+    CallableStatement cstmt = null;
+    DataSourceMeta dsm = getDataSourceMeta();
+    try {
+      conn = dsm.getConnection();
+      cstmt = conn.prepareCall(sql);
+      return (T) objectCall.call(cstmt);
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage(), e);
+    } finally {
+      dsm.close(cstmt, conn);
     }
-    return null;
+  }
+
+
+  /**
+   * 调用存储过程
+   * int CallableStatement.executeUpdate: 存储过程不返回结果集。
+   * ResultSet CallableStatement.executeQuery: 存储过程返回一个结果集。
+   * Boolean CallableStatement.execute: 存储过程返回多个结果集。
+   * int[] CallableStatement.executeBatch: 提交批处理命令到数据库执行。
+   *
+   * @param sql           存储过程的sql
+   * @param resultSetCall 执行请求  返回结果
+   * @param <T>           返回类型
+   * @return T
+   */
+  public <T> List<T> queryCall(String sql, ResultSetCall resultSetCall) {
+    Connection conn = null;
+    CallableStatement cstmt = null;
+    DataSourceMeta dsm = getDataSourceMeta();
+    try {
+      conn = dsm.getConnection();
+      cstmt = conn.prepareCall(sql);
+      return readQueryResult(resultSetCall.call(cstmt));
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage(), e);
+    } finally {
+      dsm.close(cstmt, conn);
+    }
+  }
+
+  /**
+   * @param sql
+   * @param resultSetCall
+   * @param <T>
+   * @return
+   */
+  public <T> T queryCallFirst(String sql, ResultSetCall resultSetCall) {
+    List<T> result = queryCall(sql, resultSetCall);
+    return result.size() > 0 ? result.get(0) : null;
+  }
+
+  /**
+   * 返回一个Model的结果集
+   *
+   * @param sql
+   * @param resultSetCall
+   * @return
+   */
+  public List<M> findCall(String sql, ResultSetCall resultSetCall) {
+    Connection conn = null;
+    CallableStatement cstmt = null;
+    DataSourceMeta dsm = getDataSourceMeta();
+    TableMeta tableMeta = getTableMeta();
+
+    try {
+      conn = dsm.getConnection();
+      cstmt = conn.prepareCall(sql);
+      return BaseBuilder.build(resultSetCall.call(cstmt), getClass(), dsm, tableMeta);
+    } catch (SQLException e) {
+      throw new DBException(e.getMessage(), e);
+    } catch (InstantiationException e) {
+      throw new EntityException(e.getMessage(), e);
+    } catch (IllegalAccessException e) {
+      throw new EntityException(e.getMessage(), e);
+    } finally {
+      dsm.close(cstmt, conn);
+    }
+  }
+
+  /**
+   * 返回一个Model
+   *
+   * @param sql
+   * @param resultSetCall
+   * @return
+   */
+  public M findCallFirst(String sql, ResultSetCall resultSetCall) {
+    List<M> result = findCall(sql, resultSetCall);
+    return result.size() > 0 ? result.get(0) : null;
   }
 
   public String queryStr(String sql, Object... params) {
-    return (String) queryColumn(sql, params);
+    return (String) queryFirst(sql, params);
   }
 
   public Integer queryInt(String sql, Object... params) {
-    return (Integer) queryColumn(sql, params);
+    return (Integer) queryFirst(sql, params);
   }
 
   public Long queryLong(String sql, Object... params) {
-    return (Long) queryColumn(sql, params);
+    return (Long) queryFirst(sql, params);
   }
 
   public Double queryDouble(String sql, Object... params) {
-    return (Double) queryColumn(sql, params);
+    return (Double) queryFirst(sql, params);
   }
 
   public Float queryFloat(String sql, Object... params) {
-    return (Float) queryColumn(sql, params);
+    return (Float) queryFirst(sql, params);
   }
 
   public BigDecimal queryBigDecimal(String sql, Object... params) {
-    return (BigDecimal) queryColumn(sql, params);
+    return (BigDecimal) queryFirst(sql, params);
   }
 
   public byte[] queryBytes(String sql, Object... params) {
-    return (byte[]) queryColumn(sql, params);
+    return (byte[]) queryFirst(sql, params);
   }
 
   public Date queryDate(String sql, Object... params) {
-    return (Date) queryColumn(sql, params);
+    return (Date) queryFirst(sql, params);
   }
 
   public Time queryTime(String sql, Object... params) {
-    return (Time) queryColumn(sql, params);
+    return (Time) queryFirst(sql, params);
   }
 
   public Timestamp queryTimestamp(String sql, Object... params) {
-    return (Timestamp) queryColumn(sql, params);
+    return (Timestamp) queryFirst(sql, params);
   }
 
   public Boolean queryBoolean(String sql, Object... params) {
-    return (Boolean) queryColumn(sql, params);
+    return (Boolean) queryFirst(sql, params);
   }
 
   public Number queryNumber(String sql, Object... params) {
-    return (Number) queryColumn(sql, params);
+    return (Number) queryFirst(sql, params);
   }
 }

@@ -40,10 +40,10 @@ public class JsonTest {
 
 //    System.out.println("" + u.getRoleId() + u.getUserInfos() + u.getPermissions() + u.getPermissionIds());
 
-    Map<String, Date> map = new HashMap<String, Date>();
-    map.put("date", new Timestamp(new Date().getTime()));
-    System.out.println(Jsoner.toJSON(map));
-    Map<String, Long> m = Jsoner.toObject("{k:1}", new TypeReference<Map<String, Long>>() {
-    });
+//    Map<String, Date> map = new HashMap<String, Date>();
+//    map.put("date", new Timestamp(new Date().getTime()));
+//    System.out.println(Jsoner.toJSON(map));
+//    Map<String, Long> m = Jsoner.toObject("{k:1}", new TypeReference<Map<String, Long>>() {
+//    });
   }
 }

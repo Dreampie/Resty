@@ -67,11 +67,11 @@ public final class RouteHandler extends Handler {
           throw new WebException(HttpStatus.NOT_FOUND, "No rest route found.");
         } else {
           try {
-            response.forward("/");
+            response.forward(Constant.notFound);
           } catch (ServletException e) {
-            logger.error("Request forward '/' error.", e);
+            logger.error("Request forward '" + Constant.notFound + "' error.", e);
           } catch (IOException e) {
-            logger.error("Request forward '/' error.", e);
+            logger.error("Request forward '" + Constant.notFound + "' error.", e);
           }
         }
       } else {

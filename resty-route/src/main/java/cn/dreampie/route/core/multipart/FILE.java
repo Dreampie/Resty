@@ -1,5 +1,8 @@
 package cn.dreampie.route.core.multipart;
 
+import cn.dreampie.common.util.stream.DefaultFileRenamer;
+import cn.dreampie.common.util.stream.FileRenamer;
+
 import java.lang.annotation.*;
 
 /**
@@ -11,7 +14,9 @@ import java.lang.annotation.*;
 public @interface FILE {
   String dir() default "";//文件上传的目录
 
-  boolean overwrite() default false;//遇到同名文件是否覆盖,适合客户端控制文件名
+  boolean overwrite() default false;
+
+  Class<? extends FileRenamer> renamer() default DefaultFileRenamer.class;//对文件名字就行重命名处理
 
   int max() default -1;//上传的大小限制，默认最大10M
 

@@ -19,6 +19,7 @@ public final class Constant {
   public final static String uploadDirectory;//文件上传默认目录
   public final static Integer uploadMaxSize;//文件上传最大的尺寸 10 Meg
   public final static String[] uploadDenieds;//set file content type eg. text/xml  拒绝上传的文件类型
+  public final static String fileRenamer;// 文件上传重命名类
   public final static String cacheManager;// 缓存类
   public final static boolean showRoute;//请求时打印route匹配信息
   public final static String apiPrefix;//api开发的 起始前缀  比如 /api/v1.0/xxx  起始前缀为  /api （当api请求没有匹配到route时，会返回404状态）
@@ -38,6 +39,7 @@ public final class Constant {
       uploadDirectory = File.separator + "upload" + File.separator;
       uploadMaxSize = 1024 * 1024 * 10;
       uploadDenieds = new String[]{};
+      fileRenamer = null;
       cacheManager = null;
       showRoute = false;
       apiPrefix = "/api";
@@ -54,6 +56,7 @@ public final class Constant {
       } else {
         uploadDenieds = uploadDeniedStr.split(",");
       }
+      fileRenamer = constants.get("app.fileRenamer");
       cacheManager = constants.get("app.cacheManager");
       showRoute = constants.getBoolean("app.showRoute", false);
       apiPrefix = constants.get("app.apiPrefix", "/api");

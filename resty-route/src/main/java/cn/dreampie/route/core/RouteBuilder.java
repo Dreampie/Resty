@@ -108,7 +108,7 @@ public final class RouteBuilder {
         //文件上传 构建器
         file = method.getAnnotation(FILE.class);
         if (file != null) {
-          multipartBuilder = new MultipartBuilder(file.dir(), file.overwrite(), file.max(), file.encoding(), file.allows());
+          multipartBuilder = new MultipartBuilder(file.dir(), file.overwrite(), file.renamer(), file.max(), file.encoding(), file.allows());
         } else {
           multipartBuilder = null;
         }

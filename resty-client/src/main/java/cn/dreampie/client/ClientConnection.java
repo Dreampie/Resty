@@ -51,7 +51,7 @@ public class ClientConnection {
   }
 
   /**
-   * 文件重名规则
+   * 文件重命名工具
    *
    * @param renamer 重命名工具
    */

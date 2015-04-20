@@ -1,7 +1,6 @@
 package cn.dreampie.common.util.stream;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Implements a renaming policy that adds increasing integers to the body of
@@ -16,7 +15,7 @@ import java.io.IOException;
  * @version 1.0, 2002/04/30, initial revision, thanks to Yoonjung Lee
  *          for this idea
  */
-public class DefaultFileRenamer implements FileRenamer {
+public class DefaultFileRenamer extends FileRenamer {
 
   // This method does not need to be synchronized because createNewFile()
   // is atomic and used here to mark when a file name is chosen
@@ -50,13 +49,5 @@ public class DefaultFileRenamer implements FileRenamer {
     }
 
     return f;
-  }
-
-  private boolean createNewFile(File f) {
-    try {
-      return f.createNewFile();
-    } catch (IOException ignored) {
-      return false;
-    }
   }
 }

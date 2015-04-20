@@ -3,8 +3,8 @@ package cn.dreampie.route.core.multipart;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.exception.WebException;
-import cn.dreampie.common.util.stream.DefaultFileRenamer;
 import cn.dreampie.common.util.stream.FileRenamer;
+import cn.dreampie.log.Logger;
 import cn.dreampie.upload.MultipartRequest;
 
 import java.io.File;
@@ -14,17 +14,19 @@ import java.io.IOException;
  * Created by ice on 15-1-6.
  */
 public class MultipartBuilder {
+  private static final Logger logger = Logger.getLogger(MultipartBuilder.class);
+
   private String saveDirectory = Constant.uploadDirectory;
   private int maxPostSize = Constant.uploadMaxSize;
   private String[] uploadAllows;
   private String encoding = Constant.encoding;
   private boolean overwrite = false;
-  private FileRenamer renamer = new DefaultFileRenamer();
+  private FileRenamer renamer = FileRenamer.RENAMER;
 
   public MultipartBuilder() {
   }
 
-  public MultipartBuilder(String saveDirectory, boolean overwrite, int maxPostSize, String encoding, String[] uploadAllows) {
+  public MultipartBuilder(String saveDirectory, boolean overwrite, Class<? extends FileRenamer> renamerClass, int maxPostSize, String encoding, String[] uploadAllows) {
     if (saveDirectory != null && !"".equals(saveDirectory)) {
       if (saveDirectory.startsWith("/")) {
         this.saveDirectory = saveDirectory;
@@ -33,6 +35,15 @@ public class MultipartBuilder {
       }
     }
     this.overwrite = overwrite;
+    if (renamer == null || renamerClass != renamer.getClass()) {
+      try {
+        renamer = renamerClass.newInstance();
+      } catch (InstantiationException e) {
+        logger.error("Could not init FileRenamer Class.", e);
+      } catch (IllegalAccessException e) {
+        logger.error("Could not access FileRenamer Class.", e);
+      }
+    }
     if (maxPostSize > 0) {
       this.maxPostSize = maxPostSize;
     }

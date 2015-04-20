@@ -2,14 +2,8 @@ package cn.dreampie.example;
 
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.resource.user.model.User;
-import com.alibaba.fastjson.TypeReference;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by ice on 14-12-31.

@@ -28,11 +28,7 @@ public class MultipartBuilder {
 
   public MultipartBuilder(String saveDirectory, boolean overwrite, Class<? extends FileRenamer> renamerClass, int maxPostSize, String encoding, String[] uploadAllows) {
     if (saveDirectory != null && !"".equals(saveDirectory)) {
-      if (saveDirectory.startsWith("/")) {
-        this.saveDirectory = saveDirectory;
-      } else {
-        this.saveDirectory = saveDirectory;
-      }
+      this.saveDirectory = saveDirectory;
     }
     this.overwrite = overwrite;
     if (renamer == null || renamerClass != renamer.getClass()) {
@@ -57,7 +53,14 @@ public class MultipartBuilder {
     if (request == null)
       throw new IllegalArgumentException("Could not found httpRequest for multipartRequest.");
 
-    File saveDir = new File(request.getRealPath("/") + saveDirectory);
+    File saveDir = new File(saveDirectory);
+    if (!saveDir.exists()) {
+      if (!saveDirectory.startsWith("/")) {
+        saveDirectory = "/" + saveDirectory;
+      }
+      saveDir = new File(request.getRealPath("/") + saveDirectory);
+    }
+
     if (!saveDir.exists()) {
       if (!saveDir.mkdirs()) {
         throw new WebException("Directory " + saveDirectory + " not exists and can not create directory.");

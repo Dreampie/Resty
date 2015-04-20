@@ -92,15 +92,12 @@ public final class RestyFilter implements Filter {
       } catch (Exception e) {
         responseException(request, response, e);
       } finally {
-        try {
-          response.close();
-        } catch (Exception e) {
-          responseException(request, response, e);
-        }
+        response.close();
       }
     }
-    if (!isHandled[0])
+    if (!isHandled[0]) {
       chain.doFilter(servletRequest, servletResponse);
+    }
   }
 
   /**

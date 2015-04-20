@@ -29,7 +29,7 @@ public abstract class AbstractResponse<R> implements Response {
   private Charset charset;
   private PrintWriter writer;
   private OutputStream outputStream;
-  private boolean closed;
+  private boolean isClosed;
 
   // used to store headers set to be able to return them in getHeader()
   private final Map<String, String> headers = new LinkedHashMap<String, String>();
@@ -81,7 +81,8 @@ public abstract class AbstractResponse<R> implements Response {
           " Make sure you call setContentType() before calling getWriter(). Using UTF-8 charset.");
       charset = Charsets.UTF_8;
     }
-    return writer = new PrintWriter(new OutputStreamWriter(doGetOutputStream(), charset), true);
+    writer = new PrintWriter(new OutputStreamWriter(doGetOutputStream(), charset), true);
+    return writer;
   }
 
 
@@ -89,32 +90,33 @@ public abstract class AbstractResponse<R> implements Response {
     if (outputStream != null) {
       return outputStream;
     }
-    return outputStream = doGetOutputStream();
+    outputStream = doGetOutputStream();
+    return outputStream;
   }
 
 
-  public void close() throws Exception {
+  public void close() throws IOException {
     if (isClosed()) {
       return;
     }
     try {
       if (writer != null) {
-        writer.println();
+        writer.flush();
         writer.close();
       }
+
       if (outputStream != null) {
+        outputStream.flush();
         outputStream.close();
       }
     } finally {
-      closed = true;
+      isClosed = true;
     }
   }
 
-
   public boolean isClosed() {
-    return closed;
+    return isClosed;
   }
-
 
   public Response addCookie(String cookie, String value) {
     addCookie(cookie, value, -1);

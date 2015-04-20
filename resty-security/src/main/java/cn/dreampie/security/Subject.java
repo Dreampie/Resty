@@ -134,16 +134,18 @@ public class Subject {
    * @return value
    */
   private static String matchPath(String httpMethod, String path, Map<String, Map<String, Set<Credential>>> credentialMap) {
-    Map<String, Set<Credential>> credentials = credentialMap.get(httpMethod);
-    if (credentials.size() > 0) {
-      Set<Map.Entry<String, Set<Credential>>> credentialsEntry = credentials.entrySet();
-      Set<Credential> credentialSet;
-      for (Map.Entry<String, Set<Credential>> credentialEntry : credentialsEntry) {
-        if (path.startsWith(credentialEntry.getKey())) {
-          credentialSet = credentialEntry.getValue();
-          for (Credential credential : credentialSet) {
-            if (AntPathMatcher.instance().match(credential.getAntPath(), path)) {
-              return credential.getValue();
+    if (credentialMap != null && credentialMap.size() > 0) {
+      Map<String, Set<Credential>> credentials = credentialMap.get(httpMethod);
+      if (credentials.size() > 0) {
+        Set<Map.Entry<String, Set<Credential>>> credentialsEntry = credentials.entrySet();
+        Set<Credential> credentialSet;
+        for (Map.Entry<String, Set<Credential>> credentialEntry : credentialsEntry) {
+          if (path.startsWith(credentialEntry.getKey())) {
+            credentialSet = credentialEntry.getValue();
+            for (Credential credential : credentialSet) {
+              if (AntPathMatcher.instance().match(credential.getAntPath(), path)) {
+                return credential.getValue();
+              }
             }
           }
         }

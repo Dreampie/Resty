@@ -93,7 +93,7 @@ public abstract class AbstractResponse<R> implements Response {
   }
 
 
-  public void close() throws Exception {
+  public void close() throws IOException {
     if (isClosed()) {
       return;
     }

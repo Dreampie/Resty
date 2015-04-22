@@ -8,6 +8,7 @@ import cn.dreampie.common.util.json.ModelSerializer;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.provider.DataSourceProvider;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,8 +20,8 @@ public class ActiveRecordPlugin implements Plugin {
 
   private Set<Class<? extends Model>> excludeClasses = new HashSet<Class<? extends Model>>();
   private Set<Class<? extends Model>> includeClasses = new HashSet<Class<? extends Model>>();
-  private Set<String> includeClassPaths = new HashSet<String>();
-  private Set<String> excludeClassPaths = new HashSet<String>();
+  private Set<String> includeClassPackages = new HashSet<String>();
+  private Set<String> excludeClassPackages = new HashSet<String>();
 
   private DataSourceProvider dataSourceProvider;
   private boolean showSql = false;
@@ -34,54 +35,58 @@ public class ActiveRecordPlugin implements Plugin {
     this.showSql = showSql;
   }
 
-  public ActiveRecordPlugin addExcludeClasses(Class<? extends Model>... clazzes) {
-    for (Class<? extends Model> clazz : clazzes) {
-      excludeClasses.add(clazz);
+  public ActiveRecordPlugin addExcludeClasses(Class<? extends Model>... classes) {
+    Collections.addAll(excludeClasses, classes);
+    return this;
+  }
+
+  public ActiveRecordPlugin addExcludeClasses(Set<Class<? extends Model>> classes) {
+    if (classes != null) {
+      excludeClasses.addAll(classes);
     }
     return this;
   }
 
-  public ActiveRecordPlugin addExcludeClasses(Set<Class<? extends Model>> clazzes) {
-    if (clazzes != null) {
-      excludeClasses.addAll(clazzes);
+  /**
+   * exclude scan packages  eg. cn.dreampie.resource
+   *
+   * @param packages packages
+   * @return
+   */
+  public ActiveRecordPlugin addExcludePackages(String... packages) {
+    Collections.addAll(excludeClassPackages, packages);
+    return this;
+  }
+
+  public ActiveRecordPlugin addIncludeClasses(Class<? extends Model>... classes) {
+    Collections.addAll(includeClasses, classes);
+    return this;
+  }
+
+  public ActiveRecordPlugin addIncludeClasses(Set<Class<? extends Model>> classes) {
+    if (classes != null) {
+      includeClasses.addAll(classes);
     }
     return this;
   }
 
-  public ActiveRecordPlugin addExcludePaths(String... paths) {
-    for (String path : paths) {
-      excludeClassPaths.add(path);
-    }
-    return this;
-  }
-
-  public ActiveRecordPlugin addIncludeClasses(Class<? extends Model>... clazzes) {
-    for (Class<? extends Model> clazz : clazzes) {
-      includeClasses.add(clazz);
-    }
-    return this;
-  }
-
-  public ActiveRecordPlugin addIncludeClasses(Set<Class<? extends Model>> clazzes) {
-    if (clazzes != null) {
-      includeClasses.addAll(clazzes);
-    }
-    return this;
-  }
-
-  public ActiveRecordPlugin addIncludePaths(String... paths) {
-    for (String path : paths) {
-      includeClassPaths.add(path);
-    }
+  /**
+   * scan packages  eg. cn.dreampie.resource
+   *
+   * @param packages packages
+   * @return
+   */
+  public ActiveRecordPlugin addIncludePackages(String... packages) {
+    Collections.addAll(includeClassPackages, packages);
     return this;
   }
 
   public boolean start() {
-    if (includeClassPaths.size() > 0) {
+    if (includeClassPackages.size() > 0) {
       if (includeClasses.size() <= 0) {
-        includeClasses = ClassScaner.of(Model.class).includepaths(includeClassPaths).search();
+        includeClasses = ClassScaner.of(Model.class).includePackages(includeClassPackages).scan();
       } else {
-        includeClasses.addAll(ClassScaner.of(Model.class).includepaths(includeClassPaths).<Model>search());
+        includeClasses.addAll(ClassScaner.of(Model.class).includePackages(includeClassPackages).<Model>scan());
       }
     }
 
@@ -92,8 +97,8 @@ public class ActiveRecordPlugin implements Plugin {
       boolean isExclude = false;
       for (Class<? extends Model> modelClass : includeClasses) {
         isExclude = false;
-        if (excludeClassPaths.size() > 0) {
-          for (String excludepath : excludeClassPaths) {
+        if (excludeClassPackages.size() > 0) {
+          for (String excludepath : excludeClassPackages) {
             if (modelClass.getName().startsWith(excludepath)) {
               logger.debug("Exclude model:" + modelClass.getName());
               isExclude = true;

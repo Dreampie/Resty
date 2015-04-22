@@ -11,7 +11,7 @@ public class Charsets {
 
   /**
    * US-ASCII: seven-bit ASCII, the Basic Latin block of the Unicode character set (ISO646-US).
-   * <p/>
+   * <p>
    * <p><b>Note for Java 7 and later:</b> this constant should be treated as deprecated; use
    * {@link sun.nio.cs.StandardCharsets#aliases_US_ASCII} instead.
    */
@@ -19,7 +19,7 @@ public class Charsets {
 
   /**
    * ISO-8859-1: ISO Latin Alphabet Number 1 (ISO-LATIN-1).
-   * <p/>
+   * <p>
    * <p><b>Note for Java 7 and later:</b> this constant should be treated as deprecated; use
    * {@link sun.nio.cs.StandardCharsets#aliases_ISO_8859_1} instead.
    */
@@ -27,7 +27,7 @@ public class Charsets {
 
   /**
    * UTF-8: eight-bit UCS Transformation Format.
-   * <p/>
+   * <p>
    * <p><b>Note for Java 7 and later:</b> this constant should be treated as deprecated; use
    * {@link sun.nio.cs.StandardCharsets#aliases_UTF_8} instead.
    */
@@ -35,7 +35,7 @@ public class Charsets {
 
   /**
    * UTF-16BE: sixteen-bit UCS Transformation Format, big-endian byte order.
-   * <p/>
+   * <p>
    * <p><b>Note for Java 7 and later:</b> this constant should be treated as deprecated; use
    * {@link sun.nio.cs.StandardCharsets#aliases_UTF_16BE} instead.
    */
@@ -43,7 +43,7 @@ public class Charsets {
 
   /**
    * UTF-16LE: sixteen-bit UCS Transformation Format, little-endian byte order.
-   * <p/>
+   * <p>
    * <p><b>Note for Java 7 and later:</b> this constant should be treated as deprecated; use
    * {@link sun.nio.cs.StandardCharsets#aliases_UTF_16LE} instead.
    */
@@ -52,7 +52,7 @@ public class Charsets {
   /**
    * UTF-16: sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order
    * mark.
-   * <p/>
+   * <p>
    * <p><b>Note for Java 7 and later:</b> this constant should be treated as deprecated; use
    * {@link sun.nio.cs.StandardCharsets#aliases_UTF_16} instead.
    */

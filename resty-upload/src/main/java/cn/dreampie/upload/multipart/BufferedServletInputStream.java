@@ -8,13 +8,13 @@ import java.io.InputStream;
  * <code>ServletInputStream</code> in order to provide input buffering and to
  * avoid calling the the <code>readLine</code> method of the wrapped
  * <code>ServletInputStream</code>.
- * <p/>
+ * <p>
  * This is necessary because some servlet containers rely on the default
  * implementation of the <code>readLine</code> method provided by the Servlet
  * API classes, which is very slow. Tomcat 3.2, Tomcat 3.1, the JSWDK 1.0 web
  * server and the JSDK2.1 web server are all known to need this class for
  * performance reasons.
- * <p/>
+ * <p>
  * Also, it may be used to work around a bug in the Servlet API 2.0
  * implementation of <code>readLine</code> which contains a bug that causes
  * <code>ArrayIndexOutOfBoundsExceptions</code> under certain conditions.
@@ -128,9 +128,9 @@ public class BufferedServletInputStream extends ServletInputStream {
    * Attempt to find the '\n' end of line marker as defined in the comment of
    * the <code>readLine</code> method of <code>ServletInputStream</code>.
    *
-   * @param b   byte array to search.
-   * @param pos position in byte array to search from.
-   * @param len maximum number of bytes to search.
+   * @param b   byte array to scan.
+   * @param pos position in byte array to scan from.
+   * @param len maximum number of bytes to scan.
    * @return the number of bytes including the \n, or -1 if none found.
    */
   private static int findeol(byte b[], int pos, int len) {

@@ -24,7 +24,7 @@ public class ClientTest {
 
   @Before
   public void setUp() throws Exception {
-    client = new Client("http://127.0.0.1:8081/api/v1.0", "/sessions", "awesa", "123", false);
+    client = new Client("http://127.0.0.1:9090/api/v1.0", "/sessions", "awesa", "123", false);
   }
 
   @Test

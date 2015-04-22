@@ -15,7 +15,7 @@ public class ActiveRecordPluginTest {
   @Test
   public void testStart() {
     ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(new DruidDataSourceProvider("default"));
-//    activeRecordPlugin.addIncludePaths("cn.dremapie.orm");
+//    activeRecordPlugin.addIncludePackages("cn.dremapie.orm");
     activeRecordPlugin.start();
 
     Record recordDAO = new Record("sec_user", "id,sid", true);

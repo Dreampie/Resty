@@ -28,15 +28,15 @@ public class AppConfig extends Config {
 
   public void configResource(ResourceLoader resourceLoader) {
     //设置resource的目录  减少启动扫描目录
-//    resourceLoader.addExcludePaths("cn.dreampie.resource");
-    resourceLoader.addIncludePaths("cn.dreampie.resource");
+//    resourceLoader.addExcludePackages("cn.dreampie.resource");
+    resourceLoader.addIncludePackages("cn.dreampie.resource");
   }
 
   public void configPlugin(PluginLoader pluginLoader) {
     //第一个数据库
     C3p0DataSourceProvider cdsp = new C3p0DataSourceProvider("default");
     ActiveRecordPlugin activeRecordCdsp = new ActiveRecordPlugin(cdsp, true);
-    activeRecordCdsp.addIncludePaths("cn.dreampie.resource");
+    activeRecordCdsp.addIncludePackages("cn.dreampie.resource");
     pluginLoader.add(activeRecordCdsp);
 
     //第二个数据库

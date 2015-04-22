@@ -10,7 +10,7 @@ public class ActiveRecord {
   public static void init() {
     //第一个数据库
     ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(new DruidDataSourceProvider("default"));
-    activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
+    activeRecordPlugin.addIncludePackages("cn.dreampie.resource");
     activeRecordPlugin.start();
 
   }

@@ -151,7 +151,7 @@
           <jvmArgs>-Xmx1024m -Xms256m -XX:PermSize=256M -XX:MaxPermSize=512M</jvmArgs>
           <scanIntervalSeconds>6</scanIntervalSeconds>
           <httpConnector>
-            <port>9099</port>
+            <port>9090</port>
           </httpConnector>
           <webAppConfig>
             <contextPath>/</contextPath>
@@ -171,7 +171,7 @@
         <version>2.2</version>
         <configuration>
           <uriEncoding>UTF-8</uriEncoding>
-          <port>8081</port>
+          <port>9090</port>
           <path>/</path>
           <!-- 应用的部署位置 -->
         </configuration>

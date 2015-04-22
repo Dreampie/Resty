@@ -13,12 +13,30 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import static cn.dreampie.common.util.Checker.checkNotNull;
+
 /**
  * Created by ice on 14-12-19.
  */
 public class ClassScaner {
 
-  private Set<String> includepaths = new HashSet<String>();
+  private Set<String> includePackages = new HashSet<String>();
+
+  private Class target;
+
+  public ClassScaner(Class target) {
+    this.target = target;
+  }
+
+  /**
+   * 要扫描的类父级
+   *
+   * @param target class
+   * @return scaner
+   */
+  public static ClassScaner of(Class target) {
+    return new ClassScaner(target);
+  }
 
   private static <T> Set<Class<? extends T>> extraction(Class<T> clazz, Set<String> classFileSet) {
     Set<Class<? extends T>> classSet = new HashSet<Class<? extends T>>();
@@ -35,10 +53,6 @@ public class ClassScaner {
     }
 
     return classSet;
-  }
-
-  public static ClassScaner of(Class target) {
-    return new ClassScaner(target);
   }
 
   /**
@@ -77,7 +91,7 @@ public class ClassScaner {
             e.printStackTrace();
           }
         } else {
-          classFiles.addAll(findPathFiles(basePath, targetFileName));
+          classFiles.addAll(findPackageFiles(basePath, targetFileName));
         }
       }
     }
@@ -91,7 +105,7 @@ public class ClassScaner {
    * @param targetFileName 文件匹配
    * @return Set
    */
-  private static Set<String> findPathFiles(String baseDirName, String targetFileName) {
+  private static Set<String> findPackageFiles(String baseDirName, String targetFileName) {
     Set<String> classFiles = new HashSet<String>();
     String tempName = null;
     // 判断目录是否存在
@@ -110,7 +124,7 @@ public class ClassScaner {
       for (String aFilelist : filelist) {
         File readfile = new File(baseDirName + File.separator + aFilelist);
         if (readfile.isDirectory()) {
-          classFiles.addAll(findPathFiles(baseDirName + File.separator + aFilelist, targetFileName));
+          classFiles.addAll(findPackageFiles(baseDirName + File.separator + aFilelist, targetFileName));
         } else {
           tempName = readfile.getName();
           if (ClassScaner.wildcardMatch(targetFileName, tempName)) {
@@ -164,24 +178,16 @@ public class ClassScaner {
     return strIndex == strLength;
   }
 
-  private Class target;
-
-  public ClassScaner(Class target) {
-    this.target = target;
-  }
-
-  public ClassScaner includepaths(String... classpaths) {
-    if (classpaths != null) {
-      Collections.addAll(this.includepaths, classpaths);
-    }
+  public ClassScaner includePackages(String... classPackages) {
+    checkNotNull(classPackages, "Class packegs could not be null.");
+    Collections.addAll(includePackages, classPackages);
     return this;
   }
 
-  public ClassScaner includepaths(Set<String> classpaths) {
-    if (classpaths != null) {
-      for (String classpath : classpaths) {
-        this.includepaths.add(classpath);
-      }
+  public ClassScaner includePackages(Set<String> classPackages) {
+    checkNotNull(classPackages, "Class packegs could not be null.");
+    for (String classpath : classPackages) {
+      this.includePackages.add(classpath);
     }
     return this;
   }
@@ -192,11 +198,11 @@ public class ClassScaner {
    * @param <T> 返回的lcass类型
    * @return 搜索到的class
    */
-  public <T> Set<Class<? extends T>> search() {
+  public <T> Set<Class<? extends T>> scan() {
     Set<Class<? extends T>> classSet = new HashSet<Class<? extends T>>();
-    if (includepaths.size() > 0) {
+    if (includePackages.size() > 0) {
       Set<String> classFileSet = new HashSet<String>();
-      for (String classpath : includepaths) {
+      for (String classpath : includePackages) {
         classFileSet.addAll(findFiles(classpath, "*.class"));
       }
       classSet = extraction(target, classFileSet);
@@ -216,7 +222,7 @@ public class ClassScaner {
       // 判断目录是否存在
       File baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
       if (!baseDir.exists() || !baseDir.isDirectory()) {
-        throw new RuntimeException("Jar file search error：" + baseDirName + " is not a dir！");
+        throw new RuntimeException("Jar file scan error：" + baseDirName + " is not a dir！");
       } else {
         String[] filelist = baseDir.list(new FilenameFilter() {
 

@@ -4,11 +4,12 @@ import cn.dreampie.common.util.ClassScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.core.Resource;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Routes.
+ * ResourceLoader.
  */
 final public class ResourceLoader {
   private static final Logger logger = Logger.getLogger(ResourceLoader.class);
@@ -16,8 +17,8 @@ final public class ResourceLoader {
   private final Set<Class<? extends Resource>> resources = new HashSet<Class<? extends Resource>>();
   private Set<Class<? extends Resource>> excludeResources = new HashSet<Class<? extends Resource>>();
   private Set<Class<? extends Resource>> includeResources = new HashSet<Class<? extends Resource>>();
-  private Set<String> includeResourcePaths = new HashSet<String>();
-  private Set<String> excludeResourcePaths = new HashSet<String>();
+  private Set<String> includeResourcePackages = new HashSet<String>();
+  private Set<String> excludeResourcePackages = new HashSet<String>();
 
   public ResourceLoader add(ResourceLoader resourceLoader) {
     if (resourceLoader != null) {
@@ -29,7 +30,7 @@ final public class ResourceLoader {
 
 
   /**
-   * Add url mapping to resource. The view path is resourceKey
+   * Add url mapping to resource. The view p is resourceKey
    *
    * @param resourceClass Controller Class
    */
@@ -39,9 +40,7 @@ final public class ResourceLoader {
   }
 
   public ResourceLoader addExcludeClasses(Class<? extends Resource>... clazzes) {
-    for (Class<? extends Resource> clazz : clazzes) {
-      excludeResources.add(clazz);
-    }
+    Collections.addAll(excludeResources, clazzes);
     return this;
   }
 
@@ -52,17 +51,19 @@ final public class ResourceLoader {
     return this;
   }
 
-  public ResourceLoader addExcludePaths(String... paths) {
-    for (String path : paths) {
-      excludeResourcePaths.add(path);
-    }
+  /**
+   * exclude scan packages  eg. cn.dreampie.resource
+   *
+   * @param packages packages
+   * @return
+   */
+  public ResourceLoader addExcludePackages(String... packages) {
+    Collections.addAll(excludeResourcePackages, packages);
     return this;
   }
 
   public ResourceLoader addIncludeClasses(Class<? extends Resource>... clazzes) {
-    for (Class<? extends Resource> clazz : clazzes) {
-      includeResources.add(clazz);
-    }
+    Collections.addAll(includeResources, clazzes);
     return this;
   }
 
@@ -73,27 +74,31 @@ final public class ResourceLoader {
     return this;
   }
 
-  public ResourceLoader addIncludePaths(String... paths) {
-    for (String path : paths) {
-      includeResourcePaths.add(path);
-    }
+  /**
+   * scan packages  eg. cn.dreampie.resource
+   *
+   * @param packages packages
+   * @return
+   */
+  public ResourceLoader addIncludePackages(String... packages) {
+    Collections.addAll(includeResourcePackages, packages);
     return this;
   }
 
   public void build() {
-    if (includeResourcePaths.size() > 0) {
+    if (includeResourcePackages.size() > 0) {
       if (includeResources.size() <= 0) {
-        includeResources = ClassScaner.of(Resource.class).includepaths(includeResourcePaths).search();
+        includeResources = ClassScaner.of(Resource.class).includePackages(includeResourcePackages).scan();
       } else {
-        includeResources.addAll(ClassScaner.of(Resource.class).includepaths(includeResourcePaths).<Resource>search());
+        includeResources.addAll(ClassScaner.of(Resource.class).includePackages(includeResourcePackages).<Resource>scan());
       }
     }
     boolean isExclude = false;
     if (includeResources.size() > 0) {
       for (Class resource : includeResources) {
         isExclude = false;
-        if (excludeResourcePaths.size() > 0) {
-          for (String excludepath : excludeResourcePaths) {
+        if (excludeResourcePackages.size() > 0) {
+          for (String excludepath : excludeResourcePackages) {
             if (resource.getName().startsWith(excludepath)) {
               logger.debug("Exclude resource:" + resource.getName());
               isExclude = true;

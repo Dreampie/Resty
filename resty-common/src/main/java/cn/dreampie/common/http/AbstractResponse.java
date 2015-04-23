@@ -99,7 +99,6 @@ public abstract class AbstractResponse<R> implements Response {
     }
     try {
       if (writer != null) {
-        writer.println();
         writer.close();
       }
       if (outputStream != null) {

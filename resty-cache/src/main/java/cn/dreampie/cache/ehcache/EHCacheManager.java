@@ -1,5 +1,7 @@
-package cn.dreampie.cache;
+package cn.dreampie.cache.ehcache;
 
+import cn.dreampie.cache.CacheEvent;
+import cn.dreampie.cache.CacheManager;
 import cn.dreampie.log.Logger;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;

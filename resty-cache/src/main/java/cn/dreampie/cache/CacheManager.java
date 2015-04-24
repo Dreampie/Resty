@@ -1,5 +1,6 @@
 package cn.dreampie.cache;
 
+import cn.dreampie.cache.ehcache.EHCacheManager;
 import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 

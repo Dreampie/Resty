@@ -14,6 +14,7 @@ import redis.clients.util.Pool;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ public class RedisManager extends CacheManager {
   private static final Logger logger = Logger.getLogger(RedisManager.class);
 
   private final Jedis jedis;
+  private final ShardedJedis shardedJedis;
 
   private static final Pool pool;
   private static final String host;
@@ -38,6 +40,9 @@ public class RedisManager extends CacheManager {
       logger.warn(e.getMessage());
     }
     if (config != null) {
+
+      String shardHost = config.get("redis.shard.host");
+      String[] hp;
       host = config.get("redis.host");
       timeout = config.getInt("redis.timeout", Protocol.DEFAULT_TIMEOUT);
       JedisPoolConfig poolConfig = new JedisPoolConfig();
@@ -55,26 +60,24 @@ public class RedisManager extends CacheManager {
       poolConfig.setJmxEnabled(config.getBoolean("redis.pool.jmxEnabled", BaseObjectPoolConfig.DEFAULT_JMX_ENABLE));
       poolConfig.setJmxNamePrefix(config.get("redis.pool.jmxNamePrefix", BaseObjectPoolConfig.DEFAULT_JMX_NAME_PREFIX));
 
-      String[] hp;
-      if (host == null) {
-        String shardHost = config.get("redis.shard.host");
-        if (shardHost != null) {
-          String[] shards = shardHost.split(",");
-          List<JedisShardInfo> shardInfos = new ArrayList<JedisShardInfo>();
-          JedisShardInfo shardInfo;
-          for (String s : shards) {
-            hp = s.split(":");
-            shardInfo = new JedisShardInfo(hp[0], Integer.parseInt(hp[1]), timeout);
-            shardInfos.add(shardInfo);
-          }
-          pool = new ShardedJedisPool(poolConfig, shardInfos);
+      if (shardHost != null) {
+        String[] shards = shardHost.split(",");
+        List<JedisShardInfo> shardInfos = new ArrayList<JedisShardInfo>();
+        JedisShardInfo shardInfo;
+        for (String s : shards) {
+          hp = s.split(":");
+          shardInfo = new JedisShardInfo(hp[0], Integer.parseInt(hp[1]), timeout);
+          shardInfos.add(shardInfo);
+        }
+        pool = new ShardedJedisPool(poolConfig, shardInfos);
+      } else {
+        if (host != null) {
+          hp = host.split(":");
+          pool = new JedisPool(poolConfig, hp[0], Integer.parseInt(hp[1]));
         } else {
           pool = null;
           logger.error("Could not found 'redis.host' or 'redis.shard.host'");
         }
-      } else {
-        hp = host.split(":");
-        pool = new JedisPool(poolConfig, hp[0], Integer.parseInt(hp[1]));
       }
     } else {
       host = "127.0.0.1:6379";
@@ -88,10 +91,17 @@ public class RedisManager extends CacheManager {
   public RedisManager() throws CacheException {
     try {
       if (pool != null) {
-        this.jedis = (Jedis) pool.getResource();
+        if (pool instanceof ShardedJedisPool) {
+          this.jedis = null;
+          this.shardedJedis = (ShardedJedis) pool.getResource();
+        } else {
+          this.jedis = (Jedis) pool.getResource();
+          this.shardedJedis = null;
+        }
       } else {
         String[] hp = host.split(":");
         this.jedis = new Jedis(hp[0], Integer.parseInt(hp[1]), timeout);
+        this.shardedJedis = null;
       }
     } catch (Exception e) {
       throw new CacheException(e);
@@ -104,28 +114,59 @@ public class RedisManager extends CacheManager {
 
   public <T> T getCache(String group, String key) {
     String jkey = getRedisKey(group, key);
-    return (T) Serializer.unserialize(jedis.get(jkey.getBytes()));
+    if (shardedJedis != null) {
+      return (T) Serializer.unserialize(shardedJedis.get(jkey.getBytes()));
+    } else {
+      return (T) Serializer.unserialize(jedis.get(jkey.getBytes()));
+    }
   }
 
   public void addCache(String group, String key, Object cache) {
     String jkey = getRedisKey(group, key);
-    jedis.set(jkey.getBytes(), Serializer.serialize(cache));
+    if (shardedJedis != null) {
+      shardedJedis.set(jkey.getBytes(), Serializer.serialize(cache));
+    } else {
+      jedis.set(jkey.getBytes(), Serializer.serialize(cache));
+    }
   }
 
   public void removeCache(String group, String key) {
     String jkey = getRedisKey(group, key);
-    jedis.del(jkey.getBytes());
+    if (shardedJedis != null) {
+      shardedJedis.del(jkey.getBytes());
+    } else {
+      jedis.del(jkey.getBytes());
+    }
   }
 
   public void doFlush(CacheEvent event) {
     if (event.getType().equals(CacheEvent.CacheEventType.ALL)) {
-      jedis.flushDB();
-    } else if (event.getType().equals(CacheEvent.CacheEventType.GROUP)) {
-      Set<String> keySet = jedis.keys(event.getGroup() + Constant.CONNECTOR + '*');
-      if (keySet != null && keySet.size() > 0) {
-        String[] keys = new String[keySet.size()];
-        jedis.del(keySet.toArray(keys));
+      if (shardedJedis != null) {
+        Collection<Jedis> shards = shardedJedis.getAllShards();
+        for (Jedis jedis : shards) {
+          jedis.flushDB();
+        }
+
+      } else {
+        jedis.flushDB();
       }
+    } else if (event.getType().equals(CacheEvent.CacheEventType.GROUP)) {
+      if (shardedJedis != null) {
+        Collection<Jedis> shards = shardedJedis.getAllShards();
+        for (Jedis jedis : shards) {
+          delGroup(jedis, event);
+        }
+      } else {
+        delGroup(jedis, event);
+      }
+    }
+  }
+
+  private void delGroup(Jedis jedis, CacheEvent event) {
+    Set<String> keySet = jedis.keys(event.getGroup() + Constant.CONNECTOR + '*');
+    if (keySet != null && keySet.size() > 0) {
+      String[] keys = new String[keySet.size()];
+      jedis.del(keySet.toArray(keys));
     }
   }
 

@@ -87,23 +87,23 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     checkNotNull(this.password, "Could not found database password for " + "db." + dsName + ".password");
     this.dialect = DialectFactory.get(prop.get("db." + dsName + ".dialect", "mysql"));
     this.driverClass = prop.get("db." + dsName + ".driver", dialect.driverClass());
-    this.filters = prop.get("db." + dsName + ".filters");
-    this.initialSize = prop.getInt("db." + dsName + ".initialSize", 10);
-    this.minIdle = prop.getInt("db." + dsName + ".minIdle", 10);
-    this.maxActive = prop.getInt("db." + dsName + ".maxActive", 100);
-    this.maxWait = prop.getInt("db." + dsName + ".maxWait", DruidDataSource.DEFAULT_MAX_WAIT);
-    this.timeBetweenEvictionRunsMillis = prop.getLong("db." + dsName + ".timeBetweenEvictionRunsMillis", DruidDataSource.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS);
-    this.minEvictableIdleTimeMillis = prop.getLong("db." + dsName + ".minEvictableIdleTimeMillis", DruidDataSource.DEFAULT_MIN_EVICTABLE_IDLE_TIME_MILLIS);
-    this.timeBetweenConnectErrorMillis = prop.getLong("db." + dsName + ".timeBetweenConnectErrorMillis", DruidDataSource.DEFAULT_TIME_BETWEEN_CONNECT_ERROR_MILLIS);
-    this.testWhileIdle = prop.getBoolean("db." + dsName + ".testWhileIdle", true);
-    this.testOnBorrow = prop.getBoolean("db." + dsName + ".testOnBorrow", false);
-    this.testOnReturn = prop.getBoolean("db." + dsName + ".testOnReturn", false);
-    this.removeAbandoned = prop.getBoolean("db." + dsName + ".removeAbandoned", false);
-    this.removeAbandonedTimeoutMillis = prop.getInt("db." + dsName + ".removeAbandonedTimeoutMillis", 300 * 1000);
-    this.logAbandoned = prop.getBoolean("db." + dsName + ".logAbandoned", false);
-    this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("db." + dsName + ".maxPoolPreparedStatementPerConnectionSize", 10);
+    this.filters = prop.get("druid." + dsName + ".filters");
+    this.initialSize = prop.getInt("druid." + dsName + ".initialSize", 10);
+    this.minIdle = prop.getInt("druid." + dsName + ".minIdle", 10);
+    this.maxActive = prop.getInt("druid." + dsName + ".maxActive", 100);
+    this.maxWait = prop.getInt("druid." + dsName + ".maxWait", DruidDataSource.DEFAULT_MAX_WAIT);
+    this.timeBetweenEvictionRunsMillis = prop.getLong("druid." + dsName + ".timeBetweenEvictionRunsMillis", DruidDataSource.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS);
+    this.minEvictableIdleTimeMillis = prop.getLong("druid." + dsName + ".minEvictableIdleTimeMillis", DruidDataSource.DEFAULT_MIN_EVICTABLE_IDLE_TIME_MILLIS);
+    this.timeBetweenConnectErrorMillis = prop.getLong("druid." + dsName + ".timeBetweenConnectErrorMillis", DruidDataSource.DEFAULT_TIME_BETWEEN_CONNECT_ERROR_MILLIS);
+    this.testWhileIdle = prop.getBoolean("druid." + dsName + ".testWhileIdle", true);
+    this.testOnBorrow = prop.getBoolean("druid." + dsName + ".testOnBorrow", false);
+    this.testOnReturn = prop.getBoolean("druid." + dsName + ".testOnReturn", false);
+    this.removeAbandoned = prop.getBoolean("druid." + dsName + ".removeAbandoned", false);
+    this.removeAbandonedTimeoutMillis = prop.getInt("druid." + dsName + ".removeAbandonedTimeoutMillis", 300 * 1000);
+    this.logAbandoned = prop.getBoolean("druid." + dsName + ".logAbandoned", false);
+    this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("druid." + dsName + ".maxPoolPreparedStatementPerConnectionSize", 10);
 
-    this.validationQuery = prop.get("db." + dsName + ".validationQuery", this.dialect.validQuery());
+    this.validationQuery = prop.get("druid." + dsName + ".validationQuery", this.dialect.validQuery());
     buidDataSource();
   }
 

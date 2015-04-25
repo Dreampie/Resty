@@ -1,10 +1,14 @@
-package cn.dreampie.security;
+package cn.dreampie.security.credential;
 
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.CaseInsensitiveMap;
+import cn.dreampie.security.AuthenticateService;
+import cn.dreampie.security.Principal;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -14,10 +18,9 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 public class Credentials {
 
   private final AuthenticateService authenticateService;
-  private final long expires;
   private Map<String, Map<String, Set<Credential>>> credentialMap = new CaseInsensitiveMap<Map<String, Set<Credential>>>();
-
   private Map<String, Principal> principals = new HashMap<String, Principal>();
+  private final long expires;
   private long lastAccess;
 
   public Credentials(AuthenticateService authenticateService, long expires) {
@@ -42,6 +45,10 @@ public class Credentials {
     int sIndex = -1;
     String antPathKey;
     boolean wasAdd = false;
+
+
+    CredentialDESCSet credentialDESCSet;
+    CredentialDESCMap credentialDESCMap;
     for (Credential credential : credentialSet) {
       httpMethod = credential.getHttpMethod();
       antPath = credential.getAntPath();
@@ -74,12 +81,18 @@ public class Credentials {
           if (credentials.containsKey(antPathKey)) {
             credentials.get(antPathKey).add(credential);
           } else {
-            credentials.put(antPathKey, newCredentialDESCSet(credential));
+            credentialDESCSet = new CredentialDESCSet();
+            credentialDESCSet.add(credential);
+            credentials.put(antPathKey, credentialDESCSet);
           }
         }
 
       } else {
-        credentialMap.put(httpMethod, newCredentialMap(antPathKey, credential));
+        credentialDESCSet = new CredentialDESCSet();
+        credentialDESCSet.add(credential);
+        credentialDESCMap = new CredentialDESCMap();
+        credentialDESCMap.put(antPathKey, credentialDESCSet);
+        credentialMap.put(httpMethod, credentialDESCMap);
       }
     }
     return credentialMap;
@@ -101,7 +114,9 @@ public class Credentials {
       }
     } else {
       if (credentialMap.size() <= 0 || System.currentTimeMillis() > lastAccess) {
-        credentialMap = addCredentials(newCredentialASCSet(authenticateService.loadAllCredentials()));
+        CredentialASCSet credentialASCSet = new CredentialASCSet();
+        credentialASCSet.addAll(authenticateService.loadAllCredentials());
+        credentialMap = addCredentials(credentialASCSet);
         lastAccess = System.currentTimeMillis() + expires;
       }
     }
@@ -141,72 +156,5 @@ public class Credentials {
       }
     }
     return principal;
-  }
-
-  /**
-   * 创建一个对key排序的map
-   *
-   * @param antPathKey antPathKey
-   * @param credential credential
-   * @return map
-   */
-  public Map<String, Set<Credential>> newCredentialMap(final String antPathKey, final Credential credential) {
-    return new TreeMap<String, Set<Credential>>(new Comparator<String>() {
-      public int compare(String k1, String k2) {
-        int result = k2.length() - k1.length();
-        if (result == 0) {
-          return k1.compareTo(k2);
-        }
-        return result;
-      }
-    }) {{
-      put(antPathKey, newCredentialDESCSet(credential));
-    }};
-  }
-
-  /**
-   * 创建一个排序的认证的Set
-   *
-   * @param credential 认证的Set
-   * @return 排序后的Set
-   */
-  public Set<Credential> newCredentialDESCSet(final Credential credential) {
-    return new TreeSet<Credential>(new Comparator<Credential>() {
-      public int compare(Credential a, Credential b) {
-        int result = b.getAntPath().length() - a.getAntPath().length();
-        if (result == 0) {
-          result = a.getHttpMethod().compareTo(b.getHttpMethod());
-          if (result == 0) {
-            return a.getAntPath().compareTo(b.getAntPath());
-          }
-        }
-        return result;
-      }
-    }) {{
-      add(credential);
-    }};
-  }
-
-  /**
-   * 升序的Set
-   *
-   * @param credentialSet 认证Set
-   * @return Set
-   */
-  public Set<Credential> newCredentialASCSet(final Set<Credential> credentialSet) {
-    return new TreeSet<Credential>(new Comparator<Credential>() {
-      public int compare(Credential a, Credential b) {
-        int result = a.getAntPath().length() - b.getAntPath().length();
-        if (result == 0) {
-          result = a.getHttpMethod().compareTo(b.getHttpMethod());
-          if (result == 0) {
-            return a.getAntPath().compareTo(b.getAntPath());
-          }
-        }
-        return result;
-      }
-    }) {{
-      addAll(credentialSet);
-    }};
   }
 }

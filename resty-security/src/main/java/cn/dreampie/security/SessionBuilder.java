@@ -6,6 +6,7 @@ import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
+import cn.dreampie.security.credential.Credentials;
 import cn.dreampie.security.sign.CookieSigner;
 import cn.dreampie.security.sign.Signer;
 

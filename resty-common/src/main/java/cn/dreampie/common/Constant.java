@@ -12,6 +12,7 @@ import java.io.File;
 public final class Constant {
 
   private final static Logger logger = Logger.getLogger(Constant.class);
+  public final static String CONNECTOR = "::";
 
   public final static String encoding;//编码
   public final static boolean devMode;//是否使用开发模式

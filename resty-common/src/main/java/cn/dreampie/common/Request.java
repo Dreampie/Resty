@@ -17,12 +17,12 @@ public interface Request {
   /**
    * Returns the base URI of this request.
    * Eg http://mydomain.com/api or http://mydomain.com:8080
-   * <p>
+   * <p/>
    * When used behind a proxy, this will try to return the client facing URI, by using:
    * - X-Forwarded-Host for the host
    * - X-Forwarded-Proto for the scheme
    * - checking first Via to know if request was made in HTTPS
-   * <p>
+   * <p/>
    * see http://en.wikipedia.org/wiki/X-Forwarded-For
    * see http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
    * see http://httpd.apache.org/docs/current/mod/mod_proxy.html#proxyvia
@@ -34,14 +34,14 @@ public interface Request {
   /**
    * Returns the base network path of this request (ie baseUri without the protocol).
    * Eg //mydomain.com/api or //mydomain.com:8080
-   * <p>
+   * <p/>
    * This is useful to create paths using the same protocol as the one seen by the client, as opposed
    * to the protocol seen by the server (server can see http if you have a front http server like Apache
    * doing https and reverse proxy).
-   * <p>
+   * <p/>
    * See also this discussion:
    * http://stackoverflow.com/questions/5799577/does-using-www-example-com-in-javascript-chose-http-https-protocol-automatical
-   * <p>
+   * <p/>
    * Note that if Via headers are set getBaseUri should be fine too.
    *
    * @return the base network path of this request.
@@ -81,7 +81,7 @@ public interface Request {
 
   /**
    * Is this request performed through a secured connection or not.
-   * <p>
+   * <p/>
    * This will return true if:
    * - the HttpSettings proto() is set to 'https'
    * - the request has a 'X-Forwarded-Proto' header with value 'https', and comes from an authorized proxy
@@ -119,10 +119,10 @@ public interface Request {
 
   /**
    * The address (IP) of the client.
-   * <p>
+   * <p/>
    * If X-Forwarded-For header is present, it will return its value, otherwise it returns
    * the remote client address.
-   * <p>
+   * <p/>
    * see http://httpd.apache.org/docs/current/mod/mod_proxy.html#x-headers for details on this header.
    *
    * @return IP address of the client.
@@ -135,7 +135,7 @@ public interface Request {
 
   /**
    * Unwraps the underlying native implementation of given class.
-   * <p>
+   * <p/>
    * Examnple: This is a HttpServletRequest in a servlet container.
    *
    * @param clazz the class of the underlying implementation

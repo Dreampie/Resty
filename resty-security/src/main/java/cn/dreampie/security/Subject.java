@@ -5,6 +5,8 @@ import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.pattern.AntPathMatcher;
 import cn.dreampie.log.Logger;
 import cn.dreampie.security.cache.SessionCache;
+import cn.dreampie.security.credential.Credential;
+import cn.dreampie.security.credential.Credentials;
 
 import java.util.Calendar;
 import java.util.Map;

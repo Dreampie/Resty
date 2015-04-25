@@ -19,7 +19,7 @@ public class TableMetaBuilder {
 
   private static final Logger logger = Logger.getLogger(TableMetaBuilder.class);
 
-  public static Set<TableMeta> buildModel(Set<TableMeta> tableMetas, DataSourceMeta dsm) {
+  public static Set<TableMeta> buildTableMeta(Set<TableMeta> tableMetas, DataSourceMeta dsm) {
     TableMeta temp = null;
     Connection conn = null;
     try {
@@ -57,7 +57,7 @@ public class TableMetaBuilder {
     throw new DBException(message, throwable);
   }
 
-  public static TableMeta buildModel(TableMeta tableMeta, DataSourceMeta dsm) {
+  public static TableMeta buildTableMeta(TableMeta tableMeta, DataSourceMeta dsm) {
     Connection conn = null;
     try {
       conn = dsm.getDataSource().getConnection();

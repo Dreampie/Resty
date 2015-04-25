@@ -11,6 +11,10 @@ import cn.dreampie.orm.callable.ResultSetCall;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
@@ -24,11 +28,12 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 /**
  * Created by wangrenhui on 15/3/31.
  */
-public abstract class Base<M extends Base> extends Entity<M> {
+public abstract class Base<M extends Base> extends Entity<M> implements Externalizable {
 
   private final Logger logger = Logger.getLogger(getClass());
   private static final boolean devMode = Constant.devMode;
   public static final String DEFAULT_PRIMARY_KAY = "id";
+  private String alias;
 
   /**
    * 获取当前实例数据表的元数据
@@ -37,13 +42,14 @@ public abstract class Base<M extends Base> extends Entity<M> {
    */
   protected abstract TableMeta getTableMeta();
 
-
   /**
    * 获取数据源元数据
    *
    * @return DataSourceMeta
    */
-  protected abstract DataSourceMeta getDataSourceMeta();
+  protected DataSourceMeta getDataSourceMeta() {
+    return Metadata.getDataSourceMeta(getTableMeta().getDsName());
+  }
 
   /**
    * 获取数据库方言
@@ -77,19 +83,26 @@ public abstract class Base<M extends Base> extends Entity<M> {
   public abstract M useDS(String useDS);
 
   /**
-   * 获取表的别名
+   * 表的别名
    *
-   * @return Alias
+   * @return String
    */
-  protected abstract String getAlias();
+  public String getAlias() {
+    return alias;
+  }
 
   /**
-   * 设置表的别名
+   * 表的别名
    *
    * @param alias 别名
    * @return model
    */
-  protected abstract M setAlias(String alias);
+  public M setAlias(String alias) {
+    if (this.alias != null)
+      throw new EntityException("Model alias only set once.");
+    this.alias = alias;
+    return (M) this;
+  }
 
   /**
    * 从缓存中读取数据
@@ -1129,4 +1142,24 @@ public abstract class Base<M extends Base> extends Entity<M> {
   public Number queryNumber(String sql, Object... params) {
     return (Number) queryFirst(sql, params);
   }
+
+
+  /**
+   * 反序列化的扩展类
+   */
+  public void readExternal(ObjectInput in) throws IOException,
+      ClassNotFoundException {
+    //注意这里的接受顺序是有限制的哦，否则的话会出错的
+    //例如上面先write的是A对象的话，那么下面先接受的也一定是A对象...
+    putAttrs((Map<String, Object>) in.readObject());
+  }
+
+  /**
+   * 序列化操作的扩展类
+   */
+  public void writeExternal(ObjectOutput out) throws IOException {
+    //增加一个新的对象
+    out.writeObject(getAttrs());
+  }
+
 }

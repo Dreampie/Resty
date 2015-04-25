@@ -22,7 +22,6 @@ public enum QueryCache {
 
   private final CacheManager cacheManager;
 
-  private final static String CONNECTOR = "#";
   //singleton
 
   private QueryCache() {
@@ -55,7 +54,7 @@ public enum QueryCache {
   }
 
   private String getGroup(String type, String dsName, String tableName) {
-    return type + CONNECTOR + dsName + CONNECTOR + tableName;
+    return type + Constant.CONNECTOR + dsName + Constant.CONNECTOR + tableName;
   }
 
 
@@ -96,7 +95,7 @@ public enum QueryCache {
   }
 
   private String getKey(String group, String query, Object[] params) {
-    return group + CONNECTOR + query + CONNECTOR + (params == null ? null : Arrays.asList(params).toString());
+    return group + Constant.CONNECTOR + query + Constant.CONNECTOR + (params == null ? null : Arrays.asList(params).toString());
   }
 
   private String getKey(String type, String dsName, String tableName, String query, Object[] params) {

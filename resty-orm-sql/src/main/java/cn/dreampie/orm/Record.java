@@ -1,22 +1,25 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.common.entity.exception.EntityException;
-
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Map;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
  * Record
  */
-public class Record extends Base<Record> implements Serializable {
+public class Record extends Base<Record> {
 
-  private DataSourceMeta dataSourceMeta;
   private TableMeta tableMeta;
   private boolean useCache = true;
-  protected String alias;
 
-  private Record() {
+  public Record() {
+  }
+
+  public Record(String tableName) {
+    this(tableName, false);
   }
 
   /**
@@ -66,54 +69,39 @@ public class Record extends Base<Record> implements Serializable {
   }
 
   /**
-   * @param dsName    数据源名称
+   * @param dsName    数据源
    * @param tableName 表名
-   * @param pKeys     主键id，多主键使用逗号分割 自增主键放在第一位
-   * @param lockKey   更新操作是是否是要求使用全部主键条件
-   * @param cached    是否使用缓存
+   * @param pKeys     主键id通过逗号拼接
+   * @param lockKey   是否在更新的时候 要求必须使用全部主键
+   * @param cached    使用对数据缓存
    */
   public Record(String dsName, String tableName, String pKeys, boolean lockKey, boolean cached) {
-    this(Metadata.getDataSourceMeta(dsName), tableName, pKeys, lockKey, cached);
-  }
-
-  /**
-   * @param dataSourceMeta 数据源
-   * @param tableName      表名
-   * @param pKeys          主键id通过逗号拼接
-   * @param lockKey        是否在更新的时候 要求必须使用全部主键
-   * @param cached         使用对数据缓存
-   */
-  public Record(DataSourceMeta dataSourceMeta, String tableName, String pKeys, boolean lockKey, boolean cached) {
-    checkNotNull(dataSourceMeta, "Could not found dataSourceMeta.");
+    checkNotNull(dsName, "Could not found dataSourceMeta.");
     checkNotNull(tableName, "Could not found tableName.");
-    this.dataSourceMeta = dataSourceMeta;
-    String dsName = dataSourceMeta.getDsName();
     if (Metadata.hasTableMeta(dsName, tableName)) {
       this.tableMeta = Metadata.getTableMeta(dsName, tableName);
     } else {
-      this.tableMeta = TableMetaBuilder.buildModel(new TableMeta(dsName, tableName, pKeys, lockKey, cached), dataSourceMeta);
+      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(dsName, tableName, pKeys, lockKey, cached), Metadata.getDataSourceMeta(dsName));
     }
   }
 
   /**
-   * @param dataSourceMeta 数据源的元数据
-   * @param tableMeta      数据表的元数据
+   * @param tableMeta 数据表的元数据
    */
-  public Record(DataSourceMeta dataSourceMeta, TableMeta tableMeta) {
-    this.dataSourceMeta = dataSourceMeta;
+  public Record(TableMeta tableMeta) {
     this.tableMeta = tableMeta;
   }
 
   public Record reNew() {
-    return new Record(dataSourceMeta, tableMeta);
+    return new Record(tableMeta);
   }
 
   private Record instance(String useDS, boolean useCache) {
     Record record;
-    if (useDS != null && !dataSourceMeta.getDsName().equals(useDS)) {
-      record = new Record(Metadata.getDataSourceMeta(useDS), tableMeta);
+    if (useDS != null && !tableMeta.getDsName().equals(useDS)) {
+      record = new Record(tableMeta);
     } else {
-      record = new Record(dataSourceMeta, tableMeta);
+      record = new Record(tableMeta);
     }
     record.useCache = useCache;
     return record;
@@ -149,11 +137,11 @@ public class Record extends Base<Record> implements Serializable {
    */
   public Record useDS(String useDS) {
     checkNotNull(useDS, "DataSourceName could not be null.");
-    if (!this.useCache && !dataSourceMeta.getDsName().equals(useDS)) {
-      this.dataSourceMeta = Metadata.getDataSourceMeta(useDS);
+    if (!this.useCache && !tableMeta.getDsName().equals(useDS)) {
+      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(useDS, tableMeta.getTableName(), tableMeta.getpKeys(), tableMeta.isLockKey(), tableMeta.isCached()), Metadata.getDataSourceMeta(useDS));
       return this;
     } else {
-      if (dataSourceMeta.getDsName().equals(useDS)) {
+      if (tableMeta.getDsName().equals(useDS)) {
         return this;
       } else {
         return instance(useDS, true);
@@ -170,37 +158,20 @@ public class Record extends Base<Record> implements Serializable {
     return tableMeta;
   }
 
-  /**
-   * 获取数据源的元数据
-   *
-   * @return DataSourceMeta
-   */
-  protected DataSourceMeta getDataSourceMeta() {
-    return dataSourceMeta;
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    tableMeta = (TableMeta) in.readObject();
+    putAttrs((Map<String, Object>) in.readObject());
+    useCache = (Boolean) in.readObject();
+    setAlias((String) in.readObject());
   }
 
-  /**
-   * 设置数据库查询别名
-   *
-   * @return String
-   */
-  public String getAlias() {
-    return alias;
+  public void writeExternal(ObjectOutput out) throws IOException {
+    //增加一个新的对象 String dsName, String tableName, String pKeys, boolean lockKey, boolean cached
+    out.writeObject(tableMeta);
+    out.writeObject(getAttrs());
+    out.writeObject(useCache);
+    out.writeObject(getAlias());
   }
-
-  /**
-   * 表的别名
-   *
-   * @param alias 别名
-   * @return model
-   */
-  public Record setAlias(String alias) {
-    if (this.alias != null)
-      throw new EntityException("Model alias only set once.");
-    this.alias = alias;
-    return this;
-  }
-
 }
 
 

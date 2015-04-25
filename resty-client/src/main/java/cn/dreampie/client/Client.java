@@ -107,45 +107,45 @@ public class Client extends ClientConnection {
         if (is == null) {
           logger.warn("Api " + clientRequest.getRestUrl() + " response is null!!");
         }
-      }
-
-      //是否是下载文件
-      String downloadFile = clientRequest.getDownloadFile();
-      if (downloadFile != null) {
-        File file = null;
-        File fileOrDirectory = new File(downloadFile);
-        if (fileOrDirectory.isDirectory()) {
-          String fileName = null;
-          String contentDisposition = conn.getHeaderField("Content-Disposition");
-          if (contentDisposition != null) {
-            String fileNameBefore = "filename=";
-            int fileNameIndex = contentDisposition.indexOf(fileNameBefore);
-
-            if (fileNameIndex > -1) {
-              fileName = contentDisposition.substring(fileNameIndex + 9);
-            }
-          }
-          if (fileName == null) {
-            throw new ClientException("Server not return filename, you must set it.");
-          }
-          // Write it to that dir the user supplied,
-          // with the filename it arrived with
-          file = new File(fileOrDirectory, fileName);
-        } else {
-          // Write it to the file the user supplied,
-          // ignoring the filename it arrived with
-          file = fileOrDirectory;
-        }
-
-        FileRenamer fileRenamer = null;
-        if (!clientRequest.isOverwrite() && renamer != null) {
-          fileRenamer = renamer;
-        }
-
-        return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());//服务器端在这种下载的情况下  返回总是大1 未知原因
       } else {
-        return new ResponseData(httpCode, StreamReader.readString(is));
+        //是否是下载文件
+        String downloadFile = clientRequest.getDownloadFile();
+        if (downloadFile != null) {
+          File file = null;
+          File fileOrDirectory = new File(downloadFile);
+          if (fileOrDirectory.isDirectory()) {
+            String fileName = null;
+            String contentDisposition = conn.getHeaderField("Content-Disposition");
+            if (contentDisposition != null) {
+              String fileNameBefore = "filename=";
+              int fileNameIndex = contentDisposition.indexOf(fileNameBefore);
+
+              if (fileNameIndex > -1) {
+                fileName = contentDisposition.substring(fileNameIndex + 9);
+              }
+            }
+            if (fileName == null) {
+              throw new ClientException("Server not return filename, you must set it.");
+            }
+            // Write it to that dir the user supplied,
+            // with the filename it arrived with
+            file = new File(fileOrDirectory, fileName);
+          } else {
+            // Write it to the file the user supplied,
+            // ignoring the filename it arrived with
+            file = fileOrDirectory;
+          }
+
+          FileRenamer fileRenamer = null;
+          if (!clientRequest.isOverwrite() && renamer != null) {
+            fileRenamer = renamer;
+          }
+
+          return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());//服务器端在这种下载的情况下  返回总是大1 未知原因
+        }
       }
+      return new ResponseData(httpCode, StreamReader.readString(is));
+
     } finally {
       if (is != null) {
         is.close();

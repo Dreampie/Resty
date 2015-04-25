@@ -19,7 +19,6 @@ public enum SessionCache {
 
   private final CacheManager cacheManager;
 
-  private final static String CONNECTOR = "#";
   //singleton
 
   private SessionCache() {

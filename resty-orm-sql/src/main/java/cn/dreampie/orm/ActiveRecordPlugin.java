@@ -118,7 +118,7 @@ public class ActiveRecordPlugin implements Plugin {
         Jsoner.addConfig(modelClass, ModelSerializer.instance(), ModelDeserializer.instance());
       }
       //model 元数据
-      TableMetaBuilder.buildModel(tableMetas, dsm);
+      TableMetaBuilder.buildTableMeta(tableMetas, dsm);
     } else {
       logger.warn("Could not load any model.");
     }

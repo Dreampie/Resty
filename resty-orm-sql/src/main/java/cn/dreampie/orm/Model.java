@@ -2,18 +2,15 @@ package cn.dreampie.orm;
 
 import cn.dreampie.common.entity.exception.EntityException;
 
-import java.io.Serializable;
-
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
  * Created by ice on 14-12-30.
  */
-public abstract class Model<M extends Model> extends Base<M> implements Serializable {
+public abstract class Model<M extends Model> extends Base<M> {
 
   private boolean useCache = true;
   private String useDS = null;
-  private String alias;
 
   /**
    * 是否使用缓存
@@ -76,27 +73,6 @@ public abstract class Model<M extends Model> extends Base<M> implements Serializ
     }
   }
 
-  /**
-   * 表的别名
-   *
-   * @return String
-   */
-  public String getAlias() {
-    return alias;
-  }
-
-  /**
-   * 表的别名
-   *
-   * @param alias 别名
-   * @return model
-   */
-  public M setAlias(String alias) {
-    if (this.alias != null)
-      throw new EntityException("Model alias only set once.");
-    this.alias = alias;
-    return (M) this;
-  }
 
   /**
    * 是否需要在转换json的时候检测属性方法
@@ -123,16 +99,6 @@ public abstract class Model<M extends Model> extends Base<M> implements Serializ
       }
     }
     return tableMeta;
-  }
-
-
-  /**
-   * 获取数据源元数据
-   *
-   * @return DataSourceMeta
-   */
-  protected DataSourceMeta getDataSourceMeta() {
-    return Metadata.getDataSourceMeta(getTableMeta().getDsName());
   }
 
 }

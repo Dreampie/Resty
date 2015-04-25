@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2011-2015, James Zhan 詹波 (jfinal@126.com).
- * <p>
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,16 +45,16 @@ public class Proper {
 
   /**
    * Using the properties file. It will loading the properties file if not loading.
-   * <p>
+   * <p/>
    * Example:<br>
    * Proper.use("config.txt", "UTF-8");<br>
    * Proper.use("other_config.txt", "UTF-8");<br><br>
    * String userName = Proper.get("userName");<br>
    * String password = Proper.get("password");<br><br>
-   * <p>
+   * <p/>
    * userName = Proper.use("other_config.txt").get("userName");<br>
    * password = Proper.use("other_config.txt").get("password");<br><br>
-   * <p>
+   * <p/>
    * Proper.use("com/jfinal/config_in_sub_directory_of_classpath.txt");
    *
    * @param fileName the properties file's name in classpath or the sub directory of classpath
@@ -82,7 +82,7 @@ public class Proper {
 
   /**
    * Using the properties file bye File object. It will loading the properties file if not loading.
-   * <p>
+   * <p/>
    * Example:<br>
    * Proper.use(new File("/var/config/my_config.txt"), "UTF-8");<br>
    * Strig userName = Proper.use("my_config.txt").get("userName");

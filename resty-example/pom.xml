@@ -80,23 +80,23 @@
       <version>${resty.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>redis.clients</groupId>
-      <artifactId>jedis</artifactId>
-      <version>${jedis.version}</version>
-    </dependency>
-
     <!--<dependency>-->
-      <!--<groupId>net.sf.ehcache</groupId>-->
-      <!--<artifactId>ehcache-core</artifactId>-->
-      <!--<version>${ehcache.version}</version>-->
-      <!--<exclusions>-->
-        <!--<exclusion>-->
-          <!--<artifactId>slf4j-api</artifactId>-->
-          <!--<groupId>org.slf4j</groupId>-->
-        <!--</exclusion>-->
-      <!--</exclusions>-->
+      <!--<groupId>redis.clients</groupId>-->
+      <!--<artifactId>jedis</artifactId>-->
+      <!--<version>${jedis.version}</version>-->
     <!--</dependency>-->
+
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <version>${ehcache.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 
     <dependency>
       <groupId>com.alibaba</groupId>

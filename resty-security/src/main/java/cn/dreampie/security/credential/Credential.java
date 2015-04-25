@@ -1,15 +1,16 @@
-package cn.dreampie.security;
+package cn.dreampie.security.credential;
+
+import java.io.Serializable;
 
 /**
  * Created by ice on 14-12-24.
  */
-public class Credential {
+public class Credential implements Serializable {
 
   public static final String CREDENTIAL_DEF_KEY = "_credential";
   public static final String CREDENTIAL_ALL_KEY = "_allCredentials";
 
   private String httpMethod;
-  private int parentId;
   private String antPath;
   private String value;
 

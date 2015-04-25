@@ -65,28 +65,50 @@ dao.useDS(dsName).findBy(where,paras);
 //数据库和全局参数配置移植到application.properties  详情参看resty-example
 
 ```java
-//not must auto load
+#not must auto load
 app.encoding=UTF-8
 app.devMode=true
-app.showRoute=true
+app.showRoute=false
 app.cacheEnabled=true
+app.cacheManager=cn.dreampie.cache.redis.RedisCacheManager
 
 
-//druid plugin auto load
-//dsName is "default"  you can use everything
+##druid plugin auto load
 db.default.url=jdbc:mysql://127.0.0.1/example?useUnicode=true&characterEncoding=UTF-8
 db.default.user=dev
 db.default.password=dev1010
 db.default.dialect=mysql
-db.default.initialSize=10
-db.default.maxPoolPreparedStatementPerConnectionSize=20
-db.default.timeBetweenConnectErrorMillis=1000
-db.default.filters=slf4j,stat,wall
 
-//flyway database migration auto load
-db.default.valid.clean=true
-db.default.migration.auto=true
-db.default.migration.initOnMigrate=true
+#c3p0配置
+c3p0.default.minPoolSize=3
+c3p0.default.maxPoolSize=20
+
+#druid配置
+#druid.default.initialSize=10
+#druid.default.maxPoolPreparedStatementPerConnectionSize=20
+#druid.default.timeBetweenConnectErrorMillis=1000
+#druid.default.filters=slf4j,stat,wall
+
+#flyway database migration auto load
+flyway.default.valid.clean=true
+flyway.default.migration.auto=true
+flyway.default.migration.initOnMigrate=true
+
+
+db.demo.url=jdbc:mysql://127.0.0.1/demo?useUnicode=true&characterEncoding=UTF-8
+db.demo.user=dev
+db.demo.password=dev1010
+db.demo.dialect=mysql
+#druid
+druid.demo.initialSize=10
+druid.demo.maxPoolPreparedStatementPerConnectionSize=20
+druid.demo.timeBetweenConnectErrorMillis=1000
+druid.demo.filters=slf4j,stat,wall
+#flyway
+flyway.demo.valid.clean=true
+flyway.demo.migration.auto=true
+flyway.demo.migration.initOnMigrate=true
+
 
 
 //数据库的配置精简  自动从文件读取参数  只需配置model扫描目录 和dsName

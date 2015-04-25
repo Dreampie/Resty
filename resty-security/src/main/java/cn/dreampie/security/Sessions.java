@@ -48,6 +48,14 @@ public class Sessions {
       return new SessionDatas(key, sessionMetadatas);
     }
 
+//    public boolean equals(Object o) {
+//      if (this == o) return true;
+//      if (o == null || getClass() != o.getClass()) return false;
+//
+//      SessionDatas that = (SessionDatas) o;
+//      return key.equals(that.key) && sessionMetadatas.equals(that.getSessionMetadatas());
+//    }
+
 //    public int hashCode() {
 //      return key.hashCode();
 //    }
@@ -110,13 +118,13 @@ public class Sessions {
     }
 
 
-//    public boolean equals(Object o) {
-//      if (this == o) return true;
-//      if (o == null || getClass() != o.getClass()) return false;
-//
-//      SessionData that = (SessionData) o;
-//      return sessionKey.equals(that.sessionKey);
-//    }
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      SessionData that = (SessionData) o;
+      return sessionKey.equals(that.sessionKey);
+    }
 //
 //    public int hashCode() {
 //      return sessionKey.hashCode();
@@ -189,9 +197,10 @@ public class Sessions {
     //add cache
     if (Constant.cacheEnabled) {
       SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessionDatas);
-      updated = SessionCache.instance().get(Session.SESSION_DEF_KEY, key) == sessionDatas;
-    } else
-      updated = this.sessions.put(key, sessionDatas) == sessionDatas;
+      updated = SessionCache.instance().get(Session.SESSION_DEF_KEY, key) != null;
+    } else {
+      updated = this.sessions.put(key, sessionDatas) != null;
+    }
     return updated;
   }
 

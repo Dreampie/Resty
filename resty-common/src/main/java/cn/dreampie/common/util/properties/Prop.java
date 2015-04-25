@@ -26,11 +26,11 @@ public class Prop {
 
   /**
    * Prop constructor
-   * <p>
+   * <p/>
    * Example:<br>
    * Prop prop = new Prop("my_config.txt", "UTF-8");<br>
    * String userName = prop.get("userName");<br><br>
-   * <p>
+   * <p/>
    * prop = new Prop("com/jfinal/file_in_sub_path_of_classpath.txt", "UTF-8");<br>
    * String value = prop.get("key");
    *
@@ -53,7 +53,7 @@ public class Prop {
 
   /**
    * Prop constructor
-   * <p>
+   * <p/>
    * Example:<br>
    * Prop prop = new Prop(new File("/var/config/my_config.txt"), "UTF-8");<br>
    * String userName = prop.get("userName");

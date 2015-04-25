@@ -3,7 +3,7 @@ package cn.dreampie.route.config;
 
 /**
  * Config.
- * <p>
+ * <p/>
  * Config order: configConstant(), configResource(), configPlugin(), configInterceptor(), configHandler()
  */
 public class Config {

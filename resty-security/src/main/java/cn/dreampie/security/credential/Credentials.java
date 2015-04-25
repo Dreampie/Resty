@@ -6,9 +6,7 @@ import cn.dreampie.security.AuthenticateService;
 import cn.dreampie.security.Principal;
 import cn.dreampie.security.cache.SessionCache;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -47,8 +45,8 @@ public class Credentials {
     boolean wasAdd = false;
 
 
-    CredentialDESCSet credentialDESCSet;
-    CredentialDESCMap credentialDESCMap;
+    Set<Credential> credentialDESCSet;
+    Map<String, Set<Credential>> credentialDESCMap;
     for (Credential credential : credentialSet) {
       httpMethod = credential.getHttpMethod();
       antPath = credential.getAntPath();
@@ -81,16 +79,16 @@ public class Credentials {
           if (credentials.containsKey(antPathKey)) {
             credentials.get(antPathKey).add(credential);
           } else {
-            credentialDESCSet = new CredentialDESCSet();
+            credentialDESCSet = new TreeSet<Credential>(new CredentialASC());
             credentialDESCSet.add(credential);
             credentials.put(antPathKey, credentialDESCSet);
           }
         }
 
       } else {
-        credentialDESCSet = new CredentialDESCSet();
+        credentialDESCSet = new TreeSet<Credential>(new CredentialASC());
         credentialDESCSet.add(credential);
-        credentialDESCMap = new CredentialDESCMap();
+        credentialDESCMap = new TreeMap<String, Set<Credential>>(new CredentialKeyDESC());
         credentialDESCMap.put(antPathKey, credentialDESCSet);
         credentialMap.put(httpMethod, credentialDESCMap);
       }
@@ -114,7 +112,7 @@ public class Credentials {
       }
     } else {
       if (credentialMap.size() <= 0 || System.currentTimeMillis() > lastAccess) {
-        CredentialASCSet credentialASCSet = new CredentialASCSet();
+        Set<Credential> credentialASCSet = new TreeSet<Credential>(new CredentialASC());
         credentialASCSet.addAll(authenticateService.loadAllCredentials());
         credentialMap = addCredentials(credentialASCSet);
         lastAccess = System.currentTimeMillis() + expires;

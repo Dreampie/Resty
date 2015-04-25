@@ -78,11 +78,7 @@ public class Record extends Base<Record> {
   public Record(String dsName, String tableName, String pKeys, boolean lockKey, boolean cached) {
     checkNotNull(dsName, "Could not found dataSourceMeta.");
     checkNotNull(tableName, "Could not found tableName.");
-    if (Metadata.hasTableMeta(dsName, tableName)) {
-      this.tableMeta = Metadata.getTableMeta(dsName, tableName);
-    } else {
-      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(dsName, tableName, pKeys, lockKey, cached), Metadata.getDataSourceMeta(dsName));
-    }
+    setTableMeta(dsName, tableName, pKeys, lockKey, cached);
   }
 
   /**
@@ -156,6 +152,34 @@ public class Record extends Base<Record> {
    */
   public TableMeta getTableMeta() {
     return tableMeta;
+  }
+
+  public void setTableMeta(String tableName) {
+    setTableMeta(tableName, false);
+  }
+
+  public void setTableMeta(String tableName, boolean cached) {
+    setTableMeta(tableName, Base.DEFAULT_PRIMARY_KAY, false, cached);
+  }
+
+  public void setTableMeta(String tableName, String pKeys, boolean lockKey, boolean cached) {
+    setTableMeta(Metadata.getDefaultDsName(), tableName, pKeys, lockKey, cached);
+  }
+
+  public void setTableMeta(String dsName, String tableName, boolean cached) {
+    setTableMeta(dsName, tableName, DEFAULT_PRIMARY_KAY, cached);
+  }
+
+  public void setTableMeta(String dsName, String tableName, String pKeys, boolean cached) {
+    setTableMeta(dsName, tableName, pKeys, false, cached);
+  }
+
+  public void setTableMeta(String dsName, String tableName, String pKeys, boolean lockKey, boolean cached) {
+    if (Metadata.hasTableMeta(dsName, tableName)) {
+      this.tableMeta = Metadata.getTableMeta(dsName, tableName);
+    } else {
+      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(dsName, tableName, pKeys, lockKey, cached), Metadata.getDataSourceMeta(dsName));
+    }
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {

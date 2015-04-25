@@ -20,9 +20,9 @@ import java.util.Set;
 /**
  * Created by Dreampie on 15/4/24.
  */
-public class RedisCacheManager extends CacheManager {
+public class RedisManager extends CacheManager {
 
-  private static final Logger logger = Logger.getLogger(RedisCacheManager.class);
+  private static final Logger logger = Logger.getLogger(RedisManager.class);
 
   private final Jedis jedis;
 
@@ -85,7 +85,7 @@ public class RedisCacheManager extends CacheManager {
 
   private Type type;
 
-  public RedisCacheManager() throws CacheException {
+  public RedisManager() throws CacheException {
     try {
       if (pool != null) {
         this.jedis = (Jedis) pool.getResource();

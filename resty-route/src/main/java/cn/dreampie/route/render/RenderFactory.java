@@ -1,7 +1,10 @@
 package cn.dreampie.route.render;
 
 import cn.dreampie.common.Render;
+import cn.dreampie.common.http.result.ImageResult;
 
+import java.awt.image.RenderedImage;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +22,12 @@ public class RenderFactory {
     put("image", new ImageRender());
   }};
 
+  private final static Map<Class<?>, Render> resultRenderMap = new HashMap<Class<?>, Render>() {{
+    put(File.class, new FileRender());
+    put(ImageResult.class, new ImageRender());
+    put(RenderedImage.class, new ImageRender());
+  }};
+
 
   public static void add(String extension, Render render) {
     if (!(render instanceof FileRender))
@@ -30,6 +39,10 @@ public class RenderFactory {
       renderMap.put(extension, render);
       if (isDefault) defaultExtension = extension;
     }
+  }
+
+  public static void add(Class<?> resultType, Render render) {
+    resultRenderMap.put(resultType, render);
   }
 
   /**
@@ -45,6 +58,10 @@ public class RenderFactory {
     } else {
       return render;
     }
+  }
+
+  public static Render get(Class<?> resultType) {
+    return resultRenderMap.get(resultType);
   }
 
   public static Render getByUrl(String url) {

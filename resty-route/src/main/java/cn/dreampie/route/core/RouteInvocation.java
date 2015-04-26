@@ -129,7 +129,10 @@ public class RouteInvocation {
     }
 
     //通过result类型判断，是否存在指定的render
-    Render render = RenderFactory.get(result.getClass());
+    Render render = null;
+    if (result != null) {
+      render = RenderFactory.get(result.getClass());
+    }
     if (render == null) {
       routeMatch.getRender().render(request, response, result);
     } else {

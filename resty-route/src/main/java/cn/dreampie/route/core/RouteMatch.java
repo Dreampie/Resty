@@ -1,10 +1,8 @@
 package cn.dreampie.route.core;
 
-import cn.dreampie.common.Render;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.UploadedFile;
-import cn.dreampie.route.render.RenderFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +16,7 @@ public class RouteMatch {
 
   private final String pattern;
   private final String path;
-  private final Render render;
+  private final String extension;
   private final Map<String, String> pathParams;
   private final Map<String, List<String>> otherParams;
   private final Map<String, UploadedFile> fileParams;
@@ -28,18 +26,13 @@ public class RouteMatch {
   public RouteMatch(String pattern, String path, String extension,
                     Map<String, String> pathParams,
                     Map<String, List<String>> otherParams, Map<String, UploadedFile> fileParams, HttpRequest request, HttpResponse response) {
-    this(pattern, path, RenderFactory.get(extension), pathParams, otherParams, fileParams, request, response);
-  }
 
-  public RouteMatch(String pattern, String path, Render render,
-                    Map<String, String> pathParams,
-                    Map<String, List<String>> otherParams, Map<String, UploadedFile> fileParams, HttpRequest request, HttpResponse response) {
     this.pattern = checkNotNull(pattern);
     this.path = checkNotNull(path);
     this.pathParams = checkNotNull(pathParams);
     this.otherParams = checkNotNull(otherParams);
     this.fileParams = fileParams;
-    this.render = render;
+    this.extension = checkNotNull(extension);
     this.request = request;
     this.response = response;
   }
@@ -87,8 +80,8 @@ public class RouteMatch {
   }
 
 
-  public Render getRender() {
-    return render;
+  public String getExtension() {
+    return extension;
   }
 
   public HttpRequest getRequest() {

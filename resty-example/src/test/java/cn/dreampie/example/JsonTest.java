@@ -5,6 +5,10 @@ import cn.dreampie.resource.user.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Created by ice on 14-12-31.
  */
@@ -39,5 +43,13 @@ public class JsonTest {
 //    System.out.println(Jsoner.toJSON(map));
 //    Map<String, Long> m = Jsoner.toObject("{k:1}", new TypeReference<Map<String, Long>>() {
 //    });
+
+    System.out.println(Jsoner.toJSON(new File("/")));
+    try {
+      File file = new File("/Users/Dreampie/Pictures/thumb_IMG_1589_1024.jpg");
+      System.out.println(Jsoner.toJSON(ImageIO.read(file)));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }

@@ -11,22 +11,27 @@ import java.util.Map;
 public class RenderFactory {
 
   private static String defaultExtension = "json";
+  public final static String JSON = "json";
+  public final static String TEXT = "text";
+  public final static String FILE = "file";
+  public final static String IMAGE = "image";
 
   private static Map<String, Render> renderMap = new HashMap<String, Render>() {{
-    put("json", new JsonRender());
-    put("text", new TextRender());
-    put("file", new FileRender());
-    put("image", new ImageRender());
+    put(JSON, new JsonRender());
+    put(TEXT, new TextRender());
+    put(FILE, new FileRender());
+    put(IMAGE, new ImageRender());
   }};
 
 
   public static void add(String extension, Render render) {
-    if (!(render instanceof FileRender))
+    if (!(render instanceof FileRender) && !(render instanceof ImageRender)) {
       renderMap.put(extension, render);
+    }
   }
 
   public static void add(String extension, Render render, boolean isDefault) {
-    if (!(render instanceof FileRender)) {
+    if (!(render instanceof FileRender) && !(render instanceof ImageRender)) {
       renderMap.put(extension, render);
       if (isDefault) defaultExtension = extension;
     }
@@ -63,4 +68,20 @@ public class RenderFactory {
     return get(defaultExtension);
   }
 
+
+  public static Render getJsonRender() {
+    return renderMap.get(JSON);
+  }
+
+  public static Render getTextRender() {
+    return renderMap.get(TEXT);
+  }
+
+  public static Render getFileRender() {
+    return renderMap.get(FILE);
+  }
+
+  public static Render getImageRender() {
+    return renderMap.get(IMAGE);
+  }
 }

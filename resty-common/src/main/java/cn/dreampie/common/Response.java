@@ -18,9 +18,9 @@ public interface Response {
 
   /**
    * Sets the content type of this response.
-   * <p/>
+   * <p>
    * It is highly recommended to call this before writing the response content, especially if you want to use getWriter().
-   * <p/>
+   * <p>
    * The response charset may be set when calling this, either to the provided charset in the content type,
    * or by default to UTF-8 if it is a 'text' content type.
    *
@@ -31,7 +31,7 @@ public interface Response {
 
   /**
    * Returns the charset set on this response if any.
-   * <p/>
+   * <p>
    * The charset is set when calling setContentType, either to the provided charset in the content type,
    * or by default to UTF-8 if it is a 'text' content type.
    *
@@ -41,9 +41,9 @@ public interface Response {
 
   /**
    * A writer you can write to to send response as text.
-   * <p/>
+   * <p>
    * The charset used is the one returned by getCharset(), or UTF-8 if not set.
-   * <p/>
+   * <p>
    * It is strongly recommended to call setContentType to set the charset before calling this method.
    *
    * @return a PrintWriter which can be used to write the response.
@@ -72,7 +72,7 @@ public interface Response {
 
   /**
    * Unwraps the underlying native implementation of given class.
-   * <p/>
+   * <p>
    * Examnple: This is a HttpServletRequest in a servlet container.
    *
    * @param clazz the class of the underlying implementation

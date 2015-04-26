@@ -126,15 +126,22 @@ public class RouteInvocation {
     } else {
       result = invokeResult;
     }
+    String extension = routeMatch.getExtension();
     //file render
-    if (result instanceof File) {
-      RenderFactory.get("file").render(request, response, result);
+    if ((result instanceof File && extension.equals("")) || extension.equals(RenderFactory.FILE)) {
+      RenderFactory.getFileRender().render(request, response, result);
     } else
       //image render
-      if (result instanceof ImageResult || result instanceof RenderedImage) {
-        RenderFactory.get("image").render(request, response, result);
+      if (((result instanceof ImageResult || result instanceof RenderedImage) && extension.equals(""))
+          || extension.equals(RenderFactory.IMAGE)) {
+        //如果是string  表示为文件类型
+        if (result instanceof String) {
+          RenderFactory.getFileRender().render(request, response, result);
+        } else {
+          RenderFactory.getImageRender().render(request, response, result);
+        }
       } else {
-        routeMatch.getRender().render(request, response, result);
+        RenderFactory.get(extension).render(request, response, result);
       }
   }
 

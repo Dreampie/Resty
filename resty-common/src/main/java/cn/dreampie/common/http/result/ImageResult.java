@@ -7,26 +7,22 @@ import java.awt.image.RenderedImage;
  */
 public class ImageResult {
 
-  private final ImageType imageType;
+  private final String type;
   private final RenderedImage result;
 
-  public ImageResult(ImageType imageType) {
-    this.imageType = imageType;
-    this.result = null;
-  }
 
-  public ImageResult(ImageType imageType, RenderedImage result) {
-    this.imageType = imageType;
+  public ImageResult(String type, RenderedImage result) {
+    this.type = type;
     this.result = result;
   }
 
   public ImageResult(RenderedImage result) {
-    this.imageType = ImageType.PNG;
+    this.type = "png";
     this.result = result;
   }
 
-  public ImageType getImageType() {
-    return imageType;
+  public String getType() {
+    return type;
   }
 
   /**

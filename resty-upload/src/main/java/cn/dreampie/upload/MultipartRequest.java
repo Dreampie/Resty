@@ -26,20 +26,20 @@ import java.util.Vector;
  * to disk in the constructor. If you wish to have more flexibility, e.g.
  * write the files to a database, use the "pull" model
  * <code>MultipartParser</code> instead.
- * <p/>
+ * <p>
  * This class can receive arbitrarily large files (up to an artificial limit
  * you can set), and fairly efficiently too.
  * It cannot handle nested data (multipart content within multipart content).
  * It <b>can</b> now with the latest release handle internationalized content
  * (such as non Latin-1 filenames).
- * <p/>
+ * <p>
  * To avoid collisions and have fine control over file placement, there's a
  * constructor variety that takes a pluggable FileRenamePolicy implementation.
  * A particular policy can choose to rename or change the location of the file
  * before it's written.
- * <p/>
+ * <p>
  * See the included upload.war for an example of how to use this class.
- * <p/>
+ * <p>
  * The full file upload specification is contained in experimental RFC 1867,
  * available at <a href="http://www.ietf.org/rfc/rfc1867.txt">
  * http://www.ietf.org/rfc/rfc1867.txt</a>.
@@ -166,7 +166,7 @@ public class MultipartRequest {
    * IOException is thrown.  This constructor actually parses the
    * <tt>multipart/form-data</tt> and throws an IOException if there's any
    * problem reading or parsing the request.
-   * <p/>
+   * <p>
    * To avoid file collisions, this constructor takes an implementation of the
    * FileRenamePolicy interface to allow a pluggable rename policy.
    *
@@ -193,7 +193,7 @@ public class MultipartRequest {
    * IOException is thrown.  This constructor actually parses the
    * <tt>multipart/form-data</tt> and throws an IOException if there's any
    * problem reading or parsing the request.
-   * <p/>
+   * <p>
    * To avoid file collisions, this constructor takes an implementation of the
    * FileRenamePolicy interface to allow a pluggable rename policy.
    *

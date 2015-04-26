@@ -16,6 +16,10 @@ final public class ConstantLoader {
     RenderFactory.add(extension, render, isDefault);
   }
 
+  public void addRender(Class<?> resultType, Render render) {
+    RenderFactory.add(resultType, render);
+  }
+
 }
 
 

@@ -1,5 +1,6 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.Render;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
@@ -126,16 +127,17 @@ public class RouteInvocation {
     } else {
       result = invokeResult;
     }
-    //file render
-    if (result instanceof File) {
-      RenderFactory.get("file").render(request, response, result);
-    } else
-      //image render
-      if (result instanceof ImageResult || result instanceof RenderedImage) {
-        RenderFactory.get("image").render(request, response, result);
-      } else {
-        routeMatch.getRender().render(request, response, result);
-      }
+
+    //通过result类型判断，是否存在指定的render
+    Render render = null;
+    if (result != null) {
+      render = RenderFactory.get(result.getClass());
+    }
+    if (render == null) {
+      routeMatch.getRender().render(request, response, result);
+    } else {
+      render.render(request, response, result);
+    }
   }
 
   /**

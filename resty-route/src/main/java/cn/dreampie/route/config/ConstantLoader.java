@@ -8,16 +8,16 @@ import cn.dreampie.route.render.RenderFactory;
  */
 final public class ConstantLoader {
   //render
-  public void addRender(String extension, Render render) {
-    RenderFactory.add(extension, render);
+  public void addRender(String extension, Class<? extends Render> renderType) {
+    RenderFactory.add(extension, renderType);
   }
 
-  public void addRender(String extension, Render render, boolean isDefault) {
-    RenderFactory.add(extension, render, isDefault);
+  public void addRender(String extension, Class<? extends Render> renderType, boolean isDefault) {
+    RenderFactory.add(extension, renderType, isDefault);
   }
 
-  public void addRender(Class<?> resultType, Render render) {
-    RenderFactory.add(resultType, render);
+  public void addRender(Class<?> resultType, Class<? extends Render> renderType, Class<?>... extResultTypes) {
+    RenderFactory.add(resultType, renderType, extResultTypes);
   }
 
 }

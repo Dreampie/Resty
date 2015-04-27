@@ -118,7 +118,7 @@ public final class RouteBuilder {
         if (delete != null) {
           validClasses = delete.valid();
           validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "DELETE", apiPath + delete.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "DELETE", getApi(apiPath, delete.value()), method, routeInters,
               delete.des(), validators, multipartBuilder));
           continue;
         }
@@ -127,7 +127,7 @@ public final class RouteBuilder {
         if (get != null) {
           validClasses = get.valid();
           validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "GET", apiPath + get.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "GET", getApi(apiPath, get.value()), method, routeInters,
               get.des(), validators, multipartBuilder));
           continue;
         }
@@ -136,7 +136,7 @@ public final class RouteBuilder {
         if (post != null) {
           validClasses = post.valid();
           validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "POST", apiPath + post.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "POST", getApi(apiPath, post.value()), method, routeInters,
               post.des(), validators, multipartBuilder));
           continue;
         }
@@ -145,7 +145,7 @@ public final class RouteBuilder {
         if (put != null) {
           validClasses = put.valid();
           validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "PUT", apiPath + put.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "PUT", getApi(apiPath, put.value()), method, routeInters,
               put.des(), validators, multipartBuilder));
           continue;
         }
@@ -154,7 +154,7 @@ public final class RouteBuilder {
         if (head != null) {
           validClasses = head.valid();
           validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "HEAD", apiPath + head.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "HEAD", getApi(apiPath, head.value()), method, routeInters,
               head.des(), validators, multipartBuilder));
           continue;
         }
@@ -163,7 +163,7 @@ public final class RouteBuilder {
         if (patch != null) {
           validClasses = patch.valid();
           validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "PATCH", apiPath + patch.value(), method, routeInters,
+          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "PATCH", getApi(apiPath, patch.value()), method, routeInters,
               patch.des(), validators, multipartBuilder));
           continue;
         }
@@ -207,10 +207,33 @@ public final class RouteBuilder {
     api = resourceClazz.getAnnotation(API.class);
     if (api != null) {
       apiPath = api.value();
+      if (!apiPath.equals("")) {
+        if (!apiPath.startsWith("/")) {
+          apiPath = "/" + apiPath;
+        }
+      }
     }
     Class<?> superClazz = resourceClazz.getSuperclass();
     if (Resource.class.isAssignableFrom(superClazz)) {
       apiPath = getApi((Class<? extends Resource>) superClazz) + apiPath;
+    }
+    return apiPath;
+  }
+
+  /**
+   * 最终生成的apiPath
+   *
+   * @param apiPath
+   * @param methodPath
+   * @return
+   */
+  private String getApi(String apiPath, String methodPath) {
+    if (!methodPath.equals("")) {
+      if (!methodPath.startsWith("/")) {
+        apiPath = apiPath + "/" + methodPath;
+      } else {
+        apiPath = apiPath + methodPath;
+      }
     }
     return apiPath;
   }

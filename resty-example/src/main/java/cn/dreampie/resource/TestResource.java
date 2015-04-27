@@ -84,8 +84,8 @@ public class TestResource extends ApiResource {
 
 
   @GET("/boom")
-  public void test() {
-    new User().set("username", "test" + Thread.currentThread().getName()).set("providername", "test").set("created_at", new Date())
+  public boolean test() {
+    return new User().set("username", "test" + Thread.currentThread().getName()).set("providername", "test").set("created_at", new Date())
         .set("password", "123456").set("sid", "1").save();
   }
 }

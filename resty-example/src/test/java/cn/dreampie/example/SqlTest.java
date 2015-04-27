@@ -61,13 +61,13 @@ public class SqlTest {
     for (User user : users) {
       id = user.getLong("id");
       sid = user.getLong("sid");
-      System.out.println(user.get("username"));
+      System.out.println(user.getStr("username"));
     }
 
     Record recordDAO = new Record("sec_user", true);
     List<Record> records = recordDAO.findAll();
     for (Record r : records) {
-      System.out.println(r.get("username"));
+      System.out.println(r.getStr("username"));
     }
 
     User u = User.dao.findByIds(id, sid);
@@ -79,12 +79,12 @@ public class SqlTest {
   public void testPaginate() {
     Page<User> users = User.dao.unCache().paginateAll(1, 10);
     for (User user : users.getList()) {
-      System.out.println(user.get("username"));
+      System.out.println(user.getStr("username"));
     }
     Record recordDAO = new Record("sec_user", true);
     Page<Record> records = recordDAO.paginate(1, 10, "SELECT * FROM sec_user");
     for (Record record : records.getList()) {
-      System.out.println(record.get("username"));
+      System.out.println(record.getStr("username"));
     }
 
     records = recordDAO.unCache().paginate(1, 10, "SELECT * FROM sec_user");

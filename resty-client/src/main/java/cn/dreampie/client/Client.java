@@ -140,12 +140,14 @@ public class Client extends ClientConnection {
           if (!clientRequest.isOverwrite() && renamer != null) {
             fileRenamer = renamer;
           }
-
-          return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());//服务器端在这种下载的情况下  返回总是大1 未知原因
+          ResponseData responseData = new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());//服务器端在这种下载的情况下  返回总是大1 未知原因
+          conn.disconnect();
+          return responseData;
         }
       }
-      return new ResponseData(httpCode, StreamReader.readString(is));
-
+      ResponseData responseData = new ResponseData(httpCode, StreamReader.readString(is));
+      conn.disconnect();
+      return responseData;
     } finally {
       if (is != null) {
         is.close();

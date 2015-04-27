@@ -41,7 +41,7 @@ public class WebException extends RuntimeException {
 
   /**
    * Returns the content to use in the HTTP response generated for this exception.
-   * <p>
+   * <p/>
    * Developer's note: override to provide a content different from the exception message.
    * Alternatively you can override the writeTo method for full control over the response.
    *

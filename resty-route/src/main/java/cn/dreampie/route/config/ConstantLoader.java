@@ -10,12 +10,20 @@ import cn.dreampie.route.render.RenderFactory;
  */
 final public class ConstantLoader {
 
-  public void addExceptionHold(HttpStatus status, String url) {
-    addExceptionHold(status, url, false);
+  public void setDefaultForward(String url) {
+    ExceptionHolder.setDefaultForward(url);
   }
 
-  public void addExceptionHold(HttpStatus status, String url, boolean redirect) {
-    ExceptionHolder.addExceptionHold(status, url, redirect);
+  public void setDefaultRedirect(String url) {
+    ExceptionHolder.setDefaultRedirect(url);
+  }
+
+  public void addFoward(HttpStatus status, String url) {
+    ExceptionHolder.addFoward(status, url);
+  }
+
+  public void addRedirect(HttpStatus status, String url) {
+    ExceptionHolder.addRedirect(status, url);
   }
 
   //render
@@ -23,8 +31,8 @@ final public class ConstantLoader {
     RenderFactory.add(extension, render);
   }
 
-  public void addRender(String extension, Render render, boolean isDefault) {
-    RenderFactory.add(extension, render, isDefault);
+  public void addDefaultRender(String extension, Render render) {
+    RenderFactory.addDefault(extension, render);
   }
 
 }

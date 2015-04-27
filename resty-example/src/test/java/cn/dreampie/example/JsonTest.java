@@ -1,13 +1,10 @@
 package cn.dreampie.example;
 
+import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.resource.user.model.User;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by ice on 14-12-31.
@@ -32,9 +29,9 @@ public class JsonTest {
 //
 //    String[] a = Jsoner.toObject(Jsoner.toJSON(new String[]{"a", "b", "c"}), String[].class);
 
-    String json = Jsoner.toJSON(user);
-    System.out.println(json);
-    final User u = Jsoner.toObject(json, User.class);
+//    String json = Jsoner.toJSON(user);
+//    System.out.println(json);
+//    final User u = Jsoner.toObject(json, User.class);
 
 //    System.out.println("" + u.getRoleId() + u.getUserInfos() + u.getPermissions() + u.getPermissionIds());
 
@@ -44,12 +41,16 @@ public class JsonTest {
 //    Map<String, Long> m = Jsoner.toObject("{k:1}", new TypeReference<Map<String, Long>>() {
 //    });
 
-    System.out.println(Jsoner.toJSON(new File("/")));
-    try {
-      File file = new File("/Users/Dreampie/Pictures/thumb_IMG_1589_1024.jpg");
-      System.out.println(Jsoner.toJSON(ImageIO.read(file)));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+//    System.out.println(Jsoner.toJSON(new File("/")));
+//    try {
+//      File file = new File("/Users/Dreampie/Pictures/thumb_IMG_1589_1024.jpg");
+//      System.out.println(Jsoner.toJSON(ImageIO.read(file)));
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+//
+
+
+    System.out.println(Jsoner.toJSON(new WebException("xxxx")));
   }
 }

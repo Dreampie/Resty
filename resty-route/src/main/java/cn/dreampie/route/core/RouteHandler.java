@@ -60,7 +60,7 @@ public final class RouteHandler extends Handler {
     } else {
       if (!restPath.equals("/")) {
         // no route matched
-        throw new WebException(HttpStatus.NOT_FOUND, "Could not found any resource.");
+        throw new WebException(HttpStatus.NOT_FOUND, "Could not found any route.");
       } else {
         isHandled[0] = false;
       }

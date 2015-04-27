@@ -8,7 +8,7 @@ import java.io.InputStream;
  * A <code>PartInputStream</code> filters a <code>ServletInputStream</code>,
  * providing access to a single MIME part contained with in which ends with
  * the boundary specified.  It uses buffering to provide maximum performance.
- * <p>
+ * <p/>
  * Note the <code>readLine</code> method of <code>ServletInputStream</code>
  * has the annoying habit of adding a \r\n to the end of the last line.  Since
  * we want a byte-for-byte transfer, we have to cut those chars. This means
@@ -120,7 +120,7 @@ public class PartInputStream extends FilterInputStream {
   /**
    * See the general contract of the <code>read</code>
    * method of <code>InputStream</code>.
-   * <p>
+   * <p/>
    * Returns <code>-1</code> (end of file) when the MIME
    * boundary of this part is encountered.
    *
@@ -141,7 +141,7 @@ public class PartInputStream extends FilterInputStream {
   /**
    * See the general contract of the <code>read</code>
    * method of <code>InputStream</code>.
-   * <p>
+   * <p/>
    * Returns <code>-1</code> (end of file) when the MIME
    * boundary of this part is encountered.
    *
@@ -158,7 +158,7 @@ public class PartInputStream extends FilterInputStream {
   /**
    * See the general contract of the <code>read</code>
    * method of <code>InputStream</code>.
-   * <p>
+   * <p/>
    * Returns <code>-1</code> (end of file) when the MIME
    * boundary of this part is encountered.
    *
@@ -222,7 +222,7 @@ public class PartInputStream extends FilterInputStream {
   /**
    * Closes this input stream and releases any system resources
    * associated with the stream.
-   * <p>
+   * <p/>
    * This method will read any unread data in the MIME part so that the next
    * part starts an an expected place in the parent <code>InputStream</code>.
    * Note that if the client code forgets to call this method on error,

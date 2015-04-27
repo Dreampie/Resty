@@ -89,22 +89,22 @@ public class RouteInvocation {
         //输出结果
         render(invokeResult);
       } catch (ObjectCastException e) {
-        logger.warn("Argument type convert error - " + e.getMessage());
-        throw new WebException("Argument type convert error - " + e.getMessage());
+        logger.warn("Argument type convert error : " + e.getMessage());
+        throw new WebException("Argument type convert error : " + e.getMessage());
       } catch (InvocationTargetException e) {
         Throwable target = e.getTargetException();
         if (target instanceof WebException) {
           throw (WebException) e.getTargetException();
         } else {
           logger.error("Route invocation error.", e);
-          throw new WebException("Route invocation error - " + target.getMessage());
+          throw new WebException("Route invocation error : " + target.getMessage());
         }
       } catch (InstantiationException e) {
         logger.error("Resource instantiation error.", e);
-        throw new WebException("Resource instantiation error - " + e.getMessage());
+        throw new WebException("Resource instantiation error : " + e.getMessage());
       } catch (IllegalAccessException e) {
         logger.error("Route method access error.", e);
-        throw new WebException("Route method access error - " + e.getMessage());
+        throw new WebException("Route method access error : " + e.getMessage());
       }
     }
   }

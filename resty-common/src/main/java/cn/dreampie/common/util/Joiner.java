@@ -229,10 +229,10 @@ public class Joiner {
   /**
    * An object that joins map entries in the same manner as {@code Joiner} joins iterables and
    * arrays. Like {@code Joiner}, it is thread-safe and immutable.
-   * <p>
+   * <p/>
    * <p>In addition to operating on {@code Map} instances, {@code MapJoiner} can operate on {@code
    * Multimap} entries in two distinct modes:
-   * <p>
+   * <p/>
    * <ul>
    * <li>To output a separate entry for each key-value pair, pass {@code multimap.entries()} to a
    * {@code MapJoiner} method that accepts entries as input, and receive output of the form

@@ -30,10 +30,10 @@ public class RenderFactory {
     }
   }
 
-  public static void add(String extension, Render render, boolean isDefault) {
+  public static void addDefault(String extension, Render render) {
     if (!(render instanceof FileRender) && !(render instanceof ImageRender)) {
       renderMap.put(extension, render);
-      if (isDefault) defaultExtension = extension;
+      defaultExtension = extension;
     }
   }
 

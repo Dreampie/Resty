@@ -45,14 +45,14 @@ public class InterceptorBuilder {
     Interceptor[] allInters = (size == 0 ? NULL_INTERCEPTOR_ARRAY : new Interceptor[size]);
 
     int index = 0;
-    for (int i = 0; i < defaultInters.length; i++) {
-      allInters[index++] = defaultInters[i];
+    for (Interceptor defaultInter : defaultInters) {
+      allInters[index++] = defaultInter;
     }
-    for (int i = 0; i < resourceInters.length; i++) {
-      allInters[index++] = resourceInters[i];
+    for (Interceptor resourceInter : resourceInters) {
+      allInters[index++] = resourceInter;
     }
-    for (int i = 0; i < methodInters.length; i++) {
-      allInters[index++] = methodInters[i];
+    for (Interceptor methodInter : methodInters) {
+      allInters[index++] = methodInter;
     }
     //去除clean的aop
 

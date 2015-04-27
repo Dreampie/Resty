@@ -45,16 +45,16 @@ public class Proper {
 
   /**
    * Using the properties file. It will loading the properties file if not loading.
-   * <p/>
+   * <p>
    * Example:<br>
    * Proper.use("config.txt", "UTF-8");<br>
    * Proper.use("other_config.txt", "UTF-8");<br><br>
    * String userName = Proper.get("userName");<br>
    * String password = Proper.get("password");<br><br>
-   * <p/>
+   * <p>
    * userName = Proper.use("other_config.txt").get("userName");<br>
    * password = Proper.use("other_config.txt").get("password");<br><br>
-   * <p/>
+   * <p>
    * Proper.use("com/jfinal/config_in_sub_directory_of_classpath.txt");
    *
    * @param fileName the properties file's name in classpath or the sub directory of classpath
@@ -82,7 +82,7 @@ public class Proper {
 
   /**
    * Using the properties file bye File object. It will loading the properties file if not loading.
-   * <p/>
+   * <p>
    * Example:<br>
    * Proper.use(new File("/var/config/my_config.txt"), "UTF-8");<br>
    * Strig userName = Proper.use("my_config.txt").get("userName");

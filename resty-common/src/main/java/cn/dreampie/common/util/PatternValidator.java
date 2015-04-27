@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * Created by ice on 14-12-30.
  */
-public class Validator {
+public class PatternValidator {
 
 
   /**

@@ -1,6 +1,5 @@
 package cn.dreampie.route.core;
 
-import cn.dreampie.common.Constant;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.WebException;
@@ -8,8 +7,6 @@ import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.handler.Handler;
 
-import javax.servlet.ServletException;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -62,18 +59,8 @@ public final class RouteHandler extends Handler {
       new RouteInvocation(route, routeMatch).invoke();
     } else {
       if (!restPath.equals("/")) {
-        if (restPath.startsWith(Constant.apiPrefix)) {
-          // no route matched
-          throw new WebException(HttpStatus.NOT_FOUND, "No rest route found.");
-        } else {
-          try {
-            response.forward(Constant.notFound);
-          } catch (ServletException e) {
-            logger.error("Request forward '" + Constant.notFound + "' error.", e);
-          } catch (IOException e) {
-            logger.error("Request forward '" + Constant.notFound + "' error.", e);
-          }
-        }
+        // no route matched
+        throw new WebException(HttpStatus.NOT_FOUND, "Could not found any resource.");
       } else {
         isHandled[0] = false;
       }

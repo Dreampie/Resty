@@ -98,6 +98,10 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
     request.getRequestDispatcher(url).forward(request, response);
   }
 
+  public void sendRedirect(String url) throws ServletException, IOException {
+    response.sendRedirect(url);
+  }
+
   @SuppressWarnings("unchecked")
   public <T> T unwrap(Class<T> clazz) {
     if (clazz == HttpServletResponse.class || clazz == ServletResponse.class) {

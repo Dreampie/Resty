@@ -1,5 +1,6 @@
 package cn.dreampie.resource;
 
+import cn.dreampie.common.util.PatternValidator;
 import cn.dreampie.route.core.Params;
 import cn.dreampie.route.valid.ValidResult;
 import cn.dreampie.route.valid.Validator;
@@ -14,7 +15,7 @@ public class SigninValidator extends Validator {
     ValidResult result = new ValidResult();
 
     String username = params.get("username");
-    if (!cn.dreampie.common.util.Validator.isGeneral(username, 5, 16))
+    if (!PatternValidator.isGeneral(username, 5, 16))
       result.addError("username", "用户名错误!");
     return result;
   }

@@ -9,7 +9,7 @@ import cn.dreampie.common.http.result.HttpStatus;
 public class WebException extends RuntimeException {
 
   private final HttpStatus status;
-  private final Object result;
+  private final Object content;
 
   public WebException(HttpStatus status) {
     this(status, status.getDesc());
@@ -19,20 +19,20 @@ public class WebException extends RuntimeException {
     this(HttpStatus.BAD_REQUEST, message);
   }
 
-  public WebException(Object result) {
-    this(HttpStatus.BAD_REQUEST, result);
+  public WebException(Object content) {
+    this(HttpStatus.BAD_REQUEST, content);
   }
 
   public WebException(HttpStatus status, String message) {
     super(message);
     this.status = status;
-    this.result = null;
+    this.content = null;
   }
 
-  public WebException(HttpStatus status, Object result) {
+  public WebException(HttpStatus status, Object content) {
     super();
     this.status = status;
-    this.result = result;
+    this.content = content;
   }
 
   public HttpStatus getStatus() {
@@ -48,7 +48,7 @@ public class WebException extends RuntimeException {
    * @return the content to use in the response.
    */
   public Object getContent() {
-    return result != null ? result : getMessage();
+    return content != null ? content : getMessage();
   }
 
 }

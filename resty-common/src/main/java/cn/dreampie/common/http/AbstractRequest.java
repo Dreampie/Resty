@@ -3,6 +3,7 @@ package cn.dreampie.common.http;
 import cn.dreampie.common.Request;
 import cn.dreampie.common.util.Joiner;
 
+import javax.servlet.RequestDispatcher;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -62,6 +63,7 @@ public abstract class AbstractRequest implements Request {
     }
   }
 
+
   public boolean isSecured() {
     checkProxyRequest();
     return getScheme().equalsIgnoreCase("https");
@@ -102,6 +104,9 @@ public abstract class AbstractRequest implements Request {
               "  -Drestj.http.XForwardedSupport=all");
     }
   }
+
+
+  protected abstract RequestDispatcher getRequestDispatcher(String url);
 
   /**
    * Returns the client address of this request, without taking proxy into account

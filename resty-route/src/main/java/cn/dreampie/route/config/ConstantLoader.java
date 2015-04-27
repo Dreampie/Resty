@@ -10,11 +10,11 @@ import cn.dreampie.route.render.RenderFactory;
  */
 final public class ConstantLoader {
 
-  public static void addExceptionHold(HttpStatus status, String url) {
+  public void addExceptionHold(HttpStatus status, String url) {
     addExceptionHold(status, url, false);
   }
 
-  public static void addExceptionHold(HttpStatus status, String url, boolean redirect) {
+  public void addExceptionHold(HttpStatus status, String url, boolean redirect) {
     ExceptionHolder.addExceptionHold(status, url, redirect);
   }
 

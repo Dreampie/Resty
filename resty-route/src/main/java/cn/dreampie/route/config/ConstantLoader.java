@@ -6,7 +6,7 @@ import cn.dreampie.route.holder.ExceptionHolder;
 import cn.dreampie.route.render.RenderFactory;
 
 /**
- * The constant for Restj runtime.
+ * The constant for Resty runtime.
  */
 final public class ConstantLoader {
 

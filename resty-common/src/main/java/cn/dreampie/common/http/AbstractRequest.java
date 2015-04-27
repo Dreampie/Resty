@@ -99,9 +99,9 @@ public abstract class AbstractRequest implements Request {
           "Unauthorized proxy request from " + localClientAddress + "\n" +
               "If you are the application developer or operator, you can set `resty.http.XForwardedSupport`\n" +
               "system property to allow proxy requests from this proxy IP with:\n" +
-              "  -Drestj.http.XForwardedSupport=" + localClientAddress + "\n" +
+              "  -Dresty.http.XForwardedSupport=" + localClientAddress + "\n" +
               "Or if you want to allow any proxy request:\n" +
-              "  -Drestj.http.XForwardedSupport=all");
+              "  -Dresty.http.XForwardedSupport=all");
     }
   }
 

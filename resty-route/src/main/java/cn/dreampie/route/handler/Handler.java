@@ -17,7 +17,7 @@ public abstract class Handler {
    *
    * @param request   HttpServletRequest of this http request
    * @param response  HttpServletRequest of this http request
-   * @param isHandled RestjFilter will invoke doFilter() method if isHandled[0] == false,
+   * @param isHandled RestyFilter will invoke doFilter() method if isHandled[0] == false,
    *                  it is usually to tell Filter should handle the static resource.
    */
   public abstract void handle(HttpRequest request, HttpResponse response, boolean[] isHandled);

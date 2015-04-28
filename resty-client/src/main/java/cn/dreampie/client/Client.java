@@ -59,11 +59,17 @@ public class Client extends ClientConnection {
       conn.connect();
       return readResponse(conn);
     } catch (Exception e) {
-      if (e instanceof ClientException)
+      if (e instanceof ClientException) {
         throw (ClientException) e;
-      throw new ClientException(e.getMessage(), e);
+      }
+      Throwable cause = e.getCause();
+      if (cause == null) {
+        cause = e;
+      }
+      throw new ClientException(cause.getMessage(), cause);
     } finally {
       if (conn != null) {
+        clientRequestTL.remove();
         conn.disconnect();
       }
     }
@@ -140,15 +146,10 @@ public class Client extends ClientConnection {
           if (!clientRequest.isOverwrite() && renamer != null) {
             fileRenamer = renamer;
           }
-          ResponseData responseData = new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());//服务器端在这种下载的情况下  返回总是大1 未知原因
-          conn.disconnect();
-          clientRequestTL.remove();
-          return responseData;
+          return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());
         }
       }
-      ResponseData responseData = new ResponseData(httpCode, StreamReader.readString(is));
-      clientRequestTL.remove();
-      return responseData;
+      return new ResponseData(httpCode, StreamReader.readString(is));
     } finally {
       if (is != null) {
         is.close();

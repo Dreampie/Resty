@@ -12,6 +12,16 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  * Created by ice on 14-12-29.
  */
 public class Joiner {
+  private final String separator;
+
+  private Joiner(String separator) {
+    this.separator = checkNotNull(separator);
+  }
+
+  private Joiner(Joiner prototype) {
+    this.separator = prototype.separator;
+  }
+
   /**
    * Returns a joinKit which automatically places {@code separator} between consecutive elements.
    */
@@ -26,14 +36,25 @@ public class Joiner {
     return new Joiner(String.valueOf(separator));
   }
 
-  private final String separator;
+  private static Iterable<Object> iterable(
+      final Object first, final Object second, final Object[] rest) {
+    checkNotNull(rest);
+    return new AbstractList<Object>() {
+      public int size() {
+        return rest.length + 2;
+      }
 
-  private Joiner(String separator) {
-    this.separator = checkNotNull(separator);
-  }
-
-  private Joiner(Joiner prototype) {
-    this.separator = prototype.separator;
+      public Object get(int index) {
+        switch (index) {
+          case 0:
+            return first;
+          case 1:
+            return second;
+          default:
+            return rest[index - 2];
+        }
+      }
+    };
   }
 
   /**
@@ -226,6 +247,11 @@ public class Joiner {
     return new MapJoiner(this, keyValueSeparator);
   }
 
+  CharSequence toString(Object part) {
+    checkNotNull(part);  // checkNotNull for GWT (do not optimize).
+    return (part instanceof CharSequence) ? (CharSequence) part : part.toString();
+  }
+
   /**
    * An object that joins map entries in the same manner as {@code Joiner} joins iterables and
    * arrays. Like {@code Joiner}, it is thread-safe and immutable.
@@ -363,31 +389,5 @@ public class Joiner {
     public MapJoiner useForNull(String nullText) {
       return new MapJoiner(joiner.useForNull(nullText), keyValueSeparator);
     }
-  }
-
-  CharSequence toString(Object part) {
-    checkNotNull(part);  // checkNotNull for GWT (do not optimize).
-    return (part instanceof CharSequence) ? (CharSequence) part : part.toString();
-  }
-
-  private static Iterable<Object> iterable(
-      final Object first, final Object second, final Object[] rest) {
-    checkNotNull(rest);
-    return new AbstractList<Object>() {
-      public int size() {
-        return rest.length + 2;
-      }
-
-      public Object get(int index) {
-        switch (index) {
-          case 0:
-            return first;
-          case 1:
-            return second;
-          default:
-            return rest[index - 2];
-        }
-      }
-    };
   }
 }

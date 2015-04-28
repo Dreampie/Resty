@@ -20,6 +20,9 @@ public class UserServiceImpl implements UserService {
       userInfo.save();
     }
     update(u);
+//    if (u != null) {
+//      throw new RuntimeException("xx");
+//    }
     return u;
   }
 

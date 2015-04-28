@@ -15,6 +15,10 @@ import java.util.*;
 public abstract class Entity<M extends Entity> {
 
   private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
+  /**
+   * Flag of column has been modified. update need this flag
+   */
+  private Map<String, Object> modifyAttrs = new CaseInsensitiveMap<Object>();
 
   /**
    * Return attribute Map.
@@ -26,9 +30,26 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
-   * Flag of column has been modified. update need this flag
+   * Set attributes with other entity.
+   *
+   * @param entity the Model
+   * @return this Model
    */
-  private Map<String, Object> modifyAttrs = new CaseInsensitiveMap<Object>();
+  public M setAttrs(M entity) {
+    return (M) setAttrs(entity.getAttrs());
+  }
+
+  /**
+   * Set attributes with Map.
+   *
+   * @param attrs attributes of this entity
+   * @return this Model
+   */
+  public M setAttrs(Map<String, Object> attrs) {
+    for (Map.Entry<String, Object> e : attrs.entrySet())
+      set(e.getKey(), e.getValue());
+    return (M) this;
+  }
 
   /**
    * 获取更新的属性列表
@@ -85,28 +106,6 @@ public abstract class Entity<M extends Entity> {
       modifyAttrs.put(attr, value);
     attrs.put(attr, value);
     return (M) this;
-  }
-
-  /**
-   * Set attributes with Map.
-   *
-   * @param attrs attributes of this entity
-   * @return this Model
-   */
-  public M setAttrs(Map<String, Object> attrs) {
-    for (Map.Entry<String, Object> e : attrs.entrySet())
-      set(e.getKey(), e.getValue());
-    return (M) this;
-  }
-
-  /**
-   * Set attributes with other entity.
-   *
-   * @param entity the Model
-   * @return this Model
-   */
-  public M setAttrs(M entity) {
-    return (M) setAttrs(entity.getAttrs());
   }
 
   public M putAttrs(Map<String, Object> attrs) {

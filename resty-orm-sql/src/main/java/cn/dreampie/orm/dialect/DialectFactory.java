@@ -22,16 +22,16 @@ public class DialectFactory {
     return dialectMap;
   }
 
+  public static void setDialectMap(Map<String, Dialect> dialectMap) {
+    DialectFactory.dialectMap = dialectMap;
+  }
+
   public static Dialect get(String dialectName) {
     Dialect dialect = dialectMap.get(dialectName);
     if (dialect == null) {
       throw new DBException("Dialect could not found for name " + dialectName + ".only support like this:" + dialectMap.keySet().toString());
     }
     return dialect;
-  }
-
-  public static void setDialectMap(Map<String, Dialect> dialectMap) {
-    DialectFactory.dialectMap = dialectMap;
   }
 
   public static void addDialectMap(Map<String, Dialect> dialectMap) {

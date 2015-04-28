@@ -51,31 +51,43 @@ public class ClientRequest {
     return this.restUrl.trim();
   }
 
+  public ClientRequest setRestUrl(String restUrl) {
+    this.restUrl = restUrl;
+    return this;
+  }
+
   public String getMethod() {
     return this.method;
+  }
+
+  public ClientRequest setMethod(String method) {
+    this.method = method;
+    return this;
   }
 
   public String getEncoding() {
     return this.encoding;
   }
 
+  public ClientRequest setEncoding(String encoding) {
+    this.encoding = encoding;
+    return this;
+  }
+
   public Map<String, String> getParams() {
     return this.params;
+  }
+
+  public void setParams(Map<String, String> params) {
+    this.params = params;
   }
 
   public Map<String, String> getHeaders() {
     return this.headers;
   }
 
-
-  public ClientRequest setRestUrl(String restUrl) {
-    this.restUrl = restUrl;
-    return this;
-  }
-
-  public ClientRequest setMethod(String method) {
-    this.method = method;
-    return this;
+  public void setHeaders(Map<String, String> headers) {
+    this.headers = headers;
   }
 
   public ClientRequest addParam(String name, String value) {
@@ -92,21 +104,8 @@ public class ClientRequest {
     this.jsonParam = jsonParam;
   }
 
-  public void setParams(Map<String, String> params) {
-    this.params = params;
-  }
-
   public ClientRequest addHeader(String key, String value) {
     this.headers.put(key, value);
-    return this;
-  }
-
-  public void setHeaders(Map<String, String> headers) {
-    this.headers = headers;
-  }
-
-  public ClientRequest setEncoding(String encoding) {
-    this.encoding = encoding;
     return this;
   }
 
@@ -130,10 +129,6 @@ public class ClientRequest {
     return overwrite;
   }
 
-  public void setDownloadFile(String downloadFile) {
-    this.downloadFile = downloadFile;
-  }
-
   public void setDownloadFile(String downloadFile, boolean overwrite) {
     this.downloadFile = downloadFile;
     this.overwrite = overwrite;
@@ -143,18 +138,20 @@ public class ClientRequest {
     return downloadFile;
   }
 
+  public void setDownloadFile(String downloadFile) {
+    this.downloadFile = downloadFile;
+  }
+
   public Map<String, String> getUploadFiles() {
     return uploadFiles;
   }
 
+  public void setUploadFiles(Map<String, String> uploadFiles) {
+    this.uploadFiles = uploadFiles;
+  }
 
   public void addUploadFile(String name, String filepath) {
     this.uploadFiles.put(name, filepath);
-  }
-
-
-  public void setUploadFiles(Map<String, String> uploadFiles) {
-    this.uploadFiles = uploadFiles;
   }
 
   public String getEncodedParams() throws UnsupportedEncodingException {

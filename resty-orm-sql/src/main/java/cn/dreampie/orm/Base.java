@@ -30,9 +30,9 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public abstract class Base<M extends Base> extends Entity<M> implements Externalizable {
 
-  private final Logger logger = Logger.getLogger(getClass());
-  private static final boolean devMode = Constant.devMode;
   public static final String DEFAULT_PRIMARY_KAY = "id";
+  private static final boolean devMode = Constant.devMode;
+  private final Logger logger = Logger.getLogger(getClass());
   private String alias;
 
   /**

@@ -252,20 +252,6 @@ public class ParamNamesScaner {
     return reMap;
   }
 
-  static class LocalVariable implements Comparable<LocalVariable> {
-    public int index;
-    public String name;
-
-    public LocalVariable(int index, String name) {
-      this.index = index;
-      this.name = name;
-    }
-
-    public int compareTo(LocalVariable o) {
-      return this.index - o.index;
-    }
-  }
-
   /**
    * 传入Method或Constructor,获取getParamNames方法返回的Map所对应的key
    */
@@ -342,6 +328,20 @@ public class ParamNamesScaner {
         buf.append(';');
         return;
       }
+    }
+  }
+
+  static class LocalVariable implements Comparable<LocalVariable> {
+    public int index;
+    public String name;
+
+    public LocalVariable(int index, String name) {
+      this.index = index;
+      this.name = name;
+    }
+
+    public int compareTo(LocalVariable o) {
+      return this.index - o.index;
     }
   }
 }

@@ -24,15 +24,13 @@ public abstract class AbstractResponse<R> implements Response {
 
   private final Class<R> responseClass;
   private final R response;
-
+  // used to store headers set to be able to return them in getHeader()
+  private final Map<String, String> headers = new LinkedHashMap<String, String>();
   private HttpStatus status = HttpStatus.OK;
   private Charset charset;
   private PrintWriter writer;
   private OutputStream outputStream;
   private boolean closed;
-
-  // used to store headers set to be able to return them in getHeader()
-  private final Map<String, String> headers = new LinkedHashMap<String, String>();
 
   protected AbstractResponse(Class<R> responseClass, R response) {
     this.responseClass = responseClass;

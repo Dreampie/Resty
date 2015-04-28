@@ -16,9 +16,9 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 public class Credentials {
 
   private final AuthenticateService authenticateService;
+  private final long expires;
   private Map<String, Map<String, Set<Credential>>> credentialMap = new CaseInsensitiveMap<Map<String, Set<Credential>>>();
   private Map<String, Principal> principals = new HashMap<String, Principal>();
-  private final long expires;
   private long lastAccess;
 
   public Credentials(AuthenticateService authenticateService, long expires) {

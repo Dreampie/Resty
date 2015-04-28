@@ -17,9 +17,8 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  * Created by Dreampie on 15/4/27.
  */
 public abstract class ExceptionHolder {
-  private final static Logger logger = Logger.getLogger(ExceptionHolder.class);
-
   public final static ExceptionHolder HOLDER;
+  private final static Logger logger = Logger.getLogger(ExceptionHolder.class);
   private static String defaultUrl;
   private static boolean forward;
   private static Map<HttpStatus, String> forwardMap = new HashMap<HttpStatus, String>();
@@ -43,16 +42,6 @@ public abstract class ExceptionHolder {
     }
     HOLDER = exceptionHolder;
   }
-
-  /**
-   * 处理异常
-   *
-   * @param request
-   * @param response
-   * @param exception
-   * @param isHandled
-   */
-  public abstract void hold(HttpRequest request, HttpResponse response, Exception exception, boolean[] isHandled);
 
   public static void setDefaultForward(String url) {
     setDefault(url, true);
@@ -122,4 +111,14 @@ public abstract class ExceptionHolder {
       }
     }
   }
+
+  /**
+   * 处理异常
+   *
+   * @param request
+   * @param response
+   * @param exception
+   * @param isHandled
+   */
+  public abstract void hold(HttpRequest request, HttpResponse response, Exception exception, boolean[] isHandled);
 }

@@ -16,6 +16,7 @@ import java.lang.reflect.Type;
  */
 public class Jsoner {
   private static SerializeConfig config = SerializeConfig.getGlobalInstance();
+  private static ParserConfig parserConfig = ParserConfig.getGlobalInstance();
 
   static {
     config.put(java.util.Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
@@ -23,8 +24,6 @@ public class Jsoner {
     config.put(java.sql.Timestamp.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss.SSS"));
     config.put(java.sql.Time.class, new SimpleDateFormatSerializer("HH:mm:ss"));
   }
-
-  private static ParserConfig parserConfig = ParserConfig.getGlobalInstance();
 
   public static void addConfig(Type type, ObjectSerializer serializer, ObjectDeserializer deserializer) {
     addSerializer(type, serializer);

@@ -12,9 +12,9 @@ import java.nio.charset.Charset;
  * Time: 9:46 PM
  */
 public interface Response {
-  Response setStatus(HttpStatus status);
-
   HttpStatus getStatus();
+
+  Response setStatus(HttpStatus status);
 
   /**
    * Sets the content type of this response.

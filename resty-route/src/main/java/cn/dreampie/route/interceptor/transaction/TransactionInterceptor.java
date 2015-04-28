@@ -1,51 +1,57 @@
 package cn.dreampie.route.interceptor.transaction;
 
 import cn.dreampie.orm.Metadata;
+import cn.dreampie.orm.exception.TransactionException;
 import cn.dreampie.orm.transaction.Transaction;
+import cn.dreampie.orm.transaction.TransactionManager;
 import cn.dreampie.route.core.RouteInvocation;
 import cn.dreampie.route.interceptor.Interceptor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wangrenhui on 15/1/2.
  */
 public class TransactionInterceptor implements Interceptor {
 
-  private static final ThreadLocal<TransactionInterceptorExecutor[]> excutorsTL = new ThreadLocal<TransactionInterceptorExecutor[]>();
-  private static final ThreadLocal<Integer> indexTL = new ThreadLocal<Integer>() {
-    protected Integer initialValue() {
-      return 0;
-    }
-  };
 
   public void intercept(RouteInvocation ri) {
-    int index = indexTL.get();
-    TransactionInterceptorExecutor[] excutors = excutorsTL.get();
-    if (excutors == null) {
-      Transaction transactionAnn = ri.getMethod().getAnnotation(Transaction.class);
-      if (transactionAnn != null) {
-        String[] names = transactionAnn.name();
-        if (names.length == 0) {
-          names = new String[]{Metadata.getDefaultDsName()};
-        }
-        boolean[] readonly = transactionAnn.readonly();
-        int[] levels = transactionAnn.level();
-        excutors = new TransactionInterceptorExecutor[names.length];
-        for (int i = 0; i < names.length; i++) {
-          excutors[i] = new TransactionInterceptorExecutor(names[i], readonly.length == 1 ? readonly[0] : readonly[i], levels.length == 1 ? levels[0] : levels[i]);
-        }
-        excutorsTL.set(excutors);
-      }
-    }
 
-    if (excutors != null) {
-      if (index < excutors.length) {
-        indexTL.set(index + 1);
-        excutors[index].transaction(this, ri);
-      } else if (index == excutors.length) {
-        indexTL.set(index + 1);
+    List<TransactionManager> transactionManagers = null;
+    Transaction transactionAnn = ri.getMethod().getAnnotation(Transaction.class);
+    if (transactionAnn != null) {
+      String[] names = transactionAnn.name();
+      if (names.length == 0) {
+        names = new String[]{Metadata.getDefaultDsName()};
+      }
+      int[] levels = transactionAnn.level();
+      boolean[] readonlys = transactionAnn.readonly();
+      transactionManagers = new ArrayList<TransactionManager>();
+      TransactionManager transactionManager;
+      try {
+        for (int i = 0; i < names.length; i++) {
+          transactionManager = new TransactionManager(Metadata.getDataSourceMeta(names[i]));
+          transactionManagers.add(transactionManager);
+          transactionManager.begin(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
+        }
+        //执行操作
         ri.invoke();
+        for (TransactionManager tm : transactionManagers) {
+          tm.commit();
+        }
+      } catch (Throwable t) {
+        for (TransactionManager tm : transactionManagers) {
+          tm.rollback();
+        }
+        throw new TransactionException(t.getMessage(), t);
+      } finally {
+        for (TransactionManager tm : transactionManagers) {
+          tm.end();
+        }
       }
     } else {
+      //执行操作
       ri.invoke();
     }
   }

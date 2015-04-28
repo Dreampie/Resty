@@ -11,11 +11,8 @@ import java.util.List;
  * Abstract method to be sub-classed by various caching technologies.
  */
 public abstract class CacheManager {
-  private final static Logger logger = Logger.getLogger(CacheManager.class);
-
-  List<CacheEventListener> listeners = new ArrayList<CacheEventListener>();
-
   public final static CacheManager MANAGER;
+  private final static Logger logger = Logger.getLogger(CacheManager.class);
 
   static {
     CacheManager cacheManager = null;
@@ -37,6 +34,8 @@ public abstract class CacheManager {
     }
     MANAGER = cacheManager;
   }
+
+  List<CacheEventListener> listeners = new ArrayList<CacheEventListener>();
 
   /**
    * Returns a cached item. Can return null if not found.

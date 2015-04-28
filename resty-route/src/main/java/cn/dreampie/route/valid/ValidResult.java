@@ -29,19 +29,19 @@ public class ValidResult {
     this.errors.put(name, error);
   }
 
-  public void setErrors(Map<String, Object> errors) {
-    this.errors = errors;
-  }
-
-  public void setStatus(HttpStatus status) {
-    this.status = status;
-  }
-
   public Map<String, Object> getErrors() {
     return errors;
   }
 
+  public void setErrors(Map<String, Object> errors) {
+    this.errors = errors;
+  }
+
   public HttpStatus getStatus() {
     return status;
+  }
+
+  public void setStatus(HttpStatus status) {
+    this.status = status;
   }
 }

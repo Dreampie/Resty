@@ -13,7 +13,6 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 
 public class TableMeta implements Serializable {
 
-  private SortedMap<String, ColumnMeta> columnMetadata;
   private final String pKeys;
   private final String primaryKey;
   private final String[] primaryKeys;
@@ -21,6 +20,7 @@ public class TableMeta implements Serializable {
   private final String tableName, dsName;
   private final Class<? extends Entity> modelClass;
   private final boolean cached;
+  private SortedMap<String, ColumnMeta> columnMetadata;
 
   protected TableMeta(String dsName, String tableName, String pKeys, boolean lKey, boolean cached) {
     this.modelClass = null;
@@ -74,10 +74,6 @@ public class TableMeta implements Serializable {
     return tableName;
   }
 
-  void setColumnMetadata(SortedMap<String, ColumnMeta> columnMetadata) {
-    this.columnMetadata = columnMetadata;
-  }
-
   protected boolean tableExists() {
     return columnMetadata != null && columnMetadata.isEmpty();
   }
@@ -116,6 +112,10 @@ public class TableMeta implements Serializable {
   public SortedMap<String, ColumnMeta> getColumnMetadata() {
     checkNotNull(columnMetadata, "Failed to found table: " + getTableName());
     return Collections.unmodifiableSortedMap(columnMetadata);
+  }
+
+  void setColumnMetadata(SortedMap<String, ColumnMeta> columnMetadata) {
+    this.columnMetadata = columnMetadata;
   }
 
   public String getColumnTypeName(String columnName) {

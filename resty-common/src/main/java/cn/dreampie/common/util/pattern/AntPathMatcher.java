@@ -10,21 +10,55 @@ import java.util.StringTokenizer;
  */
 public class AntPathMatcher implements PatternMatcher {
 
+  /**
+   * Default path separator: "/"
+   */
+  public static final String DEFAULT_PATH_SEPARATOR = "/";
   private final static AntPathMatcher ANTPATHMATCHER = new AntPathMatcher();
+
+  //TODO - complete JavaDoc
+  private String pathSeparator = DEFAULT_PATH_SEPARATOR;
 
   public static AntPathMatcher instance() {
     return ANTPATHMATCHER;
   }
 
-  //TODO - complete JavaDoc
+  public static String[] tokenizeToStringArray(String str, String delimiters) {
+    return tokenizeToStringArray(str, delimiters, true, true);
+  }
 
-  /**
-   * Default path separator: "/"
-   */
-  public static final String DEFAULT_PATH_SEPARATOR = "/";
+  public static String[] tokenizeToStringArray(
+      String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
 
-  private String pathSeparator = DEFAULT_PATH_SEPARATOR;
+    if (str == null) {
+      return null;
+    }
+    StringTokenizer st = new StringTokenizer(str, delimiters);
+    List tokens = new ArrayList();
+    while (st.hasMoreTokens()) {
+      String token = st.nextToken();
+      if (trimTokens) {
+        token = token.trim();
+      }
+      if (!ignoreEmptyTokens || token.length() > 0) {
+        tokens.add(token);
+      }
+    }
+    return toStringArray(tokens);
+  }
 
+  public static String[] toStringArray(Collection collection) {
+    if (collection == null) {
+      return null;
+    }
+    return (String[]) collection.toArray(new String[collection.size()]);
+  }
+
+  public static void main(String[] args) {
+    AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    System.out.println(antPathMatcher.match("/*.jpg", "/dadasdsa/api.jpg"));
+  }
 
   /**
    * Set the path separator to use for pattern parsing.
@@ -35,7 +69,6 @@ public class AntPathMatcher implements PatternMatcher {
   public void setPathSeparator(String pathSeparator) {
     this.pathSeparator = (pathSeparator != null ? pathSeparator : DEFAULT_PATH_SEPARATOR);
   }
-
 
   public boolean isPattern(String path) {
     return (path.indexOf('*') != -1 || path.indexOf('?') != -1);
@@ -52,7 +85,6 @@ public class AntPathMatcher implements PatternMatcher {
   public boolean matchStart(String pattern, String path) {
     return doMatch(pattern, path, false);
   }
-
 
   /**
    * Actually match the given <code>path</code> against the given <code>pattern</code>.
@@ -335,10 +367,6 @@ public class AntPathMatcher implements PatternMatcher {
     return true;
   }
 
-  public static String[] tokenizeToStringArray(String str, String delimiters) {
-    return tokenizeToStringArray(str, delimiters, true, true);
-  }
-
   /**
    * Given a pattern and a full path, determine the pattern-mapped part.
    * <p>For example:
@@ -387,39 +415,6 @@ public class AntPathMatcher implements PatternMatcher {
     }
 
     return buffer.toString();
-  }
-
-  public static String[] tokenizeToStringArray(
-      String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
-
-    if (str == null) {
-      return null;
-    }
-    StringTokenizer st = new StringTokenizer(str, delimiters);
-    List tokens = new ArrayList();
-    while (st.hasMoreTokens()) {
-      String token = st.nextToken();
-      if (trimTokens) {
-        token = token.trim();
-      }
-      if (!ignoreEmptyTokens || token.length() > 0) {
-        tokens.add(token);
-      }
-    }
-    return toStringArray(tokens);
-  }
-
-  public static String[] toStringArray(Collection collection) {
-    if (collection == null) {
-      return null;
-    }
-    return (String[]) collection.toArray(new String[collection.size()]);
-  }
-
-  public static void main(String[] args) {
-    AntPathMatcher antPathMatcher = new AntPathMatcher();
-
-    System.out.println(antPathMatcher.match("/*.jpg", "/dadasdsa/api.jpg"));
   }
 
 }

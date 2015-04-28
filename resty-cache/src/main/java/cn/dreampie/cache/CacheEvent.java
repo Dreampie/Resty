@@ -7,23 +7,8 @@ package cn.dreampie.cache;
 public class CacheEvent {
 
   public static final CacheEvent ALL = new CacheEvent(null);
-
-
-  public enum CacheEventType {
-    /**
-     * This type means that all caches need to be cleared.
-     */
-    ALL,
-
-    /**
-     * This type means that only a cache for a specific group (table) needs to be cleared.
-     */
-    GROUP
-  }
-
   private String source, group;
   private CacheEventType type;
-
 
   /**
    * Creates a new event type of {@link CacheEvent.CacheEventType#GROUP}.
@@ -54,7 +39,6 @@ public class CacheEvent {
     this.source = source;
   }
 
-
   public String getSource() {
     return source;
   }
@@ -67,12 +51,24 @@ public class CacheEvent {
     return group;
   }
 
-
   public String toString() {
     return "CacheEvent{" +
         "source='" + source + '\'' +
         ", group='" + group + '\'' +
         ", type=" + type +
         '}';
+  }
+
+
+  public enum CacheEventType {
+    /**
+     * This type means that all caches need to be cleared.
+     */
+    ALL,
+
+    /**
+     * This type means that only a cache for a specific group (table) needs to be cleared.
+     */
+    GROUP
   }
 }

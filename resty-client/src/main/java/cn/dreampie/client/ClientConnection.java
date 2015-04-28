@@ -22,13 +22,12 @@ import java.util.Random;
  */
 public class ClientConnection {
   private static final Logger logger = Logger.getLogger(ClientConnection.class);
-
+  private final SSLSocketFactory sslSocketFactory = initSSLSocketFactory();
+  private final TrustAnyHostnameVerifier trustAnyHostnameVerifier = new TrustAnyHostnameVerifier();
   protected ClientRequest loginRequest;
   protected ThreadLocal<ClientRequest> clientRequestTL = new ThreadLocal<ClientRequest>();
   protected CookieManager cookieManager = new CookieManager();
-
   protected String apiUrl;
-
   protected FileRenamer renamer = new DefaultFileRenamer();
 
   protected ClientConnection(String apiUrl) {
@@ -50,6 +49,17 @@ public class ClientConnection {
     CookieHandler.setDefault(cookieManager);
   }
 
+  public static String getRandomString(int length) { //length表示生成字符串的长度
+    String base = "abcdefghijklmnopqrstuvwxyz0123456789";
+    Random random = new Random();
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < length; i++) {
+      int number = random.nextInt(base.length());
+      sb.append(base.charAt(number));
+    }
+    return sb.toString();
+  }
+
   /**
    * 文件重命名工具
    *
@@ -61,33 +71,6 @@ public class ClientConnection {
     }
     this.renamer = renamer;
   }
-
-  /**
-   * https 域名校验
-   */
-  private class TrustAnyHostnameVerifier implements HostnameVerifier {
-    public boolean verify(String hostname, SSLSession session) {
-      return true;
-    }
-  }
-
-  /**
-   * https 证书管理
-   */
-  private class TrustAnyTrustManager implements X509TrustManager {
-    public X509Certificate[] getAcceptedIssuers() {
-      return null;
-    }
-
-    public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
-    }
-
-    public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
-    }
-  }
-
-  private final SSLSocketFactory sslSocketFactory = initSSLSocketFactory();
-  private final TrustAnyHostnameVerifier trustAnyHostnameVerifier = new TrustAnyHostnameVerifier();
 
   private SSLSocketFactory initSSLSocketFactory() {
     try {
@@ -248,16 +231,28 @@ public class ClientConnection {
     return conn;
   }
 
-
-  public static String getRandomString(int length) { //length表示生成字符串的长度
-    String base = "abcdefghijklmnopqrstuvwxyz0123456789";
-    Random random = new Random();
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < length; i++) {
-      int number = random.nextInt(base.length());
-      sb.append(base.charAt(number));
+  /**
+   * https 域名校验
+   */
+  private class TrustAnyHostnameVerifier implements HostnameVerifier {
+    public boolean verify(String hostname, SSLSession session) {
+      return true;
     }
-    return sb.toString();
+  }
+
+  /**
+   * https 证书管理
+   */
+  private class TrustAnyTrustManager implements X509TrustManager {
+    public X509Certificate[] getAcceptedIssuers() {
+      return null;
+    }
+
+    public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+    }
+
+    public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+    }
   }
 
 

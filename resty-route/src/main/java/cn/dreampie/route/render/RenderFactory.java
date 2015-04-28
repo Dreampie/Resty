@@ -10,12 +10,11 @@ import java.util.Map;
  */
 public class RenderFactory {
 
-  private static String defaultExtension = "json";
   public final static String JSON = "json";
   public final static String TEXT = "text";
   public final static String FILE = "file";
   public final static String IMAGE = "image";
-
+  private static String defaultExtension = "json";
   private static Map<String, Render> renderMap = new HashMap<String, Render>() {{
     put(JSON, new JsonRender());
     put(TEXT, new TextRender());

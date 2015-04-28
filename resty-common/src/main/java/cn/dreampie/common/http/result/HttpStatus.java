@@ -302,6 +302,15 @@ public enum HttpStatus {
     this.desc = desc;
   }
 
+  public static HttpStatus havingCode(int code) {
+    for (HttpStatus httpStatus : values()) {
+      if (httpStatus.code == code) {
+        return httpStatus;
+      }
+    }
+    throw new IllegalArgumentException("Invalid HTTP Status code : " + code);
+  }
+
   public int getCode() {
     return code;
   }
@@ -312,15 +321,6 @@ public enum HttpStatus {
 
   public Descriptor createDescriptor() {
     return new Descriptor(this);
-  }
-
-  public static HttpStatus havingCode(int code) {
-    for (HttpStatus httpStatus : values()) {
-      if (httpStatus.code == code) {
-        return httpStatus;
-      }
-    }
-    throw new IllegalArgumentException("Invalid HTTP Status code : " + code);
   }
 
   public static class Descriptor {

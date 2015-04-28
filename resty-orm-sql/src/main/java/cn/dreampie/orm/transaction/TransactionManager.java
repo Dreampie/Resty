@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * Created by wangrenhui on 15/4/3.
  */
 public class TransactionManager {
-  private final static Logger logger = Logger.getLogger(TransactionExecutor.class);
+  private final static Logger logger = Logger.getLogger(TransactionManager.class);
   private DataSourceMeta dataSourceMeta;
   private Boolean isReadonly;
   private Boolean autoCommit;
@@ -49,6 +49,7 @@ public class TransactionManager {
         conn.setReadOnly(true);
       }
       conn.setTransactionIsolation(level);
+      logger.info("Connection for " + dataSourceMeta.getDsName() + " has opened success.");
     } catch (SQLException e) {
       throw new TransactionException(e.getMessage(), e);
     }
@@ -64,6 +65,7 @@ public class TransactionManager {
         if (isReadonly == null || !isReadonly) {
           if (!conn.getAutoCommit()) {
             conn.commit();
+            logger.info("Connection for " + dataSourceMeta.getDsName() + " has commited success.");
           }
         }
       }
@@ -89,9 +91,10 @@ public class TransactionManager {
         }
         dataSourceMeta.rmCurrentConnection();
         dataSourceMeta.close(conn);
+        logger.info("Connection for " + dataSourceMeta.getDsName() + " has closed success.");
       }
     } catch (SQLException e) {
-      logger.error("Could not end " + dataSourceMeta.getDsName() + " connection.", e);
+      logger.error("Could not end connection for " + dataSourceMeta.getDsName() + ".", e);
     }
   }
 
@@ -104,10 +107,11 @@ public class TransactionManager {
       if (conn != null) {
         if (isReadonly == null || !isReadonly) {
           conn.rollback();
+          logger.info("Connection for " + dataSourceMeta.getDsName() + " has rollbacked success.");
         }
       }
     } catch (SQLException e) {
-      logger.error("Could not rollback " + dataSourceMeta.getDsName() + " connection.", e);
+      logger.error("Could not rollback connection for " + dataSourceMeta.getDsName() + ".", e);
     }
   }
 }

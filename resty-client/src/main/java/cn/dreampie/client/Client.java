@@ -142,11 +142,12 @@ public class Client extends ClientConnection {
           }
           ResponseData responseData = new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());//服务器端在这种下载的情况下  返回总是大1 未知原因
           conn.disconnect();
+          clientRequestTL.remove();
           return responseData;
         }
       }
       ResponseData responseData = new ResponseData(httpCode, StreamReader.readString(is));
-      conn.disconnect();
+      clientRequestTL.remove();
       return responseData;
     } finally {
       if (is != null) {

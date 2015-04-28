@@ -9,9 +9,8 @@ import cn.dreampie.common.util.properties.Proper;
  */
 public class MailPlugin implements Plugin {
 
-  private String config;
-
   private static Mail mail;
+  private String config;
 
   public MailPlugin() {
     this("application.properties");
@@ -19,6 +18,10 @@ public class MailPlugin implements Plugin {
 
   public MailPlugin(String config) {
     this.config = config;
+  }
+
+  public static Mail getMail() {
+    return mail;
   }
 
   public boolean start() {
@@ -56,13 +59,8 @@ public class MailPlugin implements Plugin {
     return true;
   }
 
-
   public boolean stop() {
     mail = null;
     return true;
-  }
-
-  public static Mail getMail() {
-    return mail;
   }
 }

@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public class InterceptorBuilder {
   private static final Interceptor[] NULL_INTERCEPTOR_ARRAY = new Interceptor[0];
+  private Map<Class<Interceptor>, Interceptor> intersMap = new HashMap<Class<Interceptor>, Interceptor>();
 
   public void addToInterceptorsMap(Interceptor[] defaultInters) {
     for (Interceptor inter : defaultInters)
@@ -87,8 +88,6 @@ public class InterceptorBuilder {
     ClearInterceptors clearInterceptor = resourceClass.getAnnotation(ClearInterceptors.class);
     return clearInterceptor != null ? clearInterceptor.value() : null;
   }
-
-  private Map<Class<Interceptor>, Interceptor> intersMap = new HashMap<Class<Interceptor>, Interceptor>();
 
   /**
    * Create interceptors with Annotation of Aspect. Singleton version.

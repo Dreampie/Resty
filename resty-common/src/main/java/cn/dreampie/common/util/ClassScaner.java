@@ -178,6 +178,35 @@ public class ClassScaner {
     return strIndex == strLength;
   }
 
+  /**
+   * find jar file
+   *
+   * @param filePath    文件路径
+   * @param packageName 包名
+   * @return list
+   * @throws java.io.IOException 文件读取异常
+   */
+  private static Set<String> findJarFile(String filePath, String packageName) throws IOException {
+    JarFile localJarFile = new JarFile(new File(filePath));
+    Set<String> classFiles = findInJar(localJarFile, packageName);
+    localJarFile.close();
+    return classFiles;
+  }
+
+  private static Set<String> findInJar(JarFile localJarFile, String packageName) {
+    Set<String> classFiles = new HashSet<String>();
+    Enumeration<JarEntry> entries = localJarFile.entries();
+    while (entries.hasMoreElements()) {
+      JarEntry jarEntry = entries.nextElement();
+      String entryName = jarEntry.getName();
+      if (!jarEntry.isDirectory() && (packageName == null || entryName.startsWith(packageName)) && entryName.endsWith(".class")) {
+        String className = entryName.replaceAll("/", ".").substring(0, entryName.length() - 6);
+        classFiles.add(className);
+      }
+    }
+    return classFiles;
+  }
+
   public ClassScaner includePackages(String... classPackages) {
     checkNotNull(classPackages, "Class packegs could not be null.");
     Collections.addAll(includePackages, classPackages);
@@ -240,34 +269,5 @@ public class ClassScaner {
     }
     return classFiles;
 
-  }
-
-  /**
-   * find jar file
-   *
-   * @param filePath    文件路径
-   * @param packageName 包名
-   * @return list
-   * @throws java.io.IOException 文件读取异常
-   */
-  private static Set<String> findJarFile(String filePath, String packageName) throws IOException {
-    JarFile localJarFile = new JarFile(new File(filePath));
-    Set<String> classFiles = findInJar(localJarFile, packageName);
-    localJarFile.close();
-    return classFiles;
-  }
-
-  private static Set<String> findInJar(JarFile localJarFile, String packageName) {
-    Set<String> classFiles = new HashSet<String>();
-    Enumeration<JarEntry> entries = localJarFile.entries();
-    while (entries.hasMoreElements()) {
-      JarEntry jarEntry = entries.nextElement();
-      String entryName = jarEntry.getName();
-      if (!jarEntry.isDirectory() && (packageName == null || entryName.startsWith(packageName)) && entryName.endsWith(".class")) {
-        String className = entryName.replaceAll("/", ".").substring(0, entryName.length() - 6);
-        classFiles.add(className);
-      }
-    }
-    return classFiles;
   }
 }

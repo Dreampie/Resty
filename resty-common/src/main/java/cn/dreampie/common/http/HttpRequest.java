@@ -24,21 +24,42 @@ public class HttpRequest extends AbstractRequest {
     this.servletContext = servletContext;
   }
 
+  private static String getCookieValue(Cookie[] cookies,
+                                       String cookieName) {
+    if (cookies == null) {
+      return null;
+    }
+    for (int i = 0; i < cookies.length; i++) {
+      Cookie cookie = cookies[i];
+      if (cookieName.equals(cookie.getName()))
+        return cookie.getValue();
+    }
+    return null;
+  }
+
+  static Cookie getCookie(Cookie[] cookies, String cookieName) {
+    if (cookies == null) {
+      return null;
+    }
+    for (int i = 0; i < cookies.length; i++) {
+      Cookie cookie = cookies[i];
+      if (cookieName.equals(cookie.getName()))
+        return cookie;
+    }
+    return null;
+  }
 
   public String getLocalClientAddress() {
     return request.getRemoteAddr();
   }
 
-
   protected String getBasePath() {
     return request.getContextPath();
   }
 
-
   protected String getLocalScheme() {
     return request.getScheme();
   }
-
 
   public String getRestPath() {
     String basepath = getBasePath();
@@ -57,7 +78,6 @@ public class HttpRequest extends AbstractRequest {
     return servletContext.getRealPath(path);
   }
 
-
   public String getRestUri() {
     if (request.getQueryString() == null) {
       return getRestPath();
@@ -65,7 +85,6 @@ public class HttpRequest extends AbstractRequest {
       return getRestPath() + "?" + request.getQueryString();
     }
   }
-
 
   public String getQueryParam(String param) {
     return request.getParameter(param);
@@ -95,7 +114,6 @@ public class HttpRequest extends AbstractRequest {
     return request.getParameterMap();
   }
 
-
   public int getContentLength() {
     return request.getContentLength();
   }
@@ -111,7 +129,6 @@ public class HttpRequest extends AbstractRequest {
     return httpMethod;
   }
 
-
   public Map<String, String> getCookiesMap() {
     Map<String, String> cookies = new LinkedHashMap<String, String>();
     Cookie[] requestCookies = request.getCookies();
@@ -123,40 +140,13 @@ public class HttpRequest extends AbstractRequest {
     return cookies;
   }
 
-
   public String getCookieValue(String cookieName) {
     return getCookieValue(request.getCookies(), cookieName);
   }
 
-
   public boolean isPersistentCookie(String cookie) {
     Cookie c = getCookie(request.getCookies(), cookie);
     return c != null && c.getMaxAge() > 0;
-  }
-
-  private static String getCookieValue(Cookie[] cookies,
-                                       String cookieName) {
-    if (cookies == null) {
-      return null;
-    }
-    for (int i = 0; i < cookies.length; i++) {
-      Cookie cookie = cookies[i];
-      if (cookieName.equals(cookie.getName()))
-        return cookie.getValue();
-    }
-    return null;
-  }
-
-  static Cookie getCookie(Cookie[] cookies, String cookieName) {
-    if (cookies == null) {
-      return null;
-    }
-    for (int i = 0; i < cookies.length; i++) {
-      Cookie cookie = cookies[i];
-      if (cookieName.equals(cookie.getName()))
-        return cookie;
-    }
-    return null;
   }
 
   public RequestDispatcher getRequestDispatcher(String url) {

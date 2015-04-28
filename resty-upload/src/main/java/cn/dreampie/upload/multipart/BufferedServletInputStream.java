@@ -56,6 +56,26 @@ public class BufferedServletInputStream extends ServletInputStream {
   }
 
   /**
+   * Attempt to find the '\n' end of line marker as defined in the comment of
+   * the <code>readLine</code> method of <code>ServletInputStream</code>.
+   *
+   * @param b   byte array to scan.
+   * @param pos position in byte array to scan from.
+   * @param len maximum number of bytes to scan.
+   * @return the number of bytes including the \n, or -1 if none found.
+   */
+  private static int findeol(byte b[], int pos, int len) {
+    int end = pos + len;
+    int i = pos;
+    while (i < end) {
+      if (b[i++] == '\n') {
+        return i - pos;
+      }
+    }
+    return -1;
+  }
+
+  /**
    * Fill up our buffer from the underlying input stream. Users of this
    * method must ensure that they use all characters in the buffer before
    * calling this method.
@@ -122,26 +142,6 @@ public class BufferedServletInputStream extends ServletInputStream {
       total += copy;
     }
     return total;
-  }
-
-  /**
-   * Attempt to find the '\n' end of line marker as defined in the comment of
-   * the <code>readLine</code> method of <code>ServletInputStream</code>.
-   *
-   * @param b   byte array to scan.
-   * @param pos position in byte array to scan from.
-   * @param len maximum number of bytes to scan.
-   * @return the number of bytes including the \n, or -1 if none found.
-   */
-  private static int findeol(byte b[], int pos, int len) {
-    int end = pos + len;
-    int i = pos;
-    while (i < end) {
-      if (b[i++] == '\n') {
-        return i - pos;
-      }
-    }
-    return -1;
   }
 
   /**

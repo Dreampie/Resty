@@ -71,7 +71,7 @@ public class UserResource extends ApiResource {
   @GET("/transactions")
 //  @Transaction
   public User transaction() {
-    User u = new User().set("username", "test").set("providername", "test").set("password", "123456").set("sid", "1").set("created_at", new Date());
+    User u = new User().set("username", "testtr").set("providername", "test").set("password", "123456").set("sid", "1").set("created_at", new Date());
 //    UserInfo userInfo = null;
 //    if (u.get("user_info") == null) {
 //      userInfo = new UserInfo().set("gender", 0);

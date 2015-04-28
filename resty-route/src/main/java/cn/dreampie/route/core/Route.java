@@ -31,31 +31,42 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public class Route {
 
-  private static final Logger logger = Logger.getLogger(Route.class);
-
   public static final String DEFAULT_PATTERN = "([^\\/]+)";
+  private static final Logger logger = Logger.getLogger(Route.class);
+  private static final PathParserCharProcessor regularCharPathParserCharProcessor = new PathParserCharProcessor() {
 
+    public void handle(int curChar, PathPatternParser pathPatternParser) {
+      if (curChar == '{') {
+        pathPatternParser.processor = new CurlyBracesPathParamPathParserCharProcessor();
+      } else if (curChar == ':') {
+        pathPatternParser.processor = new SimpleColumnBasedPathParamParserCharProcessor();
+      } else {
+        pathPatternParser.patternBuilder.appendCodePoint(curChar);
+        pathPatternParser.stdPathPatternBuilder.appendCodePoint(curChar);
+      }
+    }
+
+
+    public void end(PathPatternParser pathPatternParser) {
+    }
+  };
   private final String httpMethod;
   private final String pathPattern;
   private final String stdPathPattern;
-
   private final Pattern pattern;
   private final List<String> pathParamNames;
-
   private final Class<? extends Resource> resourceClass;
   private final Method method;
   private final List<String> allParamNames;
   private final int[] allLineNumbers;
   private final List<Class<?>> allParamTypes;
   private final List<Type> allGenericParamTypes;
-
   private final Interceptor[] interceptors;
   private final int[][] interceptorsLineNumbers;
-
   private final Validator[] validators;
   private final int[][] validsLineNumbers;
-
   private final MultipartBuilder multipartBuilder;
+
 
   public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Validator[] validators, MultipartBuilder multipartBuilder) {
     this.resourceClass = resourceClass;
@@ -143,7 +154,6 @@ public class Route {
       logger.info(sb.toString());
     }
   }
-
 
   public RouteMatch match(HttpRequest request, HttpResponse response) {
     if (!this.httpMethod.equals(request.getHttpMethod())) {
@@ -263,7 +273,6 @@ public class Route {
     }
   }
 
-
   public String toString() {
     return httpMethod + " " + pathPattern + " " + Joiner.on(",").join(allParamNames);
   }
@@ -316,13 +325,19 @@ public class Route {
     return validators;
   }
 
+  // here comes the path pattern parsing logic
+  // the code is pretty ugly with lot of cross dependencies, I tried to keep it performant, correct, and maintainable
+  // not sure those goals are all achieved though
+
   public MultipartBuilder getMultipartBuilder() {
     return multipartBuilder;
   }
 
-  // here comes the path pattern parsing logic
-  // the code is pretty ugly with lot of cross dependencies, I tried to keep it performant, correct, and maintainable
-  // not sure those goals are all achieved though
+  private static interface PathParserCharProcessor {
+    void handle(int curChar, PathPatternParser pathPatternParser);
+
+    void end(PathPatternParser pathPatternParser);
+  }
 
   private static final class PathPatternParser {
     final int length;
@@ -348,12 +363,6 @@ public class Route {
       }
       processor.end(this);
     }
-  }
-
-  private static interface PathParserCharProcessor {
-    void handle(int curChar, PathPatternParser pathPatternParser);
-
-    void end(PathPatternParser pathPatternParser);
   }
 
   private static final class CurlyBracesPathParamPathParserCharProcessor implements PathParserCharProcessor {
@@ -447,23 +456,5 @@ public class Route {
       pathPatternParser.pathParamNames.add(pathParamName.toString());
     }
   }
-
-  private static final PathParserCharProcessor regularCharPathParserCharProcessor = new PathParserCharProcessor() {
-
-    public void handle(int curChar, PathPatternParser pathPatternParser) {
-      if (curChar == '{') {
-        pathPatternParser.processor = new CurlyBracesPathParamPathParserCharProcessor();
-      } else if (curChar == ':') {
-        pathPatternParser.processor = new SimpleColumnBasedPathParamParserCharProcessor();
-      } else {
-        pathPatternParser.patternBuilder.appendCodePoint(curChar);
-        pathPatternParser.stdPathPatternBuilder.appendCodePoint(curChar);
-      }
-    }
-
-
-    public void end(PathPatternParser pathPatternParser) {
-    }
-  };
 
 }

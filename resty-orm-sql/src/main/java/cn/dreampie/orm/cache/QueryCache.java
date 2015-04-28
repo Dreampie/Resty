@@ -38,6 +38,18 @@ public enum QueryCache {
     return INSTANCE;
   }
 
+  static void logAccess(String group, String query, Object[] params, String access) {
+    if (logger.isDebugEnabled()) {
+      StringBuilder log = new StringBuilder().append(access).append(", group: {").append(group).append("}, query: {").append(query).append("} ");
+      if (params != null && params.length > 0) {
+        log.append(", params: ").append('{');
+        log.append(Joiner.on("}, {").join(params));
+        log.append('}');
+      }
+      logger.debug(log.toString());
+    }
+  }
+
   /**
    * Adds an item to cache. Expected some lists of objects returned from "select" queries.
    *
@@ -56,7 +68,6 @@ public enum QueryCache {
   private String getGroup(String type, String dsName, String tableName) {
     return type + Constant.CONNECTOR + dsName + Constant.CONNECTOR + tableName;
   }
-
 
   /**
    * Returns an item from cache, or null if nothing found.
@@ -80,18 +91,6 @@ public enum QueryCache {
       }
     }
     return null;
-  }
-
-  static void logAccess(String group, String query, Object[] params, String access) {
-    if (logger.isDebugEnabled()) {
-      StringBuilder log = new StringBuilder().append(access).append(", group: {").append(group).append("}, query: {").append(query).append("} ");
-      if (params != null && params.length > 0) {
-        log.append(", params: ").append('{');
-        log.append(Joiner.on("}, {").join(params));
-        log.append('}');
-      }
-      logger.debug(log.toString());
-    }
   }
 
   private String getKey(String group, String query, Object[] params) {

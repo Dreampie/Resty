@@ -10,6 +10,7 @@ import java.util.Map;
 public class Session {
   public static final String SESSION_DEF_KEY = "_session";
   public static final String SESSION_ALL_KEY = "_allSessions";
+  private static final ThreadLocal<Session> current = new ThreadLocal<Session>();
   private final Map<String, String> values;
   private final Principal principal;
   private final long expires;
@@ -19,27 +20,6 @@ public class Session {
     this.principal = principal;
     this.expires = expires;
   }
-
-  Session setExpires(long expires) {
-    return updateCurrent(new Session(values, principal, expires));
-  }
-
-  long getExpires() {
-    return expires;
-  }
-
-  Principal getPrincipal() {
-    return principal;
-  }
-
-  Map<String, String> getValues() {
-    return values;
-  }
-
-  //------------------current session-------------------------------
-
-  private static final ThreadLocal<Session> current = new ThreadLocal<Session>();
-
 
   static void setCurrent(Session session) {
     if (session == null) {
@@ -51,6 +31,24 @@ public class Session {
 
   static Session current() {
     return current.get();
+  }
+
+  long getExpires() {
+    return expires;
+  }
+
+  //------------------current session-------------------------------
+
+  Session setExpires(long expires) {
+    return updateCurrent(new Session(values, principal, expires));
+  }
+
+  Principal getPrincipal() {
+    return principal;
+  }
+
+  Map<String, String> getValues() {
+    return values;
   }
 
   private Session updateCurrent(Session newSession) {

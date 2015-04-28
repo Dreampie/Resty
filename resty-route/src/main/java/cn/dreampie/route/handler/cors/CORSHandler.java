@@ -18,10 +18,6 @@ import java.util.regex.Pattern;
  * Created by ice on 14-12-22.
  */
 public class CORSHandler extends Handler {
-  private static final Logger logger = Logger.getLogger(CORSHandler.class);
-
-  // Request headers
-  private static final String ORIGIN_HEADER = "Origin";
   public static final String ACCESS_CONTROL_REQUEST_METHOD_HEADER = "Access-Control-Request-Method";
   public static final String ACCESS_CONTROL_REQUEST_HEADERS_HEADER = "Access-Control-Request-Headers";
   // Response headers
@@ -31,6 +27,9 @@ public class CORSHandler extends Handler {
   public static final String ACCESS_CONTROL_MAX_AGE_HEADER = "Access-Control-Max-Age";
   public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER = "Access-Control-Allow-Credentials";
   public static final String ACCESS_CONTROL_EXPOSE_HEADERS_HEADER = "Access-Control-Expose-Headers";
+  private static final Logger logger = Logger.getLogger(CORSHandler.class);
+  // Request headers
+  private static final String ORIGIN_HEADER = "Origin";
   // Implementation constants
   private static final List<String> SIMPLE_HTTP_METHODS = Lister.of("GET", "POST", "HEAD");
 

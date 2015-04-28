@@ -28,8 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Proper {
 
-  private static Prop prop = null;
   private static final Map<String, Prop> map = new ConcurrentHashMap<String, Prop>();
+  private static Prop prop = null;
 
   private Proper() {
   }

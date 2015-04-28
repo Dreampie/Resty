@@ -11,7 +11,6 @@ import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.common.util.json.ModelDeserializer;
-import cn.dreampie.common.util.json.ObjectCastException;
 import cn.dreampie.common.util.stream.StreamReader;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
@@ -25,7 +24,6 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -88,24 +86,28 @@ public class RouteInvocation {
         Object invokeResult = route.getMethod().invoke(resource, args);
         //输出结果
         render(invokeResult);
-      } catch (ObjectCastException e) {
-        logger.warn("Argument type convert error : " + e.getMessage());
-        throw new WebException("Argument type convert error : " + e.getMessage());
-      } catch (InvocationTargetException e) {
-        Throwable target = e.getTargetException();
-        if (target instanceof WebException) {
-          throw (WebException) e.getTargetException();
+      } catch (Exception e) {
+        Throwable cause = e.getCause();
+        if (cause != null) {
+          throwException(cause);
         } else {
-          logger.error("Route invocation error.", e);
-          throw new WebException("Route invocation error : " + target.getMessage());
+          throwException(e);
         }
-      } catch (InstantiationException e) {
-        logger.error("Resource instantiation error.", e);
-        throw new WebException("Resource instantiation error : " + e.getMessage());
-      } catch (IllegalAccessException e) {
-        logger.error("Route method access error.", e);
-        throw new WebException("Route method access error : " + e.getMessage());
       }
+    }
+  }
+
+  /**
+   * 抛出异常
+   *
+   * @param cause
+   */
+  private void throwException(Throwable cause) {
+    if (cause instanceof WebException) {
+      throw (WebException) cause;
+    } else {
+      logger.error("Route method invoke error.", cause);
+      throw new WebException(cause.getMessage());
     }
   }
 

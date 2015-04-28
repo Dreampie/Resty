@@ -19,13 +19,12 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 public class DataSourceMeta {
 
   private static final Logger logger = Logger.getLogger(DataSourceMeta.class);
-
+  //不能使用static 让每个数据源都有一个connectionTL
+  private final ThreadLocal<Connection> connectionTL = new ThreadLocal<Connection>();
   private boolean showSql;
   private String dsName;
   private DataSource dataSource;
   private Dialect dialect;
-  //不能使用static 让每个数据源都有一个connectionTL
-  private final ThreadLocal<Connection> connectionTL = new ThreadLocal<Connection>();
 
   public DataSourceMeta(DataSourceProvider dataSourceProvider) {
     this(dataSourceProvider.getDsName(), dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), false);

@@ -23,13 +23,12 @@ import java.util.Set;
  */
 public final class RestyFilter implements Filter {
 
+  public static final String PARAM_NAME_CONFIGCLASS = "configClass";
+  public static final String PARAM_NAME_EXCLUSIONS = "exclusions";
   private static final Logger logger = Logger.getLogger(RestyFilter.class);
-
   private RestyIniter restyIniter;
   private Handler handler;
   private String encoding = Constant.encoding;
-  public static final String PARAM_NAME_CONFIGCLASS = "configClass";
-  public static final String PARAM_NAME_EXCLUSIONS = "exclusions";
   private Set<String> excludesPattern;
 
   public void init(FilterConfig filterConfig) throws ServletException {

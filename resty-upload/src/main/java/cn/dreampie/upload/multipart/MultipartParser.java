@@ -50,30 +50,25 @@ import java.util.Vector;
 public class MultipartParser {
 
   /**
+   * default encoding
+   */
+  private static String DEFAULT_ENCODING = "ISO-8859-1";
+  /**
    * input stream to read parts from
    */
   private ServletInputStream in;
-
   /**
    * MIME boundary that delimits parts
    */
   private String boundary;
-
   /**
    * reference to the last file part we returned
    */
   private FilePart lastFilePart;
-
   /**
    * buffer for readLine method
    */
   private byte[] buf = new byte[8 * 1024];
-
-  /**
-   * default encoding
-   */
-  private static String DEFAULT_ENCODING = "ISO-8859-1";
-
   /**
    * preferred encoding
    */
@@ -198,6 +193,29 @@ public class MultipartParser {
         break;  // success
       }
     } while (true);
+  }
+
+  /**
+   * Extracts and returns the content type from a line, or null if the
+   * line was empty.
+   *
+   * @return content type, or null if line was empty.
+   * @throws java.io.IOException if the line is malformatted.
+   */
+  private static String extractContentType(String line) throws IOException {
+    // Convert the line to a lowercase string
+    line = line.toLowerCase();
+
+    // Get the content type, if any
+    // Note that Opera at least puts extra info after the type, so handle
+    // that.  For example:  Content-Type: text/plain; name="foo"
+    // Thanks to Leon Poyyayil, leon.poyyayil@trivadis.com, for noticing this.
+    int end = line.indexOf(";");
+    if (end == -1) {
+      end = line.length();
+    }
+
+    return line.substring(13, end).trim();  // "content-type:" is 13
   }
 
   /**
@@ -402,29 +420,6 @@ public class MultipartParser {
     retval[2] = filename;
     retval[3] = origname;
     return retval;
-  }
-
-  /**
-   * Extracts and returns the content type from a line, or null if the
-   * line was empty.
-   *
-   * @return content type, or null if line was empty.
-   * @throws java.io.IOException if the line is malformatted.
-   */
-  private static String extractContentType(String line) throws IOException {
-    // Convert the line to a lowercase string
-    line = line.toLowerCase();
-
-    // Get the content type, if any
-    // Note that Opera at least puts extra info after the type, so handle
-    // that.  For example:  Content-Type: text/plain; name="foo"
-    // Thanks to Leon Poyyayil, leon.poyyayil@trivadis.com, for noticing this.
-    int end = line.indexOf(";");
-    if (end == -1) {
-      end = line.length();
-    }
-
-    return line.substring(13, end).trim();  // "content-type:" is 13
   }
 
   /**

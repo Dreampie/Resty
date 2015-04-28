@@ -35,6 +35,12 @@ public enum SessionCache {
     return INSTANCE;
   }
 
+  static void logAccess(String group, String key, String access) {
+    if (logger.isDebugEnabled()) {
+      logger.debug(access + ", group: {" + group + "}, key: {" + key + "}");
+    }
+  }
+
   /**
    * Adds an item to cache. Expected some lists of objects returned from "select" queries.
    *
@@ -47,7 +53,6 @@ public enum SessionCache {
       cacheManager.addCache(group, key, value);
     }
   }
-
 
   /**
    * Returns an item from cache, or null if nothing found.
@@ -68,12 +73,6 @@ public enum SessionCache {
       }
     }
     return null;
-  }
-
-  static void logAccess(String group, String key, String access) {
-    if (logger.isDebugEnabled()) {
-      logger.debug(access + ", group: {" + group + "}, key: {" + key + "}");
-    }
   }
 
   public void remove(String group, String key) {

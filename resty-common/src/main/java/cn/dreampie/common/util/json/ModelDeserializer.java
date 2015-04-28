@@ -24,29 +24,6 @@ public enum ModelDeserializer implements ObjectDeserializer {
     return INSTANCE;
   }
 
-  public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
-    Map<String, Object> map = parser.parseObject();
-    Class<?> clazz = (Class<?>) type;
-    if (clazz.isInterface()) {
-      throw new JSONException("Unsupport type " + type);
-    }
-
-    try {
-      Entity e = (Entity) clazz.newInstance();
-      if (e.checkMethod()) {
-        return (T) e.putAttrs(deserialze(map, clazz));
-      } else {
-        return (T) e.putAttrs(map);
-      }
-    } catch (Exception e) {
-      throw new JSONException("Unsupport type " + type, e);
-    }
-  }
-
-  public int getFastMatchToken() {
-    return JSONToken.LBRACE;
-  }
-
   public static Map<String, Object> deserialze(Map<String, Object> map, Class<?> clazz) {
     Object obj = null;
     Method method = null;
@@ -156,6 +133,29 @@ public enum ModelDeserializer implements ObjectDeserializer {
       }
     }
     return map;
+  }
+
+  public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
+    Map<String, Object> map = parser.parseObject();
+    Class<?> clazz = (Class<?>) type;
+    if (clazz.isInterface()) {
+      throw new JSONException("Unsupport type " + type);
+    }
+
+    try {
+      Entity e = (Entity) clazz.newInstance();
+      if (e.checkMethod()) {
+        return (T) e.putAttrs(deserialze(map, clazz));
+      } else {
+        return (T) e.putAttrs(map);
+      }
+    } catch (Exception e) {
+      throw new JSONException("Unsupport type " + type, e);
+    }
+  }
+
+  public int getFastMatchToken() {
+    return JSONToken.LBRACE;
   }
 
 }

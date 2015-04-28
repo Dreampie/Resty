@@ -15,15 +15,14 @@ import static org.quartz.JobBuilder.newJob;
  * Created by wangrenhui on 14/11/29.
  */
 public abstract class QuartzJob {
-  protected QuartzKey quartzKey;
-  protected Class<? extends Job> jobClass;
-  protected Date scheduleTime;
-  protected Map<String, Object> params = Maper.of();
-
   protected static final String TRIGGER_MARK = "trigger";
   protected static final String GROUP_MARK = "group";
   protected static final String JOB_MARK = "job";
   protected static final String SEPARATOR = "_";
+  protected QuartzKey quartzKey;
+  protected Class<? extends Job> jobClass;
+  protected Date scheduleTime;
+  protected Map<String, Object> params = Maper.of();
 
   /**
    * 启动任务
@@ -166,6 +165,10 @@ public abstract class QuartzJob {
     return params;
   }
 
+  public void setParams(Map<String, Object> params) {
+    this.params = params;
+  }
+
   public Date getScheduleTime() {
     return scheduleTime;
   }
@@ -173,11 +176,6 @@ public abstract class QuartzJob {
   public void setScheduleTime(Date scheduleTime) {
     this.scheduleTime = scheduleTime;
   }
-
-  public void setParams(Map<String, Object> params) {
-    this.params = params;
-  }
-
 
   public QuartzJob addParam(String key, Object value) {
     this.params.put(key, value);

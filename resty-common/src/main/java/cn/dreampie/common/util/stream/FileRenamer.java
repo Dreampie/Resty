@@ -15,8 +15,8 @@ import java.io.IOException;
  *          the basic idea
  */
 public abstract class FileRenamer {
-  private final static Logger logger = Logger.getLogger(FileRenamer.class);
   public final static FileRenamer RENAMER;
+  private final static Logger logger = Logger.getLogger(FileRenamer.class);
 
   static {
     FileRenamer fileRenamer = null;

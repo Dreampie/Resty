@@ -16,6 +16,32 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
 下载jar包：<a href="https://github.com/Dreampie/resty/releases" target="_blank">Resty相关jar</a>
 
+maven使用方式：
+
+1. 添加maven snapshots仓库
+```xml
+<repositories>
+    <repository>
+      <id>oss-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+```
+2. 添加依赖包
+```xml
+<dependency>
+    <groupId>cn.dreampie</groupId>
+    <artifactId>resty-route</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
 一、独有优点：
 -----------
 

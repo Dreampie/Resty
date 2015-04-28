@@ -59,14 +59,13 @@ public class Client extends ClientConnection {
       conn.connect();
       return readResponse(conn);
     } catch (Exception e) {
-      if (e instanceof ClientException) {
-        throw (ClientException) e;
-      }
       Throwable cause = e.getCause();
-      if (cause == null) {
-        cause = e;
+      if (cause != null) {
+        throwException(cause);
+      } else {
+        throwException(e);
       }
-      throw new ClientException(cause.getMessage(), cause);
+      return null;
     } finally {
       if (conn != null) {
         clientRequestTL.remove();
@@ -74,6 +73,20 @@ public class Client extends ClientConnection {
       }
     }
   }
+
+  /**
+   * 抛出异常
+   *
+   * @param cause
+   */
+  private void throwException(Throwable cause) {
+    if (cause instanceof ClientException) {
+      throw (ClientException) cause;
+    } else {
+      throw new ClientException(cause.getMessage(), cause);
+    }
+  }
+
 
   private ResponseData login(ClientRequest clientRequest) {
     //login
@@ -117,7 +130,7 @@ public class Client extends ClientConnection {
         //是否是下载文件
         String downloadFile = clientRequest.getDownloadFile();
         if (downloadFile != null) {
-          File file = null;
+          File file;
           File fileOrDirectory = new File(downloadFile);
           if (fileOrDirectory.isDirectory()) {
             String fileName = null;

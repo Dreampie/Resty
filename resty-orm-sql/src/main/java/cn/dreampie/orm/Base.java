@@ -552,6 +552,61 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     return result > 0;
   }
 
+
+  /**
+   * Update model.
+   */
+  public boolean update() {
+
+    Map<String, Object> attrs = getAttrs();
+
+    if (getModifyAttrs().isEmpty())
+      return false;
+
+    TableMeta tableMeta = getTableMeta();
+    Dialect dialect = getDialect();
+
+    String pKey = tableMeta.getPrimaryKey();
+    Object id = attrs.get(pKey);
+    checkNotNull(id, "You can't update model without Primary Key " + pKey + ".");
+
+    String where = null;
+    Object[] params = null;
+    Object[] modifys = getModifyAttrValues();
+    //锁定主键 更新的时候 使用所有主键作为条件
+    if (tableMeta.isLockKey()) {
+      String[] pkeys = tableMeta.getPrimaryKeys();
+      Object[] ids = new Object[pkeys.length];
+      int i = 0;
+      for (String idKey : pkeys) {
+        ids[i] = attrs.get(idKey);
+        i++;
+      }
+      params = new Object[ids.length + modifys.length];
+      System.arraycopy(modifys, 0, params, 0, modifys.length);
+      System.arraycopy(ids, 0, params, modifys.length, ids.length);
+      where = Joiner.on("=? AND ").join(tableMeta.getPrimaryKeys());
+    } else {
+      params = new Object[1 + modifys.length];
+      System.arraycopy(modifys, 0, params, 0, modifys.length);
+      params[modifys.length] = id;
+      where = pKey;
+    }
+    String[] modifyNames = getModifyAttrNames();
+    String sql = dialect.update(tableMeta.getTableName(), "", where + "=?", modifyNames);
+
+    if (modifyNames.length <= 0) {  // Needn't update
+      return false;
+    }
+
+    boolean result = update(sql, params);
+    if (result) {
+      clearModifyAttrs();
+      return true;
+    }
+    return false;
+  }
+
   /**
    * Execute sql update
    */
@@ -613,8 +668,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     if (tableMeta.isLockKey()) {
       String[] primaryKeys = tableMeta.getPrimaryKeys();
       Object[] ids = new Object[primaryKeys.length];
-      ids[0] = id;
-      int i = 1;
+      int i = 0;
       for (String idKey : primaryKeys) {
         ids[i] = attrs.get(idKey);
         i++;
@@ -643,61 +697,6 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     TableMeta tableMeta = getTableMeta();
     String sql = getDialect().delete(tableMeta.getTableName(), Joiner.on("=? AND ").join(tableMeta.getPrimaryKeys()) + "=?");
     return update(sql, ids);
-  }
-
-  /**
-   * Update model.
-   */
-  public boolean update() {
-
-    Map<String, Object> attrs = getAttrs();
-
-    if (getModifyAttrs().isEmpty())
-      return false;
-
-    TableMeta tableMeta = getTableMeta();
-    Dialect dialect = getDialect();
-
-    String pKey = tableMeta.getPrimaryKey();
-    Object id = attrs.get(pKey);
-    checkNotNull(id, "You can't update model without Primary Key " + pKey + ".");
-
-    String where = null;
-    Object[] params = null;
-    Object[] modifys = getModifyAttrValues();
-    //锁定主键 更新的时候 使用所有主键作为条件
-    if (tableMeta.isLockKey()) {
-      String[] pkeys = tableMeta.getPrimaryKeys();
-      Object[] ids = new Object[pkeys.length];
-      ids[0] = id;
-      int i = 1;
-      for (String idKey : pkeys) {
-        ids[i] = attrs.get(idKey);
-        i++;
-      }
-      params = new Object[ids.length + modifys.length];
-      System.arraycopy(modifys, 0, params, 0, modifys.length);
-      System.arraycopy(ids, 0, params, modifys.length, ids.length);
-      where = Joiner.on("=?,").join(tableMeta.getPrimaryKeys());
-    } else {
-      params = new Object[1 + modifys.length];
-      System.arraycopy(modifys, 0, params, 0, modifys.length);
-      params[modifys.length] = id;
-      where = pKey;
-    }
-    String[] modifyNames = getModifyAttrNames();
-    String sql = dialect.update(tableMeta.getTableName(), "", where + "=?", modifyNames);
-
-    if (modifyNames.length <= 0) {  // Needn't update
-      return false;
-    }
-
-    boolean result = update(sql, params);
-    if (result) {
-      clearModifyAttrs();
-      return true;
-    }
-    return false;
   }
 
   /**

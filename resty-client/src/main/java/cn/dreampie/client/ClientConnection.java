@@ -1,6 +1,8 @@
 package cn.dreampie.client;
 
 import cn.dreampie.client.exception.ClientException;
+import cn.dreampie.common.http.ContentTypes;
+import cn.dreampie.common.http.HttpMethods;
 import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.stream.DefaultFileRenamer;
 import cn.dreampie.common.util.stream.FileRenamer;
@@ -90,7 +92,7 @@ public class ClientConnection {
     HttpURLConnection conn = null;
     String method = clientRequest.getMethod();
     //使用OutPutStream输出参数
-    if (HttpMethod.POST.contains(method)) {
+    if (HttpMethods.POST.contains(method)) {
       _url = new URL(apiUrl + clientRequest.getRestUrl());
       conn = openHttpURLConnection(_url, method);
 
@@ -132,7 +134,7 @@ public class ClientConnection {
         String contentType = clientRequest.getHeaders().get("Content-Type");
         String requestParams;
         //application/json  传递参数
-        if (contentType != null && contentType.toLowerCase().contains(HttpTyper.ContentType.JSON.value())) {
+        if (contentType != null && contentType.toLowerCase().contains(ContentTypes.JSON.value())) {
           requestParams = clientRequest.getJsonParam();
         } else {
           requestParams = clientRequest.getEncodedParams();

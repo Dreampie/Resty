@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 /**
@@ -124,8 +125,9 @@ public class HttpRequest extends AbstractRequest {
 
   public String getHttpMethod() {
     String httpMethod = request.getMethod();
-    if (httpMethod == null)
+    if (httpMethod == null) {
       throw new IllegalArgumentException("Invalid HTTP Method for " + getRestPath());
+    }
     return httpMethod;
   }
 
@@ -147,6 +149,14 @@ public class HttpRequest extends AbstractRequest {
   public boolean isPersistentCookie(String cookie) {
     Cookie c = getCookie(request.getCookies(), cookie);
     return c != null && c.getMaxAge() > 0;
+  }
+
+  public String getQueryString() {
+    try {
+      return URLDecoder.decode(request.getQueryString(), getCharacterEncoding());
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalArgumentException("Invalid character encoding for '" + getCharacterEncoding() + "'");
+    }
   }
 
   public RequestDispatcher getRequestDispatcher(String url) {

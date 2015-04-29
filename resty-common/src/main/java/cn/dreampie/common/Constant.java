@@ -1,5 +1,6 @@
 package cn.dreampie.common;
 
+import cn.dreampie.common.http.Charsets;
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.log.Logger;
@@ -45,7 +46,7 @@ public final class Constant {
       apiPrefix = null;
       exceptionHolder = null;
     } else {
-      encoding = constants.get("app.encoding", "UTF-8");
+      encoding = constants.get("app.encoding", Charsets.UTF_8.toString());
       devMode = constants.getBoolean("app.devMode", false);
       cacheEnabled = constants.getBoolean("app.cacheEnabled", false);
       uploadDirectory = constants.get("app.uploadDirectory", File.separator + "upload" + File.separator);

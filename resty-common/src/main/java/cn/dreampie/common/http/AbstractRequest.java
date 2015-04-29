@@ -105,6 +105,7 @@ public abstract class AbstractRequest implements Request {
     }
   }
 
+  protected abstract String getQueryString();
 
   protected abstract RequestDispatcher getRequestDispatcher(String url);
 

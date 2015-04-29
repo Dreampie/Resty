@@ -1,14 +1,11 @@
 package cn.dreampie.route.core;
 
 import cn.dreampie.common.entity.Entity;
-import cn.dreampie.common.http.HttpRequest;
-import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.UploadedFile;
+import cn.dreampie.common.http.*;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.ImageResult;
 import cn.dreampie.common.http.result.WebResult;
-import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.common.util.json.ModelDeserializer;
 import cn.dreampie.common.util.stream.StreamReader;
@@ -65,16 +62,8 @@ public class RouteInvocation {
         resource.setRouteMatch(routeMatch);
 
         //获取所有参数
-        Params params = null;
         HttpRequest request = routeMatch.getRequest();
-        //if use application/json to post
-        //判断是否是application/json 传递数据的
-        String contentType = request.getContentType();
-        if (contentType != null && contentType.toLowerCase().contains(HttpTyper.ContentType.JSON.value())) {
-          params = getJsonParams(request);
-        } else {
-          params = getFormParams();
-        }
+        Params params = getParams(request);
 
         //数据验证
         validate(params);
@@ -175,34 +164,47 @@ public class RouteInvocation {
   }
 
   /**
-   * 转换string类型参数
+   * 获取参数
    *
-   * @param params
-   * @param i
-   * @param paramType
-   * @param valueArr
-   * @param name
+   * @param request
+   * @return
    */
-  private void parseString(Params params, int i, Class paramType, List<String> valueArr, String name) {
-    String value;
-    Object obj;
-    if (valueArr != null && valueArr.size() > 0) {
-      //不支持数组参数
-      value = valueArr.get(0);
-      if (paramType == String.class) {
-        params.set(name, value);
-      } else {
-        obj = Jsoner.toObject(value, paramType);
-        if (obj == null) {
-          params.set(name, null);
-        } else {
-          //转换为对应的对象类型
-          parse(params, i, paramType, obj, name);
-        }
-      }
+  private Params getParams(HttpRequest request) {
+    Params params = null;
+    String contentType = request.getContentType();
+
+    //if use application/json to post
+    //判断是否是application/json 传递数据的
+    if (contentType != null && contentType.toLowerCase().contains(ContentTypes.JSON.value())) {
+      params = getJsonParams(request);
     } else {
-      params.set(name, null);
+      params = getFormParams();
     }
+
+    return params;
+  }
+
+  /**
+   * 获取json参数
+   *
+   * @param request
+   * @return
+   */
+  private Params getJsonParams(HttpRequest request) {
+    String json = null;
+    if (request.getHttpMethod().equals(HttpMethods.GET)) {
+      json = request.getQueryString();
+    } else {
+      try {
+        InputStream is = request.getContentStream();
+        json = StreamReader.readString(is);
+      } catch (IOException e) {
+        String msg = "Could not read inputStream when contentType is '" + request.getContentType() + "'.";
+        logger.error(msg, e);
+        throw new WebException(msg);
+      }
+    }
+    return parseJson(json);
   }
 
   /**
@@ -263,15 +265,46 @@ public class RouteInvocation {
     return params;
   }
 
+
+  /**
+   * 转换string类型参数
+   *
+   * @param params
+   * @param i
+   * @param paramType
+   * @param valueArr
+   * @param name
+   */
+  private void parseString(Params params, int i, Class paramType, List<String> valueArr, String name) {
+    String value;
+    Object obj;
+    if (valueArr != null && valueArr.size() > 0) {
+      //不支持数组参数
+      value = valueArr.get(0);
+      if (paramType == String.class) {
+        params.set(name, value);
+      } else {
+        obj = Jsoner.toObject(value, paramType);
+        if (obj == null) {
+          params.set(name, null);
+        } else {
+          //转换为对应的对象类型
+          parse(params, i, paramType, obj, name);
+        }
+      }
+    } else {
+      params.set(name, null);
+    }
+  }
+
   /**
    * 获取所有以application/json方式提交的数据
    *
-   * @param request request对象
+   * @param json json字符串
    * @return 所有参数
    */
-  private Params getJsonParams(HttpRequest request) {
+  private Params parseJson(String json) {
     Params params = new Params();
-    InputStream is = null;
 
     int i = 0;
     Class paramType = null;
@@ -282,15 +315,7 @@ public class RouteInvocation {
     boolean onlyOneParam = (allParamNames.size() - pathParamNames.size()) == 1;
 
     Object obj = null;
-    String json = "";
-    try {
-      is = request.getContentStream();
-      json = StreamReader.readString(is);
-    } catch (IOException e) {
-      String msg = "Could not read inputStream when contentType is application/json.";
-      logger.error(msg, e);
-      throw new WebException(msg);
-    }
+
     boolean hasJsonParam = null != json && !"".equals(json);
     Map<String, Object> paramsMap = null;
 
@@ -311,8 +336,12 @@ public class RouteInvocation {
       } else {//其他参数
         if (hasJsonParam) {
           if (onlyOneParam) {
-            obj = Jsoner.toObject(json, paramType);
-            params.set(name, obj);
+            //转换对象到指定的类型
+            if (Collection.class.isAssignableFrom(paramType)) {
+              parse(params, i, paramType, Jsoner.toObject(json, List.class), name);
+            } else {
+              parse(params, i, paramType, Jsoner.toObject(json, paramType), name);
+            }
           } else {
             obj = paramsMap.get(name);
 
@@ -360,7 +389,7 @@ public class RouteInvocation {
 
     if (obj == null) {
       params.set(name, null);
-    } else if (paramType.isAssignableFrom(obj.getClass())) {
+    } else if (!Collection.class.isAssignableFrom(paramType) && paramType.isAssignableFrom(obj.getClass())) {
       params.set(name, obj);
     } else {
       //判断参数需要的类型

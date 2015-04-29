@@ -1,8 +1,8 @@
 package cn.dreampie.upload.multipart;
 
+import cn.dreampie.common.http.ContentTypes;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.exception.WebException;
-import cn.dreampie.common.util.HttpTyper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -148,8 +148,8 @@ public class MultipartParser {
       type = (type1.length() > type2.length() ? type1 : type2);
     }
 
-    if (type == null || !type.toLowerCase().startsWith(HttpTyper.ContentType.MULTIPART.value())) {
-      throw new WebException("Posted content type isn't '" + HttpTyper.ContentType.MULTIPART.value() + "'.");
+    if (type == null || !type.toLowerCase().startsWith(ContentTypes.MULTIPART.value())) {
+      throw new WebException("Posted content type isn't '" + ContentTypes.MULTIPART.value() + "'.");
     }
     // Check the content length to prevent denial of service attacks
     int length = req.getContentLength();

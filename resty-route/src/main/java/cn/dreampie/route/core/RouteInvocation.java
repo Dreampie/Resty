@@ -278,6 +278,9 @@ public class RouteInvocation {
     List<String> allParamNames = route.getAllParamNames();
     List<String> pathParamNames = route.getPathParamNames();
 
+    //只有一个参数时 直接把该参数 放入方法
+    boolean onlyOneParam = (allParamNames.size() - pathParamNames.size()) == 1;
+
     Object obj = null;
     String json = "";
     try {
@@ -290,7 +293,8 @@ public class RouteInvocation {
     }
     boolean hasJsonParam = null != json && !"".equals(json);
     Map<String, Object> paramsMap = null;
-    if (hasJsonParam) {
+
+    if (hasJsonParam && !onlyOneParam) {
       paramsMap = Jsoner.toObject(json, Map.class);
       hasJsonParam = paramsMap != null && paramsMap.size() > 0;
     }
@@ -306,22 +310,28 @@ public class RouteInvocation {
         }
       } else {//其他参数
         if (hasJsonParam) {
-          obj = paramsMap.get(name);
-
-          if (obj != null) {
-            if (paramType == String.class) {
-              params.set(name, obj.toString());
-            } else {
-              //转换对象到指定的类型
-              parse(params, i, paramType, obj, name);
-            }
+          if (onlyOneParam) {
+            obj = Jsoner.toObject(json, paramType);
+            params.set(name, obj);
           } else {
-            params.set(name, null);
+            obj = paramsMap.get(name);
+
+            if (obj != null) {
+              if (paramType == String.class) {
+                params.set(name, obj.toString());
+              } else {
+                //转换对象到指定的类型
+                parse(params, i, paramType, obj, name);
+              }
+            } else {
+              params.set(name, null);
+            }
           }
         } else {
           params.set(name, null);
         }
       }
+
       i++;
     }
     return params;

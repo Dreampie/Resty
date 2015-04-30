@@ -15,7 +15,6 @@ import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.ValidResult;
 import cn.dreampie.route.valid.Validator;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONException;
 
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -249,15 +248,15 @@ public class RouteInvocation {
               params.set(name, routeMatch.getFileParams());
             } else {
               valueArr = routeMatch.getOtherParam(name);
-              parseString(params, i, paramType, valueArr, name);
+              params.set(name, parseString(paramType, valueArr));
             }
           } else {
             valueArr = routeMatch.getOtherParam(name);
-            parseString(params, i, paramType, valueArr, name);
+            params.set(name, parseString(paramType, valueArr));
           }
         } else {
           valueArr = routeMatch.getOtherParam(name);
-          parseString(params, i, paramType, valueArr, name);
+          params.set(name, parseString(paramType, valueArr));
         }
       }
       i++;
@@ -269,32 +268,23 @@ public class RouteInvocation {
   /**
    * 转换string类型参数
    *
-   * @param params
-   * @param i
    * @param paramType
    * @param valueArr
-   * @param name
    */
-  private void parseString(Params params, int i, Class paramType, List<String> valueArr, String name) {
+  private Object parseString(Class paramType, List<String> valueArr) {
     String value;
-    Object obj;
+    Object result = null;
     if (valueArr != null && valueArr.size() > 0) {
       //不支持数组参数
       value = valueArr.get(0);
       if (paramType == String.class) {
-        params.set(name, value);
+        result = value;
       } else {
-        obj = Jsoner.toObject(value, paramType);
-        if (obj == null) {
-          params.set(name, null);
-        } else {
-          //转换为对应的对象类型
-          parse(params, i, paramType, obj, name);
-        }
+        //转换为对应的对象类型
+        result = parse(paramType, Jsoner.toObject(value, paramType));
       }
-    } else {
-      params.set(name, null);
     }
+    return result;
   }
 
   /**
@@ -317,11 +307,10 @@ public class RouteInvocation {
     Object obj = null;
 
     boolean hasJsonParam = null != json && !"".equals(json);
-    Map<String, Object> paramsMap = null;
-
-    if (hasJsonParam && !onlyOneParam) {
-      paramsMap = Jsoner.toObject(json, Map.class);
-      hasJsonParam = paramsMap != null && paramsMap.size() > 0;
+    Object receiveParams = null;
+    if (hasJsonParam) {
+      receiveParams = Jsoner.toObject(json);
+      hasJsonParam = receiveParams != null;
     }
     for (String name : allParamNames) {
       paramType = route.getAllParamTypes().get(i);
@@ -337,20 +326,16 @@ public class RouteInvocation {
         if (hasJsonParam) {
           if (onlyOneParam) {
             //转换对象到指定的类型
-            if (Collection.class.isAssignableFrom(paramType)) {
-              parse(params, i, paramType, Jsoner.toObject(json, List.class), name);
-            } else {
-              parse(params, i, paramType, Jsoner.toObject(json, paramType), name);
-            }
+            params.set(name, parse(route.getAllGenericParamTypes().get(i), paramType, receiveParams));
           } else {
-            obj = paramsMap.get(name);
+            obj = ((Map<String, Object>) receiveParams).get(name);
 
             if (obj != null) {
               if (paramType == String.class) {
                 params.set(name, obj.toString());
               } else {
                 //转换对象到指定的类型
-                parse(params, i, paramType, obj, name);
+                params.set(name, parse(route.getAllGenericParamTypes().get(i), paramType, obj));
               }
             } else {
               params.set(name, null);
@@ -369,14 +354,11 @@ public class RouteInvocation {
   /**
    * 把参数转到对应的类型
    *
-   * @param params
-   * @param i
    * @param paramType
    * @param obj
-   * @param name
    */
-  private void parse(Params params, int i, Class paramType, Object obj, String name) {
-    Type genericParamType;
+  private Object parse(Type genericParamType, Class paramType, Object obj) {
+    Class keyTypeClass;
     Class paramTypeClass;
     List<Map<String, Object>> list;
     List<Entity<?>> newlist;
@@ -386,91 +368,140 @@ public class RouteInvocation {
     Set<Entity<?>> newset;
     JSONArray bset;
     Set<?> newbset;
+    Map map;
+    Set<Map.Entry<String, Object>> mapEntry;
+    Map newMap;
 
-    if (obj == null) {
-      params.set(name, null);
-    } else if (!Collection.class.isAssignableFrom(paramType) && paramType.isAssignableFrom(obj.getClass())) {
-      params.set(name, obj);
-    } else {
-      //判断参数需要的类型
-      //判断是不是包含 Entity类型
-      try {
-        if (Entity.class.isAssignableFrom(paramType)) {
-          Entity<?> e = (Entity<?>) paramType.newInstance();
-          e.putAttrs(ModelDeserializer.deserialze((Map<String, Object>) obj, paramType));
-          params.set(name, e);
-        } else {
-          if (Collection.class.isAssignableFrom(paramType)) {
-            genericParamType = route.getAllGenericParamTypes().get(i);
-            paramTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[0];
+    Object result = null;
+    if (obj != null) {
+      if (Map.class.isAssignableFrom(paramType)) {
+        keyTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[0];
+        paramTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[1];
+        map = (Map<String, Object>) obj;
+        try {
+          newMap = (Map) paramType.newInstance();
+          mapEntry = map.entrySet();
+          for (Map.Entry<String, Object> entry : mapEntry) {
+            newMap.put(parse(keyTypeClass, entry.getKey()), parse(paramTypeClass, entry.getValue()));
+          }
+          result = newMap;
+        } catch (InstantiationException e) {
+          throwException(e);
+        } catch (IllegalAccessException e) {
+          throwException(e);
+        }
+      } else if (Collection.class.isAssignableFrom(paramType)) {
+        paramTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[0];
 
-            if (List.class.isAssignableFrom(paramType)) {
-              list = (List<Map<String, Object>>) obj;
-              //Entity类型
-              if (Entity.class.isAssignableFrom(paramTypeClass)) {
-                newlist = new ArrayList<Entity<?>>();
-                for (Map<String, Object> mp : list) {
-                  entity = (Entity<?>) paramTypeClass.newInstance();
-                  entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
-                  newlist.add(entity);
-                }
-                params.set(name, newlist);
-              } else {
-                blist = (JSONArray) obj;
-                if (String.class == paramTypeClass) {
-                  newblist = new ArrayList<String>();
-                  for (Object e : blist) {
-                    ((List<String>) newblist).add(e.toString());
-                  }
-                } else {
-                  newblist = new ArrayList<Object>();
-                  for (Object e : blist) {
-                    if (paramTypeClass.isAssignableFrom(e.getClass()))
-                      ((List<Object>) newblist).add(e);
-                    else
-                      ((List<Object>) newblist).add(Jsoner.toObject(Jsoner.toJSON(e), paramTypeClass));
-                  }
-                }
-                params.set(name, newblist);
-              }
-            } else if (Set.class.isAssignableFrom(paramType)) {
-              //Entity
-              if (Entity.class.isAssignableFrom(paramTypeClass)) {
-                list = (List<Map<String, Object>>) obj;
-                newset = new HashSet<Entity<?>>();
-                for (Map<String, Object> mp : list) {
-                  entity = (Entity<?>) paramTypeClass.newInstance();
-                  entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
-                  newset.add(entity);
-                }
-                params.set(name, newset);
-              } else {
-                bset = (JSONArray) obj;
-                if (String.class == paramTypeClass) {
-                  newbset = new HashSet<String>();
-                  for (Object e : bset) {
-                    ((Set<String>) newbset).add(e.toString());
-                  }
-                } else {
-                  newbset = new HashSet<Object>();
-                  for (Object e : bset) {
-                    if (paramTypeClass.isAssignableFrom(e.getClass()))
-                      ((Set<Object>) newbset).add(e);
-                    else
-                      ((Set<Object>) newbset).add(Jsoner.toObject(Jsoner.toJSON(e), paramTypeClass));
-                  }
-                }
-                params.set(name, newbset);
+        if (List.class.isAssignableFrom(paramType)) {
+          list = (List<Map<String, Object>>) obj;
+          //Entity类型
+          if (Entity.class.isAssignableFrom(paramTypeClass)) {
+            newlist = new ArrayList<Entity<?>>();
+            for (Map<String, Object> mp : list) {
+              try {
+                entity = (Entity<?>) paramTypeClass.newInstance();
+                entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
+                newlist.add(entity);
+              } catch (InstantiationException e) {
+                throwException(e);
+              } catch (IllegalAccessException e) {
+                throwException(e);
               }
             }
+            result = newlist;
           } else {
-            params.set(name, Jsoner.toObject(Jsoner.toJSON(obj), paramType));
+            blist = (JSONArray) obj;
+            if (String.class == paramTypeClass) {
+              newblist = new ArrayList<String>();
+              for (Object o : blist) {
+                ((List<String>) newblist).add(o.toString());
+              }
+            } else {
+              newblist = new ArrayList<Object>();
+              for (Object o : blist) {
+                if (paramTypeClass.isAssignableFrom(o.getClass()))
+                  ((List<Object>) newblist).add(o);
+                else
+                  ((List<Object>) newblist).add(parse(paramTypeClass, o));
+              }
+            }
+            result = newblist;
+          }
+        } else if (Set.class.isAssignableFrom(paramType)) {
+          //Entity
+          if (Entity.class.isAssignableFrom(paramTypeClass)) {
+            list = (List<Map<String, Object>>) obj;
+            newset = new HashSet<Entity<?>>();
+            for (Map<String, Object> mp : list) {
+              try {
+                entity = (Entity<?>) paramTypeClass.newInstance();
+                entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
+                newset.add(entity);
+              } catch (InstantiationException e) {
+                throwException(e);
+              } catch (IllegalAccessException e) {
+                throwException(e);
+              }
+            }
+            result = newset;
+          } else {
+            bset = (JSONArray) obj;
+            if (String.class == paramTypeClass) {
+              newbset = new HashSet<String>();
+              for (Object o : bset) {
+                ((Set<String>) newbset).add(o.toString());
+              }
+            } else {
+              newbset = new HashSet<Object>();
+              for (Object o : bset) {
+                if (paramTypeClass.isAssignableFrom(o.getClass()))
+                  ((Set<Object>) newbset).add(o);
+                else
+                  ((Set<Object>) newbset).add(parse(paramTypeClass, o));
+              }
+            }
+            result = newbset;
           }
         }
-      } catch (Exception e) {
-        throw new JSONException("Unconvert type " + paramType, e);
+      } else {
+        result = parse(paramType, obj);
       }
     }
+    return result;
+  }
+
+  /**
+   * 转换非集合对象
+   *
+   * @param paramType
+   * @param obj
+   * @return
+   */
+  private Object parse(Class paramType, Object obj) {
+    Map<String, Object> map;
+    Object result = null;
+    if (obj != null) {
+      if (Entity.class.isAssignableFrom(paramType)) {
+        map = (Map<String, Object>) obj;
+
+        try {
+          result = (Entity) paramType.newInstance();
+          ((Entity) result).putAttrs(ModelDeserializer.deserialze(map, paramType));
+        } catch (InstantiationException e) {
+          throwException(e);
+        } catch (IllegalAccessException e) {
+          throwException(e);
+        }
+      } else {
+        if (paramType.isAssignableFrom(obj.getClass())) {
+          result = obj;
+        } else {
+          result = Jsoner.toObject(Jsoner.toJSON(obj), paramType);
+        }
+      }
+    }
+    return result;
   }
 
   public Method getMethod() {

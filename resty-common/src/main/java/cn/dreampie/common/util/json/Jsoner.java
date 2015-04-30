@@ -2,6 +2,7 @@ package cn.dreampie.common.util.json;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -56,6 +57,14 @@ public class Jsoner {
 
   public static String toJSON(Object object, SerializeConfig config, SerializeFilter filter, SerializerFeature... features) {
     return JSON.toJSONString(object, config, filter, features);
+  }
+
+  public static <T> T toObject(String json) {
+    try {
+      return (T) JSON.parse(json);
+    } catch (JSONException e) {
+      throw new ObjectCastException("Could not cast \"" + json + "\" to " + JSONObject.class.getName(), e);
+    }
   }
 
   public static <T> T toObject(String json, Class<T> clazz) {

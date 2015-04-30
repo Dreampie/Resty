@@ -20,7 +20,7 @@ public class MailSender {
     try {
       SimpleEmail simpleEmail = getSimpleEmail(subject, body, recipients);
       simpleEmail.send();
-      logger.info("send email to {}", Joiner.on(",").join(recipients));
+      logger.info("send email to {}", Joiner.on(",").useForNull("null").join(recipients));
     } catch (EmailException e) {
       throw new MailException("Unabled to send email", e);
     }
@@ -59,7 +59,7 @@ public class MailSender {
     try {
       HtmlEmail htmlEmail = getHtmlEmail(subject, body, attachment, recipients);
       htmlEmail.send();
-      logger.info("send email to {}", Joiner.on(",").join(recipients));
+      logger.info("send email to {}", Joiner.on(",").useForNull("null").join(recipients));
     } catch (EmailException e) {
       throw new MailException("Unabled to send email", e);
     }
@@ -105,7 +105,7 @@ public class MailSender {
     try {
       MultiPartEmail multiPartEmail = getMultiPartEmail(subject, body, attachment, recipients);
       multiPartEmail.send();
-      logger.info("send email to {}", Joiner.on(",").join(recipients));
+      logger.info("send email to {}", Joiner.on(",").useForNull("null").join(recipients));
     } catch (EmailException e) {
       throw new MailException("Unabled to send email", e);
     }

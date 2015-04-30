@@ -10,8 +10,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 /**
  * Created by ice on 15-1-4.
@@ -84,7 +84,7 @@ public class ClientTest {
 //        new HashMap<String, Object>() {
 //          {
 //            put("users",
-        new HashSet() {
+        new ArrayList() {
           {
             add(new HashMap<String, String>() {{
               put("sid", "1");

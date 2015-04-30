@@ -162,7 +162,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       if (params != null && params.length > 0) {
         for (Object[] para : params) {
           log.append(", params: ").append('{');
-          log.append(Joiner.on("}, {").join(para));
+          log.append(Joiner.on("}, {").useForNull("null").join(para));
           log.append('}');
         }
       }
@@ -176,7 +176,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       StringBuilder log = new StringBuilder("Sql: {").append(sql).append("} ");
       if (params != null && params.length > 0) {
         log.append(", params: ").append('{');
-        log.append(Joiner.on("}, {").join(params));
+        log.append(Joiner.on("}, {").useForNull("null").join(params));
         log.append('}');
       }
       logger.info(log.toString());
@@ -185,7 +185,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
   private void logSql(List<String> sqls) {
     if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
-      logger.info("Sqls: " + '{' + Joiner.on("}, {").join(sqls) + '}');
+      logger.info("Sqls: " + '{' + Joiner.on("}, {").useForNull("null").join(sqls) + '}');
     }
   }
 

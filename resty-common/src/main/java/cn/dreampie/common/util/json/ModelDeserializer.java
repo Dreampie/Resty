@@ -29,6 +29,8 @@ public enum ModelDeserializer implements ObjectDeserializer {
     Method method = null;
     Class<?> returnType = null;
 
+    Entity entity=null;
+
     List<Map<String, Object>> list = null;
     List<Entity> newlist = null;
 
@@ -49,15 +51,15 @@ public enum ModelDeserializer implements ObjectDeserializer {
         //如果已经是返回类型 不再处理
         if (!returnType.isAssignableFrom(obj.getClass())) {
           //如果是String类型
-          if (String.class == returnType) {
-            map.put(key, obj.toString());
+          if (String.class.isAssignableFrom(returnType)) {
+            map.put(key, Jsoner.toJSON(obj));
           } else {
             //判断是不是包含 Entity类型
             if (obj instanceof JSONObject) {
               if (Entity.class.isAssignableFrom(returnType)) {
-                Entity e = (Entity) returnType.newInstance();
-                e.putAttrs(deserialze((Map<String, Object>) obj, returnType));
-                map.put(key, e);
+                entity = (Entity) returnType.newInstance();
+                entity.putAttrs(deserialze((Map<String, Object>) obj, returnType));
+                map.put(key, entity);
               }
             } else
               //判断是否是Entity的集合类型
@@ -69,25 +71,25 @@ public enum ModelDeserializer implements ObjectDeserializer {
                       list = (List<Map<String, Object>>) obj;
                       newlist = new ArrayList<Entity>();
                       for (Map<String, Object> mp : list) {
-                        Entity e = (Entity) returnTypeClass.newInstance();
-                        e.putAttrs(deserialze(mp, returnTypeClass));
-                        newlist.add(e);
+                        entity = (Entity) returnTypeClass.newInstance();
+                        entity.putAttrs(deserialze(mp, returnTypeClass));
+                        newlist.add(entity);
                       }
                       map.put(key, newlist);
                     } else {
                       blist = (JSONArray) obj;
                       if (String.class == returnTypeClass) {
                         newblist = new ArrayList<String>();
-                        for (Object e : blist) {
-                          ((List<String>) newblist).add(e.toString());
+                        for (Object o : blist) {
+                          ((List<String>) newblist).add(o.toString());
                         }
                       } else {
                         newblist = new ArrayList<Object>();
-                        for (Object e : blist) {
-                          if (returnTypeClass.isAssignableFrom(e.getClass()))
-                            ((List<Object>) newblist).add(e);
+                        for (Object o : blist) {
+                          if (returnTypeClass.isAssignableFrom(o.getClass()))
+                            ((List<Object>) newblist).add(o);
                           else
-                            ((List<Object>) newblist).add(Jsoner.toObject(Jsoner.toJSON(e), returnTypeClass));
+                            ((List<Object>) newblist).add(Jsoner.toObject(Jsoner.toJSON(o), returnTypeClass));
                         }
                       }
                       map.put(key, newblist);
@@ -97,25 +99,25 @@ public enum ModelDeserializer implements ObjectDeserializer {
                       list = (List<Map<String, Object>>) obj;
                       newset = new HashSet<Entity>();
                       for (Map<String, Object> mp : list) {
-                        Entity e = (Entity) returnTypeClass.newInstance();
-                        e.putAttrs(deserialze(mp, returnTypeClass));
-                        newset.add(e);
+                        entity = (Entity) returnTypeClass.newInstance();
+                        entity.putAttrs(deserialze(mp, returnTypeClass));
+                        newset.add(entity);
                       }
                       map.put(key, newset);
                     } else {
                       bset = (JSONArray) obj;
-                      if (String.class == returnTypeClass) {
+                      if (String.class.isAssignableFrom(returnTypeClass)) {
                         newbset = new HashSet<String>();
-                        for (Object e : bset) {
-                          ((Set<String>) newbset).add(e.toString());
+                        for (Object o : bset) {
+                          ((Set<String>) newbset).add(o.toString());
                         }
                       } else {
                         newbset = new HashSet<Object>();
-                        for (Object e : bset) {
-                          if (returnTypeClass.isAssignableFrom(e.getClass()))
-                            ((Set<Object>) newbset).add(e);
+                        for (Object o : bset) {
+                          if (returnTypeClass.isAssignableFrom(o.getClass()))
+                            ((Set<Object>) newbset).add(o);
                           else
-                            ((Set<Object>) newbset).add(Jsoner.toObject(Jsoner.toJSON(e), returnTypeClass));
+                            ((Set<Object>) newbset).add(Jsoner.toObject(Jsoner.toJSON(o), returnTypeClass));
                         }
                       }
                       map.put(key, newbset);

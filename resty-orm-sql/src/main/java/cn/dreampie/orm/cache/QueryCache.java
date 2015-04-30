@@ -43,7 +43,7 @@ public enum QueryCache {
       StringBuilder log = new StringBuilder().append(access).append(", group: {").append(group).append("}, query: {").append(query).append("} ");
       if (params != null && params.length > 0) {
         log.append(", params: ").append('{');
-        log.append(Joiner.on("}, {").join(params));
+        log.append(Joiner.on("}, {").useForNull("null").join(params));
         log.append('}');
       }
       logger.debug(log.toString());

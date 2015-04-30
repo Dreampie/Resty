@@ -482,20 +482,20 @@ public class RouteInvocation {
     Map<String, Object> map;
     Object result = null;
     if (obj != null) {
-      if (Entity.class.isAssignableFrom(paramType)) {
-        map = (Map<String, Object>) obj;
 
-        try {
-          result = (Entity) paramType.newInstance();
-          ((Entity) result).putAttrs(ModelDeserializer.deserialze(map, paramType));
-        } catch (InstantiationException e) {
-          throwException(e);
-        } catch (IllegalAccessException e) {
-          throwException(e);
-        }
+      if (paramType.isAssignableFrom(obj.getClass())) {
+        result = obj;
       } else {
-        if (paramType.isAssignableFrom(obj.getClass())) {
-          result = obj;
+        if (Entity.class.isAssignableFrom(paramType)) {
+          map = (Map<String, Object>) obj;
+          try {
+            result = (Entity) paramType.newInstance();
+            ((Entity) result).putAttrs(ModelDeserializer.deserialze(map, paramType));
+          } catch (InstantiationException e) {
+            throwException(e);
+          } catch (IllegalAccessException e) {
+            throwException(e);
+          }
         } else {
           result = Jsoner.toObject(Jsoner.toJSON(obj), paramType);
         }

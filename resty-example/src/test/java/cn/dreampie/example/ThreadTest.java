@@ -11,7 +11,7 @@ import java.util.concurrent.CountDownLatch;
  * Created by wangrenhui on 15/2/2.
  */
 public class ThreadTest {
-  @Test
+//  @Test
   public void testThread() {
     final int num = 300;
     final CountDownLatch begin = new CountDownLatch(1);

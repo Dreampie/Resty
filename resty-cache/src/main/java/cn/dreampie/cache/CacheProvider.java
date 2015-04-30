@@ -1,6 +1,6 @@
 package cn.dreampie.cache;
 
-import cn.dreampie.cache.ehcache.EHCacheManager;
+import cn.dreampie.cache.ehcache.EHCacheProvider;
 import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 
@@ -10,29 +10,29 @@ import java.util.List;
 /**
  * Abstract method to be sub-classed by various caching technologies.
  */
-public abstract class CacheManager {
-  public final static CacheManager MANAGER;
-  private final static Logger logger = Logger.getLogger(CacheManager.class);
+public abstract class CacheProvider {
+  public final static CacheProvider PROVIDER;
+  private final static Logger logger = Logger.getLogger(CacheProvider.class);
 
   static {
-    CacheManager cacheManager = null;
+    CacheProvider cacheProvider = null;
     if (Constant.cacheEnabled) {
-      if (Constant.cacheManager == null) {
-        cacheManager = new EHCacheManager();
+      if (Constant.cacheProvider == null) {
+        cacheProvider = new EHCacheProvider();
       } else {
         try {
-          Class cacheClass = Class.forName(Constant.cacheManager);
-          cacheManager = (CacheManager) cacheClass.newInstance();
+          Class cacheClass = Class.forName(Constant.cacheProvider);
+          cacheProvider = (CacheProvider) cacheClass.newInstance();
         } catch (ClassNotFoundException e) {
-          logger.error("Could not found CacheManager Class.", e);
+          logger.error("Could not found CacheProvider Class.", e);
         } catch (InstantiationException e) {
-          logger.error("Could not init CacheManager Class.", e);
+          logger.error("Could not init CacheProvider Class.", e);
         } catch (IllegalAccessException e) {
-          logger.error("Could not access CacheManager Class.", e);
+          logger.error("Could not access CacheProvider Class.", e);
         }
       }
     }
-    MANAGER = cacheManager;
+    PROVIDER = cacheProvider;
   }
 
   List<CacheEventListener> listeners = new ArrayList<CacheEventListener>();

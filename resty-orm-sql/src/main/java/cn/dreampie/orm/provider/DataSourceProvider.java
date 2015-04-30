@@ -13,4 +13,6 @@ public interface DataSourceProvider {
   Dialect getDialect();
 
   String getDsName();
+
+  boolean isShowSql();
 }

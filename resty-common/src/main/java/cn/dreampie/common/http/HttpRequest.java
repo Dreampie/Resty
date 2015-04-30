@@ -153,7 +153,12 @@ public class HttpRequest extends AbstractRequest {
 
   public String getQueryString() {
     try {
-      return URLDecoder.decode(request.getQueryString(), getCharacterEncoding());
+      String queryString = request.getQueryString();
+      if (queryString != null && !"".equals(queryString)) {
+        return URLDecoder.decode(request.getQueryString(), getCharacterEncoding());
+      } else {
+        return queryString;
+      }
     } catch (UnsupportedEncodingException e) {
       throw new IllegalArgumentException("Invalid character encoding for '" + getCharacterEncoding() + "'");
     }

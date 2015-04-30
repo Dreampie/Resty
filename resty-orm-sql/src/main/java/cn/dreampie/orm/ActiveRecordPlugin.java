@@ -24,15 +24,9 @@ public class ActiveRecordPlugin implements Plugin {
   private Set<String> excludeClassPackages = new HashSet<String>();
 
   private DataSourceProvider dataSourceProvider;
-  private boolean showSql = false;
 
   public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
-    this(dataSourceProvider, false);
-  }
-
-  public ActiveRecordPlugin(DataSourceProvider dataSourceProvider, boolean showSql) {
     this.dataSourceProvider = dataSourceProvider;
-    this.showSql = showSql;
   }
 
   public ActiveRecordPlugin addExcludeClasses(Class<? extends Model>... classes) {
@@ -90,7 +84,7 @@ public class ActiveRecordPlugin implements Plugin {
       }
     }
 
-    DataSourceMeta dsm = new DataSourceMeta(dataSourceProvider, showSql);
+    DataSourceMeta dsm = new DataSourceMeta(dataSourceProvider);
     if (includeClasses.size() > 0) {
       Set<TableMeta> tableMetas = new HashSet<TableMeta>();
       TableMeta tableMeta = null;

@@ -2,7 +2,7 @@ package cn.dreampie.orm.cache;
 
 
 import cn.dreampie.cache.CacheEvent;
-import cn.dreampie.cache.CacheManager;
+import cn.dreampie.cache.CacheProvider;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
@@ -20,12 +20,12 @@ public enum QueryCache {
 
   private final boolean enabled = Constant.cacheEnabled;
 
-  private final CacheManager cacheManager;
+  private final CacheProvider cacheProvider;
 
   //singleton
 
   private QueryCache() {
-    cacheManager = CacheManager.MANAGER;
+    cacheProvider = CacheProvider.PROVIDER;
   }
 
 
@@ -61,7 +61,7 @@ public enum QueryCache {
   public void add(String type, String dsName, String tableName, String query, Object[] params, Object cache) {
     if (enabled) {
       String group = getGroup(type, dsName, tableName);
-      cacheManager.addCache(group, getKey(group, query, params), cache);
+      cacheProvider.addCache(group, getKey(group, query, params), cache);
     }
   }
 
@@ -82,7 +82,7 @@ public enum QueryCache {
     if (enabled) {
       String group = getGroup(type, dsName, tableName);
       String key = getKey(group, query, params);
-      Object item = cacheManager.getCache(group, key);
+      Object item = cacheProvider.getCache(group, key);
       if (item == null) {
         logAccess(group, query, params, "Miss");
       } else {
@@ -104,7 +104,7 @@ public enum QueryCache {
   public void remove(String type, String dsName, String tableName, String query, Object[] params) {
     if (enabled) {
       String group = getGroup(type, dsName, tableName);
-      cacheManager.removeCache(group, getKey(group, query, params));
+      cacheProvider.removeCache(group, getKey(group, query, params));
     }
   }
 
@@ -116,12 +116,12 @@ public enum QueryCache {
    */
   public void purge(String type, String dsName, String tableName) {
     if (enabled) {
-      cacheManager.flush(new CacheEvent(getGroup(type, dsName, tableName), getClass().getName()));
+      cacheProvider.flush(new CacheEvent(getGroup(type, dsName, tableName), getClass().getName()));
     }
   }
 
-  public CacheManager getCacheManager() {
-    return cacheManager;
+  public CacheProvider getCacheProvider() {
+    return cacheProvider;
   }
 }
 

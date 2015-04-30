@@ -29,7 +29,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
     Method method = null;
     Class<?> returnType = null;
 
-    Entity entity=null;
+    Entity entity = null;
 
     List<Map<String, Object>> list = null;
     List<Entity> newlist = null;

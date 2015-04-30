@@ -18,7 +18,7 @@ public class ActiveRecordPluginTest {
 //    activeRecordPlugin.addIncludePackages("cn.dremapie.orm");
     activeRecordPlugin.start();
 
-    Record recordDAO = new Record("sec_user", "id,sid", true, false);
+    Record recordDAO = new Record("sec_user", "id", new String[]{"sid"});
 
     Record r = recordDAO.reNew().set("sid", 10).set("username", "x").set("password", "123").set("providername", "default").set("created_at", new Date());
     r.save();

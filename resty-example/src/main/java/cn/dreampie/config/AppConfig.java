@@ -35,13 +35,13 @@ public class AppConfig extends Config {
   public void configPlugin(PluginLoader pluginLoader) {
     //第一个数据库
     C3p0DataSourceProvider cdsp = new C3p0DataSourceProvider("default");
-    ActiveRecordPlugin activeRecordCdsp = new ActiveRecordPlugin(cdsp, true);
+    ActiveRecordPlugin activeRecordCdsp = new ActiveRecordPlugin(cdsp);
     activeRecordCdsp.addIncludePackages("cn.dreampie.resource");
     pluginLoader.add(activeRecordCdsp);
 
     //第二个数据库
     DruidDataSourceProvider ddsp = new DruidDataSourceProvider("demo");
-    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp, true);
+    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp);
     pluginLoader.add(activeRecordDdsp);
 
 //    JndiDataSourceProvider jdsp = new JndiDataSourceProvider("jndiDs", "jndiName");

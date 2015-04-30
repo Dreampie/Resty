@@ -71,6 +71,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
   private String validationQuery = "select 1";
   private DruidDataSource ds;
   private Dialect dialect;
+  private boolean showSql = false;
 
   public DruidDataSourceProvider() {
     this("default");
@@ -87,6 +88,8 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     checkNotNull(this.password, "Could not found database password for " + "db." + dsName + ".password");
     this.dialect = DialectFactory.get(prop.get("db." + dsName + ".dialect", "mysql"));
     this.driverClass = prop.get("db." + dsName + ".driver", dialect.driverClass());
+    this.showSql = prop.getBoolean("db." + dsName + ".showSql", false);
+
     this.filters = prop.get("druid." + dsName + ".filters");
     this.initialSize = prop.getInt("druid." + dsName + ".initialSize", 10);
     this.minIdle = prop.getInt("druid." + dsName + ".minIdle", 10);
@@ -108,14 +111,19 @@ public class DruidDataSourceProvider implements DataSourceProvider {
   }
 
   public DruidDataSourceProvider(String url, String user, String password) {
-    this(url, user, password, "mysql");
+    this(url, user, password, false);
   }
 
-  public DruidDataSourceProvider(String url, String user, String password, String dbType) {
-    this(url, user, password, dbType, null);
+
+  public DruidDataSourceProvider(String url, String user, String password, boolean showSql) {
+    this(url, user, password, null, showSql);
   }
 
-  public DruidDataSourceProvider(String url, String user, String password, String dbType, String driverClass) {
+  public DruidDataSourceProvider(String url, String user, String password, String dbType, boolean showSql) {
+    this(url, user, password, dbType, null, showSql);
+  }
+
+  public DruidDataSourceProvider(String url, String user, String password, String dbType, String driverClass, boolean showSql) {
     this.url = url;
     checkNotNull(this.url, "Could not found database url for custom.");
     this.user = user;
@@ -124,6 +132,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     checkNotNull(this.password, "Could not found database password for custom.");
     this.dialect = DialectFactory.get(dbType);
     this.driverClass = driverClass == null ? dialect.driverClass() : driverClass;
+    this.showSql = showSql;
     buidDataSource();
   }
 
@@ -175,6 +184,13 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     return dsName;
   }
 
+  public boolean isShowSql() {
+    return showSql;
+  }
+
+  public void setShowSql(boolean showSql) {
+    this.showSql = showSql;
+  }
 
   public DruidDataSourceProvider setDriverClass(String driverClass) {
     this.driverClass = driverClass;

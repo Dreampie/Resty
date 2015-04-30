@@ -26,6 +26,7 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
   private String user;
   private String password;
   private String driverClass;  // 由 "com.mysql.jdbc.Driver" 改为 null 让 druid 自动探测 driverClass 值
+  private boolean showSql = false;
 
   // 初始连接池大小、最小空闲连接数、最大活跃连接数
   private int maxStatements = 0;
@@ -69,6 +70,8 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     checkNotNull(this.password, "Could not found database password for " + "db." + dsName + ".password");
     this.dialect = DialectFactory.get(prop.get("db." + dsName + ".dialect", "mysql"));
     this.driverClass = prop.get("db." + dsName + ".driver", dialect.driverClass());
+    this.showSql = prop.getBoolean("db." + dsName + ".showSql", false);
+
     this.maxStatements = prop.getInt("c3p0." + dsName + ".maxStatements", C3P0Defaults.maxStatements());
     this.maxStatementsPerConnection = prop.getInt("c3p0." + dsName + ".maxStatementsPerConnection", C3P0Defaults.maxStatementsPerConnection());
     this.initialPoolSize = prop.getInt("c3p0." + dsName + ".initialPoolSize", C3P0Defaults.initialPoolSize());
@@ -96,14 +99,26 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
   }
 
   public C3p0DataSourceProvider(String url, String user, String password) {
-    this(url, user, password, "mysql");
+    this(url, user, password, null);
+  }
+
+  public C3p0DataSourceProvider(String url, String user, String password, boolean showSql) {
+    this(url, user, password, null, showSql);
   }
 
   public C3p0DataSourceProvider(String url, String user, String password, String dbType) {
     this(url, user, password, dbType, null);
   }
 
+  public C3p0DataSourceProvider(String url, String user, String password, String dbType, boolean showSql) {
+    this(url, user, password, dbType, null, showSql);
+  }
+
   public C3p0DataSourceProvider(String url, String user, String password, String dbType, String driverClass) {
+    this(url, user, password, dbType, driverClass, false);
+  }
+
+  public C3p0DataSourceProvider(String url, String user, String password, String dbType, String driverClass, boolean showSql) {
     this.url = url;
     checkNotNull(this.url, "Could not found database url for custom.");
     this.user = user;
@@ -112,6 +127,7 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     checkNotNull(this.password, "Could not found database password for custom.");
     this.dialect = DialectFactory.get(dbType);
     this.driverClass = driverClass == null ? dialect.driverClass() : driverClass;
+    this.showSql = showSql;
     buidDataSource();
   }
 
@@ -164,6 +180,14 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     return dsName;
   }
 
+  public boolean isShowSql() {
+    return showSql;
+  }
+
+  public C3p0DataSourceProvider setShowSql(boolean showSql) {
+    this.showSql = showSql;
+    return this;
+  }
 
   public C3p0DataSourceProvider setDriverClass(String driverClass) {
     this.driverClass = driverClass;

@@ -10,6 +10,7 @@ import cn.dreampie.orm.callable.ObjectCall;
 import cn.dreampie.orm.callable.ResultSetCall;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
+import cn.dreampie.orm.generate.Generator;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public abstract class Base<M extends Base> extends Entity<M> implements Externalizable {
 
-  public static final String DEFAULT_PRIMARY_KAY = "id";
+  public static final String DEFAULT_GENERATED_KEY = "id";
   private static final boolean devMode = Constant.devMode;
   private final Logger logger = Logger.getLogger(getClass());
   private String alias;
@@ -189,12 +190,18 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
   }
 
-  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[] params) throws SQLException {
+  private PreparedStatement getPreparedStatement(Connection conn, TableMeta tableMeta, String sql, Object[] params) throws SQLException {
     //打印sql语句
     logSql(sql, params);
-
-    PreparedStatement pst = conn.prepareStatement(sql, new String[]{primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey});
-
+    PreparedStatement pst;
+    //如果没有自动生成的主键 则不获取
+    String generatedKey = tableMeta.getGeneratedKey();
+    boolean generated = tableMeta.isGenerated();
+    if (!generated) {
+      pst = conn.prepareStatement(sql, new String[]{generatedKey});
+    } else {
+      pst = conn.prepareStatement(sql);
+    }
     for (int i = 0; i < params.length; i++) {
       pst.setObject(i + 1, params[i]);
     }
@@ -202,17 +209,23 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   }
 
 
-  private PreparedStatement getPreparedStatement(Connection conn, String primaryKey, String sql, Object[][] params) throws SQLException {
+  private PreparedStatement getPreparedStatement(Connection conn, TableMeta tableMeta, String sql, Object[][] params) throws SQLException {
     //打印sql语句
     logSql(sql, params);
 
     PreparedStatement pst = null;
-    String key = primaryKey == null ? DEFAULT_PRIMARY_KAY : primaryKey;
-    String[] returnKeys = new String[params.length];
-    for (int i = 0; i < params.length; i++) {
-      returnKeys[i] = key;
+    //如果没有自动生成的主键 则不获取
+    String generatedKey = tableMeta.getGeneratedKey();
+    boolean generated = tableMeta.isGenerated();
+    if (!generated) {
+      String[] returnKeys = new String[params.length];
+      for (int i = 0; i < params.length; i++) {
+        returnKeys[i] = generatedKey;
+      }
+      pst = conn.prepareStatement(sql, returnKeys);
+    } else {
+      pst = conn.prepareStatement(sql);
     }
-    pst = conn.prepareStatement(sql, returnKeys);
     final int batchSize = 1000;
     int count = 0;
     for (Object[] para : params) {
@@ -245,14 +258,78 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   }
 
   /**
+   * 获取所有的主键key
+   *
+   * @return
+   */
+  private String[] getPrimaryKeys(TableMeta tableMeta) {
+    String generatedKey = tableMeta.getGeneratedKey();
+    String[] primaryKey = tableMeta.getPrimaryKey();
+    String[] keys;
+    boolean generated = tableMeta.isGenerated();
+    int i = 0;
+    if (!generated) {
+      keys = new String[primaryKey.length + 1];
+      keys[i++] = generatedKey;
+    } else {
+      keys = new String[primaryKey.length];
+    }
+    for (String pKey : primaryKey) {
+      keys[i++] = pKey;
+    }
+    if (keys.length <= 0) {
+      throw new IllegalArgumentException("Your table must have least one generatedKey or primaryKey.");
+    }
+    return keys;
+  }
+
+  /**
+   * 获取所有的主键值
+   *
+   * @return
+   */
+  private Object[] getPrimaryValues(TableMeta tableMeta) {
+    Map<String, Object> attrs = getAttrs();
+    String generatedKey = tableMeta.getGeneratedKey();
+    boolean generated = tableMeta.isGenerated();
+    Object id = null;
+    if (!generated) {
+      id = attrs.get(generatedKey);
+      checkNotNull(id, "You can't delete model without generatedKey " + generatedKey + ".");
+    }
+
+    String[] primaryKeys = tableMeta.getPrimaryKey();
+    Object[] values;
+    int i = 0;
+    if (!generated) {
+      values = new Object[primaryKeys.length + 1];
+      values[i++] = id;
+    } else {
+      values = new Object[primaryKeys.length];
+    }
+
+    for (String pKey : primaryKeys) {
+      values[i++] = attrs.get(pKey);
+    }
+    if (values.length <= 0) {
+      throw new IllegalArgumentException("Your must set generatedKey or primaryKey.");
+    }
+    return values;
+  }
+
+  /**
    * Get id after save method.
    */
-  protected void getGeneratedKey(PreparedStatement pst, String pKey) throws SQLException {
-    if (get(pKey) == null) {
-      ResultSet rs = pst.getGeneratedKeys();
-      if (rs.next()) {
-        set(pKey, rs.getObject(1));    // It returns Long object for int colType
-        rs.close();
+  protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta) throws SQLException {
+    String generatedKey = tableMeta.getGeneratedKey();
+    boolean generated = tableMeta.isGenerated();
+    if (!generated) {
+      if (get(generatedKey) == null) {
+        ResultSet rs = pst.getGeneratedKeys();
+        if (rs.next()) {
+          set(generatedKey, rs.getObject(1));    // It returns Long object for int colType
+          rs.close();
+        }
       }
     }
   }
@@ -260,16 +337,20 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   /**
    * 获取主键
    */
-  protected void getGeneratedKey(PreparedStatement pst, String pKey, List<? extends Entity> models) throws SQLException {
-    ResultSet rs = pst.getGeneratedKeys();
-    for (Entity<?> model : models) {
-      if (model.get(pKey) == null) {
-        if (rs.next()) {
-          model.set(pKey, rs.getObject(1));
+  protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta, List<? extends Entity> models) throws SQLException {
+    String generatedKey = tableMeta.getGeneratedKey();
+    boolean generated = tableMeta.isGenerated();
+    if (!generated) {
+      ResultSet rs = pst.getGeneratedKeys();
+      for (Entity<?> model : models) {
+        if (model.get(generatedKey) == null) {
+          if (rs.next()) {
+            model.set(generatedKey, rs.getObject(1));
+          }
         }
       }
+      rs.close();
     }
-    rs.close();
   }
 
   /**
@@ -307,7 +388,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     ResultSet rs = null;
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, params);
+      pst = getPreparedStatement(conn, tableMeta, sql, params);
       rs = pst.executeQuery();
       result = BaseBuilder.build(rs, getClass(), dsm, tableMeta);
     } catch (SQLException e) {
@@ -360,14 +441,16 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   public M findColsById(String columns, Object id) {
     TableMeta tableMeta = getTableMeta();
-    String sql = getDialect().select(tableMeta.getTableName(), "", tableMeta.getPrimaryKey() + "=?", columns.split(","));
+    String[] keys = getPrimaryKeys(tableMeta);
+    String sql = getDialect().select(tableMeta.getTableName(), "", keys[0] + "=?", columns.split(","));
     List<M> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }
 
   public M findColsByIds(String columns, Object... ids) {
     TableMeta tableMeta = getTableMeta();
-    String sql = getDialect().select(tableMeta.getTableName(), "", Joiner.on("=? AND ").join(tableMeta.getPrimaryKeys()) + "=?", columns.split(","));
+    String[] keys = getPrimaryKeys(tableMeta);
+    String sql = getDialect().select(tableMeta.getTableName(), "", Joiner.on("=? AND ").join(keys) + "=?", columns.split(","));
     List<M> result = find(sql, ids);
     return result.size() > 0 ? result.get(0) : null;
   }
@@ -419,6 +502,10 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     if (tableMeta.isCached()) {
       purgeCache();
     }
+    boolean generated = tableMeta.isGenerated();
+    if (generated) {
+      set(tableMeta.getGeneratedKey(), tableMeta.getGenerator().generateKey());
+    }
 
     DataSourceMeta dsm = getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
@@ -431,10 +518,10 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     int result = 0;
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, getModifyAttrValues());
+      pst = getPreparedStatement(conn, tableMeta, sql, getModifyAttrValues());
 
       result = pst.executeUpdate();
-      getGeneratedKey(pst, tableMeta.getPrimaryKey());
+      setGeneratedKey(pst, tableMeta);
       clearModifyAttrs();
       return result >= 1;
     } catch (SQLException e) {
@@ -470,6 +557,14 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       firstModel.purgeCache();
     }
 
+    String generatedKey = tableMeta.getGeneratedKey();
+    //是否需要主键生成器生成值
+    boolean generated = tableMeta.isGenerated();
+    Generator generator = tableMeta.getGenerator();
+    if (generated) {
+      firstModel.set(generatedKey, generator.generateKey());
+    }
+
     DataSourceMeta dsm = firstModel.getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
 
@@ -481,7 +576,12 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
     for (int i = 0; i < params.length; i++) {
       for (int j = 0; j < params[i].length; j++) {
+        //如果是自动生成主键 使用生成器生成
+        if (generated && columns[j].equals(generatedKey)) {
+          models.get(i).set(columns[j], generator.generateKey());
+        }
         params[i][j] = models.get(i).get(columns[j]);
+
       }
     }
 
@@ -496,9 +596,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       if (autoCommit)
         conn.setAutoCommit(false);
 
-      pst = getPreparedStatement(conn, tableMeta.getPrimaryKey(), sql, params);
+      pst = getPreparedStatement(conn, tableMeta, sql, params);
       result = pst.executeBatch();
-      getGeneratedKey(pst, tableMeta.getPrimaryKey(), models);
+      setGeneratedKey(pst, tableMeta, models);
       //没有事务的情况下 手动提交
       if (dsm.getCurrentConnection() == null)
         conn.commit();
@@ -542,7 +642,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     PreparedStatement pst = null;
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, params);
+      pst = getPreparedStatement(conn, tableMeta, sql, params);
       result = pst.executeUpdate();
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
@@ -566,38 +666,50 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     TableMeta tableMeta = getTableMeta();
     Dialect dialect = getDialect();
 
-    String pKey = tableMeta.getPrimaryKey();
-    Object id = attrs.get(pKey);
-    checkNotNull(id, "You can't update model without Primary Key " + pKey + ".");
-
+    String generatedKey = tableMeta.getGeneratedKey();
+    boolean generated = tableMeta.isGenerated();
+    Object id = null;
+    if (!generated) {
+      id = attrs.get(generatedKey);
+      checkNotNull(id, "You can't update model without Generated Key " + generatedKey + ".");
+    }
     String where = null;
     Object[] params = null;
     Object[] modifys = getModifyAttrValues();
     //锁定主键 更新的时候 使用所有主键作为条件
-    if (tableMeta.isLockKey()) {
-      String[] pkeys = tableMeta.getPrimaryKeys();
-      Object[] ids = new Object[pkeys.length];
-      int i = 0;
-      for (String idKey : pkeys) {
-        ids[i] = attrs.get(idKey);
-        i++;
-      }
+    Object[] ids;
+    String[] keys;
+    String[] pkeys = tableMeta.getPrimaryKey();
+    int i = 0;
+    int j = 0;
+    if (!generated) {
+      ids = new Object[pkeys.length + 1];
+      keys = new String[pkeys.length + 1];
+      keys[j++] = generatedKey;
+      ids[i++] = id;
+    } else {
+      ids = new Object[pkeys.length];
+      keys = new String[pkeys.length];
+    }
+    for (String pKey : pkeys) {
+      keys[j++] = pKey;
+      ids[i++] = attrs.get(pKey);
+    }
+    if (ids.length > 0) {
       params = new Object[ids.length + modifys.length];
       System.arraycopy(modifys, 0, params, 0, modifys.length);
       System.arraycopy(ids, 0, params, modifys.length, ids.length);
-      where = Joiner.on("=? AND ").join(tableMeta.getPrimaryKeys());
+      where = Joiner.on("=? AND ").join(keys) + "=?";
     } else {
-      params = new Object[1 + modifys.length];
-      System.arraycopy(modifys, 0, params, 0, modifys.length);
-      params[modifys.length] = id;
-      where = pKey;
+      params = modifys;
     }
-    String[] modifyNames = getModifyAttrNames();
-    String sql = dialect.update(tableMeta.getTableName(), "", where + "=?", modifyNames);
 
+    String[] modifyNames = getModifyAttrNames();
     if (modifyNames.length <= 0) {  // Needn't update
       return false;
     }
+
+    String sql = dialect.update(tableMeta.getTableName(), getAlias(), where, modifyNames);
 
     boolean result = update(sql, params);
     if (result) {
@@ -658,26 +770,10 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * Delete model.
    */
   public boolean delete() {
-    TableMeta tableMeta = getTableMeta();
-    Map<String, Object> attrs = getAttrs();
-
-    Object id = attrs.get(tableMeta.getPrimaryKey());
-    checkNotNull(id, "You can't delete model without primaryKey " + tableMeta.getPrimaryKey() + ".");
-
-    //锁定主键 删除的时候 使用所有主键作为条件
-    if (tableMeta.isLockKey()) {
-      String[] primaryKeys = tableMeta.getPrimaryKeys();
-      Object[] ids = new Object[primaryKeys.length];
-      int i = 0;
-      for (String idKey : primaryKeys) {
-        ids[i] = attrs.get(idKey);
-        i++;
-      }
-      return deleteByIds(ids);
-    } else {
-      return deleteById(id);
-    }
+    Object[] ids = getPrimaryValues(getTableMeta());
+    return deleteByIds(ids);
   }
+
 
   /**
    * Delete model by id.
@@ -688,14 +784,16 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   public boolean deleteById(Object id) {
     checkNotNull(id, "You can't delete model without primaryKey.");
     TableMeta tableMeta = getTableMeta();
-    String sql = getDialect().delete(tableMeta.getTableName(), tableMeta.getPrimaryKey() + "=?");
+    String[] keys = getPrimaryKeys(tableMeta);
+    String sql = getDialect().delete(tableMeta.getTableName(), keys[0] + "=?");
     return update(sql, id);
   }
 
   public boolean deleteByIds(Object... ids) {
     checkNotNull(ids, "You can't delete model without primaryKey.");
     TableMeta tableMeta = getTableMeta();
-    String sql = getDialect().delete(tableMeta.getTableName(), Joiner.on("=? AND ").join(tableMeta.getPrimaryKeys()) + "=?");
+    String[] keys = getPrimaryKeys(tableMeta);
+    String sql = getDialect().delete(tableMeta.getTableName(), Joiner.on("=? AND ").join(keys) + "=?");
     return update(sql, ids);
   }
 
@@ -937,7 +1035,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
     try {
       conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, DEFAULT_PRIMARY_KAY, sql, params);
+      pst = getPreparedStatement(conn, tableMeta, sql, params);
       rs = pst.executeQuery();
       result = readQueryResult(rs);
     } catch (SQLException e) {

@@ -1,7 +1,7 @@
 package cn.dreampie.nosql;
 
 import cn.dreampie.cache.CacheEvent;
-import cn.dreampie.cache.CacheManager;
+import cn.dreampie.cache.CacheProvider;
 import cn.dreampie.log.Logger;
 import com.mongodb.*;
 
@@ -9,29 +9,29 @@ import java.net.InetAddress;
 import java.util.List;
 
 /**
- * MongoManager  目前因没有好的设计或者对关系型数据库影响较大  mongo等nosql 目前还没有良好的设计 如果你有好的设计 欢迎交流
+ * MongoProvider  目前因没有好的设计或者对关系型数据库影响较大  mongo等nosql 目前还没有良好的设计 如果你有好的设计 欢迎交流
  */
-public class MongoManager extends CacheManager {
-  private static final Logger logger = Logger.getLogger(MongoManager.class);
+public class MongoProvider extends CacheProvider {
+  private static final Logger logger = Logger.getLogger(MongoProvider.class);
   private final MongoClient cacheManager;
 
-  public MongoManager(InetAddress addr) {
+  public MongoProvider(InetAddress addr) {
     this(new MongoClient(new ServerAddress(addr)));
   }
 
-  public MongoManager(InetAddress addr, int port) {
+  public MongoProvider(InetAddress addr, int port) {
     this(new MongoClient(new ServerAddress(addr, port)));
   }
 
-  public MongoManager(ServerAddress serverAddress) {
+  public MongoProvider(ServerAddress serverAddress) {
     this(new MongoClient(serverAddress));
   }
 
-  public MongoManager(ServerAddress addr, List<MongoCredential> credentialsList) {
+  public MongoProvider(ServerAddress addr, List<MongoCredential> credentialsList) {
     this(new MongoClient(addr, credentialsList, new MongoClientOptions.Builder().build()));
   }
 
-  public MongoManager(MongoClient cacheManager) {
+  public MongoProvider(MongoClient cacheManager) {
     this.cacheManager = cacheManager;
   }
 

@@ -3,6 +3,8 @@ package cn.dreampie.orm;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.orm.annotation.Table;
 import cn.dreampie.orm.dialect.Dialect;
+import cn.dreampie.orm.exception.DBException;
+import cn.dreampie.orm.generate.Generator;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -13,27 +15,22 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 
 public class TableMeta implements Serializable {
 
-  private final String pKeys;
-  private final String primaryKey;
-  private final String[] primaryKeys;
-  private final boolean lockKey;
+  private final String generatedKey;
+  private final boolean generated;
+  private final Generator generator;
+  private final String[] primaryKey;
   private final String tableName, dsName;
   private final Class<? extends Entity> modelClass;
   private final boolean cached;
   private SortedMap<String, ColumnMeta> columnMetadata;
 
-  protected TableMeta(String dsName, String tableName, String pKeys, boolean lKey, boolean cached) {
+
+  protected TableMeta(String dsName, String tableName, String generatedKey, boolean generated, Generator generator, String[] primaryKey, boolean cached) {
     this.modelClass = null;
-    this.pKeys = pKeys;
-    if (pKeys.contains(",")) {
-      this.lockKey = lKey;
-      this.primaryKeys = pKeys.split(",");
-      this.primaryKey = primaryKeys[0];
-    } else {
-      this.primaryKeys = null;
-      this.lockKey = false;
-      this.primaryKey = pKeys;
-    }
+    this.generatedKey = generatedKey;
+    this.generator = generator;
+    this.generated = generated;
+    this.primaryKey = primaryKey;
     this.tableName = tableName;
     this.cached = cached;
     this.dsName = dsName;
@@ -43,16 +40,18 @@ public class TableMeta implements Serializable {
     Table tableAnnotation = modelClass.getAnnotation(Table.class);
     checkNotNull(tableAnnotation, "Could not found @Table Annotation.");
     this.modelClass = modelClass;
-    this.pKeys = tableAnnotation.primaryKey();
-    if (this.pKeys.contains(",")) {
-      this.lockKey = tableAnnotation.lockKey();
-      this.primaryKeys = this.pKeys.split(",");
-      this.primaryKey = this.primaryKeys[0];
-    } else {
-      this.primaryKeys = null;
-      this.lockKey = false;
-      this.primaryKey = this.pKeys;
+    this.generatedKey = tableAnnotation.generatedKey();
+    Generator generator = null;
+    try {
+      generator = tableAnnotation.generator().newInstance();
+    } catch (InstantiationException e) {
+      throw new DBException(e.getMessage(), e);
+    } catch (IllegalAccessException e) {
+      throw new DBException(e.getMessage(), e);
     }
+    this.generator = generator;
+    this.generated = tableAnnotation.generated();
+    this.primaryKey = tableAnnotation.primaryKey();
     this.tableName = tableAnnotation.name();
     this.cached = tableAnnotation.cached();
     this.dsName = dsName;
@@ -64,6 +63,14 @@ public class TableMeta implements Serializable {
 
   public boolean isCached() {
     return cached;
+  }
+
+  public boolean isGenerated() {
+    return generated;
+  }
+
+  public Generator getGenerator() {
+    return generator;
   }
 
   public Class<? extends Entity> getModelClass() {
@@ -78,21 +85,12 @@ public class TableMeta implements Serializable {
     return columnMetadata != null && columnMetadata.isEmpty();
   }
 
-  public String getpKeys() {
-    return pKeys;
+  public String getGeneratedKey() {
+    return generatedKey;
   }
 
-  public String getPrimaryKey() {
+  public String[] getPrimaryKey() {
     return primaryKey;
-  }
-
-  public String[] getPrimaryKeys() {
-    checkNotNull(primaryKeys, "Failed to found table '%s' in primaryKeys.", getTableName());
-    return primaryKeys;
-  }
-
-  public boolean isLockKey() {
-    return lockKey;
   }
 
   public String getDbType() {

@@ -96,8 +96,8 @@ app.encoding=UTF-8
 app.devMode=true
 app.showRoute=false
 app.cacheEnabled=true
-#默认使用ehcacheManager
-#app.cacheManager=cn.dreampie.cache.redis.RedisManager
+#默认使用ehcacheProvider
+#app.cacheProvider=cn.dreampie.cache.redis.RedisProvider
 
 ##druid plugin auto load
 db.default.url=jdbc:mysql://127.0.0.1/example?useUnicode=true&characterEncoding=UTF-8

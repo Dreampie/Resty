@@ -4,6 +4,7 @@ import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.util.Maper;
+import cn.dreampie.orm.Base;
 import cn.dreampie.orm.Record;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.resource.user.model.User;
@@ -61,7 +62,7 @@ public class TestResource extends ApiResource {
   public void transaction() {
     User u = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456").set("created_at", new Date());
     u.save();
-    Record record = new Record("demo", "sec_user", true);
+    Record record = new Record("demo", "sec_user", Base.DEFAULT_GENERATED_KEY);
     Record user = record.reNew().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456").set("created_at", new Date());
     user.save();
 //    throw new RuntimeException("xx");

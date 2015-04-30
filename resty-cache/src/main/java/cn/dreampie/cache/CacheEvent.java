@@ -1,7 +1,7 @@
 package cn.dreampie.cache;
 
 /**
- * Event object. Sent to {@link CacheManager} to let it know
+ * Event object. Sent to {@link CacheProvider} to let it know
  * of cache purge events.
  */
 public class CacheEvent {

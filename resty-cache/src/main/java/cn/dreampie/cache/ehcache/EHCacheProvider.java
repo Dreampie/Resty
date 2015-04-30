@@ -1,7 +1,7 @@
 package cn.dreampie.cache.ehcache;
 
 import cn.dreampie.cache.CacheEvent;
-import cn.dreampie.cache.CacheManager;
+import cn.dreampie.cache.CacheProvider;
 import cn.dreampie.log.Logger;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
@@ -11,33 +11,33 @@ import java.io.InputStream;
 import java.net.URL;
 
 /**
- * EHCacheManager
+ * EHCacheProvider
  */
-public class EHCacheManager extends CacheManager {
-  private static final Logger logger = Logger.getLogger(EHCacheManager.class);
+public class EHCacheProvider extends CacheProvider {
+  private static final Logger logger = Logger.getLogger(EHCacheProvider.class);
   private final net.sf.ehcache.CacheManager cacheManager;
 
-  public EHCacheManager() {
+  public EHCacheProvider() {
     cacheManager = net.sf.ehcache.CacheManager.create();
   }
 
-  public EHCacheManager(net.sf.ehcache.CacheManager cacheManager) {
+  public EHCacheProvider(net.sf.ehcache.CacheManager cacheManager) {
     this.cacheManager = cacheManager;
   }
 
-  public EHCacheManager(String configurationFileName) {
-    this(EHCacheManager.class.getResourceAsStream(configurationFileName));
+  public EHCacheProvider(String configurationFileName) {
+    this(EHCacheProvider.class.getResourceAsStream(configurationFileName));
   }
 
-  public EHCacheManager(URL configurationFileURL) {
+  public EHCacheProvider(URL configurationFileURL) {
     this.cacheManager = net.sf.ehcache.CacheManager.create(configurationFileURL);
   }
 
-  public EHCacheManager(InputStream inputStream) {
+  public EHCacheProvider(InputStream inputStream) {
     this.cacheManager = net.sf.ehcache.CacheManager.create(inputStream);
   }
 
-  public EHCacheManager(Configuration configuration) {
+  public EHCacheProvider(Configuration configuration) {
     this.cacheManager = net.sf.ehcache.CacheManager.create(configuration);
   }
 

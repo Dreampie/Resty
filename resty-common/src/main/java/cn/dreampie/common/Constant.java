@@ -20,7 +20,7 @@ public final class Constant {
   public final static Integer uploadMaxSize;//文件上传最大的尺寸 10 Meg
   public final static String[] uploadDenieds;//set file content type eg. text/xml  拒绝上传的文件类型
   public final static String fileRenamer;// 文件上传重命名类
-  public final static String cacheManager;// 缓存类
+  public final static String cacheProvider;// 缓存类
   public final static boolean showRoute;//请求时打印route匹配信息
   public final static String apiPrefix;//api开发的标志  比如 /api/v1.0/xxx  起始前缀/api为标志 （当api请求没有匹配到route时，会返回404状态）如果是独立域名 可以不配置该项 表示 所以url都是api访问 当非api类型请求是  没有匹配到route时  foward的url （和api请求时的处理  不一致）
   public final static String exceptionHolder;
@@ -41,7 +41,7 @@ public final class Constant {
       uploadMaxSize = 1024 * 1024 * 10;
       uploadDenieds = new String[]{};
       fileRenamer = null;
-      cacheManager = null;
+      cacheProvider = null;
       showRoute = false;
       apiPrefix = null;
       exceptionHolder = null;
@@ -58,7 +58,7 @@ public final class Constant {
         uploadDenieds = uploadDeniedStr.split(",");
       }
       fileRenamer = constants.get("app.fileRenamer");
-      cacheManager = constants.get("app.cacheManager");
+      cacheProvider = constants.get("app.cacheProvider");
       showRoute = constants.getBoolean("app.showRoute", false);
       apiPrefix = constants.get("app.apiPrefix");
       exceptionHolder = constants.get("app.exceptionHolder");

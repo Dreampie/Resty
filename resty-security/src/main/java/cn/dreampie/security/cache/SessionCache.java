@@ -2,7 +2,7 @@ package cn.dreampie.security.cache;
 
 
 import cn.dreampie.cache.CacheEvent;
-import cn.dreampie.cache.CacheManager;
+import cn.dreampie.cache.CacheProvider;
 import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 
@@ -17,12 +17,12 @@ public enum SessionCache {
 
   private final boolean enabled = Constant.cacheEnabled;
 
-  private final CacheManager cacheManager;
+  private final CacheProvider cacheProvider;
 
   //singleton
 
   private SessionCache() {
-    cacheManager = CacheManager.MANAGER;
+    cacheProvider = CacheProvider.PROVIDER;
   }
 
 
@@ -50,7 +50,7 @@ public enum SessionCache {
    */
   public void add(String group, String key, Object value) {
     if (enabled) {
-      cacheManager.addCache(group, key, value);
+      cacheProvider.addCache(group, key, value);
     }
   }
 
@@ -64,7 +64,7 @@ public enum SessionCache {
   public <T> T get(String group, String key) {
 
     if (enabled) {
-      Object item = cacheManager.getCache(group, key);
+      Object item = cacheProvider.getCache(group, key);
       if (item == null) {
         logAccess(group, key, "Miss");
       } else {
@@ -77,7 +77,7 @@ public enum SessionCache {
 
   public void remove(String group, String key) {
     if (enabled) {
-      cacheManager.removeCache(group, key);
+      cacheProvider.removeCache(group, key);
     }
   }
 
@@ -90,12 +90,12 @@ public enum SessionCache {
    */
   public void flush(String group) {
     if (enabled) {
-      cacheManager.flush(new CacheEvent(group, getClass().getName()));
+      cacheProvider.flush(new CacheEvent(group, getClass().getName()));
     }
   }
 
-  public CacheManager getCacheManager() {
-    return cacheManager;
+  public CacheProvider getCacheProvider() {
+    return cacheProvider;
   }
 }
 

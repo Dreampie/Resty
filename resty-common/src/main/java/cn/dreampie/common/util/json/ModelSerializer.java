@@ -47,7 +47,7 @@ public enum ModelSerializer implements ObjectSerializer {
           }
         }
       }
-      serializer.write(((Entity) object).toJson());
+      serializer.write(((Entity) object).getAttrs());
     }
 
   }

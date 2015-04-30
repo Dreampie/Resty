@@ -18,16 +18,29 @@ public class JndiDataSourceProvider implements DataSourceProvider {
   private DataSource ds;
   private Dialect dialect;
   private String dsName;
+  private boolean showSql;
 
   public JndiDataSourceProvider(String jndiName) {
-    this("default", jndiName, null);
+    this(jndiName, false);
+  }
+
+  public JndiDataSourceProvider(String jndiName, boolean showSql) {
+    this("default", jndiName, showSql);
   }
 
   public JndiDataSourceProvider(String dsName, String jndiName) {
-    this(dsName, jndiName, null);
+    this(dsName, jndiName, false);
+  }
+
+  public JndiDataSourceProvider(String dsName, String jndiName, boolean showSql) {
+    this(dsName, jndiName, null, showSql);
   }
 
   public JndiDataSourceProvider(String dsName, String jndiName, String dialect) {
+    this(dsName, jndiName, dialect, false);
+  }
+
+  public JndiDataSourceProvider(String dsName, String jndiName, String dialect, boolean showSql) {
     this.dsName = dsName;
     Context ctx;
     try {
@@ -40,6 +53,7 @@ public class JndiDataSourceProvider implements DataSourceProvider {
       throw new DBException(e.getMessage(), e);
     }
     this.dialect = DialectFactory.get(dialect == null ? "mysql" : dialect);
+    this.showSql = showSql;
   }
 
   public DataSource getDataSource() {
@@ -52,5 +66,14 @@ public class JndiDataSourceProvider implements DataSourceProvider {
 
   public String getDsName() {
     return dsName;
+  }
+
+  public boolean isShowSql() {
+    return showSql;
+  }
+
+  public JndiDataSourceProvider setShowSql(boolean showSql) {
+    this.showSql = showSql;
+    return this;
   }
 }

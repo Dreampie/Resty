@@ -11,8 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static cn.dreampie.common.util.Checker.checkNotNull;
-
 /**
  * ConnectionAccess
  */
@@ -21,51 +19,33 @@ public class DataSourceMeta {
   private static final Logger logger = Logger.getLogger(DataSourceMeta.class);
   //不能使用static 让每个数据源都有一个connectionTL
   private final ThreadLocal<Connection> connectionTL = new ThreadLocal<Connection>();
-  private boolean showSql;
-  private String dsName;
-  private DataSource dataSource;
-  private Dialect dialect;
+  private DataSourceProvider dataSourceProvider;
 
   public DataSourceMeta(DataSourceProvider dataSourceProvider) {
-    this(dataSourceProvider.getDsName(), dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), false);
-  }
-
-  public DataSourceMeta(DataSourceProvider dataSourceProvider, boolean showSql) {
-    this(dataSourceProvider.getDsName(), dataSourceProvider.getDataSource(), dataSourceProvider.getDialect(), showSql);
-  }
-
-  public DataSourceMeta(String dsName, DataSource dataSource, Dialect dialect) {
-    this(dsName, dataSource, dialect, false);
-  }
-
-  public DataSourceMeta(String dsName, DataSource dataSource, Dialect dialect, boolean showSql) {
-    this.dsName = checkNotNull(dsName);
-    this.dataSource = checkNotNull(dataSource);
-    this.dialect = checkNotNull(dialect);
-    this.showSql = showSql;
+    this.dataSourceProvider = dataSourceProvider;
   }
 
   public String getDsName() {
-    return dsName;
+    return dataSourceProvider.getDsName();
   }
 
   public DataSource getDataSource() {
-    return dataSource;
+    return dataSourceProvider.getDataSource();
   }
 
   public Dialect getDialect() {
-    return dialect;
+    return dataSourceProvider.getDialect();
+  }
+
+  public boolean isShowSql() {
+    return dataSourceProvider.isShowSql();
   }
 
   public Connection getConnection() throws SQLException {
     Connection conn = connectionTL.get();
     if (conn != null)
       return conn;
-    return dataSource.getConnection();
-  }
-
-  public boolean isShowSql() {
-    return showSql;
+    return getDataSource().getConnection();
   }
 
   public Connection getCurrentConnection() {
@@ -81,6 +61,7 @@ public class DataSourceMeta {
   }
 
   public final void close() {
+    DataSource dataSource = getDataSource();
     if (dataSource != null && dataSource instanceof DruidDataSource)
       ((DruidDataSource) dataSource).close();
   }

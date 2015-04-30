@@ -1,7 +1,7 @@
 package cn.dreampie.cache.redis;
 
 import cn.dreampie.cache.CacheEvent;
-import cn.dreampie.cache.CacheManager;
+import cn.dreampie.cache.CacheProvider;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
@@ -19,9 +19,9 @@ import java.util.Set;
 /**
  * Created by Dreampie on 15/4/24.
  */
-public class RedisManager extends CacheManager {
+public class RedisProvider extends CacheProvider {
 
-  private static final Logger logger = Logger.getLogger(RedisManager.class);
+  private static final Logger logger = Logger.getLogger(RedisProvider.class);
 
   private static final Pool pool;
   private static final String host;

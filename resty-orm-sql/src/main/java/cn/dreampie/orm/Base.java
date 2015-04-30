@@ -441,8 +441,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   public M findColsById(String columns, Object id) {
     TableMeta tableMeta = getTableMeta();
-    String[] keys = getPrimaryKeys(tableMeta);
-    String sql = getDialect().select(tableMeta.getTableName(), "", keys[0] + "=?", columns.split(","));
+    String sql = getDialect().select(tableMeta.getTableName(), "", tableMeta.getGeneratedKey() + "=?", columns.split(","));
     List<M> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }
@@ -784,8 +783,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   public boolean deleteById(Object id) {
     checkNotNull(id, "You can't delete model without primaryKey.");
     TableMeta tableMeta = getTableMeta();
-    String[] keys = getPrimaryKeys(tableMeta);
-    String sql = getDialect().delete(tableMeta.getTableName(), keys[0] + "=?");
+    String sql = getDialect().delete(tableMeta.getTableName(), tableMeta.getGeneratedKey() + "=?");
     return update(sql, id);
   }
 

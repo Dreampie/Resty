@@ -17,6 +17,7 @@ import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.Validator;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -141,14 +142,31 @@ public class Route {
         for (int i = 0; i < pSize; i++) {
           pName = allParamNames.get(i);
           if (pathParamNames.contains(pName)) {
-            sbPath.append(pName).append("(").append(allParamTypes.get(i).getSimpleName()).append(")  ");
+            sbPath.append(pName).append("(").append(allGenericParamTypes.get(i)).append(")  ");
           } else {
-            sbOther.append(pName).append("(").append(allParamTypes.get(i).getSimpleName()).append(")  ");
+            sbOther.append(pName).append("(").append(allGenericParamTypes.get(i)).append(")  ");
           }
         }
       }
 
       sb.append(sbPath).append(sbOther);
+
+      Type returnType = method.getGenericReturnType();
+      sb.append("\nReturnType   : ").append(returnType);
+//      // 如果是泛型类型
+//      if (returnType instanceof ParameterizedType) {
+//        sb.append("<");
+//        Type[] types = ((ParameterizedType) returnType).getActualTypeArguments();// 泛型类型列表
+//        int i = 0, len = types.length;
+//        for (Type type : types) {
+//          sb.append(type);
+//          if (i < len - 1) {
+//            sb.append(",");
+//          }
+//        }
+//        sb.append(">");
+//      }
+
       sb.append("\nDescriptions : ").append(des);
       sb.append("\n--------------------------------------------------------------------------------\n");
       logger.info(sb.toString());
@@ -243,6 +261,9 @@ public class Route {
           sb.append("  ");
         }
       }
+
+      Type returnType = method.getGenericReturnType();
+      sb.append("\nReturnType   : ").append(returnType);
 
       if (interceptors != null && interceptors.length > 0) {
         sb.append("\nInterceptors : ");

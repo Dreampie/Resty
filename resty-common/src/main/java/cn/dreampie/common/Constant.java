@@ -16,6 +16,7 @@ public final class Constant {
   public final static String encoding;//编码
   public final static boolean devMode;//是否使用开发模式
   public final static boolean cacheEnabled;//是否开启缓存
+  public final static boolean oneParamParse;//单一参数不用传参数名字
   public final static String uploadDirectory;//文件上传默认目录
   public final static Integer uploadMaxSize;//文件上传最大的尺寸 10 Meg
   public final static String[] uploadDenieds;//set file content type eg. text/xml  拒绝上传的文件类型
@@ -37,6 +38,7 @@ public final class Constant {
       encoding = "UTF-8";
       devMode = false;
       cacheEnabled = false;
+      oneParamParse = false;
       uploadDirectory = File.separator + "upload" + File.separator;
       uploadMaxSize = 1024 * 1024 * 10;
       uploadDenieds = new String[]{};
@@ -49,6 +51,7 @@ public final class Constant {
       encoding = constants.get("app.encoding", Charsets.UTF_8.toString());
       devMode = constants.getBoolean("app.devMode", false);
       cacheEnabled = constants.getBoolean("app.cacheEnabled", false);
+      oneParamParse = constants.getBoolean("app.oneParamParse", false);
       uploadDirectory = constants.get("app.uploadDirectory", File.separator + "upload" + File.separator);
       uploadMaxSize = constants.getInt("app.uploadMaxSize", 1024 * 1024 * 10);
       String uploadDeniedStr = constants.get("app.uploadDenieds");

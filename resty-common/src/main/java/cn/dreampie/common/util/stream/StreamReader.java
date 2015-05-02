@@ -27,7 +27,7 @@ public class StreamReader {
         response.append(line);
       }
       result = response.toString();
-      logger.debug("Read object in response is: %s", result);
+      logger.debug("Read stream from inputStream: %s", result);
       rd.close();
     }
     return result;

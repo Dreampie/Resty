@@ -1,9 +1,9 @@
 package cn.dreampie.route.interceptor.transaction;
 
+import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.Metadata;
 import cn.dreampie.orm.exception.TransactionException;
 import cn.dreampie.orm.transaction.Transaction;
-import cn.dreampie.orm.transaction.TransactionManager;
 import cn.dreampie.route.core.RouteInvocation;
 import cn.dreampie.route.interceptor.Interceptor;
 
@@ -18,7 +18,7 @@ public class TransactionInterceptor implements Interceptor {
 
   public void intercept(RouteInvocation ri) {
 
-    List<TransactionManager> transactionManagers = null;
+    List<DataSourceMeta> dataSourceMetas = null;
     Transaction transactionAnn = ri.getMethod().getAnnotation(Transaction.class);
     if (transactionAnn != null) {
       String[] names = transactionAnn.name();
@@ -27,27 +27,27 @@ public class TransactionInterceptor implements Interceptor {
       }
       int[] levels = transactionAnn.level();
       boolean[] readonlys = transactionAnn.readonly();
-      transactionManagers = new ArrayList<TransactionManager>();
-      TransactionManager transactionManager;
+      dataSourceMetas = new ArrayList<DataSourceMeta>();
+      DataSourceMeta dataSourceMeta;
       try {
         for (int i = 0; i < names.length; i++) {
-          transactionManager = new TransactionManager(Metadata.getDataSourceMeta(names[i]));
-          transactionManagers.add(transactionManager);
-          transactionManager.begin(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
+          dataSourceMeta = Metadata.getDataSourceMeta(names[i]);
+          dataSourceMeta.initCurrentTransactionManager(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
+          dataSourceMetas.add(dataSourceMeta);
         }
         //执行操作
         ri.invoke();
-        for (TransactionManager tm : transactionManagers) {
-          tm.commit();
+        for (DataSourceMeta dsm : dataSourceMetas) {
+          dsm.commitTransaction();
         }
       } catch (Throwable t) {
-        for (TransactionManager tm : transactionManagers) {
-          tm.rollback();
+        for (DataSourceMeta dsm : dataSourceMetas) {
+          dsm.rollbackTransaction();
         }
         throw new TransactionException(t.getMessage(), t);
       } finally {
-        for (TransactionManager tm : transactionManagers) {
-          tm.end();
+        for (DataSourceMeta dsm : dataSourceMetas) {
+          dsm.endTranasaction();
         }
       }
     } else {

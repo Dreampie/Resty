@@ -1,10 +1,10 @@
 package cn.dreampie.orm;
 
 import cn.dreampie.common.Plugin;
-import cn.dreampie.common.util.ClassScaner;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.common.util.json.ModelDeserializer;
 import cn.dreampie.common.util.json.ModelSerializer;
+import cn.dreampie.common.util.scan.ClassScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.provider.DataSourceProvider;
 
@@ -124,8 +124,6 @@ public class ActiveRecordPlugin implements Plugin {
   }
 
   public boolean stop() {
-    //关闭数据源  元数据
-    Metadata.closeDataSourceMeta();
     return true;
   }
 

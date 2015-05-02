@@ -1,6 +1,7 @@
 package cn.dreampie.orm.transaction;
 
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.Metadata;
 import cn.dreampie.orm.exception.TransactionException;
 
@@ -19,7 +20,7 @@ public class TransactionAspect implements Aspect {
   public Object aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable {
     Object result = null;
 
-    List<TransactionManager> transactionManagers = null;
+    List<DataSourceMeta> dataSourceMetas = null;
     Transaction transactionAnn = method.getAnnotation(Transaction.class);
     if (transactionAnn != null) {
       String[] names = transactionAnn.name();
@@ -28,22 +29,22 @@ public class TransactionAspect implements Aspect {
       }
       int[] levels = transactionAnn.level();
       boolean[] readonlys = transactionAnn.readonly();
-      transactionManagers = new ArrayList<TransactionManager>();
-      TransactionManager transactionManager;
+      dataSourceMetas = new ArrayList<DataSourceMeta>();
+      DataSourceMeta dataSourceMeta;
       try {
         for (int i = 0; i < names.length; i++) {
-          transactionManager = new TransactionManager(Metadata.getDataSourceMeta(names[i]));
-          transactionManagers.add(transactionManager);
-          transactionManager.begin(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
+          dataSourceMeta = Metadata.getDataSourceMeta(names[i]);
+          dataSourceMeta.initCurrentTransactionManager(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
+          dataSourceMetas.add(dataSourceMeta);
         }
         //执行操作
         result = ih.invoke(proxy, method, args);
-        for (TransactionManager tm : transactionManagers) {
-          tm.commit();
+        for (DataSourceMeta dsm : dataSourceMetas) {
+          dsm.commitTransaction();
         }
       } catch (Throwable t) {
-        for (TransactionManager tm : transactionManagers) {
-          tm.rollback();
+        for (DataSourceMeta dsm : dataSourceMetas) {
+          dsm.rollbackTransaction();
         }
         Throwable cause = t.getCause();
         if (cause != null) {
@@ -52,8 +53,8 @@ public class TransactionAspect implements Aspect {
           throw new TransactionException(t.getMessage(), t);
         }
       } finally {
-        for (TransactionManager tm : transactionManagers) {
-          tm.end();
+        for (DataSourceMeta dsm : dataSourceMetas) {
+          dsm.endTranasaction();
         }
       }
     } else {

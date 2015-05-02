@@ -13,26 +13,30 @@ import java.sql.SQLException;
 public class TransactionManager {
   private final static Logger logger = Logger.getLogger(TransactionManager.class);
   private DataSourceMeta dataSourceMeta;
-  private Boolean isReadonly;
+  private boolean begined;
+  private int level;//事务级别
+  private Boolean readonly;//只读
   private Boolean autoCommit;
 
-  public TransactionManager(DataSourceMeta dataSourceMeta) {
+  public TransactionManager(DataSourceMeta dataSourceMeta, boolean readonly, int level) {
     this.dataSourceMeta = dataSourceMeta;
+    this.readonly = readonly;
+    this.level = level;
   }
 
   /**
-   * 开始事务
-   */
-  public void begin() {
-    begin(false, Connection.TRANSACTION_READ_COMMITTED);
-  }
-
-  /**
-   * 开始事务
+   * 是不是已经开始了
    *
-   * @param level 事务级别
+   * @return boolean
    */
-  public void begin(boolean readonly, int level) throws TransactionException {
+  public boolean isBegined() {
+    return begined;
+  }
+
+  /**
+   * 开始事务
+   */
+  public void begin() throws TransactionException {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
       if (conn == null) {
@@ -45,13 +49,15 @@ public class TransactionManager {
           conn.setAutoCommit(false);
         }
       } else {
-        isReadonly = conn.isReadOnly();
+        readonly = conn.isReadOnly();
         conn.setReadOnly(true);
       }
       conn.setTransactionIsolation(level);
       logger.info("Connection for " + dataSourceMeta.getDsName() + " has opened success.");
     } catch (SQLException e) {
       throw new TransactionException(e.getMessage(), e);
+    } finally {
+      begined = true;
     }
   }
 
@@ -62,7 +68,7 @@ public class TransactionManager {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
       if (conn != null) {
-        if (isReadonly == null || !isReadonly) {
+        if (readonly == null || !readonly) {
           if (!conn.getAutoCommit()) {
             conn.commit();
             logger.info("Connection for " + dataSourceMeta.getDsName() + " has commited success.");
@@ -85,9 +91,9 @@ public class TransactionManager {
           conn.setAutoCommit(autoCommit);
           autoCommit = null;
         }
-        if (isReadonly != null) {
-          conn.setReadOnly(isReadonly);
-          isReadonly = null;
+        if (readonly != null) {
+          conn.setReadOnly(readonly);
+          readonly = null;
         }
         dataSourceMeta.rmCurrentConnection();
         dataSourceMeta.close(conn);
@@ -105,7 +111,7 @@ public class TransactionManager {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
       if (conn != null) {
-        if (isReadonly == null || !isReadonly) {
+        if (readonly == null || !readonly) {
           conn.rollback();
           logger.info("Connection for " + dataSourceMeta.getDsName() + " has rollbacked success.");
         }

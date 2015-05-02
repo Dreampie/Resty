@@ -65,7 +65,7 @@ public abstract class Model<M extends Model> extends Base<M> {
       this.useDS = useDS;
       return (M) this;
     } else {
-      if (this.useDS.equals(useDS)) {
+      if (useDS.equals(this.useDS)) {
         return (M) this;
       } else {
         return instance(useDS, true);

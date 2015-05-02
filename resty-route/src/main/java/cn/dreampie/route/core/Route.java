@@ -17,7 +17,6 @@ import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.Validator;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -46,7 +45,6 @@ public class Route {
         pathPatternParser.stdPathPatternBuilder.appendCodePoint(curChar);
       }
     }
-
 
     public void end(PathPatternParser pathPatternParser) {
     }
@@ -153,26 +151,19 @@ public class Route {
 
       Type returnType = method.getGenericReturnType();
       sb.append("\nReturnType   : ").append(returnType);
-//      // 如果是泛型类型
-//      if (returnType instanceof ParameterizedType) {
-//        sb.append("<");
-//        Type[] types = ((ParameterizedType) returnType).getActualTypeArguments();// 泛型类型列表
-//        int i = 0, len = types.length;
-//        for (Type type : types) {
-//          sb.append(type);
-//          if (i < len - 1) {
-//            sb.append(",");
-//          }
-//        }
-//        sb.append(">");
-//      }
-
       sb.append("\nDescriptions : ").append(des);
       sb.append("\n--------------------------------------------------------------------------------\n");
       logger.info(sb.toString());
     }
   }
 
+  /**
+   * 匹配路由
+   *
+   * @param request  request对象
+   * @param response response对象
+   * @return route
+   */
   public RouteMatch match(HttpRequest request, HttpResponse response) {
     if (!this.httpMethod.equals(request.getHttpMethod())) {
       return null;
@@ -194,9 +185,9 @@ public class Route {
       }
     }
     //pathParams
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> pathParams = new HashMap<String, String>();
     for (int i = 0; i < m.groupCount() && i < pathParamNames.size(); i++) {
-      params.put(pathParamNames.get(i), m.group(i + 1));
+      pathParams.put(pathParamNames.get(i), m.group(i + 1));
     }
     //otherParams
     Map<String, List<String>> otherParams = request.getQueryParams();
@@ -211,16 +202,23 @@ public class Route {
     //print match route
     if (multipartParam != null) {
       otherParams.putAll(multipartParam.getParams());
-      printMatchRoute(params, otherParams, multipartParam.getUploadedFiles());
-      routeMatch = new RouteMatch(pathPattern, restPath, extension, params, otherParams, multipartParam.getUploadedFiles(), request, response);
+      printMatchRoute(pathParams, otherParams, multipartParam.getUploadedFiles());
+      routeMatch = new RouteMatch(pathPattern, restPath, extension, pathParams, otherParams, multipartParam.getUploadedFiles(), request, response);
     } else {
-      printMatchRoute(params, otherParams, null);
-      routeMatch = new RouteMatch(pathPattern, restPath, extension, params, otherParams, null, request, response);
+      printMatchRoute(pathParams, otherParams, null);
+      routeMatch = new RouteMatch(pathPattern, restPath, extension, pathParams, otherParams, null, request, response);
     }
     return routeMatch;
   }
 
-  private void printMatchRoute(Map<String, String> params, Map<String, List<String>> otherParams, Map<String, UploadedFile> fileParams) {
+  /**
+   * 打印route信息
+   *
+   * @param pathParams  path参数
+   * @param otherParams 其他参数
+   * @param fileParams  文件参数
+   */
+  private void printMatchRoute(Map<String, String> pathParams, Map<String, List<String>> otherParams, Map<String, UploadedFile> fileParams) {
     if (Constant.showRoute && logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
@@ -229,8 +227,8 @@ public class Route {
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
       //print pathParams
       sb.append("\nPathParams   : ");
-      if (params.size() > 0) {
-        Set<Map.Entry<String, String>> paramsEntrySet = params.entrySet();
+      if (pathParams.size() > 0) {
+        Set<Map.Entry<String, String>> paramsEntrySet = pathParams.entrySet();
         for (Map.Entry<String, String> paramsEntry : paramsEntrySet) {
           sb.append(paramsEntry.getKey()).append(" = {").append(paramsEntry.getValue()).append("}");
           sb.append("  ");

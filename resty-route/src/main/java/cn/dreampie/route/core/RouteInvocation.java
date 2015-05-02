@@ -1,5 +1,6 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.http.*;
 import cn.dreampie.common.http.exception.WebException;
@@ -220,8 +221,6 @@ public class RouteInvocation {
     List<String> allParamNames = route.getAllParamNames();
     List<String> pathParamNames = route.getPathParamNames();
 
-    Object obj = null;
-
     //判断范型类型
     Type[] typeArguments;
 
@@ -302,7 +301,10 @@ public class RouteInvocation {
     List<String> pathParamNames = route.getPathParamNames();
 
     //只有一个参数时 直接把该参数 放入方法
-    boolean onlyOneParam = (allParamNames.size() - pathParamNames.size()) == 1;
+    boolean oneParamParse = false;
+    if (Constant.oneParamParse) {
+      oneParamParse = (allParamNames.size() - pathParamNames.size()) == 1;
+    }
 
     Object obj = null;
 
@@ -324,7 +326,7 @@ public class RouteInvocation {
         }
       } else {//其他参数
         if (hasJsonParam) {
-          if (onlyOneParam) {
+          if (oneParamParse) {
             //转换对象到指定的类型
             params.set(name, parse(route.getAllGenericParamTypes().get(i), paramType, receiveParams));
           } else {

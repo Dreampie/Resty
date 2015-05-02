@@ -1,6 +1,6 @@
 package cn.dreampie.route.config;
 
-import cn.dreampie.common.util.ClassScaner;
+import cn.dreampie.common.util.scan.ClassScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.core.Resource;
 

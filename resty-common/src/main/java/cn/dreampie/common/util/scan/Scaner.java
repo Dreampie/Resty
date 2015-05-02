@@ -1,4 +1,4 @@
-package cn.dreampie.common.util;
+package cn.dreampie.common.util.scan;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -18,40 +18,39 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 /**
  * Created by ice on 14-12-19.
  */
-public class ClassScaner {
+public abstract class Scaner {
 
-  private Set<String> includePackages = new HashSet<String>();
+  protected Set<String> includePackages = new HashSet<String>();
 
-  private Class target;
-
-  public ClassScaner(Class target) {
-    this.target = target;
-  }
+  public abstract boolean checkTarget(Class<?> clazz);
 
   /**
-   * 要扫描的类父级
+   * 搜索目录
    *
-   * @param target class
-   * @return scaner
+   * @param <T> 返回的lcass类型
+   * @return 搜索到的class
    */
-  public static ClassScaner of(Class target) {
-    return new ClassScaner(target);
-  }
-
-  private static <T> Set<Class<? extends T>> extraction(Class<T> clazz, Set<String> classFileSet) {
+  public <T> Set<Class<? extends T>> scan() {
     Set<Class<? extends T>> classSet = new HashSet<Class<? extends T>>();
-    for (String classFile : classFileSet) {
-      Class<?> classInFile = null;
-      try {
-        classInFile = Class.forName(classFile);
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e.getMessage(), e);
+    if (includePackages.size() > 0) {
+      Set<String> classFileSet = new HashSet<String>();
+      for (String classpath : includePackages) {
+        classFileSet.addAll(findFiles(classpath, "*.class"));
       }
-      if (clazz.isAssignableFrom(classInFile) && clazz != classInFile) {
-        classSet.add((Class<? extends T>) classInFile);
+      for (String classFile : classFileSet) {
+        Class<?> classInFile = null;
+        try {
+//          classInFile = Class.forName(classFile);
+          classInFile = Thread.currentThread().getContextClassLoader().loadClass(classFile);
+        } catch (ClassNotFoundException e) {
+          throw new RuntimeException(e.getMessage(), e);
+        }
+        if (checkTarget(classInFile)) {
+          classSet.add((Class<? extends T>) classInFile);
+        }
       }
-    }
 
+    }
     return classSet;
   }
 
@@ -61,7 +60,7 @@ public class ClassScaner {
    * @param baseDirName    查找的文件夹路径
    * @param targetFileName 需要查找的文件名
    */
-  private static Set<String> findFiles(String baseDirName, String targetFileName) {
+  protected Set<String> findFiles(String baseDirName, String targetFileName) {
     /**
      * 算法简述： 从某个给定的需查找的文件夹出发，搜索该文件夹的所有子文件夹及文件， 若为文件，则进行匹配，匹配成功则加入结果集，若为子文件夹，则进队列。 队列不空，重复上述操作，队列为空，程序结束，返回结果。
      */
@@ -69,7 +68,7 @@ public class ClassScaner {
     //判断class路径
     Enumeration<URL> baseURLs = null;
     try {
-      baseURLs = ClassScaner.class.getClassLoader().getResources(baseDirName.replaceAll("\\.", "/"));
+      baseURLs = Scaner.class.getClassLoader().getResources(baseDirName.replaceAll("\\.", "/"));
     } catch (IOException e) {
       throw new RuntimeException(e.getMessage(), e);
     }
@@ -105,7 +104,7 @@ public class ClassScaner {
    * @param targetFileName 文件匹配
    * @return Set
    */
-  private static Set<String> findPackageFiles(String baseDirName, String targetFileName) {
+  private Set<String> findPackageFiles(String baseDirName, String targetFileName) {
     Set<String> classFiles = new HashSet<String>();
     String tempName = null;
     // 判断目录是否存在
@@ -127,7 +126,7 @@ public class ClassScaner {
           classFiles.addAll(findPackageFiles(baseDirName + File.separator + aFilelist, targetFileName));
         } else {
           tempName = readfile.getName();
-          if (ClassScaner.wildcardMatch(targetFileName, tempName)) {
+          if (wildcardMatch(targetFileName, tempName)) {
             tem = readfile.getAbsoluteFile().toString().replaceAll("\\\\", "/");
             classname = tem.substring(tem.indexOf("classes/") + "classes/".length(),
                 tem.indexOf(".class"));
@@ -146,7 +145,7 @@ public class ClassScaner {
    * @param str     待匹配的字符串 <a href="http://my.oschina.net/u/556800" target="_blank" rel="nofollow">@return</a>
    *                匹配成功则返回true，否则返回false
    */
-  private static boolean wildcardMatch(String pattern, String str) {
+  private boolean wildcardMatch(String pattern, String str) {
     int patternLength = pattern.length();
     int strLength = str.length();
     int strIndex = 0;
@@ -184,16 +183,16 @@ public class ClassScaner {
    * @param filePath    文件路径
    * @param packageName 包名
    * @return list
-   * @throws java.io.IOException 文件读取异常
+   * @throws IOException 文件读取异常
    */
-  private static Set<String> findJarFile(String filePath, String packageName) throws IOException {
+  private Set<String> findJarFile(String filePath, String packageName) throws IOException {
     JarFile localJarFile = new JarFile(new File(filePath));
     Set<String> classFiles = findInJar(localJarFile, packageName);
     localJarFile.close();
     return classFiles;
   }
 
-  private static Set<String> findInJar(JarFile localJarFile, String packageName) {
+  private Set<String> findInJar(JarFile localJarFile, String packageName) {
     Set<String> classFiles = new HashSet<String>();
     Enumeration<JarEntry> entries = localJarFile.entries();
     while (entries.hasMoreElements()) {
@@ -207,36 +206,18 @@ public class ClassScaner {
     return classFiles;
   }
 
-  public ClassScaner includePackages(String... classPackages) {
+  public Scaner includePackages(String... classPackages) {
     checkNotNull(classPackages, "Class packegs could not be null.");
     Collections.addAll(includePackages, classPackages);
     return this;
   }
 
-  public ClassScaner includePackages(Set<String> classPackages) {
+  public Scaner includePackages(Set<String> classPackages) {
     checkNotNull(classPackages, "Class packegs could not be null.");
     for (String classpath : classPackages) {
       this.includePackages.add(classpath);
     }
     return this;
-  }
-
-  /**
-   * 搜索目录
-   *
-   * @param <T> 返回的lcass类型
-   * @return 搜索到的class
-   */
-  public <T> Set<Class<? extends T>> scan() {
-    Set<Class<? extends T>> classSet = new HashSet<Class<? extends T>>();
-    if (includePackages.size() > 0) {
-      Set<String> classFileSet = new HashSet<String>();
-      for (String classpath : includePackages) {
-        classFileSet.addAll(findFiles(classpath, "*.class"));
-      }
-      classSet = extraction(target, classFileSet);
-    }
-    return classSet;
   }
 
   /**

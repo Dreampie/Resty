@@ -71,22 +71,9 @@ public class Metadata {
       defaultDsName = dsName;
     }
     if (dataSourceMetaMap.containsKey(dsName)) {
-      logger.warn("Covering multiple data sources for dsName '%s'.", dsName);
+      logger.error("Covering multiple dataSources for dsName '%s'.", dsName);
     }
     return dataSourceMetaMap.put(dsName, dsm);
-  }
-
-  static void closeDataSourceMeta() {
-    for (String dsName : dataSourceMetaMap.keySet()) {
-      closeDataSourceMeta(dsName);
-    }
-  }
-
-  static void closeDataSourceMeta(String dsName) {
-    DataSourceMeta dataSourceMeta = dataSourceMetaMap.get(dsName);
-    if (dataSourceMeta != null) {
-      dataSourceMeta.close();
-    }
   }
 
   static TableMeta addTableMeta(TableMeta tableMeta) {
@@ -108,6 +95,9 @@ public class Metadata {
     }
     String mark = getMark(dsName, tableName);
     if (clazz != null) {
+      if (tableMetaClassMap.containsKey(clazz)) {
+        logger.error("Covering multiple class '" + clazz + "' for table '" + tableName + "' in '" + dsName + "'.");
+      }
       tableMetaClassMap.put(clazz, mark);
     }
     return tableMetaMap.put(mark, tableMeta);

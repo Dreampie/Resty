@@ -18,7 +18,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.11</junit.version>
     <servlet.version>3.1.0</servlet.version>
-    <slf4j.version>1.7.7</slf4j.version>
     <logback.version>1.1.2</logback.version>
     <fastjson.version>1.2.5</fastjson.version>
     <resty.version>${parent.version}</resty.version>
@@ -76,13 +75,6 @@
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-security</artifactId>
       <version>${resty.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
       <scope>provided</scope>
     </dependency>
 

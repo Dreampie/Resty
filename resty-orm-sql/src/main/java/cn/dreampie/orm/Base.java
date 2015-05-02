@@ -157,6 +157,12 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       throw new DBException("The table name: " + tableName + " not in your sql.");
   }
 
+  /**
+   * sql语句
+   *
+   * @param sql    sql
+   * @param params 参数
+   */
   private void logSql(String sql, Object[][] params) {
     if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
       StringBuilder log = new StringBuilder("Sql: {").append(sql).append("} ");
@@ -172,6 +178,12 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
   }
 
+  /**
+   * sql 语句
+   *
+   * @param sql    sql
+   * @param params 参数
+   */
   private void logSql(String sql, Object[] params) {
     if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
       StringBuilder log = new StringBuilder("Sql: {").append(sql).append("} ");
@@ -184,12 +196,39 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
   }
 
+  /**
+   * sql 语句
+   *
+   * @param sqls sqls
+   */
   private void logSql(List<String> sqls) {
     if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
       logger.info("Sqls: " + '{' + Joiner.on("}, {").useForNull("null").join(sqls) + '}');
     }
   }
 
+
+  /**
+   * sql连接对象
+   *
+   * @return Connection
+   * @throws SQLException
+   */
+  private Connection getConnection(DataSourceMeta dataSourceMeta) throws SQLException {
+    dataSourceMeta.beginTransaction();
+    return dataSourceMeta.getConnection();
+  }
+
+  /**
+   * 获取sql执行对象
+   *
+   * @param conn
+   * @param tableMeta
+   * @param sql
+   * @param params
+   * @return
+   * @throws SQLException
+   */
   private PreparedStatement getPreparedStatement(Connection conn, TableMeta tableMeta, String sql, Object[] params) throws SQLException {
     //打印sql语句
     logSql(sql, params);
@@ -208,7 +247,16 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     return pst;
   }
 
-
+  /**
+   * 获取sql执行对象
+   *
+   * @param conn
+   * @param tableMeta
+   * @param sql
+   * @param params
+   * @return
+   * @throws SQLException
+   */
   private PreparedStatement getPreparedStatement(Connection conn, TableMeta tableMeta, String sql, Object[][] params) throws SQLException {
     //打印sql语句
     logSql(sql, params);
@@ -240,6 +288,14 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     return pst;
   }
 
+  /**
+   * 获取sql执行对象
+   *
+   * @param conn
+   * @param sqls
+   * @return
+   * @throws SQLException
+   */
   private Statement getPreparedStatement(Connection conn, List<String> sqls) throws SQLException {
     //打印sql语句
     logSql(sqls);
@@ -387,7 +443,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     PreparedStatement pst = null;
     ResultSet rs = null;
     try {
-      conn = dsm.getConnection();
+      conn = getConnection(dsm);
       pst = getPreparedStatement(conn, tableMeta, sql, params);
       rs = pst.executeQuery();
       result = BaseBuilder.build(rs, getClass(), dsm, tableMeta);
@@ -508,25 +564,30 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
     DataSourceMeta dsm = getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
+    String[] columns = getModifyAttrNames();
 
-    String sql = dialect.insert(tableMeta.getTableName(), getModifyAttrNames());
+    //判断是否有更新
+    if (columns.length <= 0) {
+      logger.warn("Could not found any data to save.");
+      return false;
+    } else {
+      String sql = dialect.insert(tableMeta.getTableName(), columns);
+      Connection conn = null;
+      PreparedStatement pst = null;
+      int result = 0;
+      try {
+        conn = getConnection(dsm);
+        pst = getPreparedStatement(conn, tableMeta, sql, getModifyAttrValues());
 
-    // --------
-    Connection conn = null;
-    PreparedStatement pst = null;
-    int result = 0;
-    try {
-      conn = dsm.getConnection();
-      pst = getPreparedStatement(conn, tableMeta, sql, getModifyAttrValues());
-
-      result = pst.executeUpdate();
-      setGeneratedKey(pst, tableMeta);
-      clearModifyAttrs();
-      return result >= 1;
-    } catch (SQLException e) {
-      throw new DBException(e.getMessage(), e);
-    } finally {
-      dsm.close(pst, conn);
+        result = pst.executeUpdate();
+        setGeneratedKey(pst, tableMeta);
+        clearModifyAttrs();
+        return result >= 1;
+      } catch (SQLException e) {
+        throw new DBException(e.getMessage(), e);
+      } finally {
+        dsm.close(pst, conn);
+      }
     }
   }
 
@@ -568,54 +629,58 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     Dialect dialect = dsm.getDialect();
 
     String[] columns = firstModel.getModifyAttrNames();
-    String sql = dialect.insert(tableMeta.getTableName(), columns);
 
-    //参数
-    Object[][] params = new Object[models.size()][columns.length];
+    //判断是否有更新
+    if (columns.length <= 0) {
+      logger.warn("Could not found any data to save.");
+      return false;
+    } else {
+      String sql = dialect.insert(tableMeta.getTableName(), columns);
+      //参数
+      Object[][] params = new Object[models.size()][columns.length];
 
-    for (int i = 0; i < params.length; i++) {
-      for (int j = 0; j < params[i].length; j++) {
-        //如果是自动生成主键 使用生成器生成
-        if (generated && columns[j].equals(generatedKey)) {
-          models.get(i).set(columns[j], generator.generateKey());
-        }
-        params[i][j] = models.get(i).get(columns[j]);
-
-      }
-    }
-
-    // --------
-    Connection conn = null;
-    PreparedStatement pst = null;
-    int[] result = null;
-    Boolean autoCommit = null;
-    try {
-      conn = dsm.getConnection();
-      autoCommit = conn.getAutoCommit();
-      if (autoCommit)
-        conn.setAutoCommit(false);
-
-      pst = getPreparedStatement(conn, tableMeta, sql, params);
-      result = pst.executeBatch();
-      setGeneratedKey(pst, tableMeta, models);
-      //没有事务的情况下 手动提交
-      if (dsm.getCurrentConnection() == null)
-        conn.commit();
-      conn.setAutoCommit(autoCommit);
-      for (M model : models) {
-        model.clearModifyAttrs();
-      }
-      //判断是否是保存了所有数据
-      for (int r : result) {
-        if (r < 1) {
-          return false;
+      for (int i = 0; i < params.length; i++) {
+        for (int j = 0; j < params[i].length; j++) {
+          //如果是自动生成主键 使用生成器生成
+          if (generated && columns[j].equals(generatedKey)) {
+            models.get(i).set(columns[j], generator.generateKey());
+          }
+          params[i][j] = models.get(i).get(columns[j]);
         }
       }
-      return true;
-    } catch (SQLException e) {
-      throw new DBException(e.getMessage(), e);
-    } finally {
-      dsm.close(pst, conn);
+
+      Connection conn = null;
+      PreparedStatement pst = null;
+      Boolean autoCommit = null;
+      int[] result = null;
+      try {
+        conn = getConnection(dsm);
+        autoCommit = conn.getAutoCommit();
+        if (autoCommit) {
+          conn.setAutoCommit(false);
+        }
+        pst = getPreparedStatement(conn, tableMeta, sql, params);
+        result = pst.executeBatch();
+        setGeneratedKey(pst, tableMeta, models);
+        //没有事务的情况下 手动提交
+        if (dsm.getCurrentConnection() == null)
+          conn.commit();
+        conn.setAutoCommit(autoCommit);
+        for (M model : models) {
+          model.clearModifyAttrs();
+        }
+        //判断是否是保存了所有数据
+        for (int r : result) {
+          if (r < 1) {
+            return false;
+          }
+        }
+        return true;
+      } catch (SQLException e) {
+        throw new DBException(e.getMessage(), e);
+      } finally {
+        dsm.close(pst, conn);
+      }
     }
   }
 
@@ -640,7 +705,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     Connection conn = null;
     PreparedStatement pst = null;
     try {
-      conn = dsm.getConnection();
+      conn = getConnection(dsm);
       pst = getPreparedStatement(conn, tableMeta, sql, params);
       result = pst.executeUpdate();
     } catch (SQLException e) {
@@ -703,19 +768,20 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       params = modifys;
     }
 
-    String[] modifyNames = getModifyAttrNames();
-    if (modifyNames.length <= 0) {  // Needn't update
+    String[] columns = getModifyAttrNames();
+    //判断是否有更新
+    if (columns.length <= 0) {
+      logger.warn("Could not found any data to update.");
+      return false;
+    } else {
+      String sql = dialect.update(tableMeta.getTableName(), getAlias(), where, columns);
+      if (update(sql, params)) {
+        clearModifyAttrs();
+        return true;
+      }
       return false;
     }
 
-    String sql = dialect.update(tableMeta.getTableName(), getAlias(), where, modifyNames);
-
-    boolean result = update(sql, params);
-    if (result) {
-      clearModifyAttrs();
-      return true;
-    }
-    return false;
   }
 
   /**
@@ -740,7 +806,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     Boolean autoCommit = null;
     DataSourceMeta dsm = getDataSourceMeta();
     try {
-      conn = dsm.getConnection();
+      conn = getConnection(dsm);
       autoCommit = conn.getAutoCommit();
       if (autoCommit)
         conn.setAutoCommit(false);
@@ -1032,7 +1098,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     ResultSet rs = null;
 
     try {
-      conn = dsm.getConnection();
+      conn = getConnection(dsm);
       pst = getPreparedStatement(conn, tableMeta, sql, params);
       rs = pst.executeQuery();
       result = readQueryResult(rs);
@@ -1101,7 +1167,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     CallableStatement cstmt = null;
     DataSourceMeta dsm = getDataSourceMeta();
     try {
-      conn = dsm.getConnection();
+      conn = getConnection(dsm);
       cstmt = conn.prepareCall(sql);
       return (T) objectCall.call(cstmt);
     } catch (SQLException e) {
@@ -1129,7 +1195,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     CallableStatement cstmt = null;
     DataSourceMeta dsm = getDataSourceMeta();
     try {
-      conn = dsm.getConnection();
+      conn = getConnection(dsm);
       cstmt = conn.prepareCall(sql);
       return readQueryResult(resultSetCall.call(cstmt));
     } catch (SQLException e) {
@@ -1164,7 +1230,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     TableMeta tableMeta = getTableMeta();
 
     try {
-      conn = dsm.getConnection();
+      conn = getConnection(dsm);
       cstmt = conn.prepareCall(sql);
       return BaseBuilder.build(resultSetCall.call(cstmt), getClass(), dsm, tableMeta);
     } catch (SQLException e) {

@@ -1,7 +1,6 @@
-package cn.dreampie.orm.transaction;
+package cn.dreampie.orm;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.exception.TransactionException;
 
 import java.sql.Connection;

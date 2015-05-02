@@ -4,7 +4,6 @@ import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.TransactionException;
 import cn.dreampie.orm.provider.DataSourceProvider;
-import cn.dreampie.orm.transaction.TransactionManager;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -21,6 +20,7 @@ public class DataSourceMeta {
   //不能使用static 让每个数据源都有一个connectionTL
   private final ThreadLocal<Connection> connectionTL = new ThreadLocal<Connection>();
   private final ThreadLocal<TransactionManager> transactionManagerTL = new ThreadLocal<TransactionManager>();
+  private final ThreadLocal<Integer> transactionDeepTL = new ThreadLocal<Integer>();
   private DataSourceProvider dataSourceProvider;
 
   public DataSourceMeta(DataSourceProvider dataSourceProvider) {
@@ -31,7 +31,7 @@ public class DataSourceMeta {
     return dataSourceProvider.getDsName();
   }
 
-  public DataSource getDataSource() {
+  DataSource getDataSource() {
     return dataSourceProvider.getDataSource();
   }
 
@@ -49,7 +49,7 @@ public class DataSourceMeta {
    * @return 连接对象
    * @throws SQLException
    */
-  public Connection getConnection() throws SQLException {
+  Connection getConnection() throws SQLException {
     Connection conn = connectionTL.get();
     if (conn != null) {
       return conn;
@@ -62,7 +62,7 @@ public class DataSourceMeta {
    *
    * @return connection
    */
-  public Connection getCurrentConnection() {
+  Connection getCurrentConnection() {
     return connectionTL.get();
   }
 
@@ -71,44 +71,27 @@ public class DataSourceMeta {
    *
    * @param connection connection
    */
-  public void setCurrentConnection(Connection connection) {
+  void setCurrentConnection(Connection connection) {
     connectionTL.set(connection);
   }
 
   /**
    * 移除连接对象
    */
-  public void rmCurrentConnection() {
+  void rmCurrentConnection() {
     connectionTL.remove();
   }
 
   /**
-   * 事务管理
-   *
-   * @return
+   * 初始化事务对象
    */
-  public TransactionManager getCurrentTransactionManager() {
-    return transactionManagerTL.get();
-  }
-
-  /**
-   * 设置事务对象
-   *
-   * @param transactionManager
-   */
-  public void setCurrentTransactionManager(TransactionManager transactionManager) {
-    transactionManagerTL.set(transactionManager);
-  }
-
-  public void initCurrentTransactionManager(boolean readonly, int level) {
-    setCurrentTransactionManager(new TransactionManager(this, readonly, level));
-  }
-
-  /**
-   * 移除事务对象
-   */
-  public void rmCurrentTransactionManager() {
-    transactionManagerTL.remove();
+  public void initTransaction(boolean readonly, int level) {
+    if (transactionManagerTL.get() == null) {
+      transactionManagerTL.set(new TransactionManager(this, readonly, level));
+      transactionDeepTL.set(1);
+    } else {
+      transactionDeepTL.set(transactionDeepTL.get() + 1);
+    }
   }
 
   /**
@@ -117,7 +100,7 @@ public class DataSourceMeta {
    * @throws TransactionException
    */
   public void beginTransaction() throws TransactionException {
-    TransactionManager transactionManager = getCurrentTransactionManager();
+    TransactionManager transactionManager = transactionManagerTL.get();
     //当前事务管理对象
     if (transactionManager != null && !transactionManager.isBegined()) {
       transactionManager.begin();
@@ -130,9 +113,11 @@ public class DataSourceMeta {
    * @throws TransactionException
    */
   public void commitTransaction() throws TransactionException {
-    TransactionManager transactionManager = getCurrentTransactionManager();
-    if (transactionManager != null) {
-      transactionManager.commit();
+    if (transactionDeepTL.get() == 1) {
+      TransactionManager transactionManager = transactionManagerTL.get();
+      if (transactionManager != null) {
+        transactionManager.commit();
+      }
     }
   }
 
@@ -142,9 +127,11 @@ public class DataSourceMeta {
    * @throws TransactionException
    */
   public void rollbackTransaction() {
-    TransactionManager transactionManager = getCurrentTransactionManager();
-    if (transactionManager != null) {
-      transactionManager.rollback();
+    if (transactionDeepTL.get() == 1) {
+      TransactionManager transactionManager = transactionManagerTL.get();
+      if (transactionManager != null) {
+        transactionManager.rollback();
+      }
     }
   }
 
@@ -154,11 +141,15 @@ public class DataSourceMeta {
    * @throws TransactionException
    */
   public void endTranasaction() {
-    TransactionManager transactionManager = getCurrentTransactionManager();
-    if (transactionManager != null) {
-      transactionManager.end();
+    if (transactionDeepTL.get() == 1) {
+      TransactionManager transactionManager = transactionManagerTL.get();
+      if (transactionManager != null) {
+        transactionManager.end();
+      }
+      transactionManagerTL.remove();
+    } else {
+      transactionDeepTL.set(transactionDeepTL.get() - 1);
     }
-    rmCurrentTransactionManager();
   }
 
   /**

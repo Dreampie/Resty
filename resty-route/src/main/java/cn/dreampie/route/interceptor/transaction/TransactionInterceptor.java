@@ -32,7 +32,7 @@ public class TransactionInterceptor implements Interceptor {
       try {
         for (int i = 0; i < names.length; i++) {
           dataSourceMeta = Metadata.getDataSourceMeta(names[i]);
-          dataSourceMeta.initCurrentTransactionManager(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
+          dataSourceMeta.initTransaction(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
           dataSourceMetas.add(dataSourceMeta);
         }
         //执行操作

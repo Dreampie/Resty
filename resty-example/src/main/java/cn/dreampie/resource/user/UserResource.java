@@ -1,7 +1,7 @@
 package cn.dreampie.resource.user;
 
 import cn.dreampie.orm.Page;
-import cn.dreampie.orm.transaction.AspectFactory;
+import cn.dreampie.orm.aspect.AspectFactory;
 import cn.dreampie.orm.transaction.TransactionAspect;
 import cn.dreampie.resource.ApiResource;
 import cn.dreampie.resource.user.model.User;

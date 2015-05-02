@@ -3,6 +3,8 @@ package cn.dreampie.orm.transaction;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.Metadata;
+import cn.dreampie.orm.aspect.Aspect;
+import cn.dreampie.orm.aspect.AspectHandler;
 import cn.dreampie.orm.exception.TransactionException;
 
 import java.lang.reflect.InvocationHandler;
@@ -34,7 +36,7 @@ public class TransactionAspect implements Aspect {
       try {
         for (int i = 0; i < names.length; i++) {
           dataSourceMeta = Metadata.getDataSourceMeta(names[i]);
-          dataSourceMeta.initCurrentTransactionManager(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
+          dataSourceMeta.initTransaction(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
           dataSourceMetas.add(dataSourceMeta);
         }
         //执行操作

@@ -16,19 +16,11 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <junit.version>4.11</junit.version>
     <servlet.version>3.1.0</servlet.version>
     <resty.version>${parent.version}</resty.version>
   </properties>
 
   <dependencies>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
 
     <dependency>
       <groupId>javax.servlet</groupId>

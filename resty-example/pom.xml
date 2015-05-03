@@ -15,7 +15,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <junit.version>4.11</junit.version>
     <servlet.version>2.5</servlet.version>
     <fastjson.version>1.2.5</fastjson.version>
     <resty.version>${project.parent.version}</resty.version>
@@ -28,12 +27,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
 
     <!--jdk1.6   不支持servlet3.0-->
     <dependency>
@@ -57,7 +50,7 @@
 
     <dependency>
       <groupId>cn.dreampie</groupId>
-      <artifactId>resty-orm-sql</artifactId>
+      <artifactId>resty-orm</artifactId>
       <version>${resty.version}</version>
     </dependency>
 

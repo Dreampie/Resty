@@ -59,7 +59,7 @@ public class SecurityInterceptor implements Interceptor {
     //执行resource
     ri.invoke();
     //把session  写入cookie
-    sessionBuilder.out(oldSession, request, response);
+    sessionBuilder.out(oldSession, response);
   }
 
 }

@@ -2,45 +2,38 @@ package cn.dreampie.security;
 
 import cn.dreampie.common.util.Maper;
 
+import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by wangrenhui on 14/12/23.
  */
-public class Session {
+public class Session implements Serializable {
   public static final String SESSION_DEF_KEY = "_session";
-  public static final String SESSION_ALL_KEY = "_allSessions";
-  private static final ThreadLocal<Session> current = new ThreadLocal<Session>();
   private final Map<String, String> values;
+  private final String sessionKey;
   private final Principal principal;
   private final long expires;
 
-  public Session(Map<String, String> values, Principal principal, long expires) {
-    this.values = values;
+  public Session() {
+    this(UUID.randomUUID().toString(), null, Maper.<String, String>of(), -1);
+  }
+
+  public Session(String sessionKey, Principal principal, Map<String, String> values, long expires) {
+    this.sessionKey = sessionKey;
     this.principal = principal;
+    this.values = values;
     this.expires = expires;
   }
 
-  static void setCurrent(Session session) {
-    if (session == null) {
-      current.remove();
-    } else {
-      current.set(session);
-    }
-  }
-
-  static Session current() {
-    return current.get();
+  public String getSessionKey() {
+    return sessionKey;
   }
 
   long getExpires() {
     return expires;
-  }
-
-  //------------------current session-------------------------------
-
-  Session setExpires(long expires) {
-    return updateCurrent(new Session(values, principal, expires));
   }
 
   Principal getPrincipal() {
@@ -51,37 +44,26 @@ public class Session {
     return values;
   }
 
-  private Session updateCurrent(Session newSession) {
-    if (this == current()) {
-      current.set(newSession);
-    }
-    return newSession;
-  }
-
   String get(String key) {
     return values.get(key);
   }
 
-  Session set(String key, String value) {
-    // create new map by using a mutable map, not a builder, in case the the given entry overrides a previous one
-    Map<String, String> newValues = Maper.copyOf(values);
-    if (value == null) {
-      newValues.remove(key);
-    } else {
-      newValues.put(key, value);
+  void set(Map<String, String> values) {
+    Set<Map.Entry<String, String>> entrySet = values.entrySet();
+    for (Map.Entry<String, String> entry : entrySet) {
+      set(entry.getKey(), entry.getValue());
     }
-    return updateCurrent(new Session(Maper.copyOf(newValues), principal, expires));
+  }
+
+  void set(String key, String value) {
+    if (value == null) {
+      values.remove(key);
+    } else {
+      values.put(key, value);
+    }
   }
 
   String remove(String key) {
     return values.remove(key);
-  }
-
-  Session authenticateAs(Principal principal) {
-    return updateCurrent(new Session(values, principal, expires)).set(Principal.PRINCIPAL_DEF_KEY, principal.getUsername());
-  }
-
-  Session clearPrincipal() {
-    return updateCurrent(new Session(values, null, expires)).set(Principal.PRINCIPAL_DEF_KEY, null);
   }
 }

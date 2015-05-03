@@ -4,7 +4,6 @@ import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.pattern.AntPathMatcher;
 import cn.dreampie.log.Logger;
-import cn.dreampie.security.cache.SessionCache;
 import cn.dreampie.security.credential.Credential;
 import cn.dreampie.security.credential.Credentials;
 
@@ -19,6 +18,7 @@ import java.util.UUID;
 public class Subject {
   private static final Logger logger = Logger.getLogger(Subject.class);
 
+  private static final ThreadLocal<Session> sessionTL = new ThreadLocal<Session>();
   private static Credentials credentials;
   private static PasswordService passwordService;
   private static int rememberDay;
@@ -29,20 +29,29 @@ public class Subject {
     Subject.passwordService = passwordService;
   }
 
-  public static long getExpires() {
-    return Session.current().getExpires();
+  static Session current() {
+    return sessionTL.get();
   }
 
-  public static Principal getPrincipal() {
-    return Session.current().getPrincipal();
+  static Session updateCurrent(Session session) {
+    if (session != current()) {
+      sessionTL.set(session);
+    }
+    return session;
   }
 
-  public static Map<String, String> getValues() {
-    return Session.current().getValues();
+  private static void removeCurrent() {
+    sessionTL.remove();
   }
 
-  public static void login(String username, String password) {
-    login(username, password, false);
+  private static Session authenticateAs(Principal principal, long expires) {
+    String sessionKey = UUID.randomUUID().toString();
+    return updateCurrent(new Session(sessionKey, principal, current().getValues(), expires));
+  }
+
+  private static Session clearPrincipal() {
+    Session session = current();
+    return updateCurrent(new Session(session.getSessionKey(), null, session.getValues(), session.getExpires()));
   }
 
   /**
@@ -56,9 +65,6 @@ public class Subject {
   public static void login(String username, String password, boolean rememberMe) {
     Principal principal = credentials.findByUsername(username);
     if (principal != null && passwordService.match(password, principal.getPasswordHash())) {
-      //清理已经登陆的对象
-      Session.current().clearPrincipal();
-      Session.current().set(Session.SESSION_DEF_KEY, null);
       //授权用户
       //时间
       long expires = -1;
@@ -67,13 +73,8 @@ public class Subject {
         cal.add(Calendar.DATE, rememberDay);
         expires = cal.getTimeInMillis();
       }
-
-      Session.current().setExpires(expires);
-      String sessionKey = UUID.randomUUID().toString();
-      Session.current().authenticateAs(principal);
-      Session.current().set(Session.SESSION_DEF_KEY, sessionKey);
-      //add cache
-      SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, username, principal);
+      //授权用户
+      authenticateAs(principal, expires);
       logger.info("Session authentication as " + username);
     } else {
       throw new WebException(HttpStatus.UNAUTHORIZED);
@@ -82,27 +83,42 @@ public class Subject {
 
   public static void logout() {
     //add cache
-    Principal principal = Session.current().getPrincipal();
+    Principal principal = current().getPrincipal();
     if (principal != null) {
-      SessionCache.instance().remove(Principal.PRINCIPAL_DEF_KEY, principal.getUsername());
       logger.info("Session leave authentication " + principal.getUsername());
     }
-    Session.current().clearPrincipal();
+    //清理用户
+    clearPrincipal();
   }
 
+
+  public static void login(String username, String password) {
+    login(username, password, false);
+  }
+
+  public static long getExpires() {
+    return current().getExpires();
+  }
+
+  public static Principal getPrincipal() {
+    return current().getPrincipal();
+  }
+
+  public static Map<String, String> getValues() {
+    return current().getValues();
+  }
 
   public static String get(String key) {
-    return Session.current().get(key);
+    return current().get(key);
   }
 
-  public static Session set(String key, String value) {
-    return Session.current().set(key, value);
+  public static void set(String key, String value) {
+    current().set(key, value);
   }
 
   public static String remove(String key) {
-    return Session.current().remove(key);
+    return current().remove(key);
   }
-
 
   /**
    * 当前api需要的权限值
@@ -166,7 +182,7 @@ public class Subject {
     String needCredential = need(httpMethod, path);
     logger.info(httpMethod + " " + path + " need credential " + needCredential);
     if (needCredential != null) {
-      Principal principal = Session.current().getPrincipal();
+      Principal principal = current().getPrincipal();
       if (principal != null) {
         if (!principal.hasCredential(needCredential)) {
           throw new WebException(HttpStatus.FORBIDDEN);
@@ -187,7 +203,7 @@ public class Subject {
   public static boolean has(String httpMethod, String path) {
     String needCredential = need(httpMethod, path);
     if (needCredential != null) {
-      Principal principal = Session.current().getPrincipal();
+      Principal principal = current().getPrincipal();
       if (principal != null) {
         if (principal.hasCredential(needCredential)) {
           return true;
@@ -197,6 +213,10 @@ public class Subject {
       return true;
     }
     return false;
+  }
+
+  void set(Map<String, String> values) {
+    current().set(values);
   }
 
 }

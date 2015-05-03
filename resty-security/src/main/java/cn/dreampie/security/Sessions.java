@@ -24,20 +24,20 @@ public class Sessions {
    * username->(sessionKey,sessionData)
    */
   private final Map<String, SessionDatas> sessions = new ConcurrentHashMap<String, SessionDatas>();
-  private final int expires;
+  private final long defaultExpires;
   private final int limit;
 
-  public Sessions(int expires, int limit) {
-    this.expires = expires;
+  public Sessions(long defaultExpires, int limit) {
+    this.defaultExpires = defaultExpires;
     this.limit = limit;
   }
 
-  public SessionDatas getSessions(String key) {
+  public SessionDatas get(String username) {
     SessionDatas sessionsUse = null;
     if (Constant.cacheEnabled) {
-      sessionsUse = SessionCache.instance().get(Session.SESSION_DEF_KEY, key);
+      sessionsUse = SessionCache.instance().get(Session.SESSION_DEF_KEY, username);
     } else {
-      sessionsUse = sessions.get(key);
+      sessionsUse = sessions.get(username);
     }
     if (sessionsUse != null) {
       Map<String, SessionData> sessionMetadatas = sessionsUse.getSessionMetadatas();
@@ -52,33 +52,33 @@ public class Sessions {
   /**
    * 保持session
    *
-   * @param key
+   * @param username
    * @param sessionDatas
    */
-  private void saveSessions(String key, SessionDatas sessionDatas) {
+  private void save(String username, SessionDatas sessionDatas) {
     //add cache
     if (Constant.cacheEnabled) {
-      SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessionDatas);
+      SessionCache.instance().add(Session.SESSION_DEF_KEY, username, sessionDatas);
     } else {
-      this.sessions.put(key, sessionDatas);
+      this.sessions.put(username, sessionDatas);
     }
   }
 
   /**
    * 删除旧的session数据
    *
-   * @param key
+   * @param username
    * @param sessionKey
    */
-  private void remove(String key, String sessionKey) {
-    SessionDatas sessions = getSessions(key);
+  private void remove(String username, String sessionKey) {
+    SessionDatas sessions = get(username);
     if (sessions != null) {
       Map<String, SessionData> sessionMetadatas = sessions.getSessionMetadatas();
       if (sessionMetadatas.size() > 0) {
         sessionMetadatas.remove(sessionKey);
       }
       if (Constant.cacheEnabled) {
-        SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessions);
+        SessionCache.instance().add(Session.SESSION_DEF_KEY, username, sessions);
       }
     }
   }
@@ -86,31 +86,22 @@ public class Sessions {
   /**
    * 删除旧的session，生成新的session
    *
-   * @param oldKey
+   * @param oldUsername
    * @param oldSessionKey
-   * @param key
+   * @param username
    * @param sessionKey
-   * @param metadata
+   * @param session
    * @return
    */
-  public SessionDatas touch(String oldKey, String oldSessionKey, String key, String sessionKey, Map<String, String> metadata) {
-    return touch(oldKey, oldSessionKey, key, sessionKey, metadata, System.currentTimeMillis() + expires);
-  }
-
-  public SessionDatas touch(String oldKey, String oldSessionKey, String key, String sessionKey, Map<String, String> metadata, long expires) {
+  public SessionDatas update(String oldUsername, String oldSessionKey, String username, String sessionKey, Session session) {
     //删除旧的session
-    remove(oldKey, oldSessionKey);
-    return touch(key, sessionKey, metadata, expires);
+    remove(oldUsername, oldSessionKey);
+    return update(username, sessionKey, session);
   }
 
-  public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata) {
-    return touch(key, sessionKey, metadata, System.currentTimeMillis() + expires);
-  }
-
-  public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata, long expires) {
-    if (expires == -1) return touch(key, sessionKey, metadata);
+  public SessionDatas update(String username, String sessionKey, Session session) {
     //获取该用户名下的所有session
-    SessionDatas sessionDatas = getSessions(key);
+    SessionDatas sessionDatas = get(username);
     Map<String, SessionData> sessionMetadatas;
     SessionDatas updatedSessionDatas;
     SessionData sessionData;
@@ -122,21 +113,25 @@ public class Sessions {
 
       if (sessionData != null) {
         //更新
-        updatedSessionDatas = sessionDatas.touch(sessionKey, sessionData.touch(expires, metadata));
+        updatedSessionDatas = sessionDatas.touch(sessionKey, sessionData.touch(defaultExpires, session));
       } else {
-        updatedSessionDatas = sessionDatas.touch(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
+        updatedSessionDatas = sessionDatas.touch(sessionKey, new SessionData(sessionKey, defaultExpires, access, access, System.nanoTime(), session));
       }
     } else {
       sessionMetadatas = new ConcurrentHashMap<String, SessionData>();
-      sessionMetadatas.put(sessionKey, new SessionData(sessionKey, expires, access, access, System.nanoTime(), metadata));
-      updatedSessionDatas = new SessionDatas(key, sessionMetadatas);
+      sessionMetadatas.put(sessionKey, new SessionData(sessionKey, defaultExpires, access, access, System.nanoTime(), session));
+      updatedSessionDatas = new SessionDatas(username, sessionMetadatas);
     }
     //如果session已经到达限制数量
-    while (sessionMetadatas != null && sessionMetadatas.size() > limit) {
-      removeOldest(sessionMetadatas);
-    }
+    boolean remove;
+    do {
+      remove = sessionMetadatas != null && sessionMetadatas.size() > limit;
+      if (remove) {
+        removeOldest(sessionMetadatas);
+      }
+    } while (remove);
     //保存session
-    saveSessions(key, updatedSessionDatas);
+    save(username, updatedSessionDatas);
     return updatedSessionDatas;
   }
 
@@ -158,10 +153,10 @@ public class Sessions {
             break;
           }
         }
-
         //delete oldest session
-        if (todoDel)
+        if (todoDel) {
           removeOldest(sessionMetadatas);
+        }
       } while (todoDel);
     }
   }
@@ -185,16 +180,16 @@ public class Sessions {
   }
 
   public static final class SessionDatas implements Serializable {
-    private final String key;
+    private final String username;
     private final Map<String, SessionData> sessionMetadatas;
 
-    public SessionDatas(String key, Map<String, SessionData> sessionMetadatas) {
-      this.key = checkNotNull(key);
+    public SessionDatas(String username, Map<String, SessionData> sessionMetadatas) {
+      this.username = checkNotNull(username);
       this.sessionMetadatas = checkNotNull(sessionMetadatas);
     }
 
-    public String getKey() {
-      return key;
+    public String getUsername() {
+      return username;
     }
 
     public SessionData getSessionData(String sessionKey) {
@@ -211,7 +206,7 @@ public class Sessions {
 
     private SessionDatas touch(String sessionKey, SessionData sessionData) {
       sessionMetadatas.put(sessionKey, sessionData);
-      return new SessionDatas(key, sessionMetadatas);
+      return new SessionDatas(username, sessionMetadatas);
     }
 
 //    public boolean equals(Object o) {
@@ -219,16 +214,16 @@ public class Sessions {
 //      if (o == null || getClass() != o.getClass()) return false;
 //
 //      SessionDatas that = (SessionDatas) o;
-//      return key.equals(that.key) && sessionMetadatas.equals(that.getSessionMetadatas());
+//      return username.equals(that.username) && sessionMetadatas.equals(that.getSessionMetadatas());
 //    }
 
 //    public int hashCode() {
-//      return key.hashCode();
+//      return username.hashCode();
 //    }
 
     public String toString() {
       return "SessionDatas{" +
-          "key='" + key + '\'' +
+          "username='" + username + '\'' +
           ", sessionMetadatas=" + sessionMetadatas +
           '}';
     }
@@ -236,19 +231,24 @@ public class Sessions {
 
   public static final class SessionData implements Comparable<SessionData>, Serializable {
     private final String sessionKey;
-    private final long expires;
     private final long firstAccess;
     private final long lastAccess;
     private final long lastAccessNano;
-    private final Map<String, String> metadata;
+    private final long expires;
+    private final Session session;
 
-    public SessionData(String sessionKey, long expires, long firstAccess, long lastAccess, long lastAccessNano, Map<String, String> metadata) {
+    public SessionData(String sessionKey, long defaultExpires, long firstAccess, long lastAccess, long lastAccessNano, Session session) {
       this.sessionKey = checkNotNull(sessionKey);
-      this.expires = expires;
       this.firstAccess = firstAccess;
       this.lastAccess = lastAccess;
       this.lastAccessNano = lastAccessNano;
-      this.metadata = checkNotNull(metadata);
+      this.session = checkNotNull(session);
+      long sessionExpires = session.getExpires();
+      if (sessionExpires == -1) {
+        expires = System.currentTimeMillis() + defaultExpires;
+      } else {
+        expires = sessionExpires;
+      }
     }
 
     public String getSessionKey() {
@@ -271,18 +271,13 @@ public class Sessions {
       return lastAccessNano;
     }
 
-    public Map<String, String> getMetadata() {
-      return metadata;
+    public Session getSession() {
+      return session;
     }
 
-    private SessionData touch(long expires, Map<String, String> metadata) {
-      return new SessionData(sessionKey, expires, firstAccess, System.currentTimeMillis(), System.nanoTime(), metadata);
+    private SessionData touch(long defaultExpires, Session session) {
+      return new SessionData(sessionKey, defaultExpires, firstAccess, System.currentTimeMillis(), System.nanoTime(), session);
     }
-
-    private SessionData touch(Map<String, String> metadata) {
-      return touch(expires, metadata);
-    }
-
 
     public boolean equals(Object o) {
       if (this == o) return true;
@@ -302,7 +297,7 @@ public class Sessions {
           ", firstAccess=" + firstAccess +
           ", lastAccess=" + lastAccess +
           ", lastAccessNano=" + lastAccessNano +
-          ", metadata=" + metadata +
+          ", session=" + session +
           '}';
     }
 

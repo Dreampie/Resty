@@ -32,19 +32,6 @@ public class Sessions {
     this.limit = limit;
   }
 
-  public void remove(String key, String sessionKey) {
-    SessionDatas sessions = getSessions(key);
-    if (sessions != null) {
-      Map<String, SessionData> sessionMetadatas = sessions.getSessionMetadatas();
-      if (sessionMetadatas.size() > 0) {
-        sessionMetadatas.remove(sessionKey);
-      }
-      if (Constant.cacheEnabled) {
-        SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessions);
-      }
-    }
-  }
-
   public SessionDatas getSessions(String key) {
     SessionDatas sessionsUse = null;
     if (Constant.cacheEnabled) {
@@ -62,16 +49,58 @@ public class Sessions {
     return sessionsUse;
   }
 
-  private boolean saveSessions(String key, SessionDatas sessionDatas) {
-    boolean updated = false;
+  /**
+   * 保持session
+   *
+   * @param key
+   * @param sessionDatas
+   */
+  private void saveSessions(String key, SessionDatas sessionDatas) {
     //add cache
     if (Constant.cacheEnabled) {
       SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessionDatas);
-      updated = SessionCache.instance().get(Session.SESSION_DEF_KEY, key) != null;
     } else {
-      updated = this.sessions.put(key, sessionDatas) != null;
+      this.sessions.put(key, sessionDatas);
     }
-    return updated;
+  }
+
+  /**
+   * 删除旧的session数据
+   *
+   * @param key
+   * @param sessionKey
+   */
+  private void remove(String key, String sessionKey) {
+    SessionDatas sessions = getSessions(key);
+    if (sessions != null) {
+      Map<String, SessionData> sessionMetadatas = sessions.getSessionMetadatas();
+      if (sessionMetadatas.size() > 0) {
+        sessionMetadatas.remove(sessionKey);
+      }
+      if (Constant.cacheEnabled) {
+        SessionCache.instance().add(Session.SESSION_DEF_KEY, key, sessions);
+      }
+    }
+  }
+
+  /**
+   * 删除旧的session，生成新的session
+   *
+   * @param oldKey
+   * @param oldSessionKey
+   * @param key
+   * @param sessionKey
+   * @param metadata
+   * @return
+   */
+  public SessionDatas touch(String oldKey, String oldSessionKey, String key, String sessionKey, Map<String, String> metadata) {
+    return touch(oldKey, oldSessionKey, key, sessionKey, metadata, System.currentTimeMillis() + expires);
+  }
+
+  public SessionDatas touch(String oldKey, String oldSessionKey, String key, String sessionKey, Map<String, String> metadata, long expires) {
+    //删除旧的session
+    remove(oldKey, oldSessionKey);
+    return touch(key, sessionKey, metadata, expires);
   }
 
   public SessionDatas touch(String key, String sessionKey, Map<String, String> metadata) {
@@ -106,11 +135,8 @@ public class Sessions {
     while (sessionMetadatas != null && sessionMetadatas.size() > limit) {
       removeOldest(sessionMetadatas);
     }
-    boolean updated = false;
-    do {
-      updated = saveSessions(key, updatedSessionDatas);
-    } while (!updated);
-
+    //保存session
+    saveSessions(key, updatedSessionDatas);
     return updatedSessionDatas;
   }
 

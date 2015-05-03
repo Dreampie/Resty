@@ -53,60 +53,9 @@ public class SessionBuilder {
    * @return
    */
   public Session in(HttpRequest request) {
-    Session session = build(request);
+    Session session = buildSession(request);
     Session.setCurrent(session);
     return session;
-  }
-
-  /**
-   * 保存session 信息
-   *
-   * @param request
-   * @param session
-   */
-  public void buildSessionMetadata(HttpRequest request, Session session) {
-    Session newSession = Session.current();
-    if (isChangeSessionMetadata(session)) {
-      updateSessionMetadata(request, session, newSession);
-    } else {
-      saveSessionMetadata(request, session);
-    }
-
-  }
-
-  public boolean isChangeSessionMetadata(Session session) {
-    Session newSession = Session.current();
-    if (newSession != session) {
-      String sessionKey = session.get(Session.SESSION_DEF_KEY);
-      String newSessionKey = newSession.get(Session.SESSION_DEF_KEY);
-      if (!sessionKey.equals(newSessionKey)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private void updateSessionMetadata(HttpRequest request, Session session, Session newSession) {
-    String sessionKey = session.get(Session.SESSION_DEF_KEY);
-    Principal principal = session.getPrincipal();
-    if (principal != null) {
-      sessions.remove(principal.getUsername(), sessionKey);
-    } else {
-      sessions.remove("anonymous@" + request.getClientAddress(), sessionKey);
-    }
-    saveSessionMetadata(request, newSession);
-  }
-
-  private void saveSessionMetadata(HttpRequest request, Session session) {
-    Map<String, String> metadata = prepareSessionMetadata(request);
-    String sessionKey = session.get(Session.SESSION_DEF_KEY);
-    Principal principal = session.getPrincipal();
-    if (principal != null) {
-      String name = principal.getUsername();
-      sessions.touch(name, sessionKey, metadata, session.getExpires());
-    } else {
-      sessions.touch("anonymous@" + request.getClientAddress(), sessionKey, metadata, session.getExpires());
-    }
   }
 
   /**
@@ -115,29 +64,63 @@ public class SessionBuilder {
    * @param session
    * @param response
    */
-  public Session out(Session session, HttpResponse response) {
+  public Session out(Session session, HttpRequest request, HttpResponse response) {
     Session newSession = Session.current();
     if (newSession != session) {
-      updateSessionInClient(response, newSession);
+      //更新cookie
+      updateCookie(response, newSession);
+      //重新存储session数据
+      Map<String, String> metadata = buildSessionMetadata(request);
+      String oldSessionKey = session.get(Session.SESSION_DEF_KEY);
+      String sessionKey = newSession.get(Session.SESSION_DEF_KEY);
+      String oldName = null;
+      String name = null;
+      Principal oldPrincipal = session.getPrincipal();
+      Principal principal = newSession.getPrincipal();
+      //原本的session
+      if (oldPrincipal != null) {
+        oldName = oldPrincipal.getUsername();
+      } else {
+        oldName = "anonymous@" + request.getClientAddress();
+      }
+      //现在的session
+      if (principal != null) {
+        name = principal.getUsername();
+        sessions.touch(oldName, oldSessionKey, name, sessionKey, metadata, newSession.getExpires());
+      } else {
+        name = "anonymous@" + request.getClientAddress();
+        sessions.touch(oldName, oldSessionKey, name, sessionKey, metadata, newSession.getExpires());
+      }
     }
     return newSession;
   }
 
-
-  private Map<String, String> prepareSessionMetadata(HttpRequest req) {
-    String agent = req.getHeader("User-Agent");
+  /**
+   * 构建session数据
+   *
+   * @param request
+   * @return
+   */
+  private Map<String, String> buildSessionMetadata(HttpRequest request) {
+    String agent = request.getHeader("User-Agent");
     return Maper.of(
-        Sessions.ADDRESS_KEY, req.getClientAddress(),
+        Sessions.ADDRESS_KEY, request.getClientAddress(),
         Sessions.AGENT_KEY, agent == null ? "Unknown" : agent);
   }
 
-  private Session build(HttpRequest req) {
+  /**
+   * 初始化session
+   *
+   * @param request
+   * @return
+   */
+  private Session buildSession(HttpRequest request) {
     String sessionCookieName = sessionCookieDescriptor.getCookieName();
-    String cookie = req.getCookieValue(sessionCookieName);
+    String cookie = request.getCookieValue(sessionCookieName);
     if (cookie == null || cookie.trim().isEmpty()) {
       return emptySession;
     } else {
-      String sig = req.getCookieValue(sessionCookieDescriptor.getCookieSignatureName());
+      String sig = request.getCookieValue(sessionCookieDescriptor.getCookieSignatureName());
       if (sig == null || !signer.verify(cookie, sig)) {
         logger.warn("Invalid session signature. session was: %s. Ignoring session cookie.", cookie);
         return emptySession;
@@ -172,11 +155,23 @@ public class SessionBuilder {
     }
   }
 
+  /**
+   * 转换数据cookie
+   *
+   * @param cookie
+   * @return
+   */
   private Map<String, String> readEntries(String cookie) {
     return (Map<String, String>) Jsoner.toObject(cookie, Map.class);
   }
 
-  private void updateSessionInClient(HttpResponse resp, Session session) {
+  /**
+   * 写入cookie到客户端
+   *
+   * @param resp
+   * @param session
+   */
+  private void updateCookie(HttpResponse resp, Session session) {
     Map<String, String> cookiesMap = toCookiesMap(session);
     if (cookiesMap.isEmpty()) {
       resp.clearCookie(sessionCookieDescriptor.getCookieName());
@@ -188,6 +183,12 @@ public class SessionBuilder {
     }
   }
 
+  /**
+   * session 转换为cookie
+   *
+   * @param session
+   * @return
+   */
   private Map<String, String> toCookiesMap(Session session) {
     Map<String, String> sessionMap = session.getValues();
     if (sessionMap.isEmpty()) {
@@ -199,9 +200,5 @@ public class SessionBuilder {
       return Maper.of(sessionCookieDescriptor.getCookieName(), sessionJson,
           sessionCookieDescriptor.getCookieSignatureName(), signer.sign(sessionJson));
     }
-  }
-
-  public String toString() {
-    return "SessionBuilder";
   }
 }

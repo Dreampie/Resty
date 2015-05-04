@@ -49,7 +49,7 @@ public class DataSourceMeta {
    * @return 连接对象
    * @throws SQLException
    */
-  Connection getConnection() throws SQLException {
+  public Connection getConnection() throws SQLException {
     Connection conn = connectionTL.get();
     if (conn != null) {
       return conn;
@@ -150,6 +150,13 @@ public class DataSourceMeta {
     } else {
       transactionDeepTL.set(transactionDeepTL.get() - 1);
     }
+  }
+
+  /**
+   * 关闭数据源
+   */
+  public final void close() {
+    dataSourceProvider.close();
   }
 
   /**

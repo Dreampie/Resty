@@ -44,7 +44,12 @@ public class TransactionInterceptor implements Interceptor {
         for (DataSourceMeta dsm : dataSourceMetas) {
           dsm.rollbackTransaction();
         }
-        throw new TransactionException(t.getMessage(), t);
+        Throwable cause = t.getCause();
+        if (cause != null) {
+          throw new TransactionException(cause.getMessage(), cause);
+        } else {
+          throw new TransactionException(t.getMessage(), t);
+        }
       } finally {
         for (DataSourceMeta dsm : dataSourceMetas) {
           dsm.endTranasaction();

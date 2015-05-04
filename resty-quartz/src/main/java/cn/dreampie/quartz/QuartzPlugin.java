@@ -4,6 +4,7 @@ import cn.dreampie.common.Plugin;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.common.util.stream.Filer;
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.Metadata;
 import cn.dreampie.quartz.exception.QuartzException;
 import cn.dreampie.quartz.job.QuartzCronJob;
 import cn.dreampie.quartz.job.QuartzOnceJob;
@@ -20,25 +21,50 @@ import java.util.*;
 public class QuartzPlugin implements Plugin {
 
   private static final Logger logger = Logger.getLogger(QuartzPlugin.class);
+  private static String dsName;
+  private static boolean dsAlone;
   /**
    * 默认配置文件*
    */
   private String config = "quartz/quartz.properties";
-
   private String jobs = "quartz/jobs.properties";
 
-
   public QuartzPlugin() {
-
+    this(null);
   }
 
-  public QuartzPlugin(String config) {
-    this.config = config;
+  public QuartzPlugin(String dsName) {
+    this(null, null, dsName, false);
+  }
+
+  public QuartzPlugin(String dsName, boolean dsAlone) {
+    this(null, null, dsName, dsAlone);
   }
 
   public QuartzPlugin(String config, String jobs) {
-    this.config = config;
-    this.jobs = jobs;
+    this(config, jobs, Metadata.getDefaultDsName(), false);
+  }
+
+  public QuartzPlugin(String config, String jobs, String dsName, boolean dsAlone) {
+    if (config != null) {
+      this.config = config;
+    }
+    if (jobs != null) {
+      this.jobs = jobs;
+    }
+    if (dsName == null) {
+      throw new IllegalArgumentException("DsName could not be null.");
+    }
+    QuartzPlugin.dsName = dsName;
+    QuartzPlugin.dsAlone = dsAlone;
+  }
+
+  public static String getDsName() {
+    return dsName;
+  }
+
+  public static boolean isDsAlone() {
+    return dsAlone;
   }
 
   public boolean start() {

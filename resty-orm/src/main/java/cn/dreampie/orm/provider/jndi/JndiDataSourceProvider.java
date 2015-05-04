@@ -76,4 +76,8 @@ public class JndiDataSourceProvider implements DataSourceProvider {
     this.showSql = showSql;
     return this;
   }
+
+  public void close() {
+    //do nothing  becouse  it have no close method
+  }
 }

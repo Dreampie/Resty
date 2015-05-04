@@ -42,6 +42,13 @@
       <version>${resty.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-orm</artifactId>
+      <version>${resty.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
   <build>
     <finalName>${project.name}-v${project.version}</finalName>

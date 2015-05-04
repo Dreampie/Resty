@@ -25,6 +25,21 @@ public class Metadata {
 
   private static Map<Class<? extends Entity>, String> tableMetaClassMap = new HashMap<Class<? extends Entity>, String>();
 
+  /**
+   * 关闭所有的数据源
+   */
+  public static void close() {
+    for (Map.Entry<String, DataSourceMeta> entry : dataSourceMetaMap.entrySet()) {
+      entry.getValue().close();
+    }
+  }
+
+  /**
+   * 判断是不是存在数据源
+   *
+   * @param dsName
+   * @return
+   */
   public static boolean hasDataSourceMeta(String dsName) {
     return dataSourceMetaMap.containsKey(dsName);
   }

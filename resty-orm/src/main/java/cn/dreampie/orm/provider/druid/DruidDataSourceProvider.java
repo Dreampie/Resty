@@ -192,6 +192,10 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.showSql = showSql;
   }
 
+  public void close() {
+    ds.close();
+  }
+
   public DruidDataSourceProvider setDriverClass(String driverClass) {
     this.driverClass = driverClass;
     ds.setDriverClassName(driverClass);

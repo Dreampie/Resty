@@ -124,6 +124,7 @@ public class ActiveRecordPlugin implements Plugin {
   }
 
   public boolean stop() {
+    Metadata.close();
     return true;
   }
 

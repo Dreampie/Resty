@@ -15,4 +15,6 @@ public interface DataSourceProvider {
   String getDsName();
 
   boolean isShowSql();
+
+  void close();
 }

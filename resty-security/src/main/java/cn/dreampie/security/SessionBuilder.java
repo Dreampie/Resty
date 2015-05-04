@@ -18,13 +18,12 @@ import java.util.Map;
 public class SessionBuilder {
 
   private final static Logger logger = Logger.getLogger(SessionBuilder.class);
-
+  private final static String ANONYMOUS = "anonymous";
   private final Sessions sessions;
   private final Signer signer;
   private final SessionCookieDescriptor sessionCookieDescriptor;
   private final Session emptySession;
   private final Credentials credentials;
-  private final static String ANONYMOUS = "anonymous";
 
   public SessionBuilder(long defaultExpires, int limit, int rememberDay, AuthenticateService authenticateService) {
     this(defaultExpires, limit, rememberDay, authenticateService, new DefaultPasswordService());

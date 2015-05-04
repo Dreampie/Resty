@@ -184,6 +184,10 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     return showSql;
   }
 
+  public void close() {
+    ds.close();
+  }
+
   public C3p0DataSourceProvider setShowSql(boolean showSql) {
     this.showSql = showSql;
     return this;

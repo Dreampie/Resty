@@ -1,6 +1,7 @@
 package cn.dreampie.route.render;
 
 import cn.dreampie.common.Render;
+import cn.dreampie.common.http.ContentType;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.WebException;
@@ -89,7 +90,7 @@ public class FileRender extends Render {
           }
 
           String fileName = file.getName();
-          response.setContentType("application/octet-stream");
+          response.setContentType(ContentType.FILE);
           response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
 
           OutputStream outputStream = response.getOutputStream();

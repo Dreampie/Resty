@@ -175,7 +175,7 @@ public class RouteInvocation {
 
     //if use application/json to post
     //判断是否是application/json 传递数据的
-    if (contentType != null && contentType.toLowerCase().contains(ContentTypes.JSON.value())) {
+    if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON)) {
       params = getJsonParams(request);
     } else {
       params = getFormParams();
@@ -192,7 +192,7 @@ public class RouteInvocation {
    */
   private Params getJsonParams(HttpRequest request) {
     String json = null;
-    if (request.getHttpMethod().equals(HttpMethods.GET)) {
+    if (request.getHttpMethod().equals(HttpMethod.GET)) {
       json = request.getQueryString();
     } else {
       try {

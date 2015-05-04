@@ -1,7 +1,7 @@
 package cn.dreampie.route.render;
 
 import cn.dreampie.common.Render;
-import cn.dreampie.common.http.ContentTypes;
+import cn.dreampie.common.http.ContentType;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.util.json.Jsoner;
@@ -15,7 +15,7 @@ public class JsonRender extends Render {
 
   public void render(HttpRequest request, HttpResponse response, Object out) {
     if (out != null) {
-      response.setContentType(ContentTypes.JSON.toString());
+      response.setContentType(ContentType.JSON);
       if (out instanceof String) {
         write(request, response, (String) out);
       } else {

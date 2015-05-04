@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 /**
  * Created by ice on 14-12-29.
  */
-public class Charsets {
+public class Encoding {
   /**
    * US-ASCII: seven-bit ASCII, the Basic Latin block of the Unicode character set (ISO646-US).
    * <p/>
@@ -50,7 +50,7 @@ public class Charsets {
    */
   public static final Charset UTF_16 = Charset.forName("UTF-16");
 
-  private Charsets() {
+  private Encoding() {
   }
 
 }

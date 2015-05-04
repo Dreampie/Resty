@@ -1,7 +1,7 @@
 package cn.dreampie.route.render;
 
 import cn.dreampie.common.Render;
-import cn.dreampie.common.http.ContentTypes;
+import cn.dreampie.common.http.ContentType;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 
@@ -12,7 +12,7 @@ public class TextRender extends Render {
 
   public void render(HttpRequest request, HttpResponse response, Object out) {
     if (out != null) {
-      response.setContentType(ContentTypes.TEXT.toString());
+      response.setContentType(ContentType.TEXT);
       write(request, response, out.toString());
     }
   }

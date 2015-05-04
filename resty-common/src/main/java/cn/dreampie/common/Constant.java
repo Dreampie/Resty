@@ -1,6 +1,6 @@
 package cn.dreampie.common;
 
-import cn.dreampie.common.http.Charsets;
+import cn.dreampie.common.http.Encoding;
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.log.Logger;
@@ -35,7 +35,7 @@ public final class Constant {
       logger.warn(e.getMessage());
     }
     if (constants == null) {
-      encoding = "UTF-8";
+      encoding = Encoding.UTF_8.toString();
       devMode = false;
       cacheEnabled = false;
       oneParamParse = false;
@@ -48,7 +48,7 @@ public final class Constant {
       apiPrefix = null;
       exceptionHolder = null;
     } else {
-      encoding = constants.get("app.encoding", Charsets.UTF_8.toString());
+      encoding = constants.get("app.encoding", Encoding.UTF_8.toString());
       devMode = constants.getBoolean("app.devMode", false);
       cacheEnabled = constants.getBoolean("app.cacheEnabled", false);
       oneParamParse = constants.getBoolean("app.oneParamParse", false);

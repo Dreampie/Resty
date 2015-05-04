@@ -228,10 +228,10 @@ public class Route {
     //print match route
     if (multipartParam != null) {
       otherParams.putAll(multipartParam.getParams());
-      printMatchRoute(pathParams, otherParams, multipartParam.getUploadedFiles());
+      printMatchRoute(request.getContentType(), pathParams, otherParams, multipartParam.getUploadedFiles());
       routeMatch = new RouteMatch(pathPattern, restPath, extension, pathParams, otherParams, multipartParam.getUploadedFiles(), request, response);
     } else {
-      printMatchRoute(pathParams, otherParams, null);
+      printMatchRoute(request.getContentType(), pathParams, otherParams, null);
       routeMatch = new RouteMatch(pathPattern, restPath, extension, pathParams, otherParams, null, request, response);
     }
     return routeMatch;
@@ -244,13 +244,14 @@ public class Route {
    * @param otherParams 其他参数
    * @param fileParams  文件参数
    */
-  private void printMatchRoute(Map<String, String> pathParams, Map<String, List<String>> otherParams, Map<String, UploadedFile> fileParams) {
+  private void printMatchRoute(String contentType, Map<String, String> pathParams, Map<String, List<String>> otherParams, Map<String, UploadedFile> fileParams) {
     if (Constant.showRoute && logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
       sb.append("\nResource     : ").append(resourceClass.getName()).append("(").append(resourceClass.getSimpleName()).append(".java:" + allLineNumbers[0] + ")");
       sb.append("\nMethod       : ").append(method.getName());
       sb.append("\nPathPattern  : ").append(httpMethod).append(" ").append(pathPattern);
+      sb.append("\nContentType  : ").append(contentType);
       //print pathParams
       sb.append("\nPathParams   : ");
       if (pathParams.size() > 0) {

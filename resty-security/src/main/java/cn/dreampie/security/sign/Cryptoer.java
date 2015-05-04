@@ -1,6 +1,6 @@
 package cn.dreampie.security.sign;
 
-import cn.dreampie.common.http.Charsets;
+import cn.dreampie.common.http.Encoding;
 import cn.dreampie.security.encode.BASE64Encoder;
 
 import javax.crypto.Mac;
@@ -29,7 +29,7 @@ public class Cryptoer {
       Mac mac = Mac.getInstance("HmacSHA1");
       SecretKeySpec signingKey = new SecretKeySpec(key, "HmacSHA1");
       mac.init(signingKey);
-      byte[] messageBytes = message.getBytes(Charsets.UTF_8);
+      byte[] messageBytes = message.getBytes(Encoding.UTF_8);
       byte[] result = mac.doFinal(messageBytes);
       return base64Encoder.encode(result);
     } catch (Exception ex) {

@@ -55,7 +55,7 @@ public abstract class AbstractResponse<R> implements Response {
       String cs = HttpTyper.charsetFromContentType(s);
       if (cs == null) {
         s += ";charset=UTF-8";
-        charset = Charsets.UTF_8;
+        charset = Encoding.UTF_8;
       } else {
         charset = Charset.forName(cs);
       }
@@ -77,7 +77,7 @@ public abstract class AbstractResponse<R> implements Response {
     if (charset == null) {
       logger.warn("No charset defined while getting writer to write http response." +
           " Make sure you call setContentType() before calling getWriter(). Using UTF-8 charset.");
-      charset = Charsets.UTF_8;
+      charset = Encoding.UTF_8;
     }
     return writer = new PrintWriter(new OutputStreamWriter(doGetOutputStream(), charset), true);
   }

@@ -3,7 +3,7 @@ package cn.dreampie.example;
 import cn.dreampie.client.Client;
 import cn.dreampie.client.ClientRequest;
 import cn.dreampie.client.ResponseData;
-import cn.dreampie.common.http.HttpMethods;
+import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.util.json.Jsoner;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -28,40 +28,40 @@ public class ClientTest {
 
   @Test
   public void testLogin() {
-    ClientRequest request = new ClientRequest("/sessions", HttpMethods.POST);
+    ClientRequest request = new ClientRequest("/sessions", HttpMethod.POST);
     request.addParam("username", "asdasda").addParam("password", "123").addParam("rememberMe", "true");
     System.out.println(client.build(request).ask());
   }
 
   @Test
   public void testLogut() {
-    ClientRequest request = new ClientRequest("/sessions", HttpMethods.DELETE);
+    ClientRequest request = new ClientRequest("/sessions", HttpMethod.DELETE);
     System.out.println(client.build(request).ask());
   }
 
   @Test
   public void testDelete() {
-    ClientRequest request = new ClientRequest("/users/1", HttpMethods.DELETE);
+    ClientRequest request = new ClientRequest("/users/1", HttpMethod.DELETE);
     System.out.println(client.build(request).ask());
   }
 
   @Test
   public void testUpdate() {
-    ClientRequest request = new ClientRequest("/users", HttpMethods.PUT);
+    ClientRequest request = new ClientRequest("/users", HttpMethod.PUT);
     request.addParam("user", "{\"id\":\"1\",\"username\":\"k\"}");
     System.out.println(client.build(request).ask());
   }
 
   @Test
   public void testTransaction() {
-    ClientRequest request = new ClientRequest("/users/transactions", HttpMethods.GET);
+    ClientRequest request = new ClientRequest("/users/transactions", HttpMethod.GET);
     System.out.println(client.build(request).ask());
   }
 
   @Test
   public void testUpload() {
     //upload
-    ClientRequest uploadRequest = new ClientRequest("/tests/测试", HttpMethods.POST);
+    ClientRequest uploadRequest = new ClientRequest("/tests/测试", HttpMethod.POST);
     uploadRequest.addUploadFile("testfile", ClientTest.class.getResource("/resty.jar").getFile());
     uploadRequest.addParam("des", "test file  paras  测试笔");
     ResponseData uploadResult = client.build(uploadRequest).ask();
@@ -71,7 +71,7 @@ public class ClientTest {
   @Test
   public void testDownload() {
     //download  支持断点续传
-    ClientRequest downloadRequest = new ClientRequest("/tests/file", HttpMethods.GET);
+    ClientRequest downloadRequest = new ClientRequest("/tests/file", HttpMethod.GET);
     downloadRequest.setDownloadFile(ClientTest.class.getResource("/").getFile(), false);
     ResponseData downloadResult = client.build(downloadRequest).ask();
     System.out.println(downloadResult.getData());
@@ -79,7 +79,7 @@ public class ClientTest {
 
   @Test
   public void testSave() {
-    ClientRequest request = new ClientRequest("/users/1", HttpMethods.POST);
+    ClientRequest request = new ClientRequest("/users/1", HttpMethod.POST);
     String json = Jsoner.toJSON(
 //        new HashMap<String, Object>() {
 //          {

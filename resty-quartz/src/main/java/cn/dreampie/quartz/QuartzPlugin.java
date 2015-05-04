@@ -52,10 +52,9 @@ public class QuartzPlugin implements Plugin {
     if (jobs != null) {
       this.jobs = jobs;
     }
-    if (dsName == null) {
-      throw new IllegalArgumentException("DsName could not be null.");
+    if (dsName != null) {
+      QuartzPlugin.dsName = dsName;
     }
-    QuartzPlugin.dsName = dsName;
     QuartzPlugin.dsAlone = dsAlone;
   }
 

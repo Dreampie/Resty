@@ -11,7 +11,7 @@ import java.util.Map;
 public class ValidResult {
   private Map<String, Object> errors = new HashMap<String, Object>();
 
-  private HttpStatus status = HttpStatus.BAD_REQUEST;
+  private HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
 
   public ValidResult() {
   }

@@ -146,7 +146,7 @@ public class RouteInvocation {
 
     if (validators.length > 0) {
       Map<String, Object> errors = new HashMap<String, Object>();
-      HttpStatus status = HttpStatus.BAD_REQUEST;
+      HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
       ValidResult vr;
 
       for (Validator validator : validators) {

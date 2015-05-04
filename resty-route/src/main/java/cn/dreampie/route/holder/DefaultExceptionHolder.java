@@ -6,6 +6,7 @@ import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.http.result.HttpStatus;
+import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.render.RenderFactory;
 
@@ -18,25 +19,28 @@ public class DefaultExceptionHolder extends ExceptionHolder {
   public void hold(HttpRequest request, HttpResponse response, Exception exception, boolean[] isHandled) {
     String restPath = request.getRestPath();
     Render render = RenderFactory.getByUrl(restPath);
+    String message;
     if (exception instanceof WebException) {
       WebException webException = (WebException) exception;
       //api访问 所有的异常 以httpStatus返回
       if (Constant.apiPrefix == null || restPath.startsWith(Constant.apiPrefix)) {
+        message = Jsoner.toJSON(webException.getContent());
         if (logger.isWarnEnabled()) {
-          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + webException.getMessage());
+          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + message);
         }
         response.setStatus(webException.getStatus());
-        render.render(request, response, webException.getContent());
+        render.render(request, response, message);
       } else {
         //其他访问  跳转到 指定页面
         go(response, webException.getStatus(), isHandled);
       }
     } else {
+      message = exception.getMessage();
       if (logger.isErrorEnabled()) {
-        logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + exception.getMessage(), exception);
+        logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + message, exception);
       }
       response.setStatus(HttpStatus.BAD_REQUEST);
-      render.render(request, response, exception.getMessage());
+      render.render(request, response, message);
     }
   }
 }

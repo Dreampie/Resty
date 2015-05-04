@@ -152,6 +152,32 @@ public class Route {
       Type returnType = method.getGenericReturnType();
       sb.append("\nReturnType   : ").append(returnType);
       sb.append("\nDescriptions : ").append(des);
+
+      if (validators != null && validators.length > 0 && validsLineNumbers != null) {
+        sb.append("\nValidators   : ");
+        int i = 0;
+        for (Validator validator : validators) {
+          if (i > 0)
+            sb.append("\n               ");
+          Class<? extends Validator> vc = validator.getClass();
+          sb.append(vc.getName()).append("(").append(vc.getSimpleName()).append(".java:").append(validsLineNumbers[i][0]).append(")");
+          i++;
+        }
+      }
+
+      if (interceptors != null && interceptors.length > 0 && interceptorsLineNumbers != null) {
+        sb.append("\nInterceptors : ");
+        int i = 0;
+        for (Interceptor interceptor : interceptors) {
+          if (i > 0) {
+            sb.append("\n               ");
+          }
+          Class<? extends Interceptor> ic = interceptor.getClass();
+          sb.append(ic.getName()).append("(").append(ic.getSimpleName()).append(".java:").append(interceptorsLineNumbers[i][0]).append(")");
+          i++;
+        }
+      }
+
       sb.append("\n--------------------------------------------------------------------------------\n");
       logger.info(sb.toString());
     }
@@ -263,6 +289,18 @@ public class Route {
       Type returnType = method.getGenericReturnType();
       sb.append("\nReturnType   : ").append(returnType);
 
+      if (validators != null && validators.length > 0) {
+        sb.append("\nValidators   : ");
+        int i = 0;
+        for (Validator validator : validators) {
+          if (i > 0)
+            sb.append("\n               ");
+          Class<? extends Validator> vc = validator.getClass();
+          sb.append(vc.getName()).append("(").append(vc.getSimpleName()).append(".java:").append(validsLineNumbers[i][0]).append(")");
+          i++;
+        }
+      }
+
       if (interceptors != null && interceptors.length > 0) {
         sb.append("\nInterceptors : ");
         int i = 0;
@@ -276,17 +314,6 @@ public class Route {
         }
       }
 
-      if (validators != null && validators.length > 0) {
-        sb.append("\nValidates    : ");
-        int i = 0;
-        for (Validator validator : validators) {
-          if (i > 0)
-            sb.append("\n               ");
-          Class<? extends Validator> vc = validator.getClass();
-          sb.append(vc.getName()).append("(").append(vc.getSimpleName()).append(".java:").append(validsLineNumbers[i][0]).append(")");
-          i++;
-        }
-      }
       sb.append("\n--------------------------------------------------------------------------------\n");
       logger.info(sb.toString());
     }

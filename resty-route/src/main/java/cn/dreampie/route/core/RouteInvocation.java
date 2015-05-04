@@ -153,7 +153,7 @@ public class RouteInvocation {
         //数据验证
         vr = validator.validate(params);
         errors.putAll(vr.getErrors());
-        if (!vr.getStatus().equals(status))
+        if (!status.equals(vr.getStatus()))
           status = vr.getStatus();
       }
 

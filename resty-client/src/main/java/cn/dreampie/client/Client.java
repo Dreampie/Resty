@@ -2,6 +2,7 @@ package cn.dreampie.client;
 
 import cn.dreampie.client.exception.ClientException;
 import cn.dreampie.common.http.HttpMethod;
+import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.common.util.stream.FileRenamer;
 import cn.dreampie.common.util.stream.StreamReader;
@@ -53,7 +54,7 @@ public class Client extends ClientConnection {
    *
    * @return responseData
    */
-  public ResponseData ask() {
+  public ClientResult ask() {
     HttpURLConnection conn = null;
     try {
       conn = getHttpConnection();
@@ -89,11 +90,11 @@ public class Client extends ClientConnection {
   }
 
 
-  private ResponseData login(ClientRequest clientRequest) {
+  private ClientResult login(ClientRequest clientRequest) {
     //login
-    ResponseData result = build(loginRequest).ask();
-    if (result.getHttpCode() != 200) {
-      throw new ClientException("Login error " + result.getHttpCode() + ", " + result.getData());
+    ClientResult result = build(loginRequest).ask();
+    if (result.getStatus() != HttpStatus.OK) {
+      throw new ClientException("Login error " + result.getStatus() + ", " + result.getResult());
     } else {
       if (clientRequest != null)
         result = build(clientRequest).ask();
@@ -101,7 +102,7 @@ public class Client extends ClientConnection {
     return result;
   }
 
-  private ResponseData readResponse(HttpURLConnection conn) throws IOException {
+  private ClientResult readResponse(HttpURLConnection conn) throws IOException {
     int httpCode = conn.getResponseCode();
     logger.debug("Connection done. The server's response code is: %s", httpCode);
     InputStream is = null;
@@ -160,10 +161,10 @@ public class Client extends ClientConnection {
           if (!clientRequest.isOverwrite() && renamer != null) {
             fileRenamer = renamer;
           }
-          return new ResponseData(httpCode, StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());
+          return new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());
         }
       }
-      return new ResponseData(httpCode, StreamReader.readString(is));
+      return new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readString(is));
     } finally {
       if (is != null) {
         is.close();

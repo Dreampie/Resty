@@ -2,7 +2,7 @@ package cn.dreampie.example;
 
 import cn.dreampie.client.Client;
 import cn.dreampie.client.ClientRequest;
-import cn.dreampie.client.ResponseData;
+import cn.dreampie.client.ClientResult;
 import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.util.json.Jsoner;
 import org.junit.Before;
@@ -64,8 +64,8 @@ public class ClientTest {
     ClientRequest uploadRequest = new ClientRequest("/tests/测试", HttpMethod.POST);
     uploadRequest.addUploadFile("testfile", ClientTest.class.getResource("/resty.jar").getFile());
     uploadRequest.addParam("des", "test file  paras  测试笔");
-    ResponseData uploadResult = client.build(uploadRequest).ask();
-    System.out.println(uploadResult.getData());
+    ClientResult uploadResult = client.build(uploadRequest).ask();
+    System.out.println(uploadResult.getResult());
   }
 
   @Test
@@ -73,8 +73,8 @@ public class ClientTest {
     //download  支持断点续传
     ClientRequest downloadRequest = new ClientRequest("/tests/file", HttpMethod.GET);
     downloadRequest.setDownloadFile(ClientTest.class.getResource("/").getFile(), false);
-    ResponseData downloadResult = client.build(downloadRequest).ask();
-    System.out.println(downloadResult.getData());
+    ClientResult downloadResult = client.build(downloadRequest).ask();
+    System.out.println(downloadResult.getResult());
   }
 
   @Test

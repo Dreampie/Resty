@@ -115,7 +115,7 @@ public abstract class Scaner {
       throw new ScanException(e.getMessage(), e);
     }
     if (!baseDir.exists() || !baseDir.isDirectory()) {
-      throw new ScanException("Search error：" + baseDirName + "is not a dir！");
+      throw new ScanException("Search error : " + baseDirName + " is not a dir.");
     } else {
       String[] filelist = baseDir.list();
       String classname = null;
@@ -232,7 +232,7 @@ public abstract class Scaner {
       // 判断目录是否存在
       File baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
       if (!baseDir.exists() || !baseDir.isDirectory()) {
-        throw new ScanException("Jar file scan error：" + baseDirName + " is not a dir！");
+        throw new ScanException("Jar file scan error : " + baseDirName + " is not a dir.");
       } else {
         String[] filelist = baseDir.list(new FilenameFilter() {
 

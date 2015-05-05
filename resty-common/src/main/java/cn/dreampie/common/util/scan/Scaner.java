@@ -43,7 +43,7 @@ public abstract class Scaner {
 //          classInFile = Class.forName(classFile);
           classInFile = Thread.currentThread().getContextClassLoader().loadClass(classFile);
         } catch (ClassNotFoundException e) {
-          throw new RuntimeException(e.getMessage(), e);
+          throw new ScanException(e.getMessage(), e);
         }
         if (checkTarget(classInFile)) {
           classSet.add((Class<? extends T>) classInFile);
@@ -70,7 +70,7 @@ public abstract class Scaner {
     try {
       baseURLs = Scaner.class.getClassLoader().getResources(baseDirName.replaceAll("\\.", "/"));
     } catch (IOException e) {
-      throw new RuntimeException(e.getMessage(), e);
+      throw new ScanException(e.getMessage(), e);
     }
     URL baseURL = null;
     while (baseURLs.hasMoreElements()) {
@@ -87,7 +87,7 @@ public abstract class Scaner {
           try {
             classFiles.addAll(findJarFile(URLDecoder.decode(paths[0].replace("file:", ""), "UTF-8"), paths[1]));
           } catch (IOException e) {
-            e.printStackTrace();
+            throw new ScanException(e.getMessage(), e);
           }
         } else {
           classFiles.addAll(findPackageFiles(basePath, targetFileName));
@@ -112,10 +112,10 @@ public abstract class Scaner {
     try {
       baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
     } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+      throw new ScanException(e.getMessage(), e);
     }
-    if (baseDir == null || !baseDir.exists() || !baseDir.isDirectory()) {
-      throw new RuntimeException("Search error：" + baseDirName + "is not a dir！");
+    if (!baseDir.exists() || !baseDir.isDirectory()) {
+      throw new ScanException("Search error：" + baseDirName + "is not a dir！");
     } else {
       String[] filelist = baseDir.list();
       String classname = null;
@@ -232,7 +232,7 @@ public abstract class Scaner {
       // 判断目录是否存在
       File baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
       if (!baseDir.exists() || !baseDir.isDirectory()) {
-        throw new RuntimeException("Jar file scan error：" + baseDirName + " is not a dir！");
+        throw new ScanException("Jar file scan error：" + baseDirName + " is not a dir！");
       } else {
         String[] filelist = baseDir.list(new FilenameFilter() {
 
@@ -246,7 +246,7 @@ public abstract class Scaner {
       }
 
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new ScanException(e.getMessage(), e);
     }
     return classFiles;
 

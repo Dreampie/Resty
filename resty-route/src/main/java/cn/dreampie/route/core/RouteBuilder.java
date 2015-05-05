@@ -22,6 +22,7 @@ public final class RouteBuilder {
 
   private ResourceLoader resourceLoader;
   private InterceptorLoader interceptorLoader;
+
   //对routes排序
   private Map<String, Map<String, Set<Route>>> routesMap = new CaseInsensitiveMap<Map<String, Set<Route>>>();
 
@@ -37,6 +38,10 @@ public final class RouteBuilder {
    * @param route
    */
   public void addRoute(String apiPath, Route route) {
+    //资源的标志
+    if (apiPath.contains(Route.PARAM_PATTERN)) {
+      throw new IllegalArgumentException("Api path could not contains pattern. Because this is a resource url.");
+    }
     String httpMethod = route.getHttpMethod();
     //httpMethod区分
     if (routesMap.containsKey(httpMethod)) {
@@ -273,8 +278,8 @@ public final class RouteBuilder {
     return new TreeSet<Route>(
         new Comparator<Route>() {
           public int compare(Route a, Route b) {
-            String one = a.getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
-            String two = b.getPattern().replace("/" + Route.DEFAULT_PATTERN, "");
+            String one = a.getPattern().replace("/" + Route.PARAM_PATTERN, "");
+            String two = b.getPattern().replace("/" + Route.PARAM_PATTERN, "");
             int result = two.length() - one.length();
             if (result == 0) {
               result = a.getHttpMethod().compareTo(b.getHttpMethod());

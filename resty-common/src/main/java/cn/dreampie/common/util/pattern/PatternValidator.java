@@ -1,4 +1,4 @@
-package cn.dreampie.common.util;
+package cn.dreampie.common.util.pattern;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

@@ -31,7 +31,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public class Route {
 
-  public static final String DEFAULT_PATTERN = "([^\\/]+)";
+  public static final String PARAM_PATTERN = "([^\\/]+)";
   private static final Logger logger = Logger.getLogger(Route.class);
   private static final PathParserCharProcessor regularCharPathParserCharProcessor = new PathParserCharProcessor() {
 
@@ -440,7 +440,7 @@ public class Route {
 
           if (pathParamRegex.length() == 0) {
             // use default regex
-            pathParamRegex.append(DEFAULT_PATTERN);
+            pathParamRegex.append(PARAM_PATTERN);
           } else {
             // close paren for matching group
             pathParamRegex.append(")");
@@ -486,7 +486,7 @@ public class Route {
     public void handle(int curChar, PathPatternParser pathPatternParser) {
 //      if (!Character.isLetterOrDigit(curChar) && curChar != '_') {
       if (curChar == '/') {
-        pathPatternParser.patternBuilder.append(DEFAULT_PATTERN);
+        pathPatternParser.patternBuilder.append(PARAM_PATTERN);
         pathPatternParser.stdPathPatternBuilder.append("{").append(pathParamName).append("}");
         pathPatternParser.pathParamNames.add(pathParamName.toString());
         pathPatternParser.processor = regularCharPathParserCharProcessor;
@@ -498,7 +498,7 @@ public class Route {
 
 
     public void end(PathPatternParser pathPatternParser) {
-      pathPatternParser.patternBuilder.append(DEFAULT_PATTERN);
+      pathPatternParser.patternBuilder.append(PARAM_PATTERN);
       pathPatternParser.stdPathPatternBuilder.append("{").append(pathParamName).append("}");
       pathPatternParser.pathParamNames.add(pathParamName.toString());
     }

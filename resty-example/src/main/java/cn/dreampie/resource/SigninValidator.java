@@ -1,6 +1,6 @@
 package cn.dreampie.resource;
 
-import cn.dreampie.common.util.PatternValidator;
+import cn.dreampie.common.util.pattern.PatternValidator;
 import cn.dreampie.route.core.Params;
 import cn.dreampie.route.valid.ValidResult;
 import cn.dreampie.route.valid.Validator;

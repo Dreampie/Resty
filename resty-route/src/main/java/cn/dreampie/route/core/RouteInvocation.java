@@ -77,11 +77,10 @@ public class RouteInvocation {
         render(invokeResult);
       } catch (Exception e) {
         Throwable cause = e.getCause();
-        if (cause != null) {
-          throwException(cause);
-        } else {
-          throwException(e);
+        if (cause == null) {
+          cause = e;
         }
+        throwException(cause);
       }
     }
   }

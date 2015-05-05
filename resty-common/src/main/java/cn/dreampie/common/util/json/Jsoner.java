@@ -63,7 +63,7 @@ public class Jsoner {
     try {
       return (T) JSON.parse(json);
     } catch (JSONException e) {
-      throw new ObjectCastException("Could not cast \"" + json + "\" to " + JSONObject.class.getName(), e);
+      throw new JsonException("Could not cast \"" + json + "\" to " + JSONObject.class.getName(), e);
     }
   }
 
@@ -71,7 +71,7 @@ public class Jsoner {
     try {
       return JSON.parseObject(json, clazz);
     } catch (JSONException e) {
-      throw new ObjectCastException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
+      throw new JsonException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
     }
   }
 
@@ -79,7 +79,7 @@ public class Jsoner {
     try {
       return JSON.parseObject(json, clazz, features);
     } catch (JSONException e) {
-      throw new ObjectCastException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
+      throw new JsonException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
     }
   }
 
@@ -87,7 +87,7 @@ public class Jsoner {
     try {
       return JSON.parseObject(json, clazz, processor, features);
     } catch (JSONException e) {
-      throw new ObjectCastException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
+      throw new JsonException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
     }
   }
 
@@ -95,7 +95,7 @@ public class Jsoner {
     try {
       return JSON.parseObject(json, type, features);
     } catch (JSONException e) {
-      throw new ObjectCastException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
+      throw new JsonException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
     }
   }
 
@@ -103,7 +103,7 @@ public class Jsoner {
     try {
       return JSON.parseObject(json, type, features);
     } catch (JSONException e) {
-      throw new ObjectCastException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
+      throw new JsonException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
     }
   }
 
@@ -111,7 +111,7 @@ public class Jsoner {
     try {
       return JSON.parseObject(json, type, processor, features);
     } catch (JSONException e) {
-      throw new ObjectCastException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
+      throw new JsonException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
     }
   }
 

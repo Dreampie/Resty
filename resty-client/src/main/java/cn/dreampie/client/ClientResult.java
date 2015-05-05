@@ -1,7 +1,6 @@
 package cn.dreampie.client;
 
 import cn.dreampie.common.http.result.HttpStatus;
-import cn.dreampie.common.util.json.Jsoner;
 
 /**
  * Created by wangrenhui on 15/1/11.
@@ -21,10 +20,6 @@ public class ClientResult {
 
   public String getResult() {
     return result;
-  }
-
-  public <T> T getResult(Class<? extends T> clazz) {
-    return Jsoner.toObject(result, clazz);
   }
 
   public String toString() {

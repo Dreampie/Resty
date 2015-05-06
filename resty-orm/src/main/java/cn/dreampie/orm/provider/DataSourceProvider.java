@@ -8,13 +8,13 @@ import javax.sql.DataSource;
  * Created by ice on 14-12-30.
  */
 public interface DataSourceProvider {
-  DataSource getDataSource();
+  public DataSource getDataSource();
 
-  Dialect getDialect();
+  public Dialect getDialect();
 
-  String getDsName();
+  public String getDsName();
 
-  boolean isShowSql();
+  public boolean isShowSql();
 
-  void close();
+  public void close();
 }

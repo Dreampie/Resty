@@ -40,12 +40,6 @@
 
     <dependency>
       <groupId>cn.dreampie</groupId>
-      <artifactId>resty-cache</artifactId>
-      <version>${resty.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>cn.dreampie</groupId>
       <artifactId>resty-common</artifactId>
       <version>${resty.version}</version>
     </dependency>

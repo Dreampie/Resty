@@ -2,10 +2,6 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.UploadedFile;
-
-import java.util.List;
-import java.util.Map;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -17,21 +13,16 @@ public class RouteMatch {
   private final String pattern;
   private final String path;
   private final String extension;
-  private final Map<String, String> pathParams;
-  private final Map<String, List<String>> otherParams;
-  private final Map<String, UploadedFile> fileParams;
+  private final Params params;
   private final HttpRequest request;
   private final HttpResponse response;
 
   public RouteMatch(String pattern, String path, String extension,
-                    Map<String, String> pathParams,
-                    Map<String, List<String>> otherParams, Map<String, UploadedFile> fileParams, HttpRequest request, HttpResponse response) {
+                    Params params, HttpRequest request, HttpResponse response) {
 
     this.pattern = checkNotNull(pattern);
     this.path = checkNotNull(path);
-    this.pathParams = checkNotNull(pathParams);
-    this.otherParams = checkNotNull(otherParams);
-    this.fileParams = fileParams;
+    this.params = checkNotNull(params);
     this.extension = checkNotNull(extension);
     this.request = request;
     this.response = response;
@@ -41,44 +32,9 @@ public class RouteMatch {
     return path;
   }
 
-  public String getPathParam(String paramName) {
-    String v = pathParams.get(paramName);
-    checkNotNull(v, "path parameter %s was not found", paramName);
-    return v;
+  public Params getParams() {
+    return params;
   }
-
-  public Map<String, String> getPathParams() {
-    return pathParams;
-  }
-
-  public Map<String, List<String>> getOtherParams() {
-    return otherParams;
-  }
-
-  public List<String> getOtherParam(String name) {
-    return otherParams.get(name);
-  }
-
-  public String getOtherParamFisrt(String name) {
-    List<String> value = otherParams.get(name);
-    return value != null ? value.get(0) : null;
-  }
-
-  public Map<String, UploadedFile> getFileParams() {
-    return fileParams;
-  }
-
-  public UploadedFile getFileParamFirst() {
-    return fileParams != null && fileParams.size() > 0 ? fileParams.values().iterator().next() : null;
-  }
-
-  public UploadedFile getFileParam(String name) {
-    if (fileParams != null) {
-      return fileParams.get(name);
-    }
-    return null;
-  }
-
 
   public String getExtension() {
     return extension;
@@ -97,8 +53,6 @@ public class RouteMatch {
     return "RouteMatch{" +
         "pattern='" + pattern + '\'' +
         ", path='" + path + '\'' +
-        ", pathParams=" + pathParams +
-        ", otherParams=" + otherParams +
         '}';
   }
 }

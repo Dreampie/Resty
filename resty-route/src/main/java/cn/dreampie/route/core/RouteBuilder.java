@@ -75,7 +75,6 @@ public final class RouteBuilder {
     GET get = null;
     POST post = null;
     PUT put = null;
-    HEAD head = null;
     PATCH patch = null;
     String apiPath = "";
 
@@ -152,15 +151,6 @@ public final class RouteBuilder {
           validators = getValidators(validClasses);
           addRoute(apiPath, new Route(resourceClazz, paramAttribute, "PUT", getApi(apiPath, put.value()), method, routeInters,
               put.des(), validators, multipartBuilder));
-          continue;
-        }
-        //head 请求
-        head = method.getAnnotation(HEAD.class);
-        if (head != null) {
-          validClasses = head.valid();
-          validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "HEAD", getApi(apiPath, head.value()), method, routeInters,
-              head.des(), validators, multipartBuilder));
           continue;
         }
         //patch 请求

@@ -85,25 +85,35 @@ public class ClientConnection {
     }
   }
 
-  protected HttpURLConnection getHttpConnection() throws IOException, NoSuchAlgorithmException, NoSuchProviderException, KeyManagementException {
+  /**
+   * 获取Connection
+   *
+   * @param httpMethod
+   * @return
+   * @throws IOException
+   * @throws NoSuchAlgorithmException
+   * @throws NoSuchProviderException
+   * @throws KeyManagementException
+   */
+  protected HttpURLConnection getHttpConnection(String httpMethod) throws IOException, NoSuchAlgorithmException, NoSuchProviderException, KeyManagementException {
     ClientRequest clientRequest = clientRequestTL.get();
 
-    URL _url = null;
+    URL url = null;
     HttpURLConnection conn = null;
-    String method = clientRequest.getMethod();
-    //使用OutPutStream输出参数
-    if (HttpMethod.POST.contains(method)) {
-      _url = new URL(apiUrl + clientRequest.getRestUrl());
-      conn = openHttpURLConnection(_url, method);
 
-      conn.setDoOutput(true);
-      conn.setUseCaches(false);
+    String contentType = clientRequest.getContentType();
+    //json请求
+    if (contentType.contains(ContentType.JSON)) {
+      conn = getStreamConnection(httpMethod, clientRequest);
+      outputParam(conn, httpMethod, clientRequest.getJsonParam());
+    } else if (contentType.contains(ContentType.MULTIPART) || httpMethod.equals(HttpMethod.POST)) {
+      //上传文件类型
+      conn = getStreamConnection(httpMethod, clientRequest);
       //是上传文件
       Map<String, String> uploadFiles = clientRequest.getUploadFiles();
       if (uploadFiles != null && uploadFiles.size() > 0) {
-
         String boundary = "---------------------------" + getRandomString(13); //boundary就是request头和上传文件内容的分隔符
-        conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+        conn.setRequestProperty("Content-Type", contentType + "boundary=" + boundary);
 
         // params
         Map<String, String> params = clientRequest.getParams();
@@ -130,28 +140,11 @@ public class ClientConnection {
         writer.flush();
         writer.close();
       } else {
-        //没有文件上传
-        String contentType = clientRequest.getHeaders().get("Content-Type");
-        String requestParams;
-        //application/json  传递参数
-        if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON)) {
-          requestParams = clientRequest.getJsonParam();
-        } else {
-          requestParams = clientRequest.getEncodedParams();
-        }
-        //写入参数
-        if (requestParams != null && !"".equals(requestParams)) {
-          DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
-          logger.debug("Request out method " + method + ",out parameters " + requestParams);
-
-          writer.writeBytes(requestParams);
-          writer.flush();
-          writer.close();
-        }
+        outputParam(conn, httpMethod, clientRequest.getEncodedParams());
       }
     } else {
-      _url = new URL(apiUrl + clientRequest.getEncodedUrl());
-      conn = openHttpURLConnection(_url, method);
+      url = new URL(apiUrl + clientRequest.getEncodedUrl());
+      conn = openHttpURLConnection(url, httpMethod);
     }
 
     //ssl判断
@@ -162,9 +155,46 @@ public class ClientConnection {
 
     conn.setConnectTimeout(clientRequest.getConnectTimeOut());
     conn.setReadTimeout(clientRequest.getReadTimeOut());
-
-
     return conn;
+  }
+
+  /**
+   * outConnection
+   *
+   * @param httpMethod
+   * @param clientRequest
+   * @return
+   * @throws IOException
+   */
+  private HttpURLConnection getStreamConnection(String httpMethod, ClientRequest clientRequest) throws IOException {
+    URL url;
+    HttpURLConnection conn;
+    url = new URL(apiUrl + clientRequest.getRestUrl());
+    conn = openHttpURLConnection(url, httpMethod);
+
+    conn.setDoOutput(true);
+    conn.setUseCaches(false);
+    return conn;
+  }
+
+  /**
+   * 输出参数
+   *
+   * @param conn
+   * @param method
+   * @param requestParams
+   * @throws IOException
+   */
+  private void outputParam(HttpURLConnection conn, String method, String requestParams) throws IOException {
+    //写入参数
+    if (requestParams != null && !"".equals(requestParams)) {
+      DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
+      logger.debug("Request out method " + method + ",out parameters " + requestParams);
+
+      writer.writeBytes(requestParams);
+      writer.flush();
+      writer.close();
+    }
   }
 
   /**
@@ -202,19 +232,19 @@ public class ClientConnection {
   /**
    * open a  Connection
    *
-   * @param _url   url
+   * @param url    url
    * @param method method
    * @return
    * @throws IOException
    */
-  private HttpURLConnection openHttpURLConnection(URL _url, String method) throws IOException {
-    logger.info("Open connection for api " + _url.getPath());
+  private HttpURLConnection openHttpURLConnection(URL url, String method) throws IOException {
+    logger.info("Open connection for api " + url.getPath());
 
     ClientRequest clientRequest = clientRequestTL.get();
 
     HttpURLConnection.setFollowRedirects(true);
     HttpURLConnection conn;
-    conn = (HttpURLConnection) _url.openConnection();
+    conn = (HttpURLConnection) url.openConnection();
     conn.setRequestMethod(method);
 
     String downloadFile = clientRequest.getDownloadFile();
@@ -226,10 +256,13 @@ public class ClientConnection {
       }
     }
     Map<String, String> headers = clientRequest.getHeaders();
-    if (headers != null && !headers.isEmpty())
-      for (Map.Entry<String, String> entry : headers.entrySet())
+    if (headers != null && !headers.isEmpty()) {
+      for (Map.Entry<String, String> entry : headers.entrySet()) {
         conn.setRequestProperty(entry.getKey(), entry.getValue());
-
+      }
+    }
+    conn.setRequestProperty("Content-Type", clientRequest.getContentType());
+    conn.setRequestProperty("User-Agent", clientRequest.getUserAgent());
     return conn;
   }
 

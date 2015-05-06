@@ -29,8 +29,8 @@ public class Params {
   /**
    * Get param of any type.
    */
-  public <T> T get(String param) {
-    return (T) (params.get(param));
+  public <T> T get(String name) {
+    return (T) (params.get(name));
   }
 
   /**

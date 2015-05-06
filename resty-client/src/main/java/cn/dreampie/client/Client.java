@@ -49,15 +49,36 @@ public class Client extends ClientConnection {
     return this;
   }
 
+
+  public ClientResult get() {
+    return ask(HttpMethod.GET);
+  }
+
+  public ClientResult post() {
+    return ask(HttpMethod.POST);
+  }
+
+  public ClientResult put() {
+    return ask(HttpMethod.PUT);
+  }
+
+  public ClientResult patch() {
+    return ask(HttpMethod.PATCH);
+  }
+
+  public ClientResult delete() {
+    return ask(HttpMethod.DELETE);
+  }
+
   /**
    * 执行请求 并获取返回值
    *
    * @return responseData
    */
-  public ClientResult ask() {
+  private ClientResult ask(String httpMethod) {
     HttpURLConnection conn = null;
     try {
-      conn = getHttpConnection();
+      conn = getHttpConnection(httpMethod);
       conn.connect();
       return readResponse(conn);
     } catch (Exception e) {
@@ -92,16 +113,23 @@ public class Client extends ClientConnection {
 
   private ClientResult login(ClientRequest clientRequest) {
     //login
-    ClientResult result = build(loginRequest).ask();
+    ClientResult result = build(loginRequest).post();
     if (result.getStatus() != HttpStatus.OK) {
       throw new ClientException("Login error " + result.getStatus() + ", " + result.getResult());
     } else {
       if (clientRequest != null)
-        result = build(clientRequest).ask();
+        result = build(clientRequest).post();
     }
     return result;
   }
 
+  /**
+   * 读取返回值
+   *
+   * @param conn
+   * @return
+   * @throws IOException
+   */
   private ClientResult readResponse(HttpURLConnection conn) throws IOException {
     int httpCode = conn.getResponseCode();
     logger.debug("Connection done. The server's response code is: %s", httpCode);

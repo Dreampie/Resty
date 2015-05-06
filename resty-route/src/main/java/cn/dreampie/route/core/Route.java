@@ -2,12 +2,15 @@ package cn.dreampie.route.core;
 
 
 import cn.dreampie.common.Constant;
-import cn.dreampie.common.http.HttpRequest;
-import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.UploadedFile;
+import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.http.*;
+import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
+import cn.dreampie.common.util.json.Jsoner;
+import cn.dreampie.common.util.json.ModelDeserializer;
+import cn.dreampie.common.util.stream.StreamReader;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.core.multipart.MultipartBuilder;
 import cn.dreampie.route.core.multipart.MultipartParam;
@@ -15,8 +18,12 @@ import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.Validator;
+import com.alibaba.fastjson.JSONArray;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -215,8 +222,8 @@ public class Route {
     for (int i = 0; i < m.groupCount() && i < pathParamNames.size(); i++) {
       pathParams.put(pathParamNames.get(i), m.group(i + 1));
     }
-    //otherParams
-    Map<String, List<String>> otherParams = request.getQueryParams();
+    //formParams
+    Map<String, List<String>> formParams = request.getQueryParams();
 
     //有文件上传
     MultipartParam multipartParam = null;
@@ -225,26 +232,35 @@ public class Route {
     }
 
     RouteMatch routeMatch = null;
-    //print match route
-    if (multipartParam != null) {
-      otherParams.putAll(multipartParam.getParams());
-      printMatchRoute(request.getContentType(), pathParams, otherParams, multipartParam.getUploadedFiles());
-      routeMatch = new RouteMatch(pathPattern, restPath, extension, pathParams, otherParams, multipartParam.getUploadedFiles(), request, response);
+    Params params = null;
+    Map<String, UploadedFile> fileParams = null;
+    String jsonParams = null;
+    String contentType = request.getContentType();
+    if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON)) {
+      jsonParams = getJson(request);
+      params = parseJsonParams(jsonParams, pathParams);
     } else {
-      printMatchRoute(request.getContentType(), pathParams, otherParams, null);
-      routeMatch = new RouteMatch(pathPattern, restPath, extension, pathParams, otherParams, null, request, response);
+      //print match route
+      if (multipartParam != null) {
+        fileParams = multipartParam.getUploadedFiles();
+        params = parseFormParams(pathParams, formParams, fileParams);
+      } else {
+        params = parseFormParams(pathParams, formParams, new Hashtable<String, UploadedFile>());
+      }
     }
+    routeMatch = new RouteMatch(pathPattern, restPath, extension, params, request, response);
+    printMatchRoute(request.getContentType(), jsonParams, pathParams, formParams, fileParams);
     return routeMatch;
   }
 
   /**
    * 打印route信息
    *
-   * @param pathParams  path参数
-   * @param otherParams 其他参数
-   * @param fileParams  文件参数
+   * @param pathParams path参数
+   * @param formParams 其他参数
+   * @param fileParams 文件参数
    */
-  private void printMatchRoute(String contentType, Map<String, String> pathParams, Map<String, List<String>> otherParams, Map<String, UploadedFile> fileParams) {
+  private void printMatchRoute(String contentType, String jsonParams, Map<String, String> pathParams, Map<String, List<String>> formParams, Map<String, UploadedFile> fileParams) {
     if (Constant.showRoute && logger.isInfoEnabled()) {
       //print route
       StringBuilder sb = new StringBuilder("\n\nMatch route ----------------- ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())).append(" ------------------------------");
@@ -254,29 +270,33 @@ public class Route {
       sb.append("\nContentType  : ").append(contentType);
       //print pathParams
       sb.append("\nPathParams   : ");
-      if (pathParams.size() > 0) {
+      if (pathParams != null && pathParams.size() > 0) {
         Set<Map.Entry<String, String>> paramsEntrySet = pathParams.entrySet();
         for (Map.Entry<String, String> paramsEntry : paramsEntrySet) {
           sb.append(paramsEntry.getKey()).append(" = {").append(paramsEntry.getValue()).append("}");
           sb.append("  ");
         }
       }
-      //print otherParams
-      if (otherParams != null) {
-        sb.append("\nOtherParams  : ");
+      //print formParams
+      if (formParams != null && formParams.size() > 0) {
+        sb.append("\nFormParams   : ");
         List<String> values;
-        Set<Map.Entry<String, List<String>>> otherParamsEntrySet = otherParams.entrySet();
-        for (Map.Entry<String, List<String>> otherParamsEntry : otherParamsEntrySet) {
-          values = otherParamsEntry.getValue();
+        Set<Map.Entry<String, List<String>>> formParamsEntrySet = formParams.entrySet();
+        for (Map.Entry<String, List<String>> formParamsEntry : formParamsEntrySet) {
+          values = formParamsEntry.getValue();
           if (values.size() >= 1) {
-            sb.append(otherParamsEntry.getKey()).append(" = {").append(values.get(0)).append("}");
+            sb.append(formParamsEntry.getKey()).append(" = {").append(values.get(0)).append("}");
           }
           sb.append("  ");
         }
       }
+      //print jsonParams
+      if (jsonParams != null) {
+        sb.append("\nJsonParams   : ").append(jsonParams);
+      }
 
       //print fileParams
-      if (fileParams != null) {
+      if (fileParams != null && fileParams.size() > 0) {
         sb.append("\nFileParams   : ");
         UploadedFile value;
         Set<Map.Entry<String, UploadedFile>> fileParamsEntrySet = fileParams.entrySet();
@@ -378,6 +398,331 @@ public class Route {
 
   public MultipartBuilder getMultipartBuilder() {
     return multipartBuilder;
+  }
+
+  /**
+   * 抛出异常
+   *
+   * @param cause
+   */
+  public void throwException(Throwable cause) {
+    if (cause instanceof WebException) {
+      throw (WebException) cause;
+    } else {
+      logger.error("Route method invoke error.", cause);
+      throw new WebException(cause.getMessage());
+    }
+  }
+
+  /**
+   * 获取json字符串
+   *
+   * @param request
+   * @return
+   */
+  private String getJson(HttpRequest request) {
+    String json;
+    String httpMethod = request.getHttpMethod();
+    if (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) {
+      json = request.getQueryString();
+    } else {
+      try {
+        InputStream is = request.getContentStream();
+        json = StreamReader.readString(is);
+      } catch (IOException e) {
+        String msg = "Could not read inputStream when contentType is '" + request.getContentType() + "'.";
+        logger.error(msg, e);
+        throw new WebException(msg);
+      }
+    }
+    return json;
+  }
+
+  /**
+   * 获取所有的请求参数
+   *
+   * @return 所有参数
+   */
+  private Params parseFormParams(Map<String, String> pathParams, Map<String, List<String>> formParams, Map<String, UploadedFile> fileParams) {
+    Params params = new Params();
+    int i = 0;
+    Class paramType = null;
+    List<String> valueArr = null;
+    //判断范型类型
+    Type[] typeArguments;
+
+    Class keyTypeClass;
+    Class valueTypeClass;
+    for (String name : allParamNames) {
+      paramType = allParamTypes.get(i);
+
+      //path里的参数
+      if (pathParamNames.contains(name)) {
+        if (paramType == String.class) {
+          params.set(name, pathParams.get(name));
+        } else
+          params.set(name, Jsoner.toObject(pathParams.get(name), paramType));
+      } else {//其他参数
+        if (paramType == UploadedFile.class) {
+          params.set(name, fileParams.get(name));
+        } else if (paramType == Map.class) {
+          typeArguments = ((ParameterizedType) allGenericParamTypes.get(i)).getActualTypeArguments();
+          if (typeArguments.length >= 2) {
+            keyTypeClass = (Class) typeArguments[0];
+            valueTypeClass = (Class) typeArguments[1];
+            if (keyTypeClass == String.class && valueTypeClass == UploadedFile.class) {
+              params.set(name, fileParams);
+            } else {
+              valueArr = formParams.get(name);
+              params.set(name, parseString(paramType, valueArr));
+            }
+          } else {
+            valueArr = formParams.get(name);
+            params.set(name, parseString(paramType, valueArr));
+          }
+        } else {
+          valueArr = formParams.get(name);
+          params.set(name, parseString(paramType, valueArr));
+        }
+      }
+      i++;
+    }
+    return params;
+  }
+
+
+  /**
+   * 转换string类型参数
+   *
+   * @param paramType
+   * @param valueArr
+   */
+  private Object parseString(Class paramType, List<String> valueArr) {
+    String value;
+    Object result = null;
+    if (valueArr != null && valueArr.size() > 0) {
+      //不支持数组参数
+      value = valueArr.get(0);
+      if (paramType == String.class) {
+        result = value;
+      } else {
+        //转换为对应的对象类型
+        result = parse(paramType, Jsoner.toObject(value, paramType));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * 获取所有以application/json方式提交的数据
+   *
+   * @param json json字符串
+   * @return 所有参数
+   */
+  private Params parseJsonParams(String json, Map<String, String> pathParams) {
+    Params params = new Params();
+
+    int i = 0;
+    Class paramType = null;
+
+    //只有一个参数时 直接把该参数 放入方法
+    boolean oneParamParse = false;
+    if (Constant.oneParamParse) {
+      oneParamParse = (allParamNames.size() - pathParamNames.size()) == 1;
+    }
+
+    Object obj = null;
+
+    boolean hasJsonParam = null != json && !"".equals(json);
+    Object receiveParams = null;
+    if (hasJsonParam) {
+      receiveParams = Jsoner.toObject(json);
+      hasJsonParam = receiveParams != null;
+    }
+    for (String name : allParamNames) {
+      paramType = allParamTypes.get(i);
+
+      //path里的参数
+      if (pathParamNames.contains(name)) {
+        if (paramType == String.class) {
+          params.set(name, pathParams.get(name));
+        } else {
+          params.set(name, Jsoner.toObject(pathParams.get(name), paramType));
+        }
+      } else {//其他参数
+        if (hasJsonParam) {
+          if (oneParamParse) {
+            //转换对象到指定的类型
+            params.set(name, parse(allGenericParamTypes.get(i), paramType, receiveParams));
+          } else {
+            obj = ((Map<String, Object>) receiveParams).get(name);
+
+            if (obj != null) {
+              if (paramType == String.class) {
+                params.set(name, obj.toString());
+              } else {
+                //转换对象到指定的类型
+                params.set(name, parse(allGenericParamTypes.get(i), paramType, obj));
+              }
+            } else {
+              params.set(name, null);
+            }
+          }
+        } else {
+          params.set(name, null);
+        }
+      }
+
+      i++;
+    }
+    return params;
+  }
+
+  /**
+   * 把参数转到对应的类型
+   *
+   * @param paramType
+   * @param obj
+   */
+  private Object parse(Type genericParamType, Class paramType, Object obj) {
+    Class keyTypeClass;
+    Class paramTypeClass;
+    List<Map<String, Object>> list;
+    List<Entity<?>> newlist;
+    Entity<?> entity;
+    JSONArray blist;
+    List<?> newblist;
+    Set<Entity<?>> newset;
+    JSONArray bset;
+    Set<?> newbset;
+    Map map;
+    Set<Map.Entry<String, Object>> mapEntry;
+    Map newMap;
+
+    Object result = null;
+    if (obj != null) {
+      if (Map.class.isAssignableFrom(paramType)) {
+        keyTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[0];
+        paramTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[1];
+        map = (Map<String, Object>) obj;
+        newMap = new HashMap();
+        mapEntry = map.entrySet();
+        for (Map.Entry<String, Object> entry : mapEntry) {
+          newMap.put(parse(keyTypeClass, entry.getKey()), parse(paramTypeClass, entry.getValue()));
+        }
+        result = newMap;
+      } else if (Collection.class.isAssignableFrom(paramType)) {
+        paramTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[0];
+
+        if (List.class.isAssignableFrom(paramType)) {
+          list = (List<Map<String, Object>>) obj;
+          //Entity类型
+          if (Entity.class.isAssignableFrom(paramTypeClass)) {
+            newlist = new ArrayList<Entity<?>>();
+            for (Map<String, Object> mp : list) {
+              try {
+                entity = (Entity<?>) paramTypeClass.newInstance();
+                entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
+                newlist.add(entity);
+              } catch (InstantiationException e) {
+                throwException(e);
+              } catch (IllegalAccessException e) {
+                throwException(e);
+              }
+            }
+            result = newlist;
+          } else {
+            blist = (JSONArray) obj;
+            if (String.class == paramTypeClass) {
+              newblist = new ArrayList<String>();
+              for (Object o : blist) {
+                ((List<String>) newblist).add(o.toString());
+              }
+            } else {
+              newblist = new ArrayList<Object>();
+              for (Object o : blist) {
+                if (paramTypeClass.isAssignableFrom(o.getClass()))
+                  ((List<Object>) newblist).add(o);
+                else
+                  ((List<Object>) newblist).add(parse(paramTypeClass, o));
+              }
+            }
+            result = newblist;
+          }
+        } else if (Set.class.isAssignableFrom(paramType)) {
+          //Entity
+          if (Entity.class.isAssignableFrom(paramTypeClass)) {
+            list = (List<Map<String, Object>>) obj;
+            newset = new HashSet<Entity<?>>();
+            for (Map<String, Object> mp : list) {
+              try {
+                entity = (Entity<?>) paramTypeClass.newInstance();
+                entity.putAttrs(ModelDeserializer.deserialze(mp, paramTypeClass));
+                newset.add(entity);
+              } catch (InstantiationException e) {
+                throwException(e);
+              } catch (IllegalAccessException e) {
+                throwException(e);
+              }
+            }
+            result = newset;
+          } else {
+            bset = (JSONArray) obj;
+            if (String.class == paramTypeClass) {
+              newbset = new HashSet<String>();
+              for (Object o : bset) {
+                ((Set<String>) newbset).add(o.toString());
+              }
+            } else {
+              newbset = new HashSet<Object>();
+              for (Object o : bset) {
+                if (paramTypeClass.isAssignableFrom(o.getClass()))
+                  ((Set<Object>) newbset).add(o);
+                else
+                  ((Set<Object>) newbset).add(parse(paramTypeClass, o));
+              }
+            }
+            result = newbset;
+          }
+        }
+      } else {
+        result = parse(paramType, obj);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * 转换非集合对象
+   *
+   * @param paramType
+   * @param obj
+   * @return
+   */
+  private Object parse(Class paramType, Object obj) {
+    Map<String, Object> map;
+    Object result = null;
+    if (obj != null) {
+
+      if (paramType.isAssignableFrom(obj.getClass())) {
+        result = obj;
+      } else {
+        if (Entity.class.isAssignableFrom(paramType)) {
+          map = (Map<String, Object>) obj;
+          try {
+            result = (Entity) paramType.newInstance();
+            ((Entity) result).putAttrs(ModelDeserializer.deserialze(map, paramType));
+          } catch (InstantiationException e) {
+            throwException(e);
+          } catch (IllegalAccessException e) {
+            throwException(e);
+          }
+        } else {
+          result = Jsoner.toObject(Jsoner.toJSON(obj), paramType);
+        }
+      }
+    }
+    return result;
   }
 
   private static interface PathParserCharProcessor {

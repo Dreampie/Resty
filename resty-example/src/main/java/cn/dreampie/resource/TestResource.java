@@ -10,8 +10,6 @@ import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.route.core.annotation.*;
 import cn.dreampie.route.core.multipart.FILE;
-import cn.dreampie.security.Principal;
-import cn.dreampie.security.Subject;
 
 import java.io.File;
 import java.util.Date;
@@ -23,37 +21,34 @@ import java.util.Map;
 @API("/tests")
 public class TestResource extends ApiResource {
 
-
-  @POST(value = "/login")
-  public Principal login(String username, String password) {
-    Subject.login(username, password);
-    return Subject.getPrincipal();
-  }
-
-  @GET
-  @Transaction(readonly = true)
-  public WebResult get() {
-//    Subject.login("userq", "123");
+  @GET("/:get")
+  public WebResult get(String get) {
+    System.out.println(get);
     //如果需要返回请求状态  new WebResult
     return new WebResult(HttpStatus.OK, User.dao.findAll());
   }
 
-  @POST("/tests")
-  public Map post(Map<String, String> test) {
-    return test;
+  @POST("/:post")
+  public Map post(String post, Map<String, String> params) {
+    params.put("post", post);
+    return params;
   }
 
-  @PUT("/:b")
-  public Map put(String b) {
-    Map<String, String> map = Maper.of("a", "1", "b", "2");
-    map.put("b", b);
+  @PUT("/:put")
+  public Map put(String put, Map<String, String> map) {
+    map.put("put", put);
     return map;
   }
 
-  @DELETE("/:key")
-  public Map delete(String key) {
+  @PATCH("/:patch")
+  public Map patch(String patch) {
+    return Maper.of("patch", patch);
+  }
+
+  @DELETE("/:delete")
+  public Map delete(String delete) {
     Map<String, String> map = Maper.of("a", "1", "b", "2");
-    map.remove(key);
+    map.remove(delete);
     return map;
   }
 
@@ -69,9 +64,9 @@ public class TestResource extends ApiResource {
   }
 
   //上传文件
-  @POST("/:filename")
+  @POST("/file")
   @FILE
-  public UploadedFile upload(String filename, UploadedFile testfile, String des) {
+  public UploadedFile upload(UploadedFile testfile, String des) {
     //如果上传文件的同时 有参数  注意UploadedFile  参数的名字 需要和input的name对应
     System.out.println(des);
     return testfile;

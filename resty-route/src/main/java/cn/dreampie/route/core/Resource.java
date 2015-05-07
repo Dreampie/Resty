@@ -11,30 +11,30 @@ public abstract class Resource {
 
   private RouteMatch routeMatch;
 
-  void setRouteMatch(RouteMatch routeMatch) {
+  final void setRouteMatch(RouteMatch routeMatch) {
     this.routeMatch = routeMatch;
   }
 
-  public String getPath() {
+  final public String getPath() {
     return routeMatch.getPath();
   }
 
-  public Params getParams() {
+  final public Params getParams() {
     return routeMatch.getParams();
   }
 
   /**
    * Get param of any type.
    */
-  public <T> T get(String name) {
+  final public <T> T getParam(String name) {
     return (T) (getParams().get(name));
   }
 
-  public HttpRequest getRequest() {
+  final public HttpRequest getRequest() {
     return routeMatch.getRequest();
   }
 
-  public HttpResponse getResponse() {
+  final public HttpResponse getResponse() {
     return routeMatch.getResponse();
   }
 

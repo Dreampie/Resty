@@ -348,13 +348,11 @@ public void configPlugin(PluginLoader pluginLoader) {
 二、运行example示例：
 -----------------
 
-1.运行根目录下的pom.xml->install （命令行： mvn clean install -Dmaven.test.skip=true ，install时跳过测试，因为测试需要连接数据库，没有数据库会失败，把相关的插件安装到本地，功能完善之后发布到maven就不需要这样了）
+1.在本地mysql数据库里创建demo,example数据库，对应application.properties的数据库配置
 
-2.在本地mysql数据库里创建demo,example数据库，对应application.properties的数据库配置
+2.运行resty-example下的pom.xml->flyway-maven-plugin:migration，自动根具resources下db目录下的数据库文件生成数据库表结构
 
-3.运行resty-example下的pom.xml->flyway-maven-plugin:migration，自动根具resources下db目录下的数据库文件生成数据库表结构
-
-4.运行resty-example下的pom.xml->tomcat7-maven-plugin:run,启动example程序
+3.运行resty-example下的pom.xml->tomcat6-maven-plugin:run,启动example程序
 
 提醒:推荐idea作为开发ide，使用分模块的多module开发
 

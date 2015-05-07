@@ -32,6 +32,8 @@ public class ClientTest {
   @Test
   public void testGet() {
     ClientRequest request = new ClientRequest("/tests/1");
+//    Jsoner.addDeserializer(User.class, ModelDeserializer.instance());
+//    System.out.println(Jsoner.toObject(client.build(request).get().getResult(),new TypeReference<List<User>>(){}));
     System.out.println(client.build(request).get());
   }
 

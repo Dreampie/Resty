@@ -13,6 +13,7 @@ import cn.dreampie.route.core.multipart.FILE;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,10 +23,10 @@ import java.util.Map;
 public class TestResource extends ApiResource {
 
   @GET("/:get")
-  public WebResult get(String get) {
+  public WebResult<List<User>> get(String get) {
     System.out.println(get);
     //如果需要返回请求状态  new WebResult
-    return new WebResult(HttpStatus.OK, User.dao.findAll());
+    return new WebResult<List<User>>(HttpStatus.OK, User.dao.findAll());
   }
 
   @POST("/:post")

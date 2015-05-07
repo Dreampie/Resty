@@ -5,18 +5,18 @@ import java.awt.image.RenderedImage;
 /**
  * Created by ice on 14-12-19.
  */
-public class ImageResult {
+public class ImageResult<T extends RenderedImage> {
 
   private final String type;
-  private final RenderedImage result;
+  private final T result;
 
 
-  public ImageResult(String type, RenderedImage result) {
+  public ImageResult(String type, T result) {
     this.type = type;
     this.result = result;
   }
 
-  public ImageResult(RenderedImage result) {
+  public ImageResult(T result) {
     this.type = "png";
     this.result = result;
   }
@@ -30,7 +30,7 @@ public class ImageResult {
    *
    * @return the content to use in the response.
    */
-  public RenderedImage getResult() {
+  public T getResult() {
     return result;
   }
 

@@ -31,7 +31,7 @@ public class Prop {
    * Prop prop = new Prop("my_config.txt", "UTF-8");<br>
    * String userName = prop.get("userName");<br><br>
    * <p/>
-   * prop = new Prop("com/jfinal/file_in_sub_path_of_classpath.txt", "UTF-8");<br>
+   * prop = new Prop("com/resty/file_in_sub_path_of_classpath.txt", "UTF-8");<br>
    * String value = prop.get("key");
    *
    * @param fileName the properties file's name in classpath or the sub directory of classpath

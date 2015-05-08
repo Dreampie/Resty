@@ -5,8 +5,8 @@ import cn.dreampie.common.http.HttpResponse;
 
 /**
  * Handler.
- * You can config Handler in JFinalConfig.configHandler() method,
- * Handler can do anything under the jfinal action.
+ * You can config Handler in Config.configHandler() method,
+ * Handler can do anything under the resty route.
  */
 public abstract class Handler {
 

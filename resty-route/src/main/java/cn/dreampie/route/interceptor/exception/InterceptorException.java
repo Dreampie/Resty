@@ -17,7 +17,7 @@
 package cn.dreampie.route.interceptor.exception;
 
 /**
- * ActiveRecordException
+ * InterceptorException
  */
 public class InterceptorException extends RuntimeException {
 

@@ -208,46 +208,46 @@ public void configPlugin(PluginLoader pluginLoader) {
   client = new Client(apiUrl, "/tests/login", "u", "123");
 
   //该请求必须  登陆之后才能访问  未登录时返回 401  未认证
-  ClientRequest authRequest = new ClientRequest("/users", HttpMethod.GET);
-  ResponseData authResult = client.build(authRequest).ask();
-  System.out.println(authResult.getData());
+  ClientRequest authRequest = new ClientRequest("/users");
+  ClientResult authResult = client.build(authRequest).get();
+  System.out.println(authResult.getResult());
 
   //get
-  ClientRequest getRequest = new ClientRequest("/tests", HttpMethod.GET);
-  ResponseData getResult = client.build(getRequest).ask();
-  System.out.println(getResult.getData());
+  ClientRequest getRequest = new ClientRequest("/tests");
+  ClientResult getResult = client.build(getRequest).get();
+  System.out.println(getResult.getResult());
 
   //post
-  ClientRequest postRequest = new ClientRequest("/tests", HttpMethod.POST);
+  ClientRequest postRequest = new ClientRequest("/tests");
   postRequest.addParam("test", Jsoner.toJSONString(Maper.of("a", "谔谔")));
-  ResponseData postResult = client.build(postRequest).ask();
-  System.out.println(postResult.getData());
+  ClientResult postResult = client.build(postRequest).post();
+  System.out.println(postResult.getResult());
 
   //put
-  ClientRequest putRequest = new ClientRequest("/tests/x", HttpMethod.PUT);
-  ResponseData putResult = client.build(putRequest).ask();
-  System.out.println(putResult.getData());
+  ClientRequest putRequest = new ClientRequest("/tests/x");
+  ClientResult putResult = client.build(putRequest).put();
+  System.out.println(putResult.getResult());
 
 
   //delete
-  ClientRequest deleteRequest = new ClientRequest("/tests/a", HttpMethod.DELETE);
-  ResponseData deleteResult = client.build(deleteRequest).ask();
-  System.out.println(deleteResult.getData());
+  ClientRequest deleteRequest = new ClientRequest("/tests/a");
+  ClientResult deleteResult = client.build(deleteRequest).delete();
+  System.out.println(deleteResult.getResult());
 
 
   //upload
-  ClientRequest uploadRequest = new ClientRequest("/tests/resty", HttpMethod.POST);
+  ClientRequest uploadRequest = new ClientRequest("/tests/resty");
   uploadRequest.addUploadFiles("resty", ClientTest.class.getResource("/resty.jar").getFile());
   uploadRequest.addParam("des", "test file  paras  测试笔");
-  ResponseData uploadResult = client.build(uploadRequest).ask();
-  System.out.println(uploadResult.getData());
+  ClientResult uploadResult = client.build(uploadRequest).post();
+  System.out.println(uploadResult.getResult());
 
 
   //download  支持断点续传
-  ClientRequest downloadRequest = new ClientRequest("/tests/file", HttpMethod.GET);
+  ClientRequest downloadRequest = new ClientRequest("/tests/file");
   downloadRequest.setDownloadFile(ClientTest.class.getResource("/resty.jar").getFile().replace(".jar", "x.jar"));
-  ResponseData downloadResult = client.build(downloadRequest).ask();
-  System.out.println(downloadResult.getData());
+  ClientResult downloadResult = client.build(downloadRequest).get();
+  System.out.println(downloadResult.getResult());
 ```
 
 

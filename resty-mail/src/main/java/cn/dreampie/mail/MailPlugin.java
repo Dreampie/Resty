@@ -29,7 +29,7 @@ public class MailPlugin implements Plugin {
     String charset = prop.get("smtp.charset", "utf-8");
     String host = prop.get("smtp.host", "");
     if (host == null || host.isEmpty()) {
-      throw new RuntimeException("email host has not found!");
+      throw new MailException("email host has not found!");
     }
     String port = prop.get("smtp.port", "");
 
@@ -42,18 +42,18 @@ public class MailPlugin implements Plugin {
     String user = prop.get("smtp.user");
 
     if (user == null || user.isEmpty()) {
-      throw new RuntimeException("email user has not found!");
+      throw new MailException("email user has not found!");
     }
     String password = prop.get("smtp.password");
     if (password == null || password.isEmpty()) {
-      throw new RuntimeException("email password has not found!");
+      throw new MailException("email password has not found!");
     }
 
     String name = prop.get("smtp.name");
 
-    String from = prop.get("smtp.from");
+    String from = prop.get("smtp.from", user);
     if (from == null || from.isEmpty()) {
-      throw new RuntimeException("email from has not found!");
+      throw new MailException("email from has not found!");
     }
     mail = new Mail(charset, host, sslport, timeout, connectout, port, ssl, tls, debug, user, password, name, from);
     return true;

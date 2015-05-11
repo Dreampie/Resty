@@ -14,7 +14,7 @@ restful的api设计，是作为restful的服务端最佳选择（使用场景：
 
 开发群: <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=8fc9498714ebbc3675cc5a5035858004154ef4645ebc9c128dfd76688d32179b"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="极简Restful框架 - Resty" title="极简Restful框架 - Resty"></a>
 
-下载jar包：<a href="https://github.com/Dreampie/resty/releases" target="_blank">Resty相关jar</a>
+例子：[resty-demo](https://github.com/Dreampie/resty-demo)
 
 maven使用方式：
 

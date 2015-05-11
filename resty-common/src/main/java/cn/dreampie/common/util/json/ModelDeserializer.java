@@ -50,7 +50,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
         method = clazz.getDeclaredMethod("get" + Stringer.firstUpperCamelCase(key));
         returnType = method.getReturnType();
         //如果已经是返回类型 不再处理
-        if (!returnType.isAssignableFrom(obj.getClass()) && !JSON.class.isAssignableFrom(obj.getClass())) {
+        if (obj != null && !returnType.isAssignableFrom(obj.getClass()) && !JSON.class.isAssignableFrom(obj.getClass())) {
           //如果是String类型
           if (String.class.isAssignableFrom(returnType)) {
             map.put(key, Jsoner.toJSON(obj));

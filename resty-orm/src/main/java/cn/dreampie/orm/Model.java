@@ -89,7 +89,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return TableMeta
    */
   protected TableMeta getTableMeta() {
-    TableMeta tableMeta = Metadata.getTableMeta(getClass());
+    TableMeta tableMeta = Metadata.getTableMeta(getMClass());
     if (useDS != null) {
       String tableName = tableMeta.getTableName();
       if (Metadata.hasTableMeta(useDS, tableName)) {

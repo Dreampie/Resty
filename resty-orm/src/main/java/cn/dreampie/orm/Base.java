@@ -16,6 +16,8 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
@@ -35,6 +37,20 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   private static final boolean devMode = Constant.devMode;
   private final Logger logger = Logger.getLogger(getClass());
   private String alias;
+
+  /**
+   * 获取实际的数据操作对象
+   *
+   * @return class
+   */
+  protected Class<? extends Entity> getMClass() {
+    Type[] actualTypeArguments = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments();
+    if (actualTypeArguments.length > 0) {
+      return (Class) actualTypeArguments[0];
+    } else {
+      return getClass();
+    }
+  }
 
   /**
    * 获取当前实例数据表的元数据
@@ -116,7 +132,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected <T> T getCache(String sql, Object[] params) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      return (T) QueryCache.instance().get(getClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params);
+      return (T) QueryCache.instance().get(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params);
     }
     return null;
   }
@@ -131,7 +147,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected void addCache(String sql, Object[] params, Object cache) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().add(getClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params, cache);
+      QueryCache.instance().add(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params, cache);
     }
   }
 
@@ -141,7 +157,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected void purgeCache() {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().purge(getClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName());
+      QueryCache.instance().purge(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName());
     }
   }
 
@@ -446,7 +462,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       conn = getConnection(dsm);
       pst = getPreparedStatement(conn, tableMeta, sql, params);
       rs = pst.executeQuery();
-      result = BaseBuilder.build(rs, getClass(), dsm, tableMeta);
+      result = BaseBuilder.build(rs, getMClass(), dsm, tableMeta);
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
     } catch (InstantiationException e) {
@@ -1232,7 +1248,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     try {
       conn = getConnection(dsm);
       cstmt = conn.prepareCall(sql);
-      return BaseBuilder.build(resultSetCall.call(cstmt), getClass(), dsm, tableMeta);
+      return BaseBuilder.build(resultSetCall.call(cstmt), getMClass(), dsm, tableMeta);
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
     } catch (InstantiationException e) {

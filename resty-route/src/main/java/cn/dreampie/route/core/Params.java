@@ -48,4 +48,22 @@ public class Params {
     Collection<Object> valueCollection = params.values();
     return valueCollection.toArray(new Object[valueCollection.size()]);
   }
+
+  /**
+   * 判断是否存在某个参数
+   * @param name
+   * @return
+   */
+  public boolean containsName(String name){
+    return params.containsKey(name);
+  }
+
+  /**
+   * 判断是否存在某个值
+   * @param value
+   * @return
+   */
+  public boolean containsValue(Object value){
+    return params.containsValue(value);
+  }
 }

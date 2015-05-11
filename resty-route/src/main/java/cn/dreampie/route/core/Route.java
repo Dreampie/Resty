@@ -464,7 +464,7 @@ public class Route {
           params.set(name, Jsoner.toObject(pathParams.get(name), paramType));
       } else {//其他参数
         if (paramType == UploadedFile.class) {
-          params.set(name, fileParams.get(name));
+          params.set(name, fileParams.remove(name));
         } else if (paramType == Map.class) {
           typeArguments = ((ParameterizedType) allGenericParamTypes.get(i)).getActualTypeArguments();
           if (typeArguments.length >= 2) {
@@ -473,19 +473,41 @@ public class Route {
             if (keyTypeClass == String.class && valueTypeClass == UploadedFile.class) {
               params.set(name, fileParams);
             } else {
-              valueArr = formParams.get(name);
+              valueArr = formParams.remove(name);
               params.set(name, parseString(paramType, valueArr));
             }
           } else {
-            valueArr = formParams.get(name);
+            valueArr = formParams.remove(name);
             params.set(name, parseString(paramType, valueArr));
           }
         } else {
-          valueArr = formParams.get(name);
+          valueArr = formParams.remove(name);
           params.set(name, parseString(paramType, valueArr));
         }
       }
       i++;
+    }
+    String name;
+    if (formParams.size() > 0) {
+      for (Map.Entry<String, List<String>> formEntry : formParams.entrySet()) {
+        name = formEntry.getKey();
+        if (!params.containsName(name)) {
+          valueArr = formEntry.getValue();
+          if (valueArr != null && valueArr.size() > 0) {
+            params.set(name, valueArr.get(0));
+          } else {
+            params.set(name, null);
+          }
+        }
+      }
+    }
+    if (fileParams.size() > 0) {
+      for (Map.Entry<String, UploadedFile> fileEntry : fileParams.entrySet()) {
+        name = fileEntry.getKey();
+        if (!params.containsName(name)) {
+          params.set(fileEntry.getKey(), fileEntry.getValue());
+        }
+      }
     }
     return params;
   }
@@ -555,25 +577,37 @@ public class Route {
             //转换对象到指定的类型
             params.set(name, parse(allGenericParamTypes.get(i), paramType, receiveParams));
           } else {
-            obj = ((Map<String, Object>) receiveParams).get(name);
+            if (receiveParams instanceof Map) {
+              obj = ((Map<String, Object>) receiveParams).remove(name);
 
-            if (obj != null) {
-              if (paramType == String.class) {
-                params.set(name, obj.toString());
-              } else {
-                //转换对象到指定的类型
-                params.set(name, parse(allGenericParamTypes.get(i), paramType, obj));
+              if (obj != null) {
+                if (paramType == String.class) {
+                  params.set(name, obj.toString());
+                } else {
+                  //转换对象到指定的类型
+                  params.set(name, parse(allGenericParamTypes.get(i), paramType, obj));
+                }
               }
-            } else {
-              params.set(name, null);
             }
           }
-        } else {
+        }
+        //没有获取到的参数设置为空
+        if (!params.containsName(name)) {
           params.set(name, null);
         }
       }
 
       i++;
+    }
+
+    String name;
+    if (hasJsonParam && receiveParams instanceof Map && !oneParamParse) {
+      for (Map.Entry<String, Object> receiveEntry : ((Map<String, Object>) receiveParams).entrySet()) {
+        name = receiveEntry.getKey();
+        if (!params.containsName(name)) {
+          params.set(receiveEntry.getKey(), receiveEntry.getValue());
+        }
+      }
     }
     return params;
   }

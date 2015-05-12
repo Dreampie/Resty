@@ -24,7 +24,7 @@ public class ClientResult {
 
   public String toString() {
     return "ClientResult{" +
-        "status=" + status +
+        "status=" + status.getCode() +
         ", result='" + result + '\'' +
         '}';
   }

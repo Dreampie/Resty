@@ -60,9 +60,13 @@ public class RouteInvocation {
         //执行方法的参数
         Object[] args = params.getValues();
         route.getMethod().setAccessible(true);
-
+        Object invokeResult;
         //执行方法
-        Object invokeResult = route.getMethod().invoke(resource, args);
+        if (route.getAllParamNames().size() > 0) {
+          invokeResult = route.getMethod().invoke(resource, args);
+        } else {
+          invokeResult = route.getMethod().invoke(resource);
+        }
         //输出结果
         render(invokeResult);
       } catch (Exception e) {

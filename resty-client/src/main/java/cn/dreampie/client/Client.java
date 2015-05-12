@@ -142,7 +142,6 @@ public class Client extends ClientConnection {
         is = conn.getInputStream();
       } else if (httpCode == HttpURLConnection.HTTP_NOT_FOUND) {
         logger.debug("Reading a Not Found (%s) response", httpCode);
-        throw new ClientException("Resource Not Found", httpCode);
       } else if (httpCode == HttpURLConnection.HTTP_NO_CONTENT) {
         logger.debug("Returning a No Content (null) (%s) response", httpCode);
         return null;

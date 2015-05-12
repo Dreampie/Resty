@@ -76,7 +76,7 @@ public class TestResource extends ApiResource {
   //下载文件
   @GET("/file")
   public File download() {
-    return new File(getRequest().getRealPath("/") + "upload/resty.jar");
+    return new File(getRequest().getRealPath("/") + "upload/resty000.jar");
   }
 
 

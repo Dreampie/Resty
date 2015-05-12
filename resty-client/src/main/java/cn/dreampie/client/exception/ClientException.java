@@ -1,10 +1,12 @@
 package cn.dreampie.client.exception;
 
+import cn.dreampie.common.http.result.HttpStatus;
+
 /**
- * ActiveRecordException
+ * ClientException
  */
 public class ClientException extends RuntimeException {
-  private int status;
+  private HttpStatus status;
 
   /**
    * Constructor.
@@ -46,7 +48,7 @@ public class ClientException extends RuntimeException {
    *
    * @param status It's usually a HTTP Status Code (404, 500, etc.)
    */
-  public ClientException(int status) {
+  public ClientException(HttpStatus status) {
     super();
     this.status = status;
   }
@@ -58,7 +60,7 @@ public class ClientException extends RuntimeException {
    * @param cause   An exception.
    * @param status  It's usually a HTTP Status Code (404, 500, etc.)
    */
-  public ClientException(String message, Throwable cause, int status) {
+  public ClientException(String message, Throwable cause, HttpStatus status) {
     super(message, cause);
     this.status = status;
   }
@@ -69,7 +71,7 @@ public class ClientException extends RuntimeException {
    * @param message Exception message.
    * @param status  It's usually a HTTP Status Code (404, 500, etc.)
    */
-  public ClientException(String message, int status) {
+  public ClientException(String message, HttpStatus status) {
     super(message);
     this.status = status;
   }
@@ -80,7 +82,7 @@ public class ClientException extends RuntimeException {
    * @param cause  An exception.
    * @param status It's usually a HTTP Status Code (404, 500, etc.)
    */
-  public ClientException(Throwable cause, int status) {
+  public ClientException(Throwable cause, HttpStatus status) {
     super(cause);
     this.status = status;
   }
@@ -88,7 +90,7 @@ public class ClientException extends RuntimeException {
   /**
    * Get the exception's status. It's usually a HTTP Status Code (404, 500, etc.)
    */
-  public int getStatus() {
+  public HttpStatus getStatus() {
     return this.status;
   }
 }

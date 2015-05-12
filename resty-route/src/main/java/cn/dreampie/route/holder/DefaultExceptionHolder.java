@@ -26,7 +26,7 @@ public class DefaultExceptionHolder extends ExceptionHolder {
       if (Constant.apiPrefix == null || restPath.startsWith(Constant.apiPrefix)) {
         message = Jsoner.toJSON(webException.getContent());
         if (logger.isWarnEnabled()) {
-          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + message);
+          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + webException.getStatus().getCode() + " " + message);
         }
         response.setStatus(webException.getStatus());
         render.render(request, response, message);
@@ -37,7 +37,7 @@ public class DefaultExceptionHolder extends ExceptionHolder {
     } else {
       message = exception.getMessage();
       if (logger.isErrorEnabled()) {
-        logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + message, exception);
+        logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + HttpStatus.BAD_REQUEST.getCode() + " " + message, exception);
       }
       response.setStatus(HttpStatus.BAD_REQUEST);
       render.render(request, response, message);

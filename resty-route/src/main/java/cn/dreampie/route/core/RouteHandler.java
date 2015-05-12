@@ -68,7 +68,7 @@ public final class RouteHandler extends Handler {
     } else {
       if (!restPath.equals("/") && supportMethod) {
         // no route matched
-        throw new WebException(HttpStatus.NOT_FOUND, "Could not found any route.");
+        throw new WebException(HttpStatus.SERVICE_UNAVAILABLE, "API is unavailable,check request body.");
       } else {
         isHandled[0] = false;
       }

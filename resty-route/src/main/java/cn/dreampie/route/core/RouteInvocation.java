@@ -16,6 +16,7 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,15 +58,21 @@ public class RouteInvocation {
 
         //数据验证
         validate(params);
-        //执行方法的参数
-        Object[] args = params.getValues();
-        route.getMethod().setAccessible(true);
+        Method method = route.getMethod();
+        method.setAccessible(true);
         Object invokeResult;
         //执行方法
         if (route.getAllParamNames().size() > 0) {
-          invokeResult = route.getMethod().invoke(resource, args);
+          List<String> allParamNames = route.getAllParamNames();
+          //执行方法的参数
+          Object[] args = new Object[allParamNames.size()];
+          int i = 0;
+          for (String name : allParamNames) {
+            args[i++] = params.get(name);
+          }
+          invokeResult = method.invoke(resource, args);
         } else {
-          invokeResult = route.getMethod().invoke(resource);
+          invokeResult = method.invoke(resource);
         }
         //输出结果
         render(invokeResult);

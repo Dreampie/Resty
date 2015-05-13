@@ -13,6 +13,7 @@ import cn.dreampie.route.interceptor.InterceptorBuilder;
 import cn.dreampie.route.valid.Validator;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -102,7 +103,12 @@ public final class RouteBuilder {
 
       apiPath = getApi(resourceClazz);
       //自己的方法
-      methods = resourceClazz.getDeclaredMethods();
+      if (Modifier.isAbstract(resourceClazz.getSuperclass().getModifiers())) {
+        methods = resourceClazz.getMethods();
+      } else {
+        methods = resourceClazz.getDeclaredMethods();
+      }
+      //遍历方法看是不是 restful api
       for (Method method : methods) {
 
         paramAttribute = ParamNamesScaner.getParamNames(method, classParamNames);

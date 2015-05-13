@@ -26,7 +26,7 @@ public abstract class Entity<M extends Entity> {
    * You must use set method to change attribute that update method can handle it.
    */
   public Map<String, Object> getAttrs() {
-    return Collections.unmodifiableMap(attrs);
+    return attrs;
   }
 
   /**

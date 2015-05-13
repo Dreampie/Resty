@@ -1,7 +1,9 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.entity.CaseInsensitiveMap;
+import cn.dreampie.common.entity.Entity;
+
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,7 +17,11 @@ public class Params {
   private Map<String, Object> params;
 
   public Params() {
-    this.params = new LinkedHashMap<String, Object>();
+    this.params = new CaseInsensitiveMap<Object>();
+  }
+
+  public Params(Entity entity) {
+    this.params = entity.getAttrs();
   }
 
   /**
@@ -51,19 +57,21 @@ public class Params {
 
   /**
    * 判断是否存在某个参数
+   *
    * @param name
    * @return
    */
-  public boolean containsName(String name){
+  public boolean containsName(String name) {
     return params.containsKey(name);
   }
 
   /**
    * 判断是否存在某个值
+   *
    * @param value
    * @return
    */
-  public boolean containsValue(Object value){
+  public boolean containsValue(Object value) {
     return params.containsValue(value);
   }
 }

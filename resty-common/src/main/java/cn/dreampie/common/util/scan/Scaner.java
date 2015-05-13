@@ -1,5 +1,7 @@
 package cn.dreampie.common.util.scan;
 
+import cn.dreampie.common.http.Encoding;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -85,7 +87,7 @@ public abstract class Scaner {
           String[] paths = basePath.split("!/");
           // 获取jar
           try {
-            classFiles.addAll(findJarFile(URLDecoder.decode(paths[0].replace("file:", ""), "UTF-8"), paths[1]));
+            classFiles.addAll(findJarFile(URLDecoder.decode(paths[0].replace("file:", ""), Encoding.UTF_8.toString()), paths[1]));
           } catch (IOException e) {
             throw new ScanException(e.getMessage(), e);
           }
@@ -110,7 +112,7 @@ public abstract class Scaner {
     // 判断目录是否存在
     File baseDir = null;
     try {
-      baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
+      baseDir = new File(URLDecoder.decode(baseDirName, Encoding.UTF_8.toString()));
     } catch (UnsupportedEncodingException e) {
       throw new ScanException(e.getMessage(), e);
     }
@@ -121,7 +123,12 @@ public abstract class Scaner {
       String classname = null;
       String tem = null;
       for (String aFilelist : filelist) {
-        File readfile = new File(baseDir, aFilelist);
+        File readfile = null;
+        try {
+          readfile = new File(URLDecoder.decode(baseDirName + File.separator + aFilelist, Encoding.UTF_8.toString()));
+        } catch (UnsupportedEncodingException e) {
+          throw new ScanException(e.getMessage(), e);
+        }
         if (readfile.isDirectory()) {
           classFiles.addAll(findPackageFiles(baseDirName + File.separator + aFilelist, targetFileName));
         } else {
@@ -230,7 +237,7 @@ public abstract class Scaner {
     Set<String> classFiles = new HashSet<String>();
     try {
       // 判断目录是否存在
-      File baseDir = new File(URLDecoder.decode(baseDirName, "UTF-8"));
+      File baseDir = new File(URLDecoder.decode(baseDirName, Encoding.UTF_8.toString()));
       if (!baseDir.exists() || !baseDir.isDirectory()) {
         throw new ScanException("Jar file scan error : " + baseDirName + " is not a dir.");
       } else {

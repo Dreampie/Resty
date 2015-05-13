@@ -121,7 +121,7 @@ public abstract class Scaner {
       String classname = null;
       String tem = null;
       for (String aFilelist : filelist) {
-        File readfile = new File(baseDirName + File.separator + aFilelist);
+        File readfile = new File(baseDir, aFilelist);
         if (readfile.isDirectory()) {
           classFiles.addAll(findPackageFiles(baseDirName + File.separator + aFilelist, targetFileName));
         } else {

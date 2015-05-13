@@ -1,6 +1,7 @@
 package cn.dreampie.route.core;
 
 import cn.dreampie.common.entity.CaseInsensitiveMap;
+import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.route.config.InterceptorLoader;
@@ -34,16 +35,14 @@ public final class RouteBuilder {
 
   /**
    * 添加route
-   *
-   * @param apiPath
-   * @param route
    */
-  public void addRoute(String apiPath, Route route) {
+  private void addRoute(String httpMethod, String apiPath, String methodPath, String des, MultipartBuilder multipartBuilder, Interceptor[] routeInters, Map<String, ParamAttribute> classParamNames, Class<? extends Validator>[] validClasses, Class<? extends Resource> resourceClazz, Method method) {
+    Route route = new Route(resourceClazz, ParamNamesScaner.getParamNames(method, classParamNames), httpMethod, getApi(apiPath, methodPath), method, routeInters,
+        des, getValidators(validClasses), multipartBuilder);
     //资源的标志
     if (apiPath.contains(Route.PARAM_PATTERN)) {
       throw new IllegalArgumentException("Api path could not contains pattern. Because this is a resource url.");
     }
-    String httpMethod = route.getHttpMethod();
     //httpMethod区分
     if (routesMap.containsKey(httpMethod)) {
       Map<String, Set<Route>> routesHttpMethodMap = routesMap.get(httpMethod);
@@ -53,7 +52,7 @@ public final class RouteBuilder {
         //判断重复
         for (Route r : routes) {
           if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern())) {
-            throw new IllegalArgumentException("Same path pattern " + r.getHttpMethod() + " " + r.getPattern());
+            throw new IllegalArgumentException("Same path pattern '" + route.getHttpMethod() + " " + route.getPattern() + "' (" + route.getResourceClass().getSimpleName() + ".java:" + route.getAllLineNumbers()[0] + ")");
           }
         }
         routesMap.get(httpMethod).get(apiPath).add(route);
@@ -64,6 +63,7 @@ public final class RouteBuilder {
       routesMap.put(httpMethod, newRouteMap(apiPath, route));
     }
   }
+
 
   public void build() {
     InterceptorBuilder interceptorBuilder = new InterceptorBuilder();
@@ -90,12 +90,7 @@ public final class RouteBuilder {
     Map<String, ParamAttribute> classParamNames;
     //当前resource的方法
     Method[] methods;
-    //当前方法的参数属性
-    ParamAttribute paramAttribute;
 
-    //validate
-    Class<? extends Validator>[] validClasses;
-    Validator[] validators;
     //addResources
     for (Class<? extends Resource> resourceClazz : resourceLoader.getResources()) {
       resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
@@ -111,7 +106,6 @@ public final class RouteBuilder {
       //遍历方法看是不是 restful api
       for (Method method : methods) {
 
-        paramAttribute = ParamNamesScaner.getParamNames(method, classParamNames);
         methodInters = interceptorBuilder.buildMethodInterceptors(method);
         routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
 
@@ -126,51 +120,37 @@ public final class RouteBuilder {
         //delete 请求
         delete = method.getAnnotation(DELETE.class);
         if (delete != null) {
-          validClasses = delete.valid();
-          validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "DELETE", getApi(apiPath, delete.value()), method, routeInters,
-              delete.des(), validators, multipartBuilder));
+          addRoute(HttpMethod.DELETE, apiPath, delete.value(), delete.des(), multipartBuilder, routeInters, classParamNames, delete.valid(), resourceClazz, method);
           continue;
         }
         //get 请求
         get = method.getAnnotation(GET.class);
         if (get != null) {
-          validClasses = get.valid();
-          validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "GET", getApi(apiPath, get.value()), method, routeInters,
-              get.des(), validators, multipartBuilder));
+          addRoute(HttpMethod.GET, apiPath, get.value(), get.des(), multipartBuilder, routeInters, classParamNames, get.valid(), resourceClazz, method);
           continue;
         }
         //post 请求
         post = method.getAnnotation(POST.class);
         if (post != null) {
-          validClasses = post.valid();
-          validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "POST", getApi(apiPath, post.value()), method, routeInters,
-              post.des(), validators, multipartBuilder));
+          addRoute(HttpMethod.POST, apiPath, post.value(), post.des(), multipartBuilder, routeInters, classParamNames, post.valid(), resourceClazz, method);
           continue;
         }
         //put 请求
         put = method.getAnnotation(PUT.class);
         if (put != null) {
-          validClasses = put.valid();
-          validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "PUT", getApi(apiPath, put.value()), method, routeInters,
-              put.des(), validators, multipartBuilder));
+          addRoute(HttpMethod.PUT, apiPath, put.value(), put.des(), multipartBuilder, routeInters, classParamNames, put.valid(), resourceClazz, method);
           continue;
         }
         //patch 请求
         patch = method.getAnnotation(PATCH.class);
         if (patch != null) {
-          validClasses = patch.valid();
-          validators = getValidators(validClasses);
-          addRoute(apiPath, new Route(resourceClazz, paramAttribute, "PATCH", getApi(apiPath, patch.value()), method, routeInters,
-              patch.des(), validators, multipartBuilder));
+          addRoute(HttpMethod.PATCH, apiPath, patch.value(), patch.des(), multipartBuilder, routeInters, classParamNames, patch.valid(), resourceClazz, method);
           continue;
         }
       }
     }
   }
+
 
   /**
    * 获取所有验证器

@@ -392,6 +392,9 @@ public class Route {
     return validators;
   }
 
+  public int[] getAllLineNumbers() {
+    return allLineNumbers;
+  }
   // here comes the path pattern parsing logic
   // the code is pretty ugly with lot of cross dependencies, I tried to keep it performant, correct, and maintainable
   // not sure those goals are all achieved though

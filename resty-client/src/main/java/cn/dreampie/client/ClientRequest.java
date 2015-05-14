@@ -117,7 +117,7 @@ public class ClientRequest {
 
   public ClientRequest setJsonParam(String jsonParam) {
     setContentType(ContentType.JSON + ";charset=" + encoding);
-    this.jsonParam = jsonParam;
+    this.jsonParam = checkNotNull(jsonParam, "Json param could not be null.");
     return this;
   }
 

@@ -104,8 +104,18 @@ public class ClientConnection {
     String contentType = clientRequest.getContentType();
     //json请求
     if (contentType.contains(ContentType.JSON)) {
-      conn = getStreamConnection(httpMethod, clientRequest);
-      outputParam(conn, httpMethod, clientRequest.getJsonParam());
+      // 除了post意外其他请求类型都用 拼接参数方式
+      if (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) {
+        if (!"".equals(clientRequest.getJsonParam())) {
+          url = new URL(apiUrl + "?" + URLEncoder.encode(clientRequest.getJsonParam(), clientRequest.getEncoding()));
+        } else {
+          url = new URL(apiUrl);
+        }
+        conn = openHttpURLConnection(url, httpMethod);
+      } else {
+        conn = getStreamConnection(httpMethod, clientRequest);
+        outputParam(conn, httpMethod, clientRequest.getJsonParam());
+      }
     } else if (contentType.contains(ContentType.MULTIPART) || httpMethod.equals(HttpMethod.POST)) {
       //上传文件类型
       conn = getStreamConnection(httpMethod, clientRequest);

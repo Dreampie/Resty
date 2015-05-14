@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static cn.dreampie.common.util.Checker.checkNotNull;
+
 /**
  * Created by wangrenhui on 14/12/23.
  */
@@ -63,6 +65,8 @@ public class Subject {
    * @return
    */
   public static void login(String username, String password, boolean rememberMe) {
+    checkNotNull(username, "Username could not be null.");
+    checkNotNull(password, "Password could not be null.");
     Principal principal = credentials.findByUsername(username);
     if (principal != null && passwordService.match(password, principal.getPasswordHash())) {
       //授权用户

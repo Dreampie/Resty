@@ -1,6 +1,8 @@
 package cn.dreampie.security;
 
 
+import cn.dreampie.common.entity.Entity;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -8,7 +10,7 @@ import java.util.Set;
  * Date: 1/30/13
  * Time: 6:30 PM
  */
-public class Principal<M> implements Serializable {
+public class Principal<M extends Entity> implements Serializable {
   public static final String PRINCIPAL_DEF_KEY = "_principal";
   private String username;
   private String passwordHash;

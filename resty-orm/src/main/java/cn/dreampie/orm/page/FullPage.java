@@ -1,12 +1,11 @@
 package cn.dreampie.orm.page;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * FullPage is the result of Model.fullPaginate(......) or Record.fullPaginate(......)
  */
-public class FullPage<T> extends Page<T> implements Serializable {
+public class FullPage<T> extends Page<T>{
 
   private int totalPage;        // total page
   private int totalRow;        // total row

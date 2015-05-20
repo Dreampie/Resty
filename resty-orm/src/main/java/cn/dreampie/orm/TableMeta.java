@@ -124,11 +124,11 @@ public class TableMeta implements Serializable {
   /**
    * returns true if this attribute is present in this meta model. This method i case insensitive.
    *
-   * @param attr attribute name, case insensitive.
+   * @param column attribute name, case insensitive.
    * @return true if this attribute is present in this meta model, false of not.
    */
-  public boolean hasAttr(String attr) {
-    return columnMetadata != null && columnMetadata.containsKey(attr);
+  public boolean hasColumn(String column) {
+    return columnMetadata != null && columnMetadata.containsKey(column);
   }
 
 

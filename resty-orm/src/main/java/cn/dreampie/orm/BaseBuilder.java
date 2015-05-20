@@ -1,6 +1,5 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.log.Logger;
 
@@ -17,7 +16,7 @@ import java.util.List;
 public class BaseBuilder {
   private static final Logger logger = Logger.getLogger(BaseBuilder.class);
 
-  public static <T> List<T> build(ResultSet rs, Class<? extends Entity> modelClass, DataSourceMeta dataSourceMeta, TableMeta tableMeta) throws SQLException, InstantiationException, IllegalAccessException {
+  public static <T> List<T> build(ResultSet rs, Class<? extends Base> modelClass, DataSourceMeta dataSourceMeta, TableMeta tableMeta) throws SQLException, InstantiationException, IllegalAccessException {
     List<T> result = new ArrayList<T>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
@@ -25,8 +24,9 @@ public class BaseBuilder {
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
 
-    Entity entity;
+    Base entity;
     Object value;
+
     while (rs.next()) {
       if (Record.class.isAssignableFrom(modelClass)) {
         entity = new Record(tableMeta);
@@ -46,7 +46,7 @@ public class BaseBuilder {
         else
           value = rs.getObject(i);
 
-        entity.put(labelNames[i], value);
+        entity.initAttr(labelNames[i], value);
       }
       result.add((T) entity);
     }

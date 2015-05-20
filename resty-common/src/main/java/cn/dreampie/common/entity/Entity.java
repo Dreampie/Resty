@@ -30,16 +30,6 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
-   * Set attributes with other entity.
-   *
-   * @param entity the Model
-   * @return this Model
-   */
-  public M setAttrs(M entity) {
-    return (M) setAttrs(entity.getAttrs());
-  }
-
-  /**
    * Set attributes with Map.
    *
    * @param attrs attributes of this entity
@@ -49,6 +39,16 @@ public abstract class Entity<M extends Entity> {
     for (Map.Entry<String, Object> e : attrs.entrySet())
       set(e.getKey(), e.getValue());
     return (M) this;
+  }
+
+  /**
+   * Set attributes with other entity.
+   *
+   * @param entity the Model
+   * @return this Model
+   */
+  public M setAttrs(M entity) {
+    return (M) setAttrs(entity.getAttrs());
   }
 
   /**
@@ -75,7 +75,7 @@ public abstract class Entity<M extends Entity> {
    * @param attr 属性名
    * @return boolean
    */
-  public abstract boolean hasAttr(String attr);
+  public abstract boolean hasColumn(String attr);
 
   /**
    * Set attribute to entity.
@@ -86,12 +86,31 @@ public abstract class Entity<M extends Entity> {
    * @throws cn.dreampie.common.entity.exception.EntityException if the attribute is not exists of the entity
    */
   public M set(String attr, Object value) {
-    if (hasAttr(attr)) {
+    if (hasColumn(attr)) {
       attrs.put(attr, value);
       modifyAttrs.put(attr, value);  // Add modify flag, update() need this flag.
       return (M) this;
     }
     throw new EntityException("The attribute name is not exists: " + attr);
+  }
+
+  /**
+   * 初始化属性 不会添加到modify
+   *
+   * @param attr
+   * @param value
+   * @return
+   */
+  public M initAttr(String attr, Object value) {
+    attrs.put(attr, value);
+    return (M) this;
+  }
+
+  public M initAttrs(Map<String, Object> attrs) {
+    for (Map.Entry<String, Object> e : attrs.entrySet()) {
+      initAttr(e.getKey(), e.getValue());
+    }
+    return (M) this;
   }
 
   /**
@@ -102,15 +121,17 @@ public abstract class Entity<M extends Entity> {
    * @return 当前entity对象
    */
   public M put(String attr, Object value) {
-    if (hasAttr(attr))
+    if (hasColumn(attr)) {
       modifyAttrs.put(attr, value);
+    }
     attrs.put(attr, value);
     return (M) this;
   }
 
   public M putAttrs(Map<String, Object> attrs) {
-    for (Map.Entry<String, Object> e : attrs.entrySet())
+    for (Map.Entry<String, Object> e : attrs.entrySet()) {
       put(e.getKey(), e.getValue());
+    }
     return (M) this;
   }
 

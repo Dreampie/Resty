@@ -9,7 +9,7 @@
 
   <artifactId>resty-orm</artifactId>
   <packaging>jar</packaging>
-  <version>${parent.version}</version>
+  <version>1.0.1-SNAPSHOT</version>
   <name>resty-orm</name>
   <url>https://github.com/Dreampie/${parent.name}</url>
   <description>Resty orm</description>

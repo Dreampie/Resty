@@ -1,7 +1,7 @@
 package cn.dreampie.resource.user;
 
-import cn.dreampie.orm.Page;
 import cn.dreampie.orm.aspect.AspectFactory;
+import cn.dreampie.orm.page.FullPage;
 import cn.dreampie.orm.transaction.TransactionAspect;
 import cn.dreampie.resource.ApiResource;
 import cn.dreampie.resource.user.model.User;
@@ -37,14 +37,14 @@ public class UserResource extends ApiResource {
 
   //全部对象分页 http://localhost:8081/api/v1.0/users/1/10
   @GET("/:pageNumber/:pageSize")
-  public Page<User> paginate(int pageNumber, int pageSize) {
-    return User.dao.paginateAll(pageNumber, pageSize);
+  public FullPage<User> paginate(int pageNumber, int pageSize) {
+    return User.dao.fullPaginateAll(pageNumber, pageSize);
   }
 
   //按条件分页 http://localhost:8081/api/v1.0/users/1/10/x
   @GET("/:page_Number/:_page$Size/:$term")
-  public Page<User> paginate(int page_Number, int _page$Size, String $term) {
-    return User.dao.paginateBy(page_Number, _page$Size, "username=?", $term);
+  public FullPage<User> paginate(int page_Number, int _page$Size, String $term) {
+    return User.dao.fullPaginateBy(page_Number, _page$Size, "username=?", $term);
   }
 
   //更新
@@ -64,6 +64,7 @@ public class UserResource extends ApiResource {
   //删除
   @DELETE("/:id")
   public boolean put(String id) {
+    String xx = getParam("xx");
     return User.dao.deleteById(id);
   }
 

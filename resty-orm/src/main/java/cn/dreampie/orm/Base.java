@@ -11,6 +11,8 @@ import cn.dreampie.orm.callable.ResultSetCall;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.generate.Generator;
+import cn.dreampie.orm.page.FullPage;
+import cn.dreampie.orm.page.Page;
 
 import java.io.Externalizable;
 import java.io.IOException;
@@ -43,7 +45,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    *
    * @return class
    */
-  protected Class<? extends Entity> getMClass() {
+  protected Class<? extends Base> getMClass() {
     Type[] actualTypeArguments = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments();
     if (actualTypeArguments.length > 0) {
       return (Class) actualTypeArguments[0];
@@ -58,6 +60,16 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return TableMeta
    */
   protected abstract TableMeta getTableMeta();
+
+  /**
+   * 判断是否是表的属性
+   *
+   * @param attr 属性名
+   * @return
+   */
+  public boolean hasColumn(String attr) {
+    return getTableMeta().hasColumn(attr);
+  }
 
   /**
    * 获取数据源元数据
@@ -159,10 +171,6 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     if (tableMeta.isCached()) {
       QueryCache.instance().purge(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName());
     }
-  }
-
-  public boolean hasAttr(String attr) {
-    return getTableMeta().hasAttr(attr);
   }
 
   /**
@@ -536,6 +544,21 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   public Page<M> paginate(int pageNumber, int pageSize, String sql, Object... params) {
     checkArgument(pageNumber >= 1 && pageSize >= 1, "pageNumber and pageSize must be more than 0");
 
+    DataSourceMeta dsm = getDataSourceMeta();
+    Dialect dialect = dsm.getDialect();
+    List<M> list = find(dialect.paginateWith(pageNumber, pageSize, sql), params);
+    return new Page<M>(list, pageNumber, pageSize);
+  }
+
+  /**
+   * @param pageNumber 页码
+   * @param pageSize   每页数量
+   * @param sql        sql语句
+   * @param params     参数
+   * @return
+   */
+  public FullPage<M> fullPaginate(int pageNumber, int pageSize, String sql, Object... params) {
+    checkArgument(pageNumber >= 1 && pageSize >= 1, "pageNumber and pageSize must be more than 0");
 
     DataSourceMeta dsm = getDataSourceMeta();
     Dialect dialect = dsm.getDialect();
@@ -550,7 +573,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     else if (size > 1)
       totalRow = result.size();
     else
-      return new Page<M>(new ArrayList<M>(0), pageNumber, pageSize, 0, 0);  // totalRow = 0;
+      return new FullPage<M>(new ArrayList<M>(0), pageNumber, pageSize, 0, 0);  // totalRow = 0;
 
     totalPage = (int) (totalRow / pageSize);
     if (totalRow % pageSize != 0) {
@@ -559,7 +582,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
     // --------
     List<M> list = find(dialect.paginateWith(pageNumber, pageSize, sql), params);
-    return new Page<M>(list, pageNumber, pageSize, totalPage, (int) totalRow);
+    return new FullPage<M>(list, pageNumber, pageSize, totalPage, (int) totalRow);
   }
 
   /**
@@ -928,7 +951,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return list
    */
   public List<M> findTopBy(int topNumber, String where, Object... params) {
-    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where), params).getList();
+    return fullPaginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where), params).getList();
   }
 
   /**
@@ -941,7 +964,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return list
    */
   public List<M> findColsTopBy(int topNumber, String columns, String where, Object... params) {
-    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params).getList();
+    return fullPaginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params).getList();
   }
 
   /**
@@ -1015,6 +1038,56 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   public Page<M> paginateColsBy(int pageNumber, int pageSize, String columns, String where, Object... params) {
     return paginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params);
+  }
+
+  /**
+   * 分页查询
+   *
+   * @param pageNumber 页码
+   * @param pageSize   每页大小
+   * @return 分页对象
+   */
+  public FullPage<M> fullPaginateAll(int pageNumber, int pageSize) {
+    return fullPaginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName()));
+  }
+
+  /**
+   * 分页查询
+   *
+   * @param pageNumber 页码
+   * @param pageSize   每页大小
+   * @param columns    列 用逗号分割
+   * @return 分页对象
+   */
+  public FullPage<M> fullPaginateColsAll(int pageNumber, int pageSize, String columns) {
+    return fullPaginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), columns.split(",")));
+  }
+
+  /**
+   * 分页查询
+   *
+   * @param pageNumber 页码
+   * @param pageSize   每页大小
+   * @param where      条件
+   * @param params     参数
+   * @return 分页对象
+   */
+  public FullPage<M> fullPaginateBy(int pageNumber, int pageSize, String where, Object... params) {
+    return fullPaginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), getAlias(), where), params);
+  }
+
+  /**
+   * 分页查询
+   *
+   * @param pageNumber 页码
+   * @param pageSize   每页大小
+   * @param columns    列  用逗号分割
+   * @param where      条件
+   * @param params     参数
+   * @return 分页对象
+   */
+  public FullPage<M> fullPaginateColsBy(int pageNumber, int pageSize, String columns, String where, Object... params) {
+    return fullPaginate(pageNumber, pageSize, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params);
   }
 
   /**

@@ -3,10 +3,10 @@ package cn.dreampie.route.interceptor.transaction;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.Metadata;
-import cn.dreampie.orm.exception.TransactionException;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.route.core.RouteInvocation;
 import cn.dreampie.route.interceptor.Interceptor;
+import cn.dreampie.route.interceptor.exception.InterceptorException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,16 +53,14 @@ public class TransactionInterceptor implements Interceptor {
         if (cause instanceof WebException) {
           throw (WebException) cause;
         } else {
-          throw new TransactionException(cause.getMessage(), cause);
+          throw new InterceptorException(cause.getMessage(), cause);
         }
       } finally {
         for (DataSourceMeta dsm : dataSourceMetas) {
           dsm.endTranasaction();
         }
       }
-    } else
-
-    {
+    } else {
       //执行操作
       ri.invoke();
     }

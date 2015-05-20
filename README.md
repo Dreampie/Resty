@@ -355,7 +355,7 @@ public void configPlugin(PluginLoader pluginLoader) {
 
 1.在本地mysql数据库里创建demo,example数据库，对应application.properties的数据库配置
 
-2.运行resty-example下的pom.xml->flyway-maven-plugin:migration，自动根具resources下db目录下的数据库文件生成数据库表结构
+2.运行resty-example下的pom.xml->flyway-maven-plugin:migrate，自动根具resources下db目录下的数据库文件生成数据库表结构
 
 3.运行resty-example下的pom.xml->tomcat6-maven-plugin:run,启动example程序
 

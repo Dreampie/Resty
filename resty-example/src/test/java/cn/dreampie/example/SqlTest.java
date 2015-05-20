@@ -1,9 +1,9 @@
 package cn.dreampie.example;
 
-import cn.dreampie.orm.Page;
 import cn.dreampie.orm.Record;
 import cn.dreampie.orm.callable.ObjectCall;
 import cn.dreampie.orm.callable.ResultSetCall;
+import cn.dreampie.orm.page.FullPage;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.resource.user.model.UserInfo;
 import org.junit.Before;
@@ -77,17 +77,17 @@ public class SqlTest {
 
   @Test
   public void testPaginate() {
-    Page<User> users = User.dao.unCache().paginateAll(1, 10);
+    FullPage<User> users = User.dao.unCache().fullPaginateAll(1, 10);
     for (User user : users.getList()) {
       System.out.println(user.getStr("username"));
     }
     Record recordDAO = new Record("sec_user", true);
-    Page<Record> records = recordDAO.paginate(1, 10, "SELECT * FROM sec_user");
+    FullPage<Record> records = recordDAO.fullPaginate(1, 10, "SELECT * FROM sec_user");
     for (Record record : records.getList()) {
       System.out.println(record.getStr("username"));
     }
 
-    records = recordDAO.unCache().paginate(1, 10, "SELECT * FROM sec_user");
+    records = recordDAO.unCache().fullPaginate(1, 10, "SELECT * FROM sec_user");
   }
 
   @Test

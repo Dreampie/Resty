@@ -3,7 +3,6 @@ package cn.dreampie.example;
 import cn.dreampie.client.Client;
 import cn.dreampie.client.ClientRequest;
 import cn.dreampie.client.ClientResult;
-import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.util.json.Jsoner;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -68,7 +67,7 @@ public class ClientTest {
 //    System.out.println(client.build(request).patch());
 //  }
 
-//  @Test
+  //  @Test
 //  public void testUpload() {
 //    //upload
 //    ClientRequest uploadRequest = new ClientRequest("/tests/测试");

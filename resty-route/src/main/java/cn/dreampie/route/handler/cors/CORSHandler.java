@@ -212,7 +212,7 @@ public class CORSHandler extends Handler {
     String accessControlRequestMethod = request.getHeader(ACCESS_CONTROL_REQUEST_METHOD_HEADER);
     logger.debug("%s is %s", ACCESS_CONTROL_REQUEST_METHOD_HEADER, accessControlRequestMethod);
     boolean result = false;
-    if (accessControlRequestMethod == null)
+    if (accessControlRequestMethod != null)
       result = allowedMethods.contains(accessControlRequestMethod);
     logger.debug("Method %s is" + (result ? "" : " not") + " among allowed methods %s", accessControlRequestMethod, allowedMethods);
     return result;

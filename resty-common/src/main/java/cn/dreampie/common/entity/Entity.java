@@ -113,6 +113,9 @@ public abstract class Entity<M extends Entity> {
     return (M) this;
   }
 
+  public M initAttrs(M entity) {
+    return (M) initAttrs(entity.getAttrs());
+  }
   /**
    * Put key value pair to the entity when the key is not attribute of the entity.
    *

@@ -174,6 +174,18 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   }
 
   /**
+   * 删除指定sql＋params的缓存
+   * @param sql sql语句
+   * @param params sql参数
+   */
+  protected void removeCache(String sql, Object[] params){
+    TableMeta tableMeta = getTableMeta();
+    if (tableMeta.isCached()) {
+      QueryCache.instance().remove(getMClass().getSimpleName(),tableMeta.getDsName(),tableMeta.getTableName(),sql,params);
+    }
+  }
+
+  /**
    * Check the table name. The table name must in sql.
    */
   protected void checkTableName(String tableName, String sql) {

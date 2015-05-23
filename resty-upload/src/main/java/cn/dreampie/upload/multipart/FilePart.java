@@ -69,8 +69,8 @@ public class FilePart extends Part {
   /**
    * Puts in place the specified renamer for handling file name collisions.
    */
-  public void setRenamePolicy(FileRenamer policy) {
-    this.renamer = policy;
+  public void setRenamer(FileRenamer renamer) {
+    this.renamer = renamer;
   }
 
   /**

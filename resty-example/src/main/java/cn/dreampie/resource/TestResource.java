@@ -66,7 +66,7 @@ public class TestResource extends ApiResource {
 
   //上传文件
   @POST("/file")
-  @FILE
+  @FILE(renamer = MyFileRenamer.class)
   public UploadedFile upload(UploadedFile testfile, String des) {
     //如果上传文件的同时 有参数  注意UploadedFile  参数的名字 需要和input的name对应
     System.out.println(des);

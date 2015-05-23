@@ -195,13 +195,13 @@ public class MultipartRequest {
    * problem reading or parsing the request.
    * <p/>
    * To avoid file collisions, this constructor takes an implementation of the
-   * FileRenamePolicy interface to allow a pluggable rename policy.
+   * FileRenamePolicy interface to allow a pluggable rename renamer.
    *
    * @param request       the servlet request.
    * @param saveDirectory the directory in which to save any uploaded files.
    * @param maxPostSize   the maximum size of the POST content.
    * @param encoding      the encoding of the response, such as ISO-8859-1
-   * @param policy        a pluggable file rename policy
+   * @param renamer        a pluggable file rename renamer
    * @throws java.io.IOException if the uploaded content is larger than
    *                             <tt>maxPostSize</tt> or there's a problem reading or parsing the request.
    */
@@ -209,7 +209,7 @@ public class MultipartRequest {
                           File saveDirectory,
                           int maxPostSize,
                           String encoding,
-                          FileRenamer policy, String[] allows, String[] denieds) throws IOException {
+                          FileRenamer renamer, String[] allows, String[] denieds) throws IOException {
     // Sanity check values
     if (request == null)
       throw new IllegalArgumentException("Request cannot be null.");
@@ -259,7 +259,7 @@ public class MultipartRequest {
 
         String fileName = filePart.getFileName();
         if (fileName != null) {
-          filePart.setRenamePolicy(policy);  // null policy is OK
+          filePart.setRenamer(renamer);  // null renamer is OK
           // The part actually contained a file
           filePart.writeTo(saveDirectory);
           files.put(name, new UploadedFile(saveDirectory.toString(),

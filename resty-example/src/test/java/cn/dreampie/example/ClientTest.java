@@ -67,16 +67,16 @@ public class ClientTest {
 //    System.out.println(client.build(request).patch());
 //  }
 
-  //  @Test
-//  public void testUpload() {
-//    //upload
-//    ClientRequest uploadRequest = new ClientRequest("/tests/测试");
-//    uploadRequest.addUploadFile("testfile", ClientTest.class.getResource("/resty.jar").getFile());
-//    uploadRequest.addParam("des", "test file  paras  测试笔");
-//    ClientResult uploadResult = client.build(uploadRequest).post();
-//    System.out.println(uploadResult.getResult());
-//  }
-//
+  @Test
+  public void testUpload() {
+    //upload
+    ClientRequest uploadRequest = new ClientRequest("/tests/测试");
+    uploadRequest.addUploadFile("testfile", ClientTest.class.getResource("/resty.jar").getFile());
+    uploadRequest.addParam("des", "test file  paras  测试笔");
+    ClientResult uploadResult = client.build(uploadRequest).post();
+    System.out.println(uploadResult.getResult());
+  }
+
   @Test
   public void testDownload() {
     //download  支持断点续传

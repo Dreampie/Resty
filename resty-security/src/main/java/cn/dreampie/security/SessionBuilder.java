@@ -59,30 +59,32 @@ public class SessionBuilder {
    */
   public Session out(Session oldSession, HttpResponse response) {
     Session session = Subject.current();
+    String username = null;
+    String sessionKey = session.getSessionKey();
+    Principal principal = session.getPrincipal();
+
+    if (principal != null) {
+      username = principal.getUsername();
+    } else {
+      username = getAnonymousName(session);
+    }
     if (session != oldSession) {
       //更新cookie
       updateCookie(response, session);
       //重新存储session数据
       String oldSessionKey = oldSession.getSessionKey();
-      String sessionKey = session.getSessionKey();
-      String oldName = null;
-      String name = null;
+      String oldUsername = null;
       Principal oldPrincipal = oldSession.getPrincipal();
-      Principal principal = session.getPrincipal();
       //原本的session
       if (oldPrincipal != null) {
-        oldName = oldPrincipal.getUsername();
+        oldUsername = oldPrincipal.getUsername();
       } else {
-        oldName = getAnonymousName(oldSession);
+        oldUsername = getAnonymousName(oldSession);
       }
       //现在的session
-      if (principal != null) {
-        name = principal.getUsername();
-        sessions.update(oldName, oldSessionKey, name, sessionKey, session);
-      } else {
-        name = getAnonymousName(session);
-        sessions.update(oldName, oldSessionKey, name, sessionKey, session);
-      }
+      sessions.update(oldUsername, oldSessionKey, username, sessionKey, session);
+    } else {
+      sessions.update(username, sessionKey, session);
     }
     return session;
   }

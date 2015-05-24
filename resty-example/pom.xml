@@ -31,7 +31,6 @@
     <servlet.version>2.5</servlet.version>
     <fastjson.version>1.2.5</fastjson.version>
     <resty.version>${project.parent.version}</resty.version>
-    <resty-orm.version>1.0.1-SNAPSHOT</resty-orm.version>
     <ehcache.version>2.6.6</ehcache.version>
     <c3p0.version>0.9.1.2</c3p0.version>
     <druid.version>1.0.13</druid.version>
@@ -65,7 +64,7 @@
     <dependency>
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-orm</artifactId>
-      <version>${resty-orm.version}</version>
+      <version>${resty.version}</version>
     </dependency>
 
     <dependency>

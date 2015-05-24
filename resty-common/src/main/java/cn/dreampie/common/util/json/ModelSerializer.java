@@ -37,7 +37,7 @@ public enum ModelSerializer implements ObjectSerializer {
         for (Method m : methods) {
           fieldAnn = m.getAnnotation(JSONField.class);
           mName = m.getName();
-          if ((fieldAnn == null || fieldAnn.serialize()) && mName.length() > 3 && mName.startsWith("get")
+          if ((fieldAnn == null || fieldAnn.serialize()) && m.getParameterTypes().length == 0 && mName.length() > 3 && mName.startsWith("get")
               && !hasMethod((Entity) object, mName)) {
             try {
               m.invoke(object);

@@ -30,6 +30,16 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
+   * Set attributes with other entity.
+   *
+   * @param entity the Model
+   * @return this Model
+   */
+  public M setAttrs(M entity) {
+    return (M) setAttrs(entity.getAttrs());
+  }
+
+  /**
    * Set attributes with Map.
    *
    * @param attrs attributes of this entity
@@ -39,16 +49,6 @@ public abstract class Entity<M extends Entity> {
     for (Map.Entry<String, Object> e : attrs.entrySet())
       set(e.getKey(), e.getValue());
     return (M) this;
-  }
-
-  /**
-   * Set attributes with other entity.
-   *
-   * @param entity the Model
-   * @return this Model
-   */
-  public M setAttrs(M entity) {
-    return (M) setAttrs(entity.getAttrs());
   }
 
   /**
@@ -101,14 +101,14 @@ public abstract class Entity<M extends Entity> {
    * @param value
    * @return
    */
-  public M initAttr(String attr, Object value) {
+  public M init(String attr, Object value) {
     attrs.put(attr, value);
     return (M) this;
   }
 
   public M initAttrs(Map<String, Object> attrs) {
     for (Map.Entry<String, Object> e : attrs.entrySet()) {
-      initAttr(e.getKey(), e.getValue());
+      init(e.getKey(), e.getValue());
     }
     return (M) this;
   }

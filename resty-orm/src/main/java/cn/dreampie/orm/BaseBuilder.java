@@ -46,7 +46,7 @@ public class BaseBuilder {
         else
           value = rs.getObject(i);
 
-        entity.initAttr(labelNames[i], value);
+        entity.init(labelNames[i], value);
       }
       result.add((T) entity);
     }

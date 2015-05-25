@@ -23,20 +23,14 @@ public class SessionBuilder {
   private final Signer signer;
   private final SessionCookieDescriptor sessionCookieDescriptor;
   private final Session emptySession;
-  private final Credentials credentials;
 
   public SessionBuilder(long defaultExpires, int limit, int rememberDay, AuthenticateService authenticateService) {
-    this(defaultExpires, limit, rememberDay, authenticateService, new DefaultPasswordService());
-  }
-
-  public SessionBuilder(long defaultExpires, int limit, int rememberDay, AuthenticateService authenticateService, PasswordService passwordService) {
     this.sessions = new Sessions(defaultExpires, limit);
     this.signer = new CookieSigner();
     this.sessionCookieDescriptor = new SessionCookieDescriptor();
     this.emptySession = new Session();
-    this.credentials = new Credentials(authenticateService, defaultExpires);
 
-    Subject.init(rememberDay, credentials, passwordService);
+    Subject.init(rememberDay, new Credentials(authenticateService, defaultExpires), authenticateService.getPasswordService());
   }
 
   /**

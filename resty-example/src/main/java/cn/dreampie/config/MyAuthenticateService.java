@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * Created by ice on 15-1-7.
  */
-public class MyAuthenticateService implements AuthenticateService {
+public class MyAuthenticateService extends AuthenticateService {
 
   /**
    * 查询用户信息  这儿new一个用户对象来模拟
@@ -20,14 +20,14 @@ public class MyAuthenticateService implements AuthenticateService {
    * @param username 登录的用户名
    * @return 用户权限对象
    */
-  public Principal findByUsername(String username) {
+  public Principal getPrincipal(String username) {
     DefaultPasswordService defaultPasswordService = new DefaultPasswordService();
 
     User u = new User().set("username", username).set("password", defaultPasswordService.hash("123")).put("permissions", new HashSet<String>() {{
       add("users");
     }});
 
-    Principal<User> principal = new Principal<User>(u.getStr("username"), u.getStr("password"), (Set) u.get("permissions"), u);
+    Principal<User> principal = new Principal<User>(u.<String>get("username"), u.<String>get("password"), (Set) u.get("permissions"), u);
     return principal;
   }
 
@@ -36,7 +36,7 @@ public class MyAuthenticateService implements AuthenticateService {
    *
    * @return 权限集合
    */
-  public Set<Credential> loadAllCredentials() {
+  public Set<Credential> getAllCredentials() {
     Set<Credential> credentials = new HashSet<Credential>();
     credentials.add(new Credential("*", "/api/v1.0/users/**", "users"));
     return credentials;

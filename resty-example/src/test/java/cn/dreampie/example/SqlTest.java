@@ -59,15 +59,15 @@ public class SqlTest {
     List<User> users = User.dao.findAll();
     Long id = 1L, sid = 1L;
     for (User user : users) {
-      id = user.getLong("id");
-      sid = user.getLong("sid");
-      System.out.println(user.getStr("username"));
+      id = user.<Long>get("id");
+      sid = user.<Long>get("sid");
+      System.out.println(user.<String>get("username"));
     }
 
     Record recordDAO = new Record("sec_user", true);
     List<Record> records = recordDAO.findAll();
     for (Record r : records) {
-      System.out.println(r.getStr("username"));
+      System.out.println(r.<String>get("username"));
     }
 
     User u = User.dao.findByIds(id, sid);
@@ -79,12 +79,12 @@ public class SqlTest {
   public void testPaginate() {
     FullPage<User> users = User.dao.unCache().fullPaginateAll(1, 10);
     for (User user : users.getList()) {
-      System.out.println(user.getStr("username"));
+      System.out.println(user.<String>get("username"));
     }
     Record recordDAO = new Record("sec_user", true);
     FullPage<Record> records = recordDAO.fullPaginate(1, 10, "SELECT * FROM sec_user");
     for (Record record : records.getList()) {
-      System.out.println(record.getStr("username"));
+      System.out.println(record.<String>get("username"));
     }
 
     records = recordDAO.unCache().fullPaginate(1, 10, "SELECT * FROM sec_user");
@@ -120,8 +120,8 @@ public class SqlTest {
     Long id = 1L, sid = 1L;
     int i = 0;
     for (User user : users) {
-      id = user.getLong("id");
-      sid = user.getLong("sid");
+      id = user.<Long>get("id");
+      sid = user.<Long>get("sid");
       if (i == 0) {
         User.dao.deleteByIds(id, sid);
       }

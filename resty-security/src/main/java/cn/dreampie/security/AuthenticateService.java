@@ -8,9 +8,13 @@ import java.util.Set;
 /**
  * Created by ice on 14-12-23.
  */
-public interface AuthenticateService extends Serializable {
+public abstract class AuthenticateService implements Serializable {
 
-  public Principal findByUsername(String username);
+  public abstract Principal getPrincipal(String username);
 
-  public Set<Credential> loadAllCredentials();
+  public PasswordService getPasswordService() {
+    return DefaultPasswordService.instance();
+  }
+
+  public abstract Set<Credential> getAllCredentials();
 }

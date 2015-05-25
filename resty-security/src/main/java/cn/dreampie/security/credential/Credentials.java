@@ -107,13 +107,13 @@ public class Credentials {
       //load  all  cache
       credentialMap = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
       if (credentialMap == null) {
-        credentialMap = addCredentials(authenticateService.loadAllCredentials());
+        credentialMap = addCredentials(authenticateService.getAllCredentials());
         SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, credentialMap);
       }
     } else {
       if (credentialMap.size() <= 0 || System.currentTimeMillis() > lastAccess) {
         Set<Credential> credentialASCSet = new TreeSet<Credential>(new CredentialASC());
-        credentialASCSet.addAll(authenticateService.loadAllCredentials());
+        credentialASCSet.addAll(authenticateService.getAllCredentials());
         credentialMap = addCredentials(credentialASCSet);
         lastAccess = System.currentTimeMillis() + expires;
       }
@@ -135,21 +135,21 @@ public class Credentials {
       principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, username);
       //cache 已经失效  从接口获取用户数据
       if (principal == null) {
-        principal = authenticateService.findByUsername(username);
+        principal = authenticateService.getPrincipal(username);
         SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, username, principal);
       }
     } else {
       principal = principals.get(username);
       boolean find = false;
       if (principals.size() > 1000 || principals.size() <= 0 || System.currentTimeMillis() > lastAccess) {
-        principal = authenticateService.findByUsername(username);
+        principal = authenticateService.getPrincipal(username);
         principals.put(username, principal);
         lastAccess = System.currentTimeMillis() + expires;
         find = true;
       }
       //如果还没有用户数据
       if (!find && principal == null) {
-        principal = authenticateService.findByUsername(username);
+        principal = authenticateService.getPrincipal(username);
         principals.put(username, principal);
       }
     }

@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * FullPage is the result of Model.fullPaginate(......) or Record.fullPaginate(......)
  */
-public class FullPage<T> extends Page<T>{
+public class FullPage<T> extends Page<T> {
 
   private int totalPage;        // total page
   private int totalRow;        // total row

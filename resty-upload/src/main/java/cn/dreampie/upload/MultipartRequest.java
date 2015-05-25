@@ -201,7 +201,7 @@ public class MultipartRequest {
    * @param saveDirectory the directory in which to save any uploaded files.
    * @param maxPostSize   the maximum size of the POST content.
    * @param encoding      the encoding of the response, such as ISO-8859-1
-   * @param renamer        a pluggable file rename renamer
+   * @param renamer       a pluggable file rename renamer
    * @throws java.io.IOException if the uploaded content is larger than
    *                             <tt>maxPostSize</tt> or there's a problem reading or parsing the request.
    */

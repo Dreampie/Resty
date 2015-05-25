@@ -20,7 +20,7 @@ public class User extends Model<User> {
   // 个人喜欢数据库和属性 都使用下划线的方式
   public List<UserInfo> getUserInfos() {
     if (this.get("user_infos") == null && this.get("id") != null) {
-      this.put("user_infos", UserInfo.dao.findBy("user_id=?", this.get("id")));
+      this.put("user_infos", findBy("user_id=?", this.get("id")));
     }
     return this.get("user_infos");
   }
@@ -28,7 +28,7 @@ public class User extends Model<User> {
   public Long getRoleId() {
     if (this.get("role_id") == null && this.get("id") != null) {
       String sql = "SELECT user_role.role_id FROM sec_user_role user_role WHERE user_role.user_id=?";
-      this.put("role_id", queryLong(sql, this.get("id")));
+      this.put("role_id", queryFirst(sql, this.get("id")));
     }
     return this.get("role_id");
   }

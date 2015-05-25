@@ -3,10 +3,6 @@ package cn.dreampie.common.entity;
 import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.json.Jsoner;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -30,16 +26,6 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
-   * Set attributes with other entity.
-   *
-   * @param entity the Model
-   * @return this Model
-   */
-  public M setAttrs(M entity) {
-    return (M) setAttrs(entity.getAttrs());
-  }
-
-  /**
    * Set attributes with Map.
    *
    * @param attrs attributes of this entity
@@ -49,6 +35,16 @@ public abstract class Entity<M extends Entity> {
     for (Map.Entry<String, Object> e : attrs.entrySet())
       set(e.getKey(), e.getValue());
     return (M) this;
+  }
+
+  /**
+   * Set attributes with other entity.
+   *
+   * @param entity the Model
+   * @return this Model
+   */
+  public M setAttrs(M entity) {
+    return (M) setAttrs(entity.getAttrs());
   }
 
   /**
@@ -116,6 +112,7 @@ public abstract class Entity<M extends Entity> {
   public M initAttrs(M entity) {
     return (M) initAttrs(entity.getAttrs());
   }
+
   /**
    * Put key value pair to the entity when the key is not attribute of the entity.
    *
@@ -307,98 +304,6 @@ public abstract class Entity<M extends Entity> {
    */
   public String toJson() {
     return Jsoner.toJSON(attrs);
-  }
-
-  /**
-   * Get column of sql type: varchar, char, enum, set, text, tinytext, mediumtext, longtext
-   */
-  public String getStr(String column) {
-    return (String) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: int, integer, tinyint(n) n > 1, smallint, mediumint
-   */
-  public Integer getInt(String column) {
-    return (Integer) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: bigint
-   */
-  public Long getLong(String column) {
-    return (Long) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: unsigned bigint
-   */
-  public BigInteger getBigInteger(String column) {
-    return (BigInteger) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: date, year
-   */
-  public Date getDate(String column) {
-    return (Date) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: time
-   */
-  public Time getTime(String column) {
-    return (Time) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: timestamp, datetime
-   */
-  public Timestamp getTimestamp(String column) {
-    return (Timestamp) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: real, double
-   */
-  public Double getDouble(String column) {
-    return (Double) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: float
-   */
-  public Float getFloat(String column) {
-    return (Float) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: bit, tinyint(1)
-   */
-  public Boolean getBoolean(String column) {
-    return (Boolean) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: decimal, numeric
-   */
-  public BigDecimal getBigDecimal(String column) {
-    return (BigDecimal) attrs.get(column);
-  }
-
-  /**
-   * Get column of sql type: binary, varbinary, tinyblob, blob, mediumblob, longblob
-   * I have not finished the test.
-   */
-  public byte[] getBytes(String column) {
-    return (byte[]) attrs.get(column);
-  }
-
-  /**
-   * Get column of any type that extends from Number
-   */
-  public Number getNumber(String column) {
-    return (Number) attrs.get(column);
   }
 
 }

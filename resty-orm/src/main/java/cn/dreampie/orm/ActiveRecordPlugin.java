@@ -8,6 +8,7 @@ import cn.dreampie.common.util.scan.ClassScaner;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.provider.DataSourceProvider;
 
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -90,6 +91,9 @@ public class ActiveRecordPlugin implements Plugin {
       TableMeta tableMeta = null;
       boolean isExclude = false;
       for (Class<? extends Model> modelClass : includeClasses) {
+        if (excludeClasses.contains(modelClass) || Modifier.isAbstract(modelClass.getModifiers())) {
+          continue;
+        }
         isExclude = false;
         if (excludeClassPackages.size() > 0) {
           for (String excludepath : excludeClassPackages) {
@@ -100,7 +104,7 @@ public class ActiveRecordPlugin implements Plugin {
             }
           }
         }
-        if (isExclude || excludeClasses.contains(modelClass)) {
+        if (isExclude) {
           continue;
         }
         //add modelMeta

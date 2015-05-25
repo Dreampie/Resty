@@ -20,7 +20,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -175,13 +174,14 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
   /**
    * 删除指定sql＋params的缓存
-   * @param sql sql语句
+   *
+   * @param sql    sql语句
    * @param params sql参数
    */
-  protected void removeCache(String sql, Object[] params){
+  protected void removeCache(String sql, Object[] params) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().remove(getMClass().getSimpleName(),tableMeta.getDsName(),tableMeta.getTableName(),sql,params);
+      QueryCache.instance().remove(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params);
     }
   }
 
@@ -1356,55 +1356,6 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     List<M> result = findCall(sql, resultSetCall);
     return result.size() > 0 ? result.get(0) : null;
   }
-
-  public String queryStr(String sql, Object... params) {
-    return (String) queryFirst(sql, params);
-  }
-
-  public Integer queryInt(String sql, Object... params) {
-    return (Integer) queryFirst(sql, params);
-  }
-
-  public Long queryLong(String sql, Object... params) {
-    return (Long) queryFirst(sql, params);
-  }
-
-  public Double queryDouble(String sql, Object... params) {
-    return (Double) queryFirst(sql, params);
-  }
-
-  public Float queryFloat(String sql, Object... params) {
-    return (Float) queryFirst(sql, params);
-  }
-
-  public BigDecimal queryBigDecimal(String sql, Object... params) {
-    return (BigDecimal) queryFirst(sql, params);
-  }
-
-  public byte[] queryBytes(String sql, Object... params) {
-    return (byte[]) queryFirst(sql, params);
-  }
-
-  public Date queryDate(String sql, Object... params) {
-    return (Date) queryFirst(sql, params);
-  }
-
-  public Time queryTime(String sql, Object... params) {
-    return (Time) queryFirst(sql, params);
-  }
-
-  public Timestamp queryTimestamp(String sql, Object... params) {
-    return (Timestamp) queryFirst(sql, params);
-  }
-
-  public Boolean queryBoolean(String sql, Object... params) {
-    return (Boolean) queryFirst(sql, params);
-  }
-
-  public Number queryNumber(String sql, Object... params) {
-    return (Number) queryFirst(sql, params);
-  }
-
 
   /**
    * 反序列化的扩展类

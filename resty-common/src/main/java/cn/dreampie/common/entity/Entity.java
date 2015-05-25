@@ -12,7 +12,7 @@ public abstract class Entity<M extends Entity> {
 
   private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
   /**
-   * Flag of column has been modified. update need this flag
+   * Flag of attr has been modified. update need this flag
    */
   private Map<String, Object> modifyAttrs = new CaseInsensitiveMap<Object>();
 
@@ -26,6 +26,16 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
+   * Set attributes with other entity.
+   *
+   * @param entity the Model
+   * @return this Model
+   */
+  public M setAttrs(M entity) {
+    return (M) setAttrs(entity.getAttrs());
+  }
+
+  /**
    * Set attributes with Map.
    *
    * @param attrs attributes of this entity
@@ -35,16 +45,6 @@ public abstract class Entity<M extends Entity> {
     for (Map.Entry<String, Object> e : attrs.entrySet())
       set(e.getKey(), e.getValue());
     return (M) this;
-  }
-
-  /**
-   * Set attributes with other entity.
-   *
-   * @param entity the Model
-   * @return this Model
-   */
-  public M setAttrs(M entity) {
-    return (M) setAttrs(entity.getAttrs());
   }
 
   /**
@@ -146,17 +146,17 @@ public abstract class Entity<M extends Entity> {
 
 
   /**
-   * Get column of any sql type
+   * Get attr of any sql type
    */
-  public <T> T get(String column) {
-    return (T) attrs.get(column);
+  public <T> T get(String attr) {
+    return (T) attrs.get(attr);
   }
 
   /**
-   * Parse column to any type
+   * Parse attr to any type
    */
-  public <T> T parse(String column, Class<T> clazz) {
-    Object value = attrs.get(column);
+  public <T> T parse(String attr, Class<T> clazz) {
+    Object value = attrs.get(attr);
     if (clazz.isAssignableFrom(value.getClass())) {
       return (T) value;
     } else {
@@ -170,10 +170,10 @@ public abstract class Entity<M extends Entity> {
 
 
   /**
-   * Get column of any sql type. Returns defaultValue if null.
+   * Get attr of any sql type. Returns defaultValue if null.
    */
-  public <T> T get(String column, Object defaultValue) {
-    Object result = attrs.get(column);
+  public <T> T get(String attr, Object defaultValue) {
+    Object result = attrs.get(attr);
     return (T) (result != null ? result : defaultValue);
   }
 
@@ -181,21 +181,21 @@ public abstract class Entity<M extends Entity> {
   /**
    * Remove attribute of this entity.
    *
-   * @param column the column name of the entity
+   * @param attr the attr name of the entity
    */
-  public M remove(String column) {
-    attrs.remove(column);
+  public M remove(String attr) {
+    attrs.remove(attr);
     return (M) this;
   }
 
   /**
    * Remove attrs of this entity.
    *
-   * @param columns the column name of the entity
+   * @param attrs the attr name of the entity
    */
-  public M remove(String... columns) {
-    if (columns != null)
-      for (String c : columns)
+  public M remove(String... attrs) {
+    if (attrs != null)
+      for (String c : attrs)
         this.attrs.remove(c);
     return (M) this;
   }
@@ -216,32 +216,34 @@ public abstract class Entity<M extends Entity> {
   /**
    * Keep attrs of this entity and remove other attrs.
    *
-   * @param columns the column name of the entity
+   * @param attrs the attr name of the entity
    */
-  public M keep(String... columns) {
-    if (columns != null && columns.length > 0) {
-      Map<String, Object> newAttrs = new HashMap<String, Object>(columns.length);
-      for (String c : columns)
-        if (attrs.containsKey(c))  // prevent put null value to the newAttrs
-          newAttrs.put(c, attrs.get(c));
-
-      attrs.clear();
-      attrs.putAll(newAttrs);
-    } else
-      attrs.clear();
+  public M keep(String... attrs) {
+    if (attrs != null && attrs.length > 0) {
+      Map<String, Object> newAttrs = new HashMap<String, Object>(attrs.length);
+      for (String c : attrs) {
+        if (this.attrs.containsKey(c)) { // prevent put null value to the newAttrs
+          newAttrs.put(c, this.attrs.get(c));
+        }
+      }
+      this.attrs.clear();
+      this.attrs.putAll(newAttrs);
+    } else {
+      this.attrs.clear();
+    }
     return (M) this;
   }
 
   /**
-   * Keep column of this entity and remove other attrs.
+   * Keep attr of this entity and remove other attrs.
    *
-   * @param column the column name of the entity
+   * @param attr the attr name of the entity
    */
-  public M keep(String column) {
-    if (attrs.containsKey(column)) {  // prevent put null value to the newAttrs
-      Object keepIt = attrs.get(column);
+  public M keep(String attr) {
+    if (attrs.containsKey(attr)) {  // prevent put null value to the newAttrs
+      Object keepIt = attrs.get(attr);
       attrs.clear();
-      attrs.put(column, keepIt);
+      attrs.put(attr, keepIt);
     } else
       attrs.clear();
     return (M) this;
@@ -262,7 +264,7 @@ public abstract class Entity<M extends Entity> {
 
 
   /**
-   * Return column name of this record.
+   * Return attr name of this record.
    */
   public String[] getAttrNames() {
     Set<String> attrNameSet = attrs.keySet();
@@ -270,7 +272,7 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
-   * Return column values of this record.
+   * Return attr values of this record.
    */
   public Object[] getAttrValues() {
     Collection<Object> attrValueCollection = attrs.values();

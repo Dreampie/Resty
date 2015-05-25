@@ -66,12 +66,20 @@ public abstract class Entity<M extends Entity> {
   }
 
   /**
-   * 判断数据库是否拥有该属性
+   * 判断数据库是否拥有该列
    *
    * @param attr 属性名
    * @return boolean
    */
   public abstract boolean hasColumn(String attr);
+
+  /**
+   * 获取改数据库列对应的java类型
+   *
+   * @param attr 属性名
+   * @return class
+   */
+  public abstract Class getColumnType(String attr);
 
   /**
    * Set attribute to entity.
@@ -144,7 +152,6 @@ public abstract class Entity<M extends Entity> {
     return (M) putAttrs(entity.getAttrs());
   }
 
-
   /**
    * Get attr of any sql type
    */
@@ -155,7 +162,7 @@ public abstract class Entity<M extends Entity> {
   /**
    * Parse attr to any type
    */
-  public <T> T parse(String attr, Class<T> clazz) {
+  public <T> T get(String attr, Class<T> clazz) {
     Object value = attrs.get(attr);
     if (clazz.isAssignableFrom(value.getClass())) {
       return (T) value;
@@ -168,12 +175,19 @@ public abstract class Entity<M extends Entity> {
     }
   }
 
-
   /**
    * Get attr of any sql type. Returns defaultValue if null.
    */
   public <T> T get(String attr, Object defaultValue) {
-    Object result = attrs.get(attr);
+    Object result = get(attr);
+    return (T) (result != null ? result : defaultValue);
+  }
+
+  /**
+   * Get attr for clazz. Returns defaultValue if null.
+   */
+  public <T> T get(String attr, Class<T> clazz, Object defaultValue) {
+    Object result = get(attr, clazz);
     return (T) (result != null ? result : defaultValue);
   }
 

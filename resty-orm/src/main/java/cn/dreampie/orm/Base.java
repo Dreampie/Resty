@@ -71,6 +71,17 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   }
 
   /**
+   * 获取改数据库列对应的java类型
+   *
+   * @param attr 属性名
+   * @return class
+   */
+  public Class getColumnType(String attr) {
+    return getDialect().getColumnType(getTableMeta().getDataType(attr));
+  }
+
+
+  /**
    * 获取数据源元数据
    *
    * @return DataSourceMeta

@@ -153,7 +153,7 @@ public class ClientConnection {
         outputParam(conn, httpMethod, clientRequest.getEncodedParams());
       }
     } else {
-      url = new URL(apiUrl + clientRequest.getEncodedUrl());
+      url = new URL(apiUrl + clientRequest.getRestUrl());
       conn = openHttpURLConnection(url, httpMethod);
     }
 

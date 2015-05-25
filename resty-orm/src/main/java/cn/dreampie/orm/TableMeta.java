@@ -131,6 +131,18 @@ public class TableMeta implements Serializable {
     return columnMetadata != null && columnMetadata.containsKey(column);
   }
 
+  /**
+   * 返回列的类型
+   *
+   * @param column
+   * @return
+   */
+  public Integer getDataType(String column) {
+    if (hasColumn(column)) {
+      return columnMetadata.get(column).getDataType();
+    }
+    return null;
+  }
 
   public String toString() {
     final StringBuilder t = new StringBuilder();

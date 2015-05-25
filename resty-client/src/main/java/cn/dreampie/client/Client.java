@@ -26,19 +26,19 @@ public class Client extends ClientConnection {
   }
 
   public Client(String apiUrl, String loginApi, String username, String password) {
-    super(apiUrl, new ClientRequest(loginApi, HttpMethod.POST, Maper.of("username", username, "password", password)));
+    super(apiUrl, new ClientRequest(loginApi, Maper.of("username", username, "password", password)));
   }
 
   public Client(String apiUrl, String loginApi, String username, String password, boolean rememberMe) {
-    super(apiUrl, new ClientRequest(loginApi, HttpMethod.POST, Maper.of("username", username, "password", password, "rememberMe", Boolean.toString(rememberMe))));
+    super(apiUrl, new ClientRequest(loginApi, Maper.of("username", username, "password", password, "rememberMe", Boolean.toString(rememberMe))));
   }
 
   public Client(String apiUrl, String loginApi, String usernamePara, String username, String passwordPara, String password) {
-    super(apiUrl, new ClientRequest(loginApi, HttpMethod.POST, Maper.of(usernamePara, username, passwordPara, password)));
+    super(apiUrl, new ClientRequest(loginApi, Maper.of(usernamePara, username, passwordPara, password)));
   }
 
   public Client(String apiUrl, String loginApi, String usernamePara, String username, String passwordPara, String password, String rememberMePara, boolean rememberMe) {
-    super(apiUrl, new ClientRequest(loginApi, HttpMethod.POST, Maper.of(usernamePara, username, passwordPara, password, rememberMePara, Boolean.toString(rememberMe))));
+    super(apiUrl, new ClientRequest(loginApi, Maper.of(usernamePara, username, passwordPara, password, rememberMePara, Boolean.toString(rememberMe))));
   }
 
   public Client build(ClientRequest clientRequest) {

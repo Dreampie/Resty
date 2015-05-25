@@ -9,6 +9,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -70,7 +71,7 @@ public class ClientTest {
   @Test
   public void testUpload() {
     //upload
-    ClientRequest uploadRequest = new ClientRequest("/tests/测试");
+    ClientRequest uploadRequest = new ClientRequest("/tests/file");
     uploadRequest.addUploadFile("testfile", ClientTest.class.getResource("/resty.jar").getFile());
     uploadRequest.addParam("des", "test file  paras  测试笔");
     ClientResult uploadResult = client.build(uploadRequest).post();
@@ -85,36 +86,36 @@ public class ClientTest {
     ClientResult downloadResult = client.build(downloadRequest).get();
     System.out.println(downloadResult);
   }
-//
-//  @Test
-//  public void testSave() {
-//    ClientRequest request = new ClientRequest("/users/1");
-//    String json = Jsoner.toJSON(
-////        new HashMap<String, Object>() {
-////          {
-////            put("users",
-//        new ArrayList() {
+
+  @Test
+  public void testSave() {
+    ClientRequest request = new ClientRequest("/users/1");
+    String json = Jsoner.toJSON(
+//        new HashMap<String, Object>() {
 //          {
-//            add(new HashMap<String, String>() {{
-//              put("sid", "1");
-//              put("username", "test1");
-//              put("providername", "test1");
-//              put("password", "123456");
-//              put("created_at", "2014-10-11 10:09:12");
-//            }});
-//
-//            add(new HashMap<String, String>() {{
-//              put("sid", "2");
-//              put("username", "test2");
-//              put("providername", "tes2");
-//              put("password", "123456");
-//              put("created_at", "2014-10-12 10:09:12");
-//            }});
-//          }
-//        }
-//    );
-//    request.setJsonParam(json);
-//    System.out.println(client.build(request).post());
-//  }
+//            put("users",
+        new ArrayList() {
+          {
+            add(new HashMap<String, String>() {{
+              put("sid", "1");
+              put("username", "test1");
+              put("providername", "test1");
+              put("password", "123456");
+              put("created_at", "2014-10-11 10:09:12");
+            }});
+
+            add(new HashMap<String, String>() {{
+              put("sid", "2");
+              put("username", "test2");
+              put("providername", "tes2");
+              put("password", "123456");
+              put("created_at", "2014-10-12 10:09:12");
+            }});
+          }
+        }
+    );
+    request.setJsonParam(json);
+    System.out.println(client.build(request).post());
+  }
 
 }

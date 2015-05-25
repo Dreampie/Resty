@@ -53,12 +53,7 @@ public class ClientRequest {
   }
 
   public String getRestUrl() {
-    return this.restUrl.trim();
-  }
-
-  public ClientRequest setRestUrl(String restUrl) {
-    this.restUrl = restUrl;
-    return this;
+    return this.restUrl;
   }
 
   public String getEncoding() {
@@ -151,7 +146,6 @@ public class ClientRequest {
   public ClientRequest setDownloadFile(String downloadFile, boolean overwrite) {
     this.downloadFile = Checker.checkNotNull(downloadFile, "Download file could not be null.");
     this.overwrite = overwrite;
-    setContentType(ContentType.MULTIPART + ";charset=" + encoding);
     return this;
   }
 
@@ -170,11 +164,13 @@ public class ClientRequest {
 
   public ClientRequest setUploadFiles(Map<String, String> uploadFiles) {
     this.uploadFiles = uploadFiles;
+    setContentType(ContentType.MULTIPART + ";charset=" + encoding);
     return this;
   }
 
   public ClientRequest addUploadFile(String name, String filepath) {
     this.uploadFiles.put(name, filepath);
+    setContentType(ContentType.MULTIPART + ";charset=" + encoding);
     return this;
   }
 

@@ -4,6 +4,8 @@ package cn.dreampie.orm.dialect;
  * @author wangrenhui
  */
 public interface Dialect {
+  public Class getColumnType(int type);
+
   public String getDbType();
 
   public String validQuery();

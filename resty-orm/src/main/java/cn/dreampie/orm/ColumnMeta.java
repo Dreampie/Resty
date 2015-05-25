@@ -6,11 +6,13 @@ public class ColumnMeta implements Serializable {
 
   private final String columnName;
   private final String typeName;
+  private final int dataType;
   private final int columnSize;
 
-  public ColumnMeta(String columnName, String typeName, int columnSize) {
+  public ColumnMeta(String columnName, String typeName, int dataType, int columnSize) {
     this.columnName = columnName;
     this.typeName = typeName;
+    this.dataType = dataType;
     this.columnSize = columnSize;
   }
 
@@ -21,6 +23,15 @@ public class ColumnMeta implements Serializable {
    */
   public String getColumnName() {
     return columnName;
+  }
+
+  /**
+   * Column type
+   *
+   * @return column type
+   */
+  public int getDataType() {
+    return dataType;
   }
 
   /**
@@ -43,9 +54,11 @@ public class ColumnMeta implements Serializable {
 
 
   public String toString() {
-    return "ColumnMeta:[ columnName=" + columnName
-        + ", typeName=" + typeName
-        + ", columnSize=" + columnSize
-        + "]";
+    return "ColumnMeta{" +
+        "columnName='" + columnName + '\'' +
+        ", typeName='" + typeName + '\'' +
+        ", dataType=" + dataType +
+        ", columnSize=" + columnSize +
+        '}';
   }
 }

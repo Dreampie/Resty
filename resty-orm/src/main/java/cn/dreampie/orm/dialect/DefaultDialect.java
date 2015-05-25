@@ -3,6 +3,10 @@ package cn.dreampie.orm.dialect;
 
 import cn.dreampie.common.util.Joiner;
 
+import java.math.BigDecimal;
+import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,17 +26,26 @@ import java.util.regex.Pattern;
 public abstract class DefaultDialect implements Dialect {
 
 
+  private static Map<Integer, Class> typeMappings = new HashMap<Integer, Class>() {{
+    put(Types.INTEGER, Integer.class);
+    put(Types.SMALLINT, Integer.class);
+    put(Types.BIGINT, Long.class);
+    put(Types.FLOAT, Float.class);
+    put(Types.DOUBLE, Double.class);
+    put(Types.DECIMAL, BigDecimal.class);
+  }};
   protected final Pattern selectPattern = Pattern.compile("^\\s*SELECT\\s*",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
   protected final Pattern orderPattern = Pattern.compile("\\s*ORDER\\s*BY\\s*",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
   protected final Pattern groupPattern = Pattern.compile("\\s*GROUP\\s*BY\\s*",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
   protected final Pattern havingPattern = Pattern.compile("\\s*HAVING\\s*",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
+  public Class getColumnType(int type) {
+    return typeMappings.get(type);
+  }
 
   /**
    * 获取别名

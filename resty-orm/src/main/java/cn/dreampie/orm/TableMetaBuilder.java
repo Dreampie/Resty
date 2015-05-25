@@ -141,10 +141,11 @@ public class TableMetaBuilder {
         continue; // skip h2 INFORMATION_SCHEMA table columns.
       }
 
-      ColumnMeta cm = new ColumnMeta(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"), rs.getInt("COLUMN_SIZE"));
+      ColumnMeta cm = new ColumnMeta(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"), rs.getInt("DATA_TYPE"), rs.getInt("COLUMN_SIZE"));
       columns.put(cm.getColumnName(), cm);
     }
     return columns;
   }
+
 
 }

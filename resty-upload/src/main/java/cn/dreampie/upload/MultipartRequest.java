@@ -126,15 +126,15 @@ public class MultipartRequest {
    * @param request       the servlet request.
    * @param saveDirectory the directory in which to save any uploaded files.
    * @param maxPostSize   the maximum size of the POST content.
-   * @param policy        change file name
+   * @param renamer        change file name
    * @throws java.io.IOException if the uploaded content is larger than
    *                             <tt>maxPostSize</tt> or there's a problem reading or parsing the request.
    */
   public MultipartRequest(HttpRequest request,
                           String saveDirectory,
                           int maxPostSize,
-                          FileRenamer policy) throws IOException {
-    this(request, saveDirectory, maxPostSize, null, policy);
+                          FileRenamer renamer) throws IOException {
+    this(request, saveDirectory, maxPostSize, null, renamer);
   }
 
   /**
@@ -174,7 +174,7 @@ public class MultipartRequest {
    * @param saveDirectory the directory in which to save any uploaded files.
    * @param maxPostSize   the maximum size of the POST content.
    * @param encoding      the encoding of the response, such as ISO-8859-1
-   * @param policy        a pluggable file rename policy
+   * @param renamer        a pluggable file rename policy
    * @throws java.io.IOException if the uploaded content is larger than
    *                             <tt>maxPostSize</tt> or there's a problem reading or parsing the request.
    */
@@ -182,8 +182,8 @@ public class MultipartRequest {
                           String saveDirectory,
                           int maxPostSize,
                           String encoding,
-                          FileRenamer policy) throws IOException {
-    this(request, new File(saveDirectory), maxPostSize, encoding, policy, null, null);
+                          FileRenamer renamer) throws IOException {
+    this(request, new File(saveDirectory), maxPostSize, encoding, renamer, null, null);
   }
 
   /**
@@ -262,7 +262,7 @@ public class MultipartRequest {
           filePart.setRenamer(renamer);  // null renamer is OK
           // The part actually contained a file
           filePart.writeTo(saveDirectory);
-          files.put(name, new UploadedFile(saveDirectory.toString(),
+          files.put(name, new UploadedFile(filePart.getDir().toString(),
               filePart.getFileName(),
               fileName,
               filePart.getContentType()));

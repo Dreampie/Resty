@@ -1,5 +1,6 @@
 package cn.dreampie.upload.multipart;
 
+import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.stream.FileRenamer;
 
 import java.io.*;
@@ -17,6 +18,7 @@ import java.io.*;
  */
 public class FilePart extends Part {
 
+  private File dir;
   /**
    * "file system" name of the file
    */
@@ -71,6 +73,10 @@ public class FilePart extends Part {
    */
   public void setRenamer(FileRenamer renamer) {
     this.renamer = renamer;
+  }
+
+  public File getDir() {
+    return dir;
   }
 
   /**
@@ -159,6 +165,14 @@ public class FilePart extends Part {
           file = renamer.rename(file);
           fileName = file.getName();
         }
+        //create parent dir
+        File parent = file.getParentFile();
+        if (!parent.exists()) {
+          if (!parent.mkdirs()) {
+            throw new WebException("Directory " + parent + " not exists and can not create directory.");
+          }
+        }
+        dir = parent;
         fileOut = new BufferedOutputStream(new FileOutputStream(file));
         written = write(fileOut);
       }

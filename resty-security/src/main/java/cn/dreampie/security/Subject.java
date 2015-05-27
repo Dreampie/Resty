@@ -84,7 +84,7 @@ public class Subject {
       authenticateAs(principal, expires);
       logger.info("Session authentication as " + username);
     } else {
-      throw new WebException(HttpStatus.UNPROCESSABLE_ENTITY, "Password match error.");
+      throw new WebException(HttpStatus.UNPROCESSABLE_ENTITY, "Password not match.");
     }
   }
 

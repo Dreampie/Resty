@@ -58,7 +58,7 @@ public class EHCacheProvider extends CacheProvider {
     if (cacheManager.getCache(group) == null) {
       try {
         cacheManager.addCache(group);
-      } catch (net.sf.ehcache.ObjectExistsException ignore) {
+      } catch (Exception ignore) {
         logger.warn(ignore.getMessage());
       }
     }

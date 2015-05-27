@@ -31,8 +31,8 @@ public class RedisProvider extends CacheProvider {
     Prop config = null;
     try {
       config = Proper.use("redis.properties");
-    } catch (Exception e) {
-      logger.warn(e.getMessage());
+    } catch (Exception ignore) {
+      logger.warn(ignore.getMessage());
     }
     if (config != null) {
       String shardHost = config.get("redis.shard.host");
@@ -85,21 +85,16 @@ public class RedisProvider extends CacheProvider {
 
   private ShardedJedis getShardedJedis() {
     ShardedJedis shardedJedis = null;
-    if (pool != null) {
-      if (pool instanceof ShardedJedisPool) {
-        shardedJedis = (ShardedJedis) pool.getResource();
-      }
+    if (pool != null && pool instanceof ShardedJedisPool) {
+      shardedJedis = (ShardedJedis) pool.getResource();
     }
-
     return shardedJedis;
   }
 
   private Jedis getJedis() {
     Jedis jedis = null;
-    if (pool != null) {
-      if (pool instanceof JedisPool) {
-        jedis = (Jedis) pool.getResource();
-      }
+    if (pool != null && pool instanceof JedisPool) {
+      jedis = (Jedis) pool.getResource();
     }
     if (jedis == null) {
       String[] hp = host.split(":");

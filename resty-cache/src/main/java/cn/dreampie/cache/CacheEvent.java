@@ -1,5 +1,7 @@
 package cn.dreampie.cache;
 
+import static cn.dreampie.common.util.Checker.checkNotNull;
+
 /**
  * Event object. Sent to {@link CacheProvider} to let it know
  * of cache purge events.
@@ -19,8 +21,7 @@ public class CacheEvent {
    *               be broadcast to listeners, and they might use this piece of information. Can be null.
    */
   public CacheEvent(String group, String source) {
-    if (group == null)
-      throw new IllegalArgumentException("group canot be null");
+    checkNotNull(group, "group could not be null");
 
     this.type = CacheEventType.GROUP;
     this.source = source;

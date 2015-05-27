@@ -76,7 +76,7 @@ public abstract class CacheProvider {
     for (CacheEventListener listener : listeners) {
       try {
         listener.onFlush(event);
-      } catch (Throwable e) {
+      } catch (Exception e) {
         logger.warn("Failed to propagate cache event: %s to listener: %s", event, listener, e);
       }
     }

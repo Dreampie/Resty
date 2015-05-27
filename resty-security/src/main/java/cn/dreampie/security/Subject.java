@@ -68,7 +68,10 @@ public class Subject {
     checkNotNull(username, "Username could not be null.");
     checkNotNull(password, "Password could not be null.");
     Principal principal = credentials.findByUsername(username);
-    if (principal != null && passwordService.match(password, principal.getPasswordHash())) {
+    if (principal == null) {
+      throw new WebException(HttpStatus.NOT_FOUND, "User not found.");
+    }
+    if (passwordService.match(password, principal.getPasswordHash())) {
       //授权用户
       //时间
       long expires = -1;
@@ -81,7 +84,7 @@ public class Subject {
       authenticateAs(principal, expires);
       logger.info("Session authentication as " + username);
     } else {
-      throw new WebException(HttpStatus.UNAUTHORIZED);
+      throw new WebException(HttpStatus.UNPROCESSABLE_ENTITY, "Password match error.");
     }
   }
 

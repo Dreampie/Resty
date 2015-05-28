@@ -3,13 +3,20 @@ package cn.dreampie.example;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.resource.user.model.User;
+import com.alibaba.fastjson.JSON;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Date;
 
 /**
  * Created by ice on 14-12-31.
  */
 public class JsonTest {
+  public static void main(String[] args) {
+    System.out.println(JSON.parseObject(JSON.toJSONString("2014-03-10 00:00:00"), Date.class));
+  }
+
   @Before
   public void setUp() throws Exception {
     ActiveRecord.init();

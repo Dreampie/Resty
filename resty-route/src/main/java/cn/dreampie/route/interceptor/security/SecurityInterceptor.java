@@ -3,7 +3,6 @@ package cn.dreampie.route.interceptor.security;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.route.core.RouteInvocation;
-import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.security.AuthenticateService;
 import cn.dreampie.security.Session;
@@ -34,10 +33,10 @@ public class SecurityInterceptor implements Interceptor {
 
   public SecurityInterceptor(int expires, int limit, int rememberDay, AuthenticateService authenticateService) {
     if (limit < 1) {
-      throw new InitException("Session limit must greater than 1.");
+      throw new IllegalArgumentException("Session limit must greater than 1.");
     }
     if (rememberDay > 30) {
-      throw new InitException("RememberMe must less than 30 days.");
+      throw new IllegalArgumentException("RememberMe must less than 30 days.");
     }
     this.sessionBuilder = new SessionBuilder(expires, limit, rememberDay, authenticateService);
   }

@@ -23,8 +23,8 @@ import java.util.Map;
 public class TestResource extends ApiResource {
 
   @GET("/:get")
-  public WebResult<List<User>> get(String get) {
-    System.out.println(get);
+  public WebResult<List<User>> get(String get, Date x) {
+    System.out.println("xxxxx" + x);
     //如果需要返回请求状态  new WebResult
     return new WebResult<List<User>>(HttpStatus.OK, User.dao.findAll());
   }

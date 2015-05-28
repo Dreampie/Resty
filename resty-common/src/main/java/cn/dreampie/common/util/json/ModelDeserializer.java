@@ -173,7 +173,7 @@ public enum ModelDeserializer implements ObjectDeserializer {
       } else {
         if (obj instanceof JSONObject && Entity.class.isAssignableFrom(paramType)) {
           result = deserialze((JSONObject) obj, (Class<? extends Entity>) paramType);
-        } else if (obj instanceof String) {
+        } else if (paramType == String.class) {
           result = obj.toString();
         } else {
           result = Jsoner.toObject(Jsoner.toJSON(obj), paramType);

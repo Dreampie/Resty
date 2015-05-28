@@ -126,7 +126,7 @@ public class MultipartRequest {
    * @param request       the servlet request.
    * @param saveDirectory the directory in which to save any uploaded files.
    * @param maxPostSize   the maximum size of the POST content.
-   * @param renamer        change file name
+   * @param renamer       change file name
    * @throws java.io.IOException if the uploaded content is larger than
    *                             <tt>maxPostSize</tt> or there's a problem reading or parsing the request.
    */
@@ -174,7 +174,7 @@ public class MultipartRequest {
    * @param saveDirectory the directory in which to save any uploaded files.
    * @param maxPostSize   the maximum size of the POST content.
    * @param encoding      the encoding of the response, such as ISO-8859-1
-   * @param renamer        a pluggable file rename policy
+   * @param renamer       a pluggable file rename policy
    * @throws java.io.IOException if the uploaded content is larger than
    *                             <tt>maxPostSize</tt> or there's a problem reading or parsing the request.
    */

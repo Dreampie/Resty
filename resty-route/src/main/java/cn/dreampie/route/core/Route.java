@@ -469,7 +469,7 @@ public class Route {
         if (paramType == String.class) {
           params.set(name, pathParams.get(name));
         } else
-          params.set(name, Jsoner.toObject(pathParams.get(name), paramType));
+          params.set(name, ModelDeserializer.parse(pathParams.get(name), paramType));
       } else {//其他参数
         if (paramType == UploadedFile.class) {
           params.set(name, fileParams.remove(name));
@@ -537,7 +537,7 @@ public class Route {
         result = value;
       } else {
         //转换为对应的对象类型
-        result = ModelDeserializer.parse(Jsoner.toObject(value, paramType), paramType);
+        result = ModelDeserializer.parse(value, paramType);
       }
     }
     return result;
@@ -566,7 +566,7 @@ public class Route {
 
     boolean hasJsonParam = null != json && !"".equals(json);
     Object receiveParams = null;
-    if (hasJsonParam) {
+    if (hasJsonParam && !oneParamParse) {
       receiveParams = Jsoner.toObject(json);
       hasJsonParam = receiveParams != null;
     }
@@ -578,13 +578,13 @@ public class Route {
         if (paramType == String.class) {
           params.set(name, pathParams.get(name));
         } else {
-          params.set(name, Jsoner.toObject(pathParams.get(name), paramType));
+          params.set(name, ModelDeserializer.parse(pathParams.get(name), paramType));
         }
       } else {//其他参数
         if (hasJsonParam) {
           if (oneParamParse) {
             //转换对象到指定的类型
-            params.set(name, parse(allGenericParamTypes.get(i), paramType, receiveParams));
+            params.set(name, parse(allGenericParamTypes.get(i), paramType, ModelDeserializer.parse(json, paramType)));
           } else {
             if (receiveParams instanceof Map) {
               obj = ((Map<String, Object>) receiveParams).remove(name);

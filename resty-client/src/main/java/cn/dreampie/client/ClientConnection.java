@@ -107,9 +107,9 @@ public class ClientConnection {
       // 除了post意外其他请求类型都用 拼接参数方式
       if (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) {
         if (!"".equals(clientRequest.getJsonParam())) {
-          url = new URL(apiUrl + "?" + URLEncoder.encode(clientRequest.getJsonParam(), clientRequest.getEncoding()));
+          url = new URL(apiUrl + clientRequest.getRestUrl() + "?" + URLEncoder.encode(clientRequest.getJsonParam(), clientRequest.getEncoding()));
         } else {
-          url = new URL(apiUrl);
+          url = new URL(apiUrl + clientRequest.getRestUrl());
         }
         conn = openHttpURLConnection(url, httpMethod);
       } else {

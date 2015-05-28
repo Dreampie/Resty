@@ -167,11 +167,7 @@ public abstract class Entity<M extends Entity> {
     if (clazz.isAssignableFrom(value.getClass())) {
       return (T) value;
     } else {
-      if (clazz.isAssignableFrom(String.class)) {
-        return (T) value.toString();
-      } else {
-        return Jsoner.toObject(Jsoner.toJSON(value), clazz);
-      }
+      return Jsoner.toObject(Jsoner.toJSON(value), clazz);
     }
   }
 

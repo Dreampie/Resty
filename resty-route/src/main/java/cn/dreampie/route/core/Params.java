@@ -2,6 +2,7 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.util.json.Jsoner;
 
 import java.util.Collection;
 import java.util.Map;
@@ -37,6 +38,34 @@ public class Params {
    */
   public <T> T get(String name) {
     return (T) (params.get(name));
+  }
+
+  /**
+   * Parse param to any type
+   */
+  public <T> T get(String attr, Class<T> clazz) {
+    Object value = params.get(attr);
+    if (clazz.isAssignableFrom(value.getClass())) {
+      return (T) value;
+    } else {
+      return Jsoner.toObject(Jsoner.toJSON(value), clazz);
+    }
+  }
+
+  /**
+   * Get param of any type. Returns defaultValue if null.
+   */
+  public <T> T get(String attr, Object defaultValue) {
+    Object result = get(attr);
+    return (T) (result != null ? result : defaultValue);
+  }
+
+  /**
+   * Get param for clazz. Returns defaultValue if null.
+   */
+  public <T> T get(String attr, Class<T> clazz, Object defaultValue) {
+    Object result = get(attr, clazz);
+    return (T) (result != null ? result : defaultValue);
   }
 
   /**

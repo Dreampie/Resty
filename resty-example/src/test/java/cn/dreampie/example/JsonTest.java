@@ -1,6 +1,5 @@
 package cn.dreampie.example;
 
-import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.resource.user.model.User;
 import com.alibaba.fastjson.JSON;
@@ -58,6 +57,6 @@ public class JsonTest {
 //
 
 
-    System.out.println(Jsoner.toJSON(new WebException("xxxx")));
+    System.out.println(Jsoner.toObject("\"2013-09-10\"", Date.class));
   }
 }

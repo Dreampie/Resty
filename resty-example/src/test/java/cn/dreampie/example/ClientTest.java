@@ -90,7 +90,7 @@ public class ClientTest {
 
   @Test
   public void testSave() {
-    ClientRequest request = new ClientRequest("/users/1");
+    ClientRequest request = new ClientRequest("/users/1?xx=xx");
     String json = Jsoner.toJSON(
 //        new HashMap<String, Object>() {
 //          {

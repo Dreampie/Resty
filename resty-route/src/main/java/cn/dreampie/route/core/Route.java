@@ -18,7 +18,6 @@ import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.Validator;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
@@ -224,7 +223,7 @@ public class Route {
       pathParams.put(pathParamNames.get(i), m.group(i + 1));
     }
     //formParams
-    Map<String, List<String>> formParams = request.getQueryParams();
+    Map<String, List<String>> formParams = null;
 
     //有文件上传
     MultipartParam multipartParam = null;
@@ -239,9 +238,16 @@ public class Route {
     String contentType = request.getContentType();
     try {
       if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON)) {
-        jsonParams = getJson(request);
-        params = parseJsonParams(jsonParams, pathParams);
+        //从 queryString 取json
+        if (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) {
+          jsonParams = request.getQueryString();
+        } else {
+          formParams = request.getQueryParams();
+          jsonParams = getJson(request);
+        }
+        params = parseJsonParams(jsonParams, pathParams, formParams);
       } else {
+        formParams = request.getQueryParams();
         //print match route
         if (multipartParam != null) {
           fileParams = multipartParam.getUploadedFiles();
@@ -430,18 +436,13 @@ public class Route {
    */
   private String getJson(HttpRequest request) {
     String json;
-    String httpMethod = request.getHttpMethod();
-    if (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) {
-      json = request.getQueryString();
-    } else {
-      try {
-        InputStream is = request.getContentStream();
-        json = StreamReader.readString(is);
-      } catch (IOException e) {
-        String msg = "Could not read inputStream when contentType is '" + request.getContentType() + "'.";
-        logger.error(msg, e);
-        throw new WebException(msg);
-      }
+    try {
+      InputStream is = request.getContentStream();
+      json = StreamReader.readString(is);
+    } catch (IOException e) {
+      String msg = "Could not read inputStream when contentType is '" + request.getContentType() + "'.";
+      logger.error(msg, e);
+      throw new WebException(msg);
     }
     return json;
   }
@@ -550,7 +551,7 @@ public class Route {
    * @param json json字符串
    * @return 所有参数
    */
-  private Params parseJsonParams(String json, Map<String, String> pathParams) throws IllegalAccessException, InstantiationException {
+  private Params parseJsonParams(String json, Map<String, String> pathParams, Map<String, List<String>> formParams) throws IllegalAccessException, InstantiationException {
     Params params = new Params();
 
     int i = 0;
@@ -563,6 +564,7 @@ public class Route {
     }
 
     Object obj = null;
+    List<String> valueArr = null;
 
     boolean hasJsonParam = null != json && !"".equals(json);
     Object receiveParams = null;
@@ -578,7 +580,7 @@ public class Route {
         if (paramType == String.class) {
           params.set(name, pathParams.get(name));
         } else {
-          params.set(name, ModelDeserializer.parse(pathParams.get(name), paramType));
+          params.set(name, Jsoner.toObject(pathParams.get(name), paramType));
         }
       } else {//其他参数
         if (hasJsonParam) {
@@ -602,7 +604,8 @@ public class Route {
         }
         //没有获取到的参数设置为空
         if (!params.containsName(name)) {
-          params.set(name, null);
+          valueArr = formParams.remove(name);
+          params.set(name, parseString(paramType, valueArr));
         }
       }
 
@@ -631,13 +634,14 @@ public class Route {
     Class keyTypeClass;
     Class paramTypeClass;
     List<JSONObject> list;
-    List<Entity<?>> newlist;
-    Entity<?> entity;
-    JSONArray blist;
-    List<?> newblist;
-    Set<Entity<?>> newset;
-    JSONArray bset;
-    Set<?> newbset;
+    List<Entity> newlist;
+    List blist;
+    List newblist;
+
+    Set<JSONObject> set;
+    Set<Entity> newset;
+    Set bset;
+    Set newbset;
     Map map;
     Set<Map.Entry<String, Object>> mapEntry;
     Map newMap;
@@ -658,28 +662,29 @@ public class Route {
         paramTypeClass = (Class) ((ParameterizedType) genericParamType).getActualTypeArguments()[0];
 
         if (List.class.isAssignableFrom(paramType)) {
-          list = (List<JSONObject>) obj;
           //Entity类型
           if (Entity.class.isAssignableFrom(paramTypeClass)) {
-            newlist = new ArrayList<Entity<?>>();
+            list = (List<JSONObject>) obj;
+            newlist = new ArrayList<Entity>();
             for (JSONObject jo : list) {
               newlist.add(ModelDeserializer.deserialze(jo, paramTypeClass));
             }
             result = newlist;
           } else {
-            blist = (JSONArray) obj;
+            blist = (List) obj;
             if (String.class == paramTypeClass) {
               newblist = new ArrayList<String>();
               for (Object o : blist) {
-                ((List<String>) newblist).add(o.toString());
+                newblist.add(o.toString());
               }
             } else {
-              newblist = new ArrayList<Object>();
+              newblist = new ArrayList();
               for (Object o : blist) {
-                if (paramTypeClass.isAssignableFrom(o.getClass()))
-                  ((List<Object>) newblist).add(o);
-                else
-                  ((List<Object>) newblist).add(ModelDeserializer.parse(o, paramTypeClass));
+                if (paramTypeClass.isAssignableFrom(o.getClass())) {
+                  newblist.add(o);
+                } else {
+                  newblist.add(ModelDeserializer.parse(o, paramTypeClass));
+                }
               }
             }
             result = newblist;
@@ -687,26 +692,26 @@ public class Route {
         } else if (Set.class.isAssignableFrom(paramType)) {
           //Entity
           if (Entity.class.isAssignableFrom(paramTypeClass)) {
-            list = (List<JSONObject>) obj;
-            newset = new HashSet<Entity<?>>();
-            for (JSONObject jo : list) {
+            set = (Set<JSONObject>) obj;
+            newset = new HashSet<Entity>();
+            for (JSONObject jo : set) {
               newset.add(ModelDeserializer.deserialze(jo, paramTypeClass));
             }
             result = newset;
           } else {
-            bset = (JSONArray) obj;
+            bset = (Set) obj;
             if (String.class == paramTypeClass) {
               newbset = new HashSet<String>();
               for (Object o : bset) {
-                ((Set<String>) newbset).add(o.toString());
+                newbset.add(o.toString());
               }
             } else {
-              newbset = new HashSet<Object>();
+              newbset = new HashSet();
               for (Object o : bset) {
                 if (paramTypeClass.isAssignableFrom(o.getClass())) {
-                  ((Set<Object>) newbset).add(o);
+                  newbset.add(o);
                 } else {
-                  ((Set<Object>) newbset).add(ModelDeserializer.parse(o, paramTypeClass));
+                  newbset.add(ModelDeserializer.parse(o, paramTypeClass));
                 }
               }
             }

@@ -604,7 +604,9 @@ public class Route {
         }
         //没有获取到的参数设置为空
         if (!params.containsName(name)) {
-          valueArr = formParams.remove(name);
+          if (formParams != null && formParams.size() > 0) {
+            valueArr = formParams.remove(name);
+          }
           params.set(name, parseString(paramType, valueArr));
         }
       }

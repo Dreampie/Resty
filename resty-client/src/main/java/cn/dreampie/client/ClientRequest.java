@@ -9,11 +9,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
 public class ClientRequest {
-  private String restUrl;
+  private String restPath;
   private String encoding = Encoding.UTF_8.toString();
   private Map<String, String> params = Maper.of();
   private String jsonParam;
@@ -27,24 +29,24 @@ public class ClientRequest {
   private String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36";
 
 
-  public ClientRequest(String restUrl) {
-    this(restUrl, Encoding.UTF_8.toString());
+  public ClientRequest(String restPath) {
+    this(restPath, Encoding.UTF_8.toString());
   }
 
-  public ClientRequest(String restUrl, String encoding) {
-    this(restUrl, encoding, Maper.<String, String>of());
+  public ClientRequest(String restPath, String encoding) {
+    this(restPath, encoding, Maper.<String, String>of());
   }
 
-  public ClientRequest(String restUrl, Map<String, String> params) {
-    this(restUrl, null, params);
+  public ClientRequest(String restPath, Map<String, String> params) {
+    this(restPath, null, params);
   }
 
-  public ClientRequest(String restUrl, String encoding, Map<String, String> params) {
-    this(restUrl, encoding, params, Maper.<String, String>of());
+  public ClientRequest(String restPath, String encoding, Map<String, String> params) {
+    this(restPath, encoding, params, Maper.<String, String>of());
   }
 
-  public ClientRequest(String restUrl, String encoding, Map<String, String> params, Map<String, String> headers) {
-    this.restUrl = checkNotNull(restUrl);
+  public ClientRequest(String restPath, String encoding, Map<String, String> params, Map<String, String> headers) {
+    this.restPath = checkNotNull(restPath);
     if (encoding != null) {
       this.encoding = encoding;
     }
@@ -52,8 +54,19 @@ public class ClientRequest {
     this.headers = headers;
   }
 
-  public String getRestUrl() {
-    return this.restUrl;
+  public String getRestPath() {
+    return this.restPath;
+  }
+
+  public String getEncodedRestPath() throws UnsupportedEncodingException {
+    String url = this.restPath;
+    String tmp;
+    Matcher matcher = Pattern.compile("[^a-zA-Z0-9/]").matcher(url);
+    while (matcher.find()) {
+      tmp = matcher.group();
+      url = url.replaceAll(tmp, URLEncoder.encode(tmp, encoding));
+    }
+    return url;
   }
 
   public String getEncoding() {
@@ -114,6 +127,10 @@ public class ClientRequest {
     setContentType(ContentType.JSON + ";charset=" + encoding);
     this.jsonParam = checkNotNull(jsonParam, "Json param could not be null.");
     return this;
+  }
+
+  public String getEncodedJsonParam() throws UnsupportedEncodingException {
+    return URLEncoder.encode(jsonParam, encoding);
   }
 
   public ClientRequest addHeader(String key, String value) {
@@ -217,7 +234,7 @@ public class ClientRequest {
   }
 
   public String getEncodedUrl() throws UnsupportedEncodingException {
-    String encodedUrl = this.getRestUrl();
+    String encodedUrl = this.getEncodedRestPath();
     if (!this.params.isEmpty()) {
       encodedUrl += "?";
       Set<String> paramKeys = this.params.keySet();
@@ -238,7 +255,7 @@ public class ClientRequest {
   }
 
   public String getUnEncodedUrl() {
-    String url = this.getRestUrl();
+    String url = this.getRestPath();
     if (!this.params.isEmpty()) {
       url += "?";
       Set<String> paramKeys = this.params.keySet();

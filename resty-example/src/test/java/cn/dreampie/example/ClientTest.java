@@ -33,7 +33,7 @@ public class ClientTest {
 
   @Test
   public void testGet() {
-    ClientRequest request = new ClientRequest("/tests/1");
+    ClientRequest request = new ClientRequest("/tests/哈哈");
     request.setJsonParam("2013-03-23 00:00:00");
 //    Jsoner.addDeserializer(User.class, ModelDeserializer.instance());
 //    System.out.println(Jsoner.toObject(client.build(request).get().getResult(),new TypeReference<List<User>>(){}));
@@ -90,7 +90,7 @@ public class ClientTest {
 
   @Test
   public void testSave() {
-    ClientRequest request = new ClientRequest("/users/1?xx=xx");
+    ClientRequest request = new ClientRequest("/users/1?x");
     String json = Jsoner.toJSON(
 //        new HashMap<String, Object>() {
 //          {

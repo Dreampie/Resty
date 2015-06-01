@@ -107,9 +107,9 @@ public class ClientConnection {
       // 除了post意外其他请求类型都用 拼接参数方式
       if (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) {
         if (!"".equals(clientRequest.getJsonParam())) {
-          url = new URL(apiUrl + clientRequest.getRestUrl() + "?" + URLEncoder.encode(clientRequest.getJsonParam(), clientRequest.getEncoding()));
+          url = new URL(apiUrl + clientRequest.getEncodedRestPath() + "?" + clientRequest.getEncodedJsonParam());
         } else {
-          url = new URL(apiUrl + clientRequest.getRestUrl());
+          url = new URL(apiUrl + clientRequest.getEncodedRestPath());
         }
         conn = openHttpURLConnection(url, httpMethod);
       } else {
@@ -153,7 +153,7 @@ public class ClientConnection {
         outputParam(conn, httpMethod, clientRequest.getEncodedParams());
       }
     } else {
-      url = new URL(apiUrl + clientRequest.getRestUrl());
+      url = new URL(apiUrl + clientRequest.getEncodedUrl());
       conn = openHttpURLConnection(url, httpMethod);
     }
 
@@ -179,7 +179,7 @@ public class ClientConnection {
   private HttpURLConnection getStreamConnection(String httpMethod, ClientRequest clientRequest) throws IOException {
     URL url;
     HttpURLConnection conn;
-    url = new URL(apiUrl + clientRequest.getRestUrl());
+    url = new URL(apiUrl + clientRequest.getEncodedRestPath());
     conn = openHttpURLConnection(url, httpMethod);
 
     conn.setDoOutput(true);

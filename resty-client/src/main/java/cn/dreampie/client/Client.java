@@ -153,7 +153,7 @@ public class Client extends ClientConnection {
       if (is == null) {
         is = conn.getErrorStream();
         if (is == null) {
-          logger.warn("Api " + clientRequest.getRestUrl() + " response is null!!");
+          logger.warn("Api " + clientRequest.getRestPath() + " response is null!!");
         }
       } else {
         //是否是下载文件

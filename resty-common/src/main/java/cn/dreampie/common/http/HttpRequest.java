@@ -30,8 +30,7 @@ public class HttpRequest extends AbstractRequest {
     if (cookies == null) {
       return null;
     }
-    for (int i = 0; i < cookies.length; i++) {
-      Cookie cookie = cookies[i];
+    for (Cookie cookie : cookies) {
       if (cookieName.equals(cookie.getName()))
         return cookie.getValue();
     }
@@ -42,8 +41,7 @@ public class HttpRequest extends AbstractRequest {
     if (cookies == null) {
       return null;
     }
-    for (int i = 0; i < cookies.length; i++) {
-      Cookie cookie = cookies[i];
+    for (Cookie cookie : cookies) {
       if (cookieName.equals(cookie.getName()))
         return cookie;
     }
@@ -65,14 +63,18 @@ public class HttpRequest extends AbstractRequest {
   public String getRestPath() {
     String basepath = getBasePath();
     String requestURI = request.getRequestURI();
-    if (basepath.length() > 0)
+    if (basepath.length() > 0) {
       requestURI = request.getRequestURI().substring(basepath.length());
-
+    }
     int index = requestURI.toLowerCase().indexOf(";jsessionid=");
     if (index != -1) {
       requestURI = requestURI.substring(0, index);
     }
-    return requestURI;
+    try {
+      return URLDecoder.decode(requestURI, getCharacterEncoding());
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalArgumentException("Invalid character encoding for '" + getCharacterEncoding() + "'");
+    }
   }
 
   public String getRealPath(String path) {
@@ -80,10 +82,11 @@ public class HttpRequest extends AbstractRequest {
   }
 
   public String getRestUri() {
-    if (request.getQueryString() == null) {
+    String queryString = getQueryString();
+    if (queryString == null) {
       return getRestPath();
     } else {
-      return getRestPath() + "?" + request.getQueryString();
+      return getRestPath() + "?" + queryString;
     }
   }
 

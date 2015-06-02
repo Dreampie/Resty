@@ -176,7 +176,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   /**
    * 清除缓存 通过数据源名称＋表名称
    */
-  protected void purgeCache() {
+  public void purgeCache() {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
       QueryCache.instance().purge(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName());

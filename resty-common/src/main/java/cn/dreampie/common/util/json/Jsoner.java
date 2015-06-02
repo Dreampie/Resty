@@ -40,7 +40,7 @@ public class Jsoner {
   }
 
   public static String toJSON(Object object) {
-    return JSON.toJSONString(object);
+    return JSON.toJSONString(object, SerializerFeature.DisableCircularReferenceDetect);
   }
 
   public static String toJSON(Object object, SerializerFeature... features) {

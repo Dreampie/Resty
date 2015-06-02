@@ -35,13 +35,15 @@ public class DefaultExceptionHolder extends ExceptionHolder {
         go(response, webException.getStatus(), isHandled);
       }
     } else {
-      Throwable throwable = exception.getCause();
-      if (throwable == null) {
-        throwable = exception;
+      message = exception.getMessage();
+      if (message == null) {
+        Throwable throwable = exception.getCause();
+        if (throwable != null) {
+          message = throwable.getMessage();
+        }
       }
-      message = throwable.getMessage();
       if (logger.isErrorEnabled()) {
-        logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + HttpStatus.BAD_REQUEST.getCode() + " " + message, throwable);
+        logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + HttpStatus.BAD_REQUEST.getCode() + " " + message, exception);
       }
       response.setStatus(HttpStatus.BAD_REQUEST);
       render.render(request, response, message);

@@ -71,14 +71,25 @@ public class Sessions {
    * @param sessionKey
    */
   private void remove(String username, String sessionKey) {
-    SessionDatas sessions = get(username);
-    if (sessions != null) {
-      Map<String, SessionData> sessionMetadatas = sessions.getSessionMetadatas();
+    SessionDatas sessionDatas = get(username);
+    if (sessionDatas != null) {
+      Map<String, SessionData> sessionMetadatas = sessionDatas.getSessionMetadatas();
       if (sessionMetadatas.size() > 0) {
         sessionMetadatas.remove(sessionKey);
       }
-      if (Constant.cacheEnabled) {
-        SessionCache.instance().add(Session.SESSION_DEF_KEY, username, sessions);
+      //一个session也没有
+      if (sessionMetadatas.size() == 0) {
+        if (Constant.cacheEnabled) {
+          SessionCache.instance().remove(Session.SESSION_DEF_KEY, username);
+        } else {
+          this.sessions.remove(username);
+        }
+      } else {
+        if (Constant.cacheEnabled) {
+          SessionCache.instance().add(Session.SESSION_DEF_KEY, username, sessionDatas);
+        } else {
+          this.sessions.put(username, sessionDatas);
+        }
       }
     }
   }

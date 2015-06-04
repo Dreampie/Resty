@@ -102,7 +102,7 @@ public class Credentials {
    *
    * @return 全部凭据
    */
-  public Map<String, Map<String, Set<Credential>>> loadAllCredentials() {
+  public Map<String, Map<String, Set<Credential>>> getAllCredentials() {
     if (Constant.cacheEnabled) {
       //load  all  cache
       credentialMap = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
@@ -129,7 +129,7 @@ public class Credentials {
    * @param username 用户名
    * @return 用户
    */
-  public Principal findByUsername(String username) {
+  public Principal getPrincipal(String username) {
     Principal principal = null;
     if (Constant.cacheEnabled) {
       principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, username);
@@ -154,5 +154,18 @@ public class Credentials {
       }
     }
     return principal;
+  }
+
+  /**
+   * 删除用户缓存
+   *
+   * @param username
+   */
+  public void removePrincipal(String username) {
+    if (Constant.cacheEnabled) {
+      SessionCache.instance().remove(Principal.PRINCIPAL_DEF_KEY, username);
+    } else {
+      principals.remove(username);
+    }
   }
 }

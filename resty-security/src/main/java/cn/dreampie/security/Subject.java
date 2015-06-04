@@ -53,6 +53,10 @@ public class Subject {
 
   private static Session clearPrincipal() {
     Session session = current();
+    Principal principal = session.getPrincipal();
+    if (principal != null) {
+      credentials.removePrincipal(principal.getUsername());
+    }
     return updateCurrent(new Session(session.getSessionKey(), null, session.getValues(), session.getExpires()));
   }
 
@@ -67,7 +71,7 @@ public class Subject {
   public static void login(String username, String password, boolean rememberMe) {
     checkNotNull(username, "Username could not be null.");
     checkNotNull(password, "Password could not be null.");
-    Principal principal = credentials.findByUsername(username);
+    Principal principal = credentials.getPrincipal(username);
     if (principal == null) {
       throw new WebException(HttpStatus.NOT_FOUND, "User not found.");
     }
@@ -135,7 +139,7 @@ public class Subject {
    * @return value
    */
   public static String need(String httpMethod, String path) {
-    Map<String, Map<String, Set<Credential>>> credentialMap = credentials.loadAllCredentials();
+    Map<String, Map<String, Set<Credential>>> credentialMap = credentials.getAllCredentials();
 
     String value;
     if (credentialMap.containsKey(httpMethod)) {

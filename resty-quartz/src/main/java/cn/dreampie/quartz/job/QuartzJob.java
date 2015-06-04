@@ -135,13 +135,14 @@ public abstract class QuartzJob {
         .requestRecovery()
         .build();
 
-    Map jobMap = job.getJobDataMap();
+    JobDataMap jobMap = job.getJobDataMap();
     jobMap.put("job_group", group);
     jobMap.put("job_name", name);
     jobMap.put("job_id", id);
     //添加参数
-    if (params != null && params.size() > 0)
+    if (params != null && params.size() > 0) {
       jobMap.putAll(params);
+    }
     return job;
   }
 

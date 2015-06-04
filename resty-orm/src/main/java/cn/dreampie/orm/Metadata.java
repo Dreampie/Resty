@@ -115,7 +115,8 @@ public class Metadata {
       }
       tableMetaClassMap.put(clazz, mark);
     }
-    return tableMetaMap.put(mark, tableMeta);
+    tableMetaMap.put(mark, tableMeta);
+    return tableMeta;
   }
 
   public static String getDefaultDsName() {

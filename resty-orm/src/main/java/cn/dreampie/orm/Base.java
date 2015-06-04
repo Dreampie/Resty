@@ -44,12 +44,13 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    *
    * @return class
    */
-  protected Class<? extends Base> getMClass() {
-    Type[] actualTypeArguments = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments();
+  protected Class<? extends M> getMClass() {
+    Class clazz = getClass();
+    Type[] actualTypeArguments = ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments();
     if (actualTypeArguments.length > 0) {
-      return (Class) actualTypeArguments[0];
+      return (Class<? extends M>) actualTypeArguments[0];
     } else {
-      return getClass();
+      return (Class<? extends M>) clazz;
     }
   }
 

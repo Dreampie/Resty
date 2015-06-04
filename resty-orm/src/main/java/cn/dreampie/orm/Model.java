@@ -24,7 +24,7 @@ public abstract class Model<M extends Model> extends Base<M> {
   private M instance(String useDS, boolean useCache) {
     Model instance = null;
     try {
-      instance = getClass().newInstance();
+      instance = getMClass().newInstance();
       instance.useDS = useDS;
       instance.useCache = useCache;
     } catch (InstantiationException e) {

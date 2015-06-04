@@ -16,8 +16,6 @@ Api设计指南:[Http api design](https://github.com/Dreampie/http-api-design-ZH
 
 Resty例子：[resty-demo](https://github.com/Dreampie/resty-demo)
 
-提醒：因框架还在开发第一个正式项目，所以会有细微调整，更新提醒频繁，所以star时关闭watch，或者您可以在个人设置->Notification center->Watching->Email 关闭邮件提醒，感谢您的理解和支持
-
 开发群: <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=8fc9498714ebbc3675cc5a5035858004154ef4645ebc9c128dfd76688d32179b"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="极简Restful框架 - Resty" title="极简Restful框架 - Resty"></a>
 
 其他开发者贡献的插件:[Beetl扩展(大鹏)](https://github.com/zhaopengme/Resty-ext)

@@ -25,7 +25,7 @@ public class Serializer {
         return null;
       }
     } catch (IOException e) {
-      throw new SerializeException(e);
+      throw new SerializeException(e.getMessage(), e);
     }
   }
 
@@ -46,7 +46,7 @@ public class Serializer {
         return null;
       }
     } catch (Exception e) {
-      throw new SerializeException(e);
+      throw new SerializeException(e.getMessage(), e);
     }
   }
 

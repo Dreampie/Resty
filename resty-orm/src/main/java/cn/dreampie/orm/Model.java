@@ -28,9 +28,9 @@ public abstract class Model<M extends Model> extends Base<M> {
       instance.useDS = useDS;
       instance.useCache = useCache;
     } catch (InstantiationException e) {
-      throw new EntityException(e);
+      throw new EntityException(e.getMessage(), e);
     } catch (IllegalAccessException e) {
-      throw new EntityException(e);
+      throw new EntityException(e.getMessage(), e);
     }
     return (M) instance;
   }

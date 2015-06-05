@@ -48,12 +48,14 @@ public class TransactionAspect implements Aspect {
         for (DataSourceMeta dsm : dataSourceMetas) {
           dsm.rollbackTransaction();
         }
+        String message = t.getMessage();
         Throwable cause = t.getCause();
-        if (cause != null) {
-          throw new TransactionException(cause.getMessage(), cause);
-        } else {
-          throw new TransactionException(t.getMessage(), t);
+        if (message == null) {
+          if (cause != null) {
+            message = cause.getMessage();
+          }
         }
+        throw new TransactionException(message, t);
       } finally {
         for (DataSourceMeta dsm : dataSourceMetas) {
           dsm.endTranasaction();

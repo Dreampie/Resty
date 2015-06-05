@@ -82,13 +82,19 @@ public class Client extends ClientConnection {
       conn.connect();
       return readResponse(conn);
     } catch (Exception e) {
-      Throwable cause = e.getCause();
-      if (cause != null) {
-        throwException(cause);
+
+      if (e instanceof ClientException) {
+        throw (ClientException) e;
       } else {
-        throwException(e);
+        String message = e.getMessage();
+        if (message == null) {
+          Throwable cause = e.getCause();
+          if (cause != null) {
+            message = cause.getMessage();
+          }
+        }
+        throw new ClientException(message, e);
       }
-      return null;
     } finally {
       if (conn != null) {
         clientRequestTL.remove();
@@ -97,28 +103,15 @@ public class Client extends ClientConnection {
     }
   }
 
-  /**
-   * 抛出异常
-   *
-   * @param cause
-   */
-  private void throwException(Throwable cause) {
-    if (cause instanceof ClientException) {
-      throw (ClientException) cause;
-    } else {
-      throw new ClientException(cause.getMessage(), cause);
-    }
-  }
-
-
   private ClientResult login(ClientRequest clientRequest) {
     //login
     ClientResult result = build(loginRequest).post();
     if (result.getStatus() != HttpStatus.OK) {
       throw new ClientException("Login error " + result.getStatus() + ", " + result.getResult());
     } else {
-      if (clientRequest != null)
+      if (clientRequest != null) {
         result = build(clientRequest).post();
+      }
     }
     return result;
   }
@@ -147,8 +140,9 @@ public class Client extends ClientConnection {
         return null;
       } else if (loginRequest != null && httpCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
         logger.info("Relogin to server.");
-        if (!clientRequest.equals(loginRequest))
+        if (!clientRequest.equals(loginRequest)) {
           return login(clientRequest);
+        }
       }
       if (is == null) {
         is = conn.getErrorStream();

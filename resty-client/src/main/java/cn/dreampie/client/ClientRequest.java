@@ -61,7 +61,7 @@ public class ClientRequest {
   public String getEncodedRestPath() throws UnsupportedEncodingException {
     String url = this.restPath;
     String tmp;
-    Matcher matcher = Pattern.compile("[^a-zA-Z0-9/]").matcher(url);
+    Matcher matcher = Pattern.compile("[^a-zA-Z0-9/?#&=]").matcher(url);
     while (matcher.find()) {
       tmp = matcher.group();
       url = url.replaceAll(tmp, URLEncoder.encode(tmp, encoding));

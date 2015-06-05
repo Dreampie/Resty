@@ -417,14 +417,21 @@ public class Route {
   /**
    * 抛出异常
    *
-   * @param cause
+   * @param throwable
    */
-  public void throwException(Throwable cause) {
-    if (cause instanceof WebException) {
-      throw (WebException) cause;
+  public void throwException(Throwable throwable) {
+    if (throwable instanceof WebException) {
+      throw (WebException) throwable;
     } else {
-      logger.error("Route method invoke error.", cause);
-      throw new WebException(cause.getMessage());
+      String message = throwable.getMessage();
+      if (message == null) {
+        Throwable cause = throwable.getCause();
+        if (cause != null) {
+          message = cause.getMessage();
+        }
+      }
+      logger.error("Route method invoke error.", throwable);
+      throw new WebException(message);
     }
   }
 

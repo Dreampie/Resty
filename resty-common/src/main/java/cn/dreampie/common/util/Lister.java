@@ -1,6 +1,7 @@
 package cn.dreampie.common.util;
 
-import java.io.*;
+import cn.dreampie.common.util.serialize.Serializer;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,14 +15,8 @@ public class Lister {
     return (List<T>) Arrays.asList(objects);
   }
 
-  public static <T> List<T> copyOf(List<T> objects) throws IOException, ClassNotFoundException {
+  public static <T> List<T> copyOf(List<T> objects) {
     if (objects == null || objects.size() == 0) return new ArrayList<T>();
-    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-    ObjectOutputStream out = new ObjectOutputStream(byteOut);
-    out.writeObject(objects);
-
-    ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
-    ObjectInputStream in = new ObjectInputStream(byteIn);
-    return (List<T>) in.readObject();
+    return (List<T>) Serializer.unserialize(Serializer.serialize(objects));
   }
 }

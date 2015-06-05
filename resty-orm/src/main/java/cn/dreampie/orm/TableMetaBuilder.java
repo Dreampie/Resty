@@ -40,21 +40,22 @@ public class TableMetaBuilder {
 
   private static void logAcess(DataSourceMeta dsm, TableMeta temp, Exception e) {
 
-    String message = null;
-    Throwable throwable = e.getCause();
-    if (throwable == null) {
-      throw new DBException(e);
-    }
-    if (throwable instanceof ConnectException) {
+    String message = e.getMessage();
+    if (e instanceof ConnectException) {
       message = "Could not connect dataSource for name '" + dsm.getDsName() + "'";
     } else {
       if (temp != null) {
         message = "Could not create table object, maybe the table " + temp.getTableName() + " is not exists.";
-      } else {
+      }
+    }
+
+    if (message == null) {
+      Throwable throwable = e.getCause();
+      if (throwable != null) {
         message = throwable.getMessage();
       }
     }
-    throw new DBException(message, throwable);
+    throw new DBException(message, e);
   }
 
   public static TableMeta buildTableMeta(TableMeta tableMeta, DataSourceMeta dsm) {

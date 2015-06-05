@@ -150,25 +150,15 @@
       <plugin>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
-        <version>9.1.1.v20140108</version>
+        <version>9.3.0.M2</version>
         <configuration>
-          <stopKey>foo</stopKey>
-          <stopPort>9091</stopPort>
-          <jvmArgs>-Xmx1024m -Xms256m -XX:PermSize=256M -XX:MaxPermSize=512M</jvmArgs>
           <scanIntervalSeconds>6</scanIntervalSeconds>
           <httpConnector>
             <port>9090</port>
           </httpConnector>
           <webAppConfig>
             <contextPath>/</contextPath>
-            <!--<defaultsDescriptor>${basedir}/src/main/resources/webdefault.xml</defaultsDescriptor>-->
           </webAppConfig>
-          <systemProperties>
-            <systemProperty>
-              <name>org.eclipse.util.URI.charset</name>
-              <value>UTF-8</value>
-            </systemProperty>
-          </systemProperties>
         </configuration>
       </plugin>
       <plugin>

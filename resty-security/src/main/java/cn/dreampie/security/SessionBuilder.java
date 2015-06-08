@@ -116,7 +116,9 @@ public class SessionBuilder {
     String sessionCookieName = sessionCookieDescriptor.getCookieName();
     String cookie = request.getCookieValue(sessionCookieName);
     if (cookie != null) {
+      logger.debug("Session cookie was: %s.", cookie);
       String sig = request.getCookieValue(sessionCookieDescriptor.getCookieSignatureName());
+      logger.debug("Session signature was: %s.", sig);
       if (sig != null && signer.verify(cookie, sig)) {
         Map<String, String> cookies = readCookies(cookie);
         //失效时间
@@ -131,7 +133,11 @@ public class SessionBuilder {
             if (sessionData != null) {
               return sessionData.getSession();
             }
+          } else {
+            logger.warn("Invalid user session. session was: %s. Ignoring session cookie.", cookie);
           }
+        } else {
+          logger.warn("Invalid username. session was: %s. Ignoring session cookie.", cookie);
         }
       } else {
         logger.warn("Invalid session signature. session was: %s. Ignoring session cookie.", cookie);

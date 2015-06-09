@@ -125,6 +125,7 @@ public class SessionBuilder {
         Map<String, String> cookieValues = Maper.copyOf(cookies);
         String principalName = cookieValues.get(Principal.PRINCIPAL_DEF_KEY);
         if (principalName != null && !"".equals(principalName.trim())) {
+          logger.debug("Found session success. username was: %s.", principalName);
           //判断 是否使用了 remeberme 或失效
           Sessions.SessionDatas sessionDatas = sessions.get(principalName);
           if (sessionDatas != null) {

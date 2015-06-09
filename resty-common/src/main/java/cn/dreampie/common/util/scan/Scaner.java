@@ -87,7 +87,7 @@ public abstract class Scaner {
           String[] paths = basePath.split("!/");
           // 获取jar
           try {
-            classFiles.addAll(findJarFile(URLDecoder.decode(paths[0].replace("file:", ""), Encoding.UTF_8.toString()), paths[1]));
+            classFiles.addAll(findJarFile(URLDecoder.decode(paths[0].replace("file:", ""), Encoding.UTF_8.name()), paths[1]));
           } catch (IOException e) {
             throw new ScanException(e.getMessage(), e);
           }
@@ -112,7 +112,7 @@ public abstract class Scaner {
     // 判断目录是否存在
     File baseDir = null;
     try {
-      baseDir = new File(URLDecoder.decode(baseDirName, Encoding.UTF_8.toString()));
+      baseDir = new File(URLDecoder.decode(baseDirName, Encoding.UTF_8.name()));
     } catch (UnsupportedEncodingException e) {
       throw new ScanException(e.getMessage(), e);
     }
@@ -125,7 +125,7 @@ public abstract class Scaner {
       for (String aFilelist : filelist) {
         File readfile = null;
         try {
-          readfile = new File(URLDecoder.decode(baseDirName + File.separator + aFilelist, Encoding.UTF_8.toString()));
+          readfile = new File(URLDecoder.decode(baseDirName + File.separator + aFilelist, Encoding.UTF_8.name()));
         } catch (UnsupportedEncodingException e) {
           throw new ScanException(e.getMessage(), e);
         }
@@ -237,7 +237,7 @@ public abstract class Scaner {
     Set<String> classFiles = new HashSet<String>();
     try {
       // 判断目录是否存在
-      File baseDir = new File(URLDecoder.decode(baseDirName, Encoding.UTF_8.toString()));
+      File baseDir = new File(URLDecoder.decode(baseDirName, Encoding.UTF_8.name()));
       if (!baseDir.exists() || !baseDir.isDirectory()) {
         throw new ScanException("Jar file scan error : " + baseDirName + " is not a dir.");
       } else {

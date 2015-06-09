@@ -1,6 +1,7 @@
 package cn.dreampie.security;
 
 import cn.dreampie.common.Constant;
+import cn.dreampie.log.Logger;
 import cn.dreampie.security.cache.SessionCache;
 
 import java.io.Serializable;
@@ -20,6 +21,7 @@ public class Sessions {
 
   public static final String ADDRESS_KEY = "_address";
   public static final String AGENT_KEY = "_agent";
+  private static final Logger logger = Logger.getLogger(Sessions.class);
   /**
    * username->(sessionKey,sessionData)
    */
@@ -62,6 +64,7 @@ public class Sessions {
     } else {
       this.sessions.put(username, sessionDatas);
     }
+    logger.info("Save session success. username was: %s.", username);
   }
 
   /**

@@ -48,7 +48,7 @@ public final class Constant {
       apiPrefix = null;
       exceptionHolder = null;
     } else {
-      encoding = constants.get("app.encoding", Encoding.UTF_8.toString());
+      encoding = constants.get("app.encoding", Encoding.UTF_8.name());
       devMode = constants.getBoolean("app.devMode", false);
       cacheEnabled = constants.getBoolean("app.cacheEnabled", false);
       oneParamParse = constants.getBoolean("app.oneParamParse", false);

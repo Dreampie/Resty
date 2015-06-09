@@ -16,7 +16,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 
 public class ClientRequest {
   private String restPath;
-  private String encoding = Encoding.UTF_8.toString();
+  private String encoding = Encoding.UTF_8.name();
   private Map<String, String> params = Maper.of();
   private String jsonParam;
   private Map<String, String> headers = Maper.of();
@@ -30,7 +30,7 @@ public class ClientRequest {
 
 
   public ClientRequest(String restPath) {
-    this(restPath, Encoding.UTF_8.toString());
+    this(restPath, Encoding.UTF_8.name());
   }
 
   public ClientRequest(String restPath, String encoding) {

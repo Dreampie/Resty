@@ -46,12 +46,12 @@ LRU ，Least Recently Used(最近最少使用). (ehcache 默认值).缓存的元
          diskPersistent="false"
          diskExpiryThreadIntervalSeconds="120"/>
 
-  <!--session 缓存永久的 程序自动清理过期的数据-->
+  <!--session 缓存存活30天(因为rememberMe最大30天) 程序自动清理过期的数据-->
   <cache name="_session"
          maxElementsInMemory="10000"
          eternal="true"
+         timeToLiveSeconds="2592000"
          overflowToDisk="true"
          diskPersistent="true"
          diskExpiryThreadIntervalSeconds="120"/>
-
 </ehcache>

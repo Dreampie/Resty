@@ -10,6 +10,11 @@ public class HttpMethod {
   public static final String DELETE = "DELETE";
   //jdk7- not support
   public static final String PATCH = "PATCH";
+  //cors
+  public static final String OPTIONS = "OPTIONS";
+  //not filter
+  public static final String HEAD = "HEAD";
+
 
   public static boolean support(String httpMethod) {
     return GET.equals(httpMethod) || POST.equals(httpMethod) || PUT.equals(httpMethod)

@@ -1,5 +1,6 @@
 package cn.dreampie.route.handler.cors;
 
+import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.WebException;
@@ -31,12 +32,12 @@ public class CORSHandler extends Handler {
   // Request headers
   private static final String ORIGIN_HEADER = "Origin";
   // Implementation constants
-  private static final List<String> SIMPLE_HTTP_METHODS = Lister.of("GET", "POST", "HEAD");
+  private static final List<String> SIMPLE_HTTP_METHODS = Lister.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.HEAD);
 
   private boolean anyOriginAllowed = true;
   private boolean anyHeadersAllowed = false;
   private List<String> allowedOrigins = Lister.of("*");
-  private List<String> allowedMethods = Lister.of("GET", "POST", "HEAD");
+  private List<String> allowedMethods = Lister.of(HttpMethod.GET, HttpMethod.POST, HttpMethod.HEAD);
   private List<String> allowedHeaders = Lister.of("X-Requested-With", "Content-Type", "Accept", "Origin");
   private List<String> exposedHeaders = null;
   private int preflightMaxAge = 1800;
@@ -166,10 +167,12 @@ public class CORSHandler extends Handler {
   }
 
   private boolean isPreflightRequest(HttpRequest request) {
-    if ("OPTIONS".equalsIgnoreCase(request.getHttpMethod()))
+    if (HttpMethod.OPTIONS.equalsIgnoreCase(request.getHttpMethod())) {
+      return true;
+    }
+    if (request.getHeader(ACCESS_CONTROL_REQUEST_METHOD_HEADER) == null) {
       return false;
-    if (request.getHeader(ACCESS_CONTROL_REQUEST_METHOD_HEADER) == null)
-      return false;
+    }
     return true;
   }
 

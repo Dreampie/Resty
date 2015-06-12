@@ -191,7 +191,9 @@ public class SessionBuilder {
       sessionMap.put(Principal.PRINCIPAL_DEF_KEY, getAnonymousName(session));
     }
     String sessionJson = Jsoner.toJSON(sessionMap);
+    String sessionJsonSign = signer.sign(sessionJson);
+    logger.info("Save cookie " + sessionCookieDescriptor.getCookieName() + ": " + sessionJson + ", " + sessionCookieDescriptor.getCookieSignatureName() + ": " + sessionJsonSign);
     return Maper.of(sessionCookieDescriptor.getCookieName(), sessionJson,
-        sessionCookieDescriptor.getCookieSignatureName(), signer.sign(sessionJson));
+        sessionCookieDescriptor.getCookieSignatureName(), sessionJsonSign);
   }
 }

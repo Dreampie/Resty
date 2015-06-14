@@ -271,6 +271,7 @@ public class ClientConnection {
         conn.setRequestProperty(entry.getKey(), entry.getValue());
       }
     }
+    logger.info("Hold cookie: %s.", cookieManager.getCookieStore().getCookies());
     conn.setRequestProperty("Content-Type", clientRequest.getContentType());
     conn.setRequestProperty("User-Agent", clientRequest.getUserAgent());
     return conn;

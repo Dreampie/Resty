@@ -21,6 +21,12 @@ public class Config {
   }
 
   /**
+   * Config service
+   */
+  public void configService(ServiceLoader serviceLoader) {
+  }
+
+  /**
    * Config plugin
    */
   public void configPlugin(PluginLoader pluginLoader) {

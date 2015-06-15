@@ -26,7 +26,7 @@ public final class RouteHandler extends Handler {
    * handle
    */
   public final void handle(HttpRequest request, HttpResponse response, boolean[] isHandled) {
-    RouteMatch routeMatch = null;
+    RouteMatcher routeMatcher = null;
     Route route = null;
     RouteInvocation routeInvocation = null;
     //请求的rest路径
@@ -44,21 +44,21 @@ public final class RouteHandler extends Handler {
           if (restPath.startsWith(routesEntry.getKey())) {
             routesSet = routesEntry.getValue();
             for (Route r : routesSet) {
-              routeMatch = r.match(request, response);
-              if (routeMatch != null) {
+              routeMatcher = r.match(request, response);
+              if (routeMatcher != null) {
                 route = r;
                 break;
               }
             }
-            if (routeMatch != null) {
+            if (routeMatcher != null) {
               break;
             }
           }
         }
       }
 
-      if (routeMatch != null) {
-        routeInvocation = new RouteInvocation(route, routeMatch);
+      if (routeMatcher != null) {
+        routeInvocation = new RouteInvocation(route, routeMatcher);
       }
     }
     isHandled[0] = true;

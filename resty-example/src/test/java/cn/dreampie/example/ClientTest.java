@@ -35,7 +35,7 @@ public class ClientTest {
   public void testGet() {
     ClientRequest request = new ClientRequest("/tests/哈哈");
     request.setJsonParam("2013-03-23 00:00:00");
-//    Jsoner.addDeserializer(User.class, ModelDeserializer.instance());
+//    Jsoner.addDeserializer(User.class, EntityDeserializer.instance());
 //    System.out.println(Jsoner.toObject(client.build(request).get().getResult(),new TypeReference<List<User>>(){}));
     System.out.println(client.build(request).get());
   }

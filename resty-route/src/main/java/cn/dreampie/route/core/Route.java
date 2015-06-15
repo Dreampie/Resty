@@ -8,8 +8,8 @@ import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
+import cn.dreampie.common.util.json.EntityDeserializer;
 import cn.dreampie.common.util.json.Jsoner;
-import cn.dreampie.common.util.json.ModelDeserializer;
 import cn.dreampie.common.util.stream.StreamReader;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.core.multipart.MultipartBuilder;
@@ -61,7 +61,7 @@ public class Route {
   private final String stdPathPattern;
   private final Pattern pattern;
   private final List<String> pathParamNames;
-  private final Class<? extends Resource> resourceClass;
+  private final Class<?> resourceClass;
   private final Method method;
   private final List<String> allParamNames;
   private final int[] allLineNumbers;
@@ -74,7 +74,7 @@ public class Route {
   private final MultipartBuilder multipartBuilder;
 
 
-  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Validator[] validators, MultipartBuilder multipartBuilder) {
+  public Route(Class<?> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Validator[] validators, MultipartBuilder multipartBuilder) {
     this.resourceClass = resourceClass;
     this.httpMethod = checkNotNull(httpMethod);
     this.pathPattern = checkNotNull(pathPattern);
@@ -197,7 +197,7 @@ public class Route {
    * @param response response对象
    * @return route
    */
-  public RouteMatch match(HttpRequest request, HttpResponse response) {
+  public RouteMatcher match(HttpRequest request, HttpResponse response) {
     if (!this.httpMethod.equals(request.getHttpMethod())) {
       return null;
     }
@@ -231,7 +231,7 @@ public class Route {
       multipartParam = multipartBuilder.readMultipart(request);
     }
 
-    RouteMatch routeMatch = null;
+    RouteMatcher routeMatcher = null;
     Params params = null;
     Map<String, UploadedFile> fileParams = null;
     String jsonParams = null;
@@ -259,9 +259,9 @@ public class Route {
     } catch (Exception e) {
       throwException(e);
     }
-    routeMatch = new RouteMatch(pathPattern, restPath, extension, params, request, response);
+    routeMatcher = new RouteMatcher(pathPattern, restPath, extension, params, request, response);
     printMatchRoute(request.getContentType(), jsonParams, pathParams, formParams, fileParams);
-    return routeMatch;
+    return routeMatcher;
   }
 
   /**
@@ -355,7 +355,7 @@ public class Route {
     return httpMethod + " " + pathPattern + " " + Joiner.on(",").join(allParamNames);
   }
 
-  public Class<? extends Resource> getResourceClass() {
+  public Class<?> getResourceClass() {
     return resourceClass;
   }
 
@@ -477,7 +477,7 @@ public class Route {
         if (paramType == String.class) {
           params.set(name, pathParams.get(name));
         } else
-          params.set(name, ModelDeserializer.parse(pathParams.get(name), paramType));
+          params.set(name, EntityDeserializer.parse(pathParams.get(name), paramType));
       } else {//其他参数
         if (paramType == UploadedFile.class) {
           params.set(name, fileParams.remove(name));
@@ -545,7 +545,7 @@ public class Route {
         result = value;
       } else {
         //转换为对应的对象类型
-        result = ModelDeserializer.parse(value, paramType);
+        result = EntityDeserializer.parse(value, paramType);
       }
     }
     return result;
@@ -593,7 +593,7 @@ public class Route {
         if (hasJsonParam) {
           if (oneParamParse) {
             //转换对象到指定的类型
-            params.set(name, parse(allGenericParamTypes.get(i), paramType, ModelDeserializer.parse(json, paramType)));
+            params.set(name, parse(allGenericParamTypes.get(i), paramType, EntityDeserializer.parse(json, paramType)));
           } else {
             if (receiveParams instanceof Map) {
               obj = ((Map<String, Object>) receiveParams).remove(name);
@@ -664,7 +664,7 @@ public class Route {
         newMap = new HashMap();
         mapEntry = map.entrySet();
         for (Map.Entry<String, Object> entry : mapEntry) {
-          newMap.put(ModelDeserializer.parse(entry.getKey(), keyTypeClass), ModelDeserializer.parse(entry.getValue(), paramTypeClass));
+          newMap.put(EntityDeserializer.parse(entry.getKey(), keyTypeClass), EntityDeserializer.parse(entry.getValue(), paramTypeClass));
         }
         result = newMap;
       } else if (Collection.class.isAssignableFrom(paramType)) {
@@ -676,7 +676,7 @@ public class Route {
             list = (List<JSONObject>) obj;
             newlist = new ArrayList<Entity>();
             for (JSONObject jo : list) {
-              newlist.add(ModelDeserializer.deserialze(jo, paramTypeClass));
+              newlist.add(EntityDeserializer.deserialze(jo, paramTypeClass));
             }
             result = newlist;
           } else {
@@ -692,7 +692,7 @@ public class Route {
                 if (paramTypeClass.isAssignableFrom(o.getClass())) {
                   newblist.add(o);
                 } else {
-                  newblist.add(ModelDeserializer.parse(o, paramTypeClass));
+                  newblist.add(EntityDeserializer.parse(o, paramTypeClass));
                 }
               }
             }
@@ -704,7 +704,7 @@ public class Route {
             set = (Set<JSONObject>) obj;
             newset = new HashSet<Entity>();
             for (JSONObject jo : set) {
-              newset.add(ModelDeserializer.deserialze(jo, paramTypeClass));
+              newset.add(EntityDeserializer.deserialze(jo, paramTypeClass));
             }
             result = newset;
           } else {
@@ -720,7 +720,7 @@ public class Route {
                 if (paramTypeClass.isAssignableFrom(o.getClass())) {
                   newbset.add(o);
                 } else {
-                  newbset.add(ModelDeserializer.parse(o, paramTypeClass));
+                  newbset.add(EntityDeserializer.parse(o, paramTypeClass));
                 }
               }
             }
@@ -728,7 +728,7 @@ public class Route {
           }
         }
       } else {
-        result = ModelDeserializer.parse(obj, paramType);
+        result = EntityDeserializer.parse(obj, paramType);
       }
     }
     return result;

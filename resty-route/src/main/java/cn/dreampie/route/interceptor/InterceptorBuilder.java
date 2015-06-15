@@ -1,6 +1,5 @@
 package cn.dreampie.route.interceptor;
 
-import cn.dreampie.route.core.Resource;
 import cn.dreampie.route.interceptor.annotation.ClearInterceptors;
 import cn.dreampie.route.interceptor.annotation.Interceptors;
 import cn.dreampie.route.interceptor.exception.InterceptorException;
@@ -14,17 +13,17 @@ import java.util.Map;
  */
 public class InterceptorBuilder {
   private static final Interceptor[] NULL_INTERCEPTOR_ARRAY = new Interceptor[0];
-  private Map<Class<Interceptor>, Interceptor> intersMap = new HashMap<Class<Interceptor>, Interceptor>();
+  private Map<Class<Interceptor>, Interceptor> interceptorClasses = new HashMap<Class<Interceptor>, Interceptor>();
 
   public void addToInterceptorsMap(Interceptor[] defaultInters) {
     for (Interceptor inter : defaultInters)
-      intersMap.put((Class<Interceptor>) inter.getClass(), inter);
+      interceptorClasses.put((Class<Interceptor>) inter.getClass(), inter);
   }
 
   /**
    * Build interceptors of Resource
    */
-  public Interceptor[] buildResourceInterceptors(Class<? extends Resource> resourceClass) {
+  public Interceptor[] buildResourceInterceptors(Class<?> resourceClass) {
     Interceptors before = resourceClass.getAnnotation(Interceptors.class);
     return before != null ? createInterceptors(before) : NULL_INTERCEPTOR_ARRAY;
   }
@@ -40,7 +39,7 @@ public class InterceptorBuilder {
   /**
    * Build interceptors of Action
    */
-  public Interceptor[] buildRouteInterceptors(Interceptor[] defaultInters, Interceptor[] resourceInters, Class<? extends Resource> resourceClass, Interceptor[] methodInters, Method method) {
+  public Interceptor[] buildRouteInterceptors(Interceptor[] defaultInters, Interceptor[] resourceInters, Class<?> resourceClass, Interceptor[] methodInters, Method method) {
 
     int size = defaultInters.length + resourceInters.length + methodInters.length;
     Interceptor[] allInters = (size == 0 ? NULL_INTERCEPTOR_ARRAY : new Interceptor[size]);
@@ -84,7 +83,7 @@ public class InterceptorBuilder {
     return clearInterceptor != null ? clearInterceptor.value() : null;
   }
 
-  private Class<? extends Interceptor>[] getResourceClears(Class<? extends Resource> resourceClass) {
+  private Class<? extends Interceptor>[] getResourceClears(Class<?> resourceClass) {
     ClearInterceptors clearInterceptor = resourceClass.getAnnotation(ClearInterceptors.class);
     return clearInterceptor != null ? clearInterceptor.value() : null;
   }
@@ -92,19 +91,19 @@ public class InterceptorBuilder {
   /**
    * Create interceptors with Annotation of Aspect. Singleton version.
    */
-  private Interceptor[] createInterceptors(Interceptors aroundAnnotation) {
+  private Interceptor[] createInterceptors(Interceptors aroundAnn) {
     Interceptor[] result = null;
-    Class<Interceptor>[] interceptorClasses = (Class<Interceptor>[]) aroundAnnotation.value();
+    Class<Interceptor>[] interceptorClasses = (Class<Interceptor>[]) aroundAnn.value();
     if (interceptorClasses != null && interceptorClasses.length > 0) {
       result = new Interceptor[interceptorClasses.length];
       for (int i = 0; i < result.length; i++) {
-        result[i] = intersMap.get(interceptorClasses[i]);
+        result[i] = this.interceptorClasses.get(interceptorClasses[i]);
         if (result[i] != null)
           continue;
 
         try {
           result[i] = interceptorClasses[i].newInstance();
-          intersMap.put(interceptorClasses[i], result[i]);
+          this.interceptorClasses.put(interceptorClasses[i], result[i]);
         } catch (Exception e) {
           throw new InterceptorException(e.getMessage(), e);
         }

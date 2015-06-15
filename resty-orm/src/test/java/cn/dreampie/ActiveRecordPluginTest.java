@@ -27,7 +27,7 @@ public class ActiveRecordPluginTest {
 
     r.update();
     //Record 解析支持
-//    Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());
+//    Jsoner.addConfig(Record.class, EntitySerializer.instance(), EntityDeserializer.instance());
 //    Record r = new Record().set("id", 1).set("long", "x");
 //    String rstr = Jsoner.toJSON(r);
 //    System.out.println(rstr);

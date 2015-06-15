@@ -14,6 +14,6 @@ public class MySQLDialect extends PostgreSQLDialect {
   }
 
   public String driverClass() {
-    return "com.mysql.jdbc.Driver";
+    return "com.mysql.dsl.Driver";
   }
 }

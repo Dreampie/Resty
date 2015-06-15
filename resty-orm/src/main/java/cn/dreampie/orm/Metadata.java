@@ -76,7 +76,7 @@ public class Metadata {
     return tableMetaClassMap.get(clazz);
   }
 
-  static DataSourceMeta addDataSourceMeta(DataSourceMeta dsm) {
+  public static DataSourceMeta addDataSourceMeta(DataSourceMeta dsm) {
     String dsName = dsm.getDsName();
     checkNotNull(dsName, "DataSourceName could not be null.");
     if (dsName.contains(CONNECTOR)) {

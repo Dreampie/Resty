@@ -1,11 +1,14 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.dsl;
 
 import cn.dreampie.common.Plugin;
+import cn.dreampie.common.annotation.Repository;
+import cn.dreampie.common.util.json.EntityDeserializer;
 import cn.dreampie.common.util.json.EntitySerializer;
 import cn.dreampie.common.util.json.Jsoner;
-import cn.dreampie.common.util.json.EntityDeserializer;
-import cn.dreampie.common.util.scan.ClassScaner;
+import cn.dreampie.common.util.scan.AnnotationScaner;
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.DataSourceMeta;
+import cn.dreampie.orm.Metadata;
 import cn.dreampie.orm.provider.DataSourceProvider;
 
 import java.lang.reflect.Modifier;
@@ -16,26 +19,26 @@ import java.util.Set;
 /**
  * ActiveRecord plugin.
  */
-public class ActiveRecordPlugin implements Plugin {
-  private static final Logger logger = Logger.getLogger(ActiveRecordPlugin.class);
+public class JdbcTemplatePlugin implements Plugin {
+  private static final Logger logger = Logger.getLogger(JdbcTemplatePlugin.class);
 
-  private Set<Class<? extends Model>> excludeClasses = new HashSet<Class<? extends Model>>();
-  private Set<Class<? extends Model>> includeClasses = new HashSet<Class<? extends Model>>();
+  private Set<Class<?>> excludeClasses = new HashSet<Class<?>>();
+  private Set<Class<?>> includeClasses = new HashSet<Class<?>>();
   private Set<String> includeClassPackages = new HashSet<String>();
   private Set<String> excludeClassPackages = new HashSet<String>();
 
   private DataSourceProvider dataSourceProvider;
 
-  public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
+  public JdbcTemplatePlugin(DataSourceProvider dataSourceProvider) {
     this.dataSourceProvider = dataSourceProvider;
   }
 
-  public ActiveRecordPlugin addExcludeClasses(Class<? extends Model>... classes) {
+  public JdbcTemplatePlugin addExcludeClasses(Class<?>... classes) {
     Collections.addAll(excludeClasses, classes);
     return this;
   }
 
-  public ActiveRecordPlugin addExcludeClasses(Set<Class<? extends Model>> classes) {
+  public JdbcTemplatePlugin addExcludeClasses(Set<Class<?>> classes) {
     if (classes != null) {
       excludeClasses.addAll(classes);
     }
@@ -48,17 +51,17 @@ public class ActiveRecordPlugin implements Plugin {
    * @param packages packages
    * @return
    */
-  public ActiveRecordPlugin addExcludePackages(String... packages) {
+  public JdbcTemplatePlugin addExcludePackages(String... packages) {
     Collections.addAll(excludeClassPackages, packages);
     return this;
   }
 
-  public ActiveRecordPlugin addIncludeClasses(Class<? extends Model>... classes) {
+  public JdbcTemplatePlugin addIncludeClasses(Class<?>... classes) {
     Collections.addAll(includeClasses, classes);
     return this;
   }
 
-  public ActiveRecordPlugin addIncludeClasses(Set<Class<? extends Model>> classes) {
+  public JdbcTemplatePlugin addIncludeClasses(Set<Class<?>> classes) {
     if (classes != null) {
       includeClasses.addAll(classes);
     }
@@ -71,7 +74,7 @@ public class ActiveRecordPlugin implements Plugin {
    * @param packages packages
    * @return
    */
-  public ActiveRecordPlugin addIncludePackages(String... packages) {
+  public JdbcTemplatePlugin addIncludePackages(String... packages) {
     Collections.addAll(includeClassPackages, packages);
     return this;
   }
@@ -79,26 +82,24 @@ public class ActiveRecordPlugin implements Plugin {
   public boolean start() {
     if (includeClassPackages.size() > 0) {
       if (includeClasses.size() <= 0) {
-        includeClasses = ClassScaner.of(Model.class).includePackages(includeClassPackages).scan();
+        includeClasses = AnnotationScaner.of(Repository.class).includePackages(includeClassPackages).scan();
       } else {
-        includeClasses.addAll(ClassScaner.of(Model.class).includePackages(includeClassPackages).<Model>scan());
+        includeClasses.addAll(AnnotationScaner.of(Repository.class).includePackages(includeClassPackages).scan());
       }
     }
 
     DataSourceMeta dsm = new DataSourceMeta(dataSourceProvider);
     if (includeClasses.size() > 0) {
-      Set<TableMeta> tableMetas = new HashSet<TableMeta>();
-      TableMeta tableMeta = null;
       boolean isExclude = false;
-      for (Class<? extends Model> modelClass : includeClasses) {
-        if (excludeClasses.contains(modelClass) || Modifier.isAbstract(modelClass.getModifiers())) {
+      for (Class<?> clazz : includeClasses) {
+        if (excludeClasses.contains(clazz) || Modifier.isAbstract(clazz.getModifiers())) {
           continue;
         }
         isExclude = false;
         if (excludeClassPackages.size() > 0) {
           for (String excludepath : excludeClassPackages) {
-            if (modelClass.getName().startsWith(excludepath)) {
-              logger.debug("Exclude model:" + modelClass.getName());
+            if (clazz.getName().startsWith(excludepath)) {
+              logger.debug("Exclude Repository:" + clazz.getName());
               isExclude = true;
               break;
             }
@@ -107,21 +108,15 @@ public class ActiveRecordPlugin implements Plugin {
         if (isExclude) {
           continue;
         }
-        //add modelMeta
-        tableMeta = new TableMeta(dataSourceProvider.getDsName(), modelClass);
-        tableMetas.add(tableMeta);
-        logger.info("Models.add(" + tableMeta.getTableName() + ", " + modelClass.getName() + ")");
+        logger.info("Repositories.add(" + clazz.getName() + ")");
 
         //json  config
-        Jsoner.addConfig(modelClass, EntitySerializer.instance(), EntityDeserializer.instance());
+        Jsoner.addConfig(clazz, EntitySerializer.instance(), EntityDeserializer.instance());
       }
       //model 元数据
-      TableMetaBuilder.buildTableMeta(tableMetas, dsm);
     } else {
       logger.warn("Could not load any model for   " + dsm.getDsName() + ".");
     }
-    //Record 解析支持
-    Jsoner.addConfig(Record.class, EntitySerializer.instance(), EntityDeserializer.instance());
     //数据源  元数据
     Metadata.addDataSourceMeta(dsm);
     return true;

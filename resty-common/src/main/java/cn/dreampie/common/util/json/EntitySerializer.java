@@ -15,10 +15,10 @@ import java.util.Map;
 /**
  * Created by ice on 14-12-31.
  */
-public enum ModelSerializer implements ObjectSerializer {
+public enum EntitySerializer implements ObjectSerializer {
   INSTANCE;
 
-  public static ModelSerializer instance() {
+  public static EntitySerializer instance() {
     return INSTANCE;
   }
 

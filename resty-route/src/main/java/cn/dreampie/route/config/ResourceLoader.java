@@ -1,8 +1,9 @@
 package cn.dreampie.route.config;
 
-import cn.dreampie.common.util.scan.ClassScaner;
+import cn.dreampie.common.ioc.ApplicationContainer;
+import cn.dreampie.common.util.scan.AnnotationScaner;
 import cn.dreampie.log.Logger;
-import cn.dreampie.route.core.Resource;
+import cn.dreampie.common.annotation.Resource;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,9 +15,9 @@ import java.util.Set;
 final public class ResourceLoader {
   private static final Logger logger = Logger.getLogger(ResourceLoader.class);
 
-  private final Set<Class<? extends Resource>> resources = new HashSet<Class<? extends Resource>>();
-  private Set<Class<? extends Resource>> excludeResources = new HashSet<Class<? extends Resource>>();
-  private Set<Class<? extends Resource>> includeResources = new HashSet<Class<? extends Resource>>();
+  private final Set<Class<?>> resources = new HashSet<Class<?>>();
+  private Set<Class<?>> excludeResources = new HashSet<Class<?>>();
+  private Set<Class<?>> includeResources = new HashSet<Class<?>>();
   private Set<String> includeResourcePackages = new HashSet<String>();
   private Set<String> excludeResourcePackages = new HashSet<String>();
 
@@ -34,17 +35,17 @@ final public class ResourceLoader {
    *
    * @param resourceClass Controller Class
    */
-  public ResourceLoader add(Class<? extends Resource> resourceClass) {
+  public ResourceLoader add(Class<?> resourceClass) {
     resources.add(resourceClass);
     return this;
   }
 
-  public ResourceLoader addExcludeClasses(Class<? extends Resource>... clazzes) {
+  public ResourceLoader addExcludeClasses(Class<?>... clazzes) {
     Collections.addAll(excludeResources, clazzes);
     return this;
   }
 
-  public ResourceLoader addExcludeClasses(Set<Class<? extends Resource>> clazzes) {
+  public ResourceLoader addExcludeClasses(Set<Class<?>> clazzes) {
     if (clazzes != null) {
       excludeResources.addAll(clazzes);
     }
@@ -62,12 +63,12 @@ final public class ResourceLoader {
     return this;
   }
 
-  public ResourceLoader addIncludeClasses(Class<? extends Resource>... clazzes) {
+  public ResourceLoader addIncludeClasses(Class<?>... clazzes) {
     Collections.addAll(includeResources, clazzes);
     return this;
   }
 
-  public ResourceLoader addIncludeClasses(Set<Class<? extends Resource>> clazzes) {
+  public ResourceLoader addIncludeClasses(Set<Class<?>> clazzes) {
     if (clazzes != null) {
       includeResources.addAll(clazzes);
     }
@@ -88,36 +89,38 @@ final public class ResourceLoader {
   public void build() {
     if (includeResourcePackages.size() > 0) {
       if (includeResources.size() <= 0) {
-        includeResources = ClassScaner.of(Resource.class).includePackages(includeResourcePackages).scan();
+        includeResources = AnnotationScaner.of(Resource.class).includePackages(includeResourcePackages).scan();
       } else {
-        includeResources.addAll(ClassScaner.of(Resource.class).includePackages(includeResourcePackages).<Resource>scan());
+        includeResources.addAll(AnnotationScaner.of(Resource.class).includePackages(includeResourcePackages).scan());
       }
     }
     boolean isExclude = false;
     if (includeResources.size() > 0) {
-      for (Class resource : includeResources) {
+      for (Class resourceClazz : includeResources) {
         isExclude = false;
         if (excludeResourcePackages.size() > 0) {
           for (String excludepath : excludeResourcePackages) {
-            if (resource.getName().startsWith(excludepath)) {
-              logger.debug("Exclude resource:" + resource.getName());
+            if (resourceClazz.getName().startsWith(excludepath)) {
+              logger.debug("Exclude resource:" + resourceClazz.getName());
               isExclude = true;
               break;
             }
           }
         }
-        if (isExclude || excludeResources.contains(resource)) {
+        if (isExclude || excludeResources.contains(resourceClazz)) {
           continue;
         }
-        this.add(resource);
-        logger.info("Resources.add(" + resource.getName() + ")");
+        this.add(resourceClazz);
+        //加入容器
+        ApplicationContainer.set(resourceClazz);
+        logger.info("Resources.add(" + resourceClazz.getName() + ")");
       }
     } else {
       logger.warn("Could not load any resources.");
     }
   }
 
-  public Set<Class<? extends Resource>> getResources() {
+  public Set<Class<?>> getResources() {
     return resources;
   }
 }

@@ -6,6 +6,7 @@ import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.ImageResult;
 import cn.dreampie.common.http.result.WebResult;
+import cn.dreampie.common.ioc.ApplicationContainer;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
@@ -26,7 +27,7 @@ public class RouteInvocation {
 
   private final static Logger logger = Logger.getLogger(RouteInvocation.class);
   private Route route;
-  private RouteMatch routeMatch;
+  private RouteMatcher routeMatcher;
   private Interceptor[] interceptors;
   private int index = 0;
 
@@ -35,9 +36,9 @@ public class RouteInvocation {
 
   }
 
-  public RouteInvocation(Route route, RouteMatch routeMatch) {
+  public RouteInvocation(Route route, RouteMatcher routeMatcher) {
     this.route = route;
-    this.routeMatch = routeMatch;
+    this.routeMatcher = routeMatcher;
     this.interceptors = route.getInterceptors();
   }
 
@@ -48,13 +49,13 @@ public class RouteInvocation {
     if (index < interceptors.length) {
       interceptors[index++].intercept(this);
     } else if (index++ == interceptors.length) {
-      Resource resource = null;
+      Object resource = null;
       try {
         //初始化resource
-        resource = route.getResourceClass().newInstance();
-        resource.setRouteMatch(routeMatch);
+        resource = ApplicationContainer.get(route.getResourceClass());
+
         //获取所有参数
-        Params params = routeMatch.getParams();
+        Params params = routeMatcher.getParams();
 
         //数据验证
         validate(params);
@@ -64,11 +65,24 @@ public class RouteInvocation {
         //执行方法
         if (route.getAllParamNames().size() > 0) {
           List<String> allParamNames = route.getAllParamNames();
+          List<Class<?>> allParamTypes = route.getAllParamTypes();
+          int i = 0;
+          for (Class<?> type : allParamTypes) {
+            if (RouteMatcher.class.isAssignableFrom(type)) {
+              break;
+            }
+            i++;
+          }
           //执行方法的参数
           Object[] args = new Object[allParamNames.size()];
-          int i = 0;
+
+          int j = 0;
           for (String name : allParamNames) {
-            args[i++] = params.get(name);
+            if (j == i) {
+              args[j++] = routeMatcher;
+            } else {
+              args[j++] = params.get(name);
+            }
           }
           invokeResult = method.invoke(resource, args);
         } else {
@@ -94,8 +108,8 @@ public class RouteInvocation {
    */
   private void render(Object invokeResult) {
     Object result = null;
-    HttpRequest request = routeMatch.getRequest();
-    HttpResponse response = routeMatch.getResponse();
+    HttpRequest request = routeMatcher.getRequest();
+    HttpResponse response = routeMatcher.getResponse();
     //通过特定的webresult返回并携带状态码
     if (invokeResult instanceof WebResult) {
       WebResult webResult = (WebResult) invokeResult;
@@ -104,7 +118,7 @@ public class RouteInvocation {
     } else {
       result = invokeResult;
     }
-    String extension = routeMatch.getExtension();
+    String extension = routeMatcher.getExtension();
     //file render
     if ((result instanceof File && extension.equals("")) || extension.equals(RenderFactory.FILE)) {
       RenderFactory.getFileRender().render(request, response, result);
@@ -155,7 +169,7 @@ public class RouteInvocation {
     return route.getMethod();
   }
 
-  public RouteMatch getRouteMatch() {
-    return routeMatch;
+  public RouteMatcher getRouteMatcher() {
+    return routeMatcher;
   }
 }

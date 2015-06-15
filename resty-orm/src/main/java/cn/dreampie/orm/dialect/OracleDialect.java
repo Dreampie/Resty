@@ -13,7 +13,7 @@ public class OracleDialect extends DefaultDialect {
   }
 
   public String driverClass() {
-    return "oracle.jdbc.driver.OracleDriver";
+    return "oracle.dsl.driver.OracleDriver";
   }
 
   public String paginateWith(int pageNumber, int pageSize, String sql) {

@@ -1,12 +1,13 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.annotation.Resource;
 import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
+import cn.dreampie.route.annotation.*;
 import cn.dreampie.route.config.InterceptorLoader;
 import cn.dreampie.route.config.ResourceLoader;
-import cn.dreampie.route.core.annotation.*;
 import cn.dreampie.route.core.multipart.FILE;
 import cn.dreampie.route.core.multipart.MultipartBuilder;
 import cn.dreampie.route.interceptor.Interceptor;
@@ -36,8 +37,8 @@ public final class RouteBuilder {
   /**
    * 添加route
    */
-  private void addRoute(String httpMethod, String apiPath, String methodPath, String des, MultipartBuilder multipartBuilder, Interceptor[] routeInters, Map<String, ParamAttribute> classParamNames, Class<? extends Validator>[] validClasses, Class<? extends Resource> resourceClazz, Method method) {
-    Route route = new Route(resourceClazz, ParamNamesScaner.getParamNames(method, classParamNames), httpMethod, getApi(apiPath, methodPath), method, routeInters,
+  private void addRoute(String httpMethod, String apiPath, String methodPath, String des, MultipartBuilder multipartBuilder, Interceptor[] routeInters, Map<String, ParamAttribute> classParamNames, Class<? extends Validator>[] validClasses, Class<?> resourceClazz, Method method) {
+    Route route = new Route(resourceClazz, ParamNamesScaner.getParamNames(method, classParamNames), httpMethod, getResourcePath(apiPath, methodPath), method, routeInters,
         des, getValidators(validClasses), multipartBuilder);
     //资源的标志
     if (apiPath.contains(Route.PARAM_PATTERN)) {
@@ -92,11 +93,11 @@ public final class RouteBuilder {
     Method[] methods;
 
     //addResources
-    for (Class<? extends Resource> resourceClazz : resourceLoader.getResources()) {
+    for (Class<?> resourceClazz : resourceLoader.getResources()) {
       resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
       classParamNames = ParamNamesScaner.getParamNames(resourceClazz);
 
-      apiPath = getApi(resourceClazz);
+      apiPath = getResourcePath(resourceClazz);
       //自己的方法
       if (Modifier.isAbstract(resourceClazz.getSuperclass().getModifiers())) {
         methods = resourceClazz.getMethods();
@@ -182,12 +183,12 @@ public final class RouteBuilder {
    * @param resourceClazz resource class
    * @return url apiPath
    */
-  private String getApi(Class<? extends Resource> resourceClazz) {
-    API api;
+  private String getResourcePath(Class<?> resourceClazz) {
+    Resource resourceAnn;
     String apiPath = "";
-    api = resourceClazz.getAnnotation(API.class);
-    if (api != null) {
-      apiPath = api.value();
+    resourceAnn = resourceClazz.getAnnotation(Resource.class);
+    if (resourceAnn != null) {
+      apiPath = resourceAnn.value();
       if (!apiPath.equals("")) {
         if (!apiPath.startsWith("/")) {
           apiPath = "/" + apiPath;
@@ -195,8 +196,8 @@ public final class RouteBuilder {
       }
     }
     Class<?> superClazz = resourceClazz.getSuperclass();
-    if (Resource.class.isAssignableFrom(superClazz)) {
-      apiPath = getApi((Class<? extends Resource>) superClazz) + apiPath;
+    if (superClazz.getAnnotation(Resource.class) != null) {
+      apiPath = getResourcePath(superClazz) + apiPath;
     }
     return apiPath;
   }
@@ -208,7 +209,7 @@ public final class RouteBuilder {
    * @param methodPath
    * @return
    */
-  private String getApi(String apiPath, String methodPath) {
+  private String getResourcePath(String apiPath, String methodPath) {
     if (!methodPath.equals("")) {
       if (!methodPath.startsWith("/")) {
         apiPath = apiPath + "/" + methodPath;

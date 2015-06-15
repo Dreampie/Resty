@@ -3,7 +3,7 @@ package cn.dreampie.route.interceptor.transaction;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.Metadata;
-import cn.dreampie.orm.transaction.Transaction;
+import cn.dreampie.orm.transaction.Transactional;
 import cn.dreampie.route.core.RouteInvocation;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.interceptor.exception.InterceptorException;
@@ -20,14 +20,14 @@ public class TransactionInterceptor implements Interceptor {
   public void intercept(RouteInvocation ri) {
 
     List<DataSourceMeta> dataSourceMetas = null;
-    Transaction transactionAnn = ri.getMethod().getAnnotation(Transaction.class);
-    if (transactionAnn != null) {
-      String[] names = transactionAnn.name();
+    Transactional transactionalAnn = ri.getMethod().getAnnotation(Transactional.class);
+    if (transactionalAnn != null) {
+      String[] names = transactionalAnn.name();
       if (names.length == 0) {
         names = new String[]{Metadata.getDefaultDsName()};
       }
-      int[] levels = transactionAnn.level();
-      boolean[] readonlys = transactionAnn.readonly();
+      int[] levels = transactionalAnn.level();
+      boolean[] readonlys = transactionalAnn.readonly();
       dataSourceMetas = new ArrayList<DataSourceMeta>();
       DataSourceMeta dataSourceMeta;
       try {

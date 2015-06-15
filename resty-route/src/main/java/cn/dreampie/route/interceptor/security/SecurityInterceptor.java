@@ -42,8 +42,8 @@ public class SecurityInterceptor implements Interceptor {
   }
 
   public void intercept(RouteInvocation ri) {
-    HttpRequest request = ri.getRouteMatch().getRequest();
-    HttpResponse response = ri.getRouteMatch().getResponse();
+    HttpRequest request = ri.getRouteMatcher().getRequest();
+    HttpResponse response = ri.getRouteMatcher().getResponse();
 
     //从cookie 构建session
     Session oldSession = sessionBuilder.in(request);

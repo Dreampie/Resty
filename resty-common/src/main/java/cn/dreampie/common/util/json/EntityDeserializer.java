@@ -18,10 +18,10 @@ import java.util.*;
 /**
  * Created by ice on 14-12-31.
  */
-public enum ModelDeserializer implements ObjectDeserializer {
+public enum EntityDeserializer implements ObjectDeserializer {
   INSTANCE;
 
-  public static ModelDeserializer instance() {
+  public static EntityDeserializer instance() {
     return INSTANCE;
   }
 

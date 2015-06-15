@@ -26,7 +26,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
   private String url;
   private String user;
   private String password;
-  private String driverClass;  // 由 "com.mysql.jdbc.Driver" 改为 null 让 druid 自动探测 driverClass 值
+  private String driverClass;  // 由 "com.mysql.dsl.Driver" 改为 null 让 druid 自动探测 driverClass 值
 
   // 初始连接池大小、最小空闲连接数、最大活跃连接数
   private int initialSize = 10;

@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.entity.exception.EntityException;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
@@ -22,11 +23,12 @@ public abstract class Model<M extends Model> extends Base<M> {
   }
 
   private M instance(String useDS, boolean useCache) {
-    Model instance = null;
+    Model<M> instance = null;
     try {
       instance = getMClass().newInstance();
       instance.useDS = useDS;
       instance.useCache = useCache;
+      instance.reSetAttrs(this.getAttrs()).reSetModifyAttrs(this.getModifyAttrs());
     } catch (InstantiationException e) {
       throw new EntityException(e.getMessage(), e);
     } catch (IllegalAccessException e) {

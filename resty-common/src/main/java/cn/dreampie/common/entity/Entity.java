@@ -272,6 +272,15 @@ public abstract class Entity<M extends Entity> {
     return (M) this;
   }
 
+  public M reSetAttrs(Map<String, Object> attrs) {
+    this.attrs = attrs;
+    return (M) this;
+  }
+
+  public M reSetModifyAttrs(Map<String, Object> modifyAttrs) {
+    this.modifyAttrs = modifyAttrs;
+    return (M) this;
+  }
 
   /**
    * Return attr name of this record.

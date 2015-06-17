@@ -423,16 +423,24 @@ public class Route {
     if (throwable instanceof WebException) {
       throw (WebException) throwable;
     } else {
-      String message = throwable.getMessage();
-      if (message == null) {
-        Throwable cause = throwable.getCause();
-        if (cause != null) {
-          message = cause.getMessage();
-        }
-      }
+      String message = getExceptionMssage(throwable);
       logger.error("Route method invoke error.", throwable);
       throw new WebException(message);
     }
+  }
+
+  private String getExceptionMssage(Throwable throwable) {
+    String message = throwable.getMessage();
+    if (message == null) {
+      Throwable cause = throwable.getCause();
+      if (cause != null) {
+        message = cause.getMessage();
+        if (message == null && !throwable.equals(cause)) {
+          message = getExceptionMssage(cause);
+        }
+      }
+    }
+    return message;
   }
 
   /**

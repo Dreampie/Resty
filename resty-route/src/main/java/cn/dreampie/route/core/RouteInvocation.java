@@ -91,11 +91,7 @@ public class RouteInvocation {
         //输出结果
         render(invokeResult);
       } catch (Exception e) {
-        Throwable cause = e.getCause();
-        if (cause == null) {
-          cause = e;
-        }
-        route.throwException(cause);
+        route.throwException(e);
       }
     }
   }

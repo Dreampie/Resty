@@ -4,9 +4,9 @@ import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.util.Maper;
-import cn.dreampie.orm.Base;
-import cn.dreampie.orm.Record;
-import cn.dreampie.orm.transaction.Transaction;
+import cn.dreampie.orm.activerecord.Base;
+import cn.dreampie.orm.activerecord.Record;
+import cn.dreampie.orm.transaction.Transactional;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.route.core.annotation.*;
 import cn.dreampie.route.core.multipart.FILE;
@@ -54,7 +54,7 @@ public class TestResource extends ApiResource {
   }
 
   @POST("/transaction")
-  @Transaction(name = {"default", "demo"})
+  @Transactional(name = {"default", "demo"})
   public void transaction() {
     User u = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456").set("created_at", new Date());
     u.save();

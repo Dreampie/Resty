@@ -1,6 +1,6 @@
 package cn.dreampie.example;
 
-import cn.dreampie.orm.ActiveRecordPlugin;
+import cn.dreampie.orm.activerecord.ActiveRecordPlugin;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
 
 /**

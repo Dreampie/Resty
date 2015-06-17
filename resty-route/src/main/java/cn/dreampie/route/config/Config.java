@@ -11,37 +11,37 @@ public class Config {
   /**
    * Config constant
    */
-  public void configConstant(ConstantLoader constantLoader) {
+  public void configConstant(Constants constants) {
   }
 
   /**
    * Config resource
    */
-  public void configResource(ResourceLoader resourceLoader) {
+  public void configResource(Resources resources) {
   }
 
   /**
    * Config service
    */
-  public void configService(ServiceLoader serviceLoader) {
+  public void configService(Services services) {
   }
 
   /**
    * Config plugin
    */
-  public void configPlugin(PluginLoader pluginLoader) {
+  public void configPlugin(Plugins plugins) {
   }
 
   /**
    * Config interceptor applied to all actions.
    */
-  public void configInterceptor(InterceptorLoader interceptorLoader) {
+  public void configInterceptor(Interceptors interceptors) {
   }
 
   /**
    * Config handler
    */
-  public void configHandler(HandlerLoader handlerLoader) {
+  public void configHandler(Handlers handlers) {
   }
 
 

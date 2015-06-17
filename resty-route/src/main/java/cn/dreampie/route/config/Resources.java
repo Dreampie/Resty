@@ -10,10 +10,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * ResourceLoader.
+ * Resources.
  */
-final public class ResourceLoader {
-  private static final Logger logger = Logger.getLogger(ResourceLoader.class);
+final public class Resources {
+  private static final Logger logger = Logger.getLogger(Resources.class);
 
   private final Set<Class<?>> resources = new HashSet<Class<?>>();
   private Set<Class<?>> excludeResources = new HashSet<Class<?>>();
@@ -21,10 +21,10 @@ final public class ResourceLoader {
   private Set<String> includeResourcePackages = new HashSet<String>();
   private Set<String> excludeResourcePackages = new HashSet<String>();
 
-  public ResourceLoader add(ResourceLoader resourceLoader) {
-    if (resourceLoader != null) {
-      resourceLoader.build();
-      this.resources.addAll(resourceLoader.resources);
+  public Resources add(Resources resources) {
+    if (resources != null) {
+      resources.build();
+      this.resources.addAll(resources.resources);
     }
     return this;
   }
@@ -35,17 +35,17 @@ final public class ResourceLoader {
    *
    * @param resourceClass Controller Class
    */
-  public ResourceLoader add(Class<?> resourceClass) {
+  public Resources add(Class<?> resourceClass) {
     resources.add(resourceClass);
     return this;
   }
 
-  public ResourceLoader addExcludeClasses(Class<?>... clazzes) {
+  public Resources addExcludeClasses(Class<?>... clazzes) {
     Collections.addAll(excludeResources, clazzes);
     return this;
   }
 
-  public ResourceLoader addExcludeClasses(Set<Class<?>> clazzes) {
+  public Resources addExcludeClasses(Set<Class<?>> clazzes) {
     if (clazzes != null) {
       excludeResources.addAll(clazzes);
     }
@@ -58,17 +58,17 @@ final public class ResourceLoader {
    * @param packages packages
    * @return
    */
-  public ResourceLoader addExcludePackages(String... packages) {
+  public Resources addExcludePackages(String... packages) {
     Collections.addAll(excludeResourcePackages, packages);
     return this;
   }
 
-  public ResourceLoader addIncludeClasses(Class<?>... clazzes) {
+  public Resources addIncludeClasses(Class<?>... clazzes) {
     Collections.addAll(includeResources, clazzes);
     return this;
   }
 
-  public ResourceLoader addIncludeClasses(Set<Class<?>> clazzes) {
+  public Resources addIncludeClasses(Set<Class<?>> clazzes) {
     if (clazzes != null) {
       includeResources.addAll(clazzes);
     }
@@ -81,7 +81,7 @@ final public class ResourceLoader {
    * @param packages packages
    * @return
    */
-  public ResourceLoader addIncludePackages(String... packages) {
+  public Resources addIncludePackages(String... packages) {
     Collections.addAll(includeResourcePackages, packages);
     return this;
   }

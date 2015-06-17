@@ -1,6 +1,6 @@
 package cn.dreampie.example;
 
-import cn.dreampie.orm.Record;
+import cn.dreampie.orm.activerecord.Record;
 import cn.dreampie.orm.callable.ObjectCall;
 import cn.dreampie.orm.callable.ResultSetCall;
 import cn.dreampie.orm.page.FullPage;

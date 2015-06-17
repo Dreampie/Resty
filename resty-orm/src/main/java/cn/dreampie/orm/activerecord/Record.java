@@ -1,6 +1,9 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.activerecord;
 
-import cn.dreampie.orm.generate.Generator;
+import cn.dreampie.orm.Metadata;
+import cn.dreampie.orm.TableMeta;
+import cn.dreampie.orm.TableMetaBuilder;
+import cn.dreampie.common.generate.Generator;
 
 import java.io.IOException;
 import java.io.ObjectInput;

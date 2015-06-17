@@ -9,12 +9,11 @@ import java.util.List;
 
 public class ConfigIniter {
 
-  private static final ConstantLoader CONSTANT_LOADER = new ConstantLoader();
-  private static final ResourceLoader RESOURCE_LOADER = new ResourceLoader();
-  private static final ServiceLoader SERVICE_LOADER = new ServiceLoader();
-  private static final PluginLoader PLUGIN_LOADER = new PluginLoader();
-  private static final InterceptorLoader INTERCEPTOR_LOADER = new InterceptorLoader();
-  private static final HandlerLoader HANDLER_LOADER = new HandlerLoader();
+  private static final Constants CONSTANT_LOADER = new Constants();
+  private static final Resources RESOURCE_LOADER = new Resources();
+  private static final Plugins PLUGIN_LOADER = new Plugins();
+  private static final Interceptors INTERCEPTOR_LOADER = new Interceptors();
+  private static final Handlers HANDLER_LOADER = new Handlers();
 
   public ConfigIniter(Config config) {
     config.configConstant(CONSTANT_LOADER);
@@ -22,17 +21,15 @@ public class ConfigIniter {
     startPlugins();//must start plugin before init other
     config.configResource(RESOURCE_LOADER);
     buildRrsource();//scan resource class
-    config.configService(SERVICE_LOADER);
-    buildService();//scan service class
     config.configInterceptor(INTERCEPTOR_LOADER);
     config.configHandler(HANDLER_LOADER);
   }
 
-  public ConstantLoader getConstantLoader() {
+  public Constants getConstantLoader() {
     return CONSTANT_LOADER;
   }
 
-  public ResourceLoader getResourceLoader() {
+  public Resources getResourceLoader() {
     return RESOURCE_LOADER;
   }
 
@@ -40,23 +37,15 @@ public class ConfigIniter {
     RESOURCE_LOADER.build();
   }
 
-  public static ServiceLoader getServiceLoader() {
-    return SERVICE_LOADER;
-  }
-
-  public void buildService() {
-    SERVICE_LOADER.build();
-  }
-
-  public PluginLoader getPluginLoader() {
+  public Plugins getPluginLoader() {
     return PLUGIN_LOADER;
   }
 
-  public InterceptorLoader getInterceptorLoader() {
+  public Interceptors getInterceptorLoader() {
     return INTERCEPTOR_LOADER;
   }
 
-  public HandlerLoader getHandlerLoader() {
+  public Handlers getHandlerLoader() {
     return HANDLER_LOADER;
   }
 

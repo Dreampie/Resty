@@ -53,7 +53,7 @@ public enum QueryCache {
   /**
    * Adds an item to cache. Expected some lists of objects returned from "select" queries.
    *
-   * @param tableName - name of table.
+   * @param tableName - tableName of tableName.
    * @param query     query text
    * @param params    - list of parameters for a query.
    * @param cache     object to cache.
@@ -72,7 +72,7 @@ public enum QueryCache {
   /**
    * Returns an item from cache, or null if nothing found.
    *
-   * @param tableName name of table.
+   * @param tableName tableName of tableName.
    * @param query     query text.
    * @param params    list of query parameters, can be null if no parameters are provided.
    * @return cache object or null if nothing found.
@@ -109,10 +109,10 @@ public enum QueryCache {
   }
 
   /**
-   * This method purges (removes) all caches associated with a table, if caching is enabled and
+   * This method purges (removes) all caches associated with a tableName, if caching is enabled and
    * a corresponding model is marked cached.
    *
-   * @param tableName table name whose caches are to be purged.
+   * @param tableName tableName tableName whose caches are to be purged.
    */
   public void purge(String type, String dsName, String tableName) {
     if (enabled) {

@@ -1,11 +1,18 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.activerecord;
 
 import cn.dreampie.common.Plugin;
+import cn.dreampie.common.generate.Generator;
 import cn.dreampie.common.util.json.EntitySerializer;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.common.util.json.EntityDeserializer;
 import cn.dreampie.common.util.scan.ClassScaner;
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.DataSourceMeta;
+import cn.dreampie.orm.Metadata;
+import cn.dreampie.orm.TableMeta;
+import cn.dreampie.orm.TableMetaBuilder;
+import cn.dreampie.orm.activerecord.annotation.ActiveRecord;
+import cn.dreampie.orm.activerecord.exception.ActiveRecordException;
 import cn.dreampie.orm.provider.DataSourceProvider;
 
 import java.lang.reflect.Modifier;
@@ -108,7 +115,19 @@ public class ActiveRecordPlugin implements Plugin {
           continue;
         }
         //add modelMeta
-        tableMeta = new TableMeta(dataSourceProvider.getDsName(), modelClass);
+        ActiveRecord modelAnn = modelClass.getAnnotation(ActiveRecord.class);
+        Generator generator = null;
+        if(modelAnn.generator()!=null) {
+          try {
+            generator = modelAnn.generator().newInstance();
+          } catch (InstantiationException e) {
+            throw new ActiveRecordException(e.getMessage(), e);
+          } catch (IllegalAccessException e) {
+            throw new ActiveRecordException(e.getMessage(), e);
+          }
+        }
+
+        tableMeta = new TableMeta(dataSourceProvider.getDsName(),modelAnn.tableName(), modelAnn.generatedKey(),generator,modelAnn.primaryKey(),modelAnn.cached());
         tableMetas.add(tableMeta);
         logger.info("Models.add(" + tableMeta.getTableName() + ", " + modelClass.getName() + ")");
 

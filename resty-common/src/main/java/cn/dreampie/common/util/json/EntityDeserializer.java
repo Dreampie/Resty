@@ -1,6 +1,6 @@
 package cn.dreampie.common.util.json;
 
-import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.entity.Attrs;
 import cn.dreampie.common.util.Stringer;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -25,8 +25,8 @@ public enum EntityDeserializer implements ObjectDeserializer {
     return INSTANCE;
   }
 
-  public static Entity deserialze(JSONObject jsonObject, Class<? extends Entity> entityClass) {
-    Entity result;
+  public static Attrs deserialze(JSONObject jsonObject, Class<? extends Attrs> entityClass) {
+    Attrs result;
     try {
       result = entityClass.newInstance();
     } catch (Exception e) {
@@ -38,14 +38,14 @@ public enum EntityDeserializer implements ObjectDeserializer {
     Class<?> returnType = null;
 
     List<JSONObject> list = null;
-    List<Entity> newlist = null;
+    List<Attrs> newlist = null;
 
     JSONArray blist = null;
     List<?> newblist = null;
 
     Class returnTypeClass = null;
 
-    Set<Entity> newset = null;
+    Set<Attrs> newset = null;
 
     JSONArray bset = null;
     Set<?> newbset = null;
@@ -79,8 +79,8 @@ public enum EntityDeserializer implements ObjectDeserializer {
           } else {
             //判断是不是包含 Entity类型
             if (obj instanceof JSONObject) {
-              if (Entity.class.isAssignableFrom(returnType)) {
-                result.put(entry.getKey(), deserialze((JSONObject) obj, (Class<? extends Entity>) returnType));
+              if (Attrs.class.isAssignableFrom(returnType)) {
+                result.put(entry.getKey(), deserialze((JSONObject) obj, (Class<? extends Attrs>) returnType));
               } else {
                 result.put(entry.getKey(), parse(obj, returnType));
               }
@@ -90,11 +90,11 @@ public enum EntityDeserializer implements ObjectDeserializer {
                 if (Collection.class.isAssignableFrom(returnType)) {
                   returnTypeClass = (Class<?>) ((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
                   if (List.class.isAssignableFrom(returnType)) {
-                    if (Entity.class.isAssignableFrom(returnTypeClass)) {
+                    if (Attrs.class.isAssignableFrom(returnTypeClass)) {
                       list = (List<JSONObject>) obj;
-                      newlist = new ArrayList<Entity>();
+                      newlist = new ArrayList<Attrs>();
                       for (JSONObject jo : list) {
-                        newlist.add(deserialze(jo, (Class<? extends Entity>) returnTypeClass));
+                        newlist.add(deserialze(jo, (Class<? extends Attrs>) returnTypeClass));
                       }
                       result.put(entry.getKey(), newlist);
                     } else {
@@ -116,11 +116,11 @@ public enum EntityDeserializer implements ObjectDeserializer {
                       result.put(entry.getKey(), newblist);
                     }
                   } else if (Set.class.isAssignableFrom(returnType)) {
-                    if (Entity.class.isAssignableFrom(returnTypeClass)) {
+                    if (Attrs.class.isAssignableFrom(returnTypeClass)) {
                       list = (List<JSONObject>) obj;
-                      newset = new HashSet<Entity>();
+                      newset = new HashSet<Attrs>();
                       for (JSONObject jo : list) {
-                        newset.add(deserialze(jo, (Class<? extends Entity>) returnTypeClass));
+                        newset.add(deserialze(jo, (Class<? extends Attrs>) returnTypeClass));
                       }
                       result.put(entry.getKey(), newset);
                     } else {
@@ -171,8 +171,8 @@ public enum EntityDeserializer implements ObjectDeserializer {
       if (paramType.isAssignableFrom(obj.getClass())) {
         return obj;
       } else {
-        if (obj instanceof JSONObject && Entity.class.isAssignableFrom(paramType)) {
-          result = deserialze((JSONObject) obj, (Class<? extends Entity>) paramType);
+        if (obj instanceof JSONObject && Attrs.class.isAssignableFrom(paramType)) {
+          result = deserialze((JSONObject) obj, (Class<? extends Attrs>) paramType);
         } else if (paramType == String.class) {
           result = obj;
         } else {
@@ -195,9 +195,9 @@ public enum EntityDeserializer implements ObjectDeserializer {
     }
 
     try {
-      Entity e = (Entity) clazz.newInstance();
+      Attrs e = (Attrs) clazz.newInstance();
       if (e.checkMethod()) {
-        return (T) e.putAttrs(deserialze(jsonObject, (Class<? extends Entity>) clazz));
+        return (T) e.putAttrs(deserialze(jsonObject, (Class<? extends Attrs>) clazz));
       } else {
         return (T) e.putAttrs(jsonObject);
       }

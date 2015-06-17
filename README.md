@@ -142,11 +142,11 @@ flyway.demo.migration.initOnMigrate=true
 
 
 //数据库的配置精简  自动从文件读取参数  只需配置model扫描目录 和dsName
-public void configPlugin(PluginLoader pluginLoader) {
+public void configPlugin(PluginLoader plugins) {
   //第一个数据库
   ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(new DruidDataSourceProvider("default"), true);
   activeRecordPlugin.addIncludePaths("cn.dreampie.resource");
-  pluginLoader.add(activeRecordPlugin);
+  plugins.add(activeRecordPlugin);
 }
 
 ```
@@ -281,9 +281,9 @@ public void configPlugin(PluginLoader pluginLoader) {
 5.极简的权限设计,可以通过cache支持分布式session，你只需要实现一个简单接口和添加一个拦截器，即可实现基于url的权限设计
 
 ```java
-  public void configInterceptor(InterceptorLoader interceptorLoader) {
+  public void configInterceptor(InterceptorLoader interceptors) {
     //权限拦截器 放在第一位 第一时间判断 避免执行不必要的代码
-    interceptorLoader.add(new SecurityInterceptor(new MyAuthenticateService()));
+    interceptors.add(new SecurityInterceptor(new MyAuthenticateService()));
   }
 
   //实现接口
@@ -342,10 +342,10 @@ public void configPlugin(PluginLoader pluginLoader) {
 9.当然也是支持传统的web开发，你可以自己实现数据解析，在config里添加自定义的解析模板
 
 ```java
-  public void configConstant(ConstantLoader constantLoader) {
+  public void configConstant(ConstantLoader constants) {
     // 通过后缀来返回不同的数据类型  你可以自定义自己的  render  如：FreemarkerRender
     //默认已添加json和text的支持，只需要把自定义的Render add即可
-    // constantLoader.addRender("json", new JsonRender());
+    // constants.addRender("json", new JsonRender());
   }
 ```
 

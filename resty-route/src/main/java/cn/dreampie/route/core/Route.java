@@ -2,7 +2,7 @@ package cn.dreampie.route.core;
 
 
 import cn.dreampie.common.Constant;
-import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.entity.Attrs;
 import cn.dreampie.common.http.*;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.util.Joiner;
@@ -651,12 +651,12 @@ public class Route {
     Class keyTypeClass;
     Class paramTypeClass;
     List<JSONObject> list;
-    List<Entity> newlist;
+    List<Attrs> newlist;
     List blist;
     List newblist;
 
     Set<JSONObject> set;
-    Set<Entity> newset;
+    Set<Attrs> newset;
     Set bset;
     Set newbset;
     Map map;
@@ -680,9 +680,9 @@ public class Route {
 
         if (List.class.isAssignableFrom(paramType)) {
           //Entity类型
-          if (Entity.class.isAssignableFrom(paramTypeClass)) {
+          if (Attrs.class.isAssignableFrom(paramTypeClass)) {
             list = (List<JSONObject>) obj;
-            newlist = new ArrayList<Entity>();
+            newlist = new ArrayList<Attrs>();
             for (JSONObject jo : list) {
               newlist.add(EntityDeserializer.deserialze(jo, paramTypeClass));
             }
@@ -708,9 +708,9 @@ public class Route {
           }
         } else if (Set.class.isAssignableFrom(paramType)) {
           //Entity
-          if (Entity.class.isAssignableFrom(paramTypeClass)) {
+          if (Attrs.class.isAssignableFrom(paramTypeClass)) {
             set = (Set<JSONObject>) obj;
-            newset = new HashSet<Entity>();
+            newset = new HashSet<Attrs>();
             for (JSONObject jo : set) {
               newset.add(EntityDeserializer.deserialze(jo, paramTypeClass));
             }
@@ -823,14 +823,14 @@ public class Route {
         pathParamRegex.appendCodePoint(curChar);
       } else {
         if (curChar == ':') {
-          // we were in path name, the column marks the separator with the regex definition, we go in regex mode
+          // we were in path tableName, the column marks the separator with the regex definition, we go in regex mode
           inRegexDef = true;
           pathParamRegex.append("(");
         } else {
 
-          //only letters are authorized in path param name
+          //only letters are authorized in path param tableName
           checkArgument(Character.isLetterOrDigit(curChar), "illegal path parameter definition '%s' at offset %d" +
-                  " - only letters and digits are authorized in path param name",
+                  " - only letters and digits are authorized in path param tableName",
               pathPatternParser.pathPattern, pathPatternParser.offset);
 
           pathParamName.appendCodePoint(curChar);

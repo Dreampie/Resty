@@ -1,16 +1,19 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.activerecord;
 
 import cn.dreampie.common.Constant;
-import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.entity.Attrs;
 import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.DataSourceMeta;
+import cn.dreampie.orm.Metadata;
+import cn.dreampie.orm.TableMeta;
 import cn.dreampie.orm.cache.QueryCache;
 import cn.dreampie.orm.callable.ObjectCall;
 import cn.dreampie.orm.callable.ResultSetCall;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.DBException;
-import cn.dreampie.orm.generate.Generator;
+import cn.dreampie.common.generate.Generator;
 import cn.dreampie.orm.page.FullPage;
 import cn.dreampie.orm.page.Page;
 
@@ -32,9 +35,8 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 /**
  * Created by wangrenhui on 15/3/31.
  */
-public abstract class Base<M extends Base> extends Entity<M> implements Externalizable {
+public abstract class Base<M extends Base> extends Attrs<M> implements Externalizable {
 
-  public static final String DEFAULT_GENERATED_KEY = "id";
   private static final boolean devMode = Constant.devMode;
   private final Logger logger = Logger.getLogger(getClass());
   private String alias;
@@ -198,11 +200,11 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   }
 
   /**
-   * Check the table name. The table name must in sql.
+   * Check the tableName tableName. The tableName tableName must in sql.
    */
   protected void checkTableName(String tableName, String sql) {
     if (!sql.toLowerCase().contains(tableName.toLowerCase()))
-      throw new DBException("The table name: " + tableName + " not in your sql.");
+      throw new DBException("The tableName tableName: " + tableName + " not in your sql.");
   }
 
   /**
@@ -283,7 +285,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     PreparedStatement pst;
     //如果没有自动生成的主键 则不获取
     String generatedKey = tableMeta.getGeneratedKey();
-    boolean generated = tableMeta.isGenerated();
+    boolean generated = tableMeta.getGenerator();
     if (!generated) {
       pst = conn.prepareStatement(sql, new String[]{generatedKey});
     } else {
@@ -382,7 +384,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       keys[i++] = pKey;
     }
     if (keys.length <= 0) {
-      throw new IllegalArgumentException("Your table must have least one generatedKey or primaryKey.");
+      throw new IllegalArgumentException("Your tableName must have least one generatedKey or primaryKey.");
     }
     return keys;
   }
@@ -441,12 +443,12 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   /**
    * 获取主键
    */
-  protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta, List<? extends Entity> models) throws SQLException {
+  protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta, List<? extends Attrs> models) throws SQLException {
     String generatedKey = tableMeta.getGeneratedKey();
     boolean generated = tableMeta.isGenerated();
     if (!generated) {
       ResultSet rs = pst.getGeneratedKeys();
-      for (Entity<?> model : models) {
+      for (Attrs<?> model : models) {
         if (model.get(generatedKey) == null) {
           if (rs.next()) {
             model.set(generatedKey, rs.getObject(1));
@@ -538,7 +540,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
   /**
    * Find model by id. Fetch the specific columns only.
-   * Example: User user = User.dao.findById(15, "name, age");
+   * Example: User user = User.dao.findById(15, "tableName, age");
    *
    * @param columns the specific columns
    * @param id      the id value of the model
@@ -1115,9 +1117,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   }
 
   /**
-   * 更新全部传入的列  UPDATE table SET name=?,age=? 参数 "abc",20
+   * 更新全部传入的列  UPDATE tableName SET tableName=?,age=? 参数 "abc",20
    *
-   * @param columns 通过逗号分隔的列名 "name,age"
+   * @param columns 通过逗号分隔的列名 "tableName,age"
    * @param params  按列名顺序排列参数   "abc",20
    * @return boolean
    */
@@ -1127,9 +1129,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   }
 
   /**
-   * 根据条件和传入的列更新  UPDATE table SET name=?,age=? WHERE x=?  参数 "abc",20,12
+   * 根据条件和传入的列更新  UPDATE tableName SET tableName=?,age=? WHERE x=?  参数 "abc",20,12
    *
-   * @param columns 通过逗号分隔的列   "name,age"
+   * @param columns 通过逗号分隔的列   "tableName,age"
    * @param where   条件 x=?
    * @param params  按列名顺序排列参数   "abc",20,12
    * @return boolean

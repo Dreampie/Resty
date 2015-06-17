@@ -9,11 +9,11 @@ import java.util.List;
 /**
  * Handlers.
  */
-final public class HandlerLoader {
+final public class Handlers {
 
   private final List<Handler> handlerList = new ArrayList<Handler>();
 
-  public HandlerLoader add(Handler handler) {
+  public Handlers add(Handler handler) {
     if (handler != null)
       handlerList.add(handler);
     return this;

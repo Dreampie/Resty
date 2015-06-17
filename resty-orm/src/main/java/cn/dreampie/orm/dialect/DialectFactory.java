@@ -29,7 +29,7 @@ public class DialectFactory {
   public static Dialect get(String dialectName) {
     Dialect dialect = dialectMap.get(dialectName);
     if (dialect == null) {
-      throw new DBException("Dialect could not found for name " + dialectName + ".only support like this:" + dialectMap.keySet().toString());
+      throw new DBException("Dialect could not found for tableName " + dialectName + ".only support like this:" + dialectMap.keySet().toString());
     }
     return dialect;
   }

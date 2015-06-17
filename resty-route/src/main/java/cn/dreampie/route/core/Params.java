@@ -1,7 +1,7 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.entity.Attrs;
 import cn.dreampie.common.entity.CaseInsensitiveMap;
-import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.util.json.Jsoner;
 
 import java.util.Collection;
@@ -21,8 +21,8 @@ public class Params {
     this.params = new CaseInsensitiveMap<Object>();
   }
 
-  public Params(Entity entity) {
-    this.params = entity.getAttrs();
+  public Params(Attrs attrs) {
+    this.params = attrs.getAttrs();
   }
 
   /**
@@ -69,7 +69,7 @@ public class Params {
   }
 
   /**
-   * Return param name of this route.
+   * Return param tableName of this route.
    */
   public String[] getNames() {
     Set<String> nameSet = params.keySet();

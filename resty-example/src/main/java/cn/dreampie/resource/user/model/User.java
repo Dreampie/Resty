@@ -1,6 +1,6 @@
 package cn.dreampie.resource.user.model;
 
-import cn.dreampie.orm.Model;
+import cn.dreampie.orm.activerecord.Model;
 import cn.dreampie.orm.annotation.Table;
 
 import java.util.List;

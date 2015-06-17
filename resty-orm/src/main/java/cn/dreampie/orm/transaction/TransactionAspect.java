@@ -23,14 +23,14 @@ public class TransactionAspect implements Aspect {
     Object result = null;
 
     List<DataSourceMeta> dataSourceMetas = null;
-    Transaction transactionAnn = method.getAnnotation(Transaction.class);
-    if (transactionAnn != null) {
-      String[] names = transactionAnn.name();
+    Transactional transactionalAnn = method.getAnnotation(Transactional.class);
+    if (transactionalAnn != null) {
+      String[] names = transactionalAnn.name();
       if (names.length == 0) {
         names = new String[]{Metadata.getDefaultDsName()};
       }
-      int[] levels = transactionAnn.level();
-      boolean[] readonlys = transactionAnn.readonly();
+      int[] levels = transactionalAnn.level();
+      boolean[] readonlys = transactionalAnn.readonly();
       dataSourceMetas = new ArrayList<DataSourceMeta>();
       DataSourceMeta dataSourceMeta;
       try {

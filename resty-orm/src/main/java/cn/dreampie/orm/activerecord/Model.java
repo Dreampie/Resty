@@ -1,6 +1,8 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.activerecord;
 
 import cn.dreampie.common.entity.exception.EntityException;
+import cn.dreampie.orm.Metadata;
+import cn.dreampie.orm.TableMeta;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 

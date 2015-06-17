@@ -5,7 +5,7 @@
   <!--
   以下属性是必须的：
 
-name： Cache的名称，必须是唯一的(ehcache会把这个cache放到HashMap里)。
+tableName： Cache的名称，必须是唯一的(ehcache会把这个cache放到HashMap里)。
 
 maxElementsInMemory： 在内存中缓存的element的最大数目。
 maxElementsOnDisk： 在磁盘上缓存的element的最大数目，默认值为0，表示不限制。

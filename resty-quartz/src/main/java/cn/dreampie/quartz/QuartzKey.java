@@ -46,7 +46,7 @@ public class QuartzKey {
   }
 
   public String toString() {
-    return "id:" + id + ",name:" + name + ",group:" + group;
+    return "id:" + id + ",tableName:" + name + ",group:" + group;
   }
 
   public boolean equals(Object o) {

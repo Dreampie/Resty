@@ -6,8 +6,8 @@ import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.route.annotation.*;
-import cn.dreampie.route.config.InterceptorLoader;
-import cn.dreampie.route.config.ResourceLoader;
+import cn.dreampie.route.config.Interceptors;
+import cn.dreampie.route.config.Resources;
 import cn.dreampie.route.core.multipart.FILE;
 import cn.dreampie.route.core.multipart.MultipartBuilder;
 import cn.dreampie.route.interceptor.Interceptor;
@@ -23,15 +23,15 @@ import java.util.*;
  */
 public final class RouteBuilder {
 
-  private ResourceLoader resourceLoader;
-  private InterceptorLoader interceptorLoader;
+  private Resources resources;
+  private Interceptors interceptors;
 
   //对routes排序
   private Map<String, Map<String, Set<Route>>> routesMap = new CaseInsensitiveMap<Map<String, Set<Route>>>();
 
-  public RouteBuilder(ResourceLoader resourceLoader, InterceptorLoader interceptorLoader) {
-    this.resourceLoader = resourceLoader;
-    this.interceptorLoader = interceptorLoader;
+  public RouteBuilder(Resources resources, Interceptors interceptors) {
+    this.resources = resources;
+    this.interceptors = interceptors;
   }
 
   /**
@@ -68,7 +68,7 @@ public final class RouteBuilder {
 
   public void build() {
     InterceptorBuilder interceptorBuilder = new InterceptorBuilder();
-    Interceptor[] defaultInters = interceptorLoader.getInterceptorArray();
+    Interceptor[] defaultInters = interceptors.getInterceptorArray();
     interceptorBuilder.addToInterceptorsMap(defaultInters);
 
     //文件上传的注解
@@ -93,7 +93,7 @@ public final class RouteBuilder {
     Method[] methods;
 
     //addResources
-    for (Class<?> resourceClazz : resourceLoader.getResources()) {
+    for (Class<?> resourceClazz : resources.getResources()) {
       resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
       classParamNames = ParamNamesScaner.getParamNames(resourceClazz);
 

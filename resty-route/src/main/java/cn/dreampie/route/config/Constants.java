@@ -8,7 +8,7 @@ import cn.dreampie.route.render.RenderFactory;
 /**
  * The constant for Resty runtime.
  */
-final public class ConstantLoader {
+final public class Constants {
 
   public void setDefaultForward(String url) {
     ExceptionHolder.setDefaultForward(url);

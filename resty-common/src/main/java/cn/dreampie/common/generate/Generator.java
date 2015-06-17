@@ -1,4 +1,4 @@
-package cn.dreampie.orm.generate;
+package cn.dreampie.common.generate;
 
 import java.io.Serializable;
 
@@ -8,6 +8,7 @@ import java.io.Serializable;
  * @what 生成主键
  */
 public interface Generator extends Serializable {
+
   /**
    * 非自动生成主键的产生策略
    *

@@ -1,15 +1,15 @@
 package cn.dreampie.resource.user.service;
 
-import cn.dreampie.orm.transaction.Transaction;
+import cn.dreampie.orm.transaction.Transactional;
 import cn.dreampie.resource.user.model.User;
 
 /**
  * Created by wangrenhui on 15/1/2.
  */
 public interface UserService {
-  @Transaction
+  @Transactional
   public User save(User u);
 
-  @Transaction
+  @Transactional
   public User update(User u);
 }

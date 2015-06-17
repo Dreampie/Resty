@@ -1,8 +1,7 @@
-package cn.dreampie.orm.annotation;
+package cn.dreampie.orm.activerecord.annotation;
 
-import cn.dreampie.orm.Base;
-import cn.dreampie.orm.generate.DefaultGenerator;
-import cn.dreampie.orm.generate.Generator;
+import cn.dreampie.common.generate.DefaultGenerator;
+import cn.dreampie.common.generate.Generator;
 
 import java.lang.annotation.*;
 
@@ -12,10 +11,10 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 @Documented
-public @interface Table {
-  String name();//表名
+public @interface ActiveRecord {
+  String tableName();//表名
 
-  String generatedKey() default Base.DEFAULT_GENERATED_KEY;//自动生成的主键
+  String generatedKey() default DefaultGenerator.DEFAULT_GENERATED_KEY;//自动生成的主键
 
   Class<? extends Generator> generator() default DefaultGenerator.class;//主键生成策略
 

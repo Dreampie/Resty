@@ -42,10 +42,10 @@ public class TableMetaBuilder {
 
     String message = e.getMessage();
     if (e instanceof ConnectException) {
-      message = "Could not connect dataSource for name '" + dsm.getDsName() + "'";
+      message = "Could not connect dataSource for tableName '" + dsm.getDsName() + "'";
     } else {
       if (temp != null) {
-        message = "Could not create table object, maybe the table " + temp.getTableName() + " is not exists.";
+        message = "Could not create tableName object, maybe the tableName " + temp.getTableName() + " is not exists.";
       }
     }
 
@@ -75,13 +75,13 @@ public class TableMetaBuilder {
 
 
   /**
-   * Returns a hash keyed off a column name.
+   * Returns a hash keyed off a column tableName.
    *
    * @return
    * @throws java.sql.SQLException
    */
   private static SortedMap<String, ColumnMeta> fetchMetaParams(DatabaseMetaData databaseMetaData, String databaseProductName, String table) throws SQLException {
-    // Valid table name format: tablename or schemaname.tablename
+    // Valid tableName tableName format: tablename or schemaname.tablename
     String schema = null;
     String tableName;
 
@@ -94,10 +94,10 @@ public class TableMetaBuilder {
         schema = vals[0];
         tableName = vals[1];
         if (schema.length() == 0 || tableName.length() == 0) {
-          throw new DBException("Invalid table name : " + table);
+          throw new DBException("Invalid tableName tableName : " + table);
         }
       } else {
-        throw new DBException("Invalid table name: " + table);
+        throw new DBException("Invalid tableName tableName: " + table);
       }
     } else {
       tableName = table;
@@ -108,7 +108,7 @@ public class TableMetaBuilder {
     SortedMap<String, ColumnMeta> columns = getColumns(rs, dbProduct);
     rs.close();
 
-    //try upper case table name - Oracle uses upper case
+    //try upper case tableName tableName - Oracle uses upper case
     if (columns.isEmpty()) {
       rs = databaseMetaData.getColumns(null, schema, tableName.toUpperCase(), null);
       dbProduct = databaseProductName.toLowerCase();
@@ -124,10 +124,10 @@ public class TableMetaBuilder {
     }
 
     if (columns.size() > 0) {
-      logger.debug("Fetched metadata for table: %s", table);
+      logger.debug("Fetched metadata for tableName: %s", table);
     } else {
-      logger.warn("Failed to retrieve metadata for table: '%s'."
-              + " Are you sure this table exists? For some databases table name are case sensitive.",
+      logger.warn("Failed to retrieve metadata for tableName: '%s'."
+              + " Are you sure this tableName exists? For some databases tableName tableName are case sensitive.",
           table);
     }
     return columns;
@@ -139,7 +139,7 @@ public class TableMetaBuilder {
     SortedMap<String, ColumnMeta> columns = new CaseInsensitiveMap<ColumnMeta>();
     while (rs.next()) {
       if (dbProduct.equals("h2") && "INFORMATION_SCHEMA".equals(rs.getString("TABLE_SCHEMA"))) {
-        continue; // skip h2 INFORMATION_SCHEMA table columns.
+        continue; // skip h2 INFORMATION_SCHEMA tableName columns.
       }
 
       ColumnMeta cm = new ColumnMeta(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"), rs.getInt("DATA_TYPE"), rs.getInt("COLUMN_SIZE"));

@@ -1,4 +1,4 @@
-package cn.dreampie.orm.generate;
+package cn.dreampie.common.generate;
 
 import java.util.UUID;
 
@@ -8,6 +8,8 @@ import java.util.UUID;
  * @what 生成主键
  */
 public class DefaultGenerator implements Generator {
+
+  public static final String DEFAULT_GENERATED_KEY = "id";
 
   /**
    * 非自动生成主键的产生策略 UUID

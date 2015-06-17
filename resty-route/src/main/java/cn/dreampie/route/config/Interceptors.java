@@ -9,11 +9,11 @@ import java.util.List;
 /**
  * The interceptors applied to all actions.
  */
-final public class InterceptorLoader {
+final public class Interceptors {
 
   private final List<Interceptor> interceptorList = new ArrayList<Interceptor>();
 
-  public InterceptorLoader add(Interceptor interceptor) {
+  public Interceptors add(Interceptor interceptor) {
     if (interceptor != null)
       this.interceptorList.add(interceptor);
     return this;

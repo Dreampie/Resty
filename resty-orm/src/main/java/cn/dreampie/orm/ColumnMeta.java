@@ -17,9 +17,9 @@ public class ColumnMeta implements Serializable {
   }
 
   /**
-   * Column name as reported by DBMS driver.
+   * Column tableName as reported by DBMS driver.
    *
-   * @return column name as reported by DBMS driver.
+   * @return column tableName as reported by DBMS driver.
    */
   public String getColumnName() {
     return columnName;
@@ -44,9 +44,9 @@ public class ColumnMeta implements Serializable {
   }
 
   /**
-   * Column type name as reported by DBMS driver.
+   * Column type tableName as reported by DBMS driver.
    *
-   * @return column type name as reported by DBMS driver.
+   * @return column type tableName as reported by DBMS driver.
    */
   public String getTypeName() {
     return typeName;

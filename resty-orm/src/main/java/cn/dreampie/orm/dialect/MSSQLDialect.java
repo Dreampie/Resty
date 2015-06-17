@@ -18,7 +18,7 @@ public class MSSQLDialect extends DefaultDialect {
   }
 
   public String driverClass() {
-    return "com.microsoft.sqlserver.dsl.SQLServerDriver";
+    return "com.microsoft.sqlserver.repository.SQLServerDriver";
   }
 
   public String paginateWith(int pageNumber, int pageSize, String sql) {

@@ -1,4 +1,7 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.activerecord;
+
+import cn.dreampie.orm.DataSourceMeta;
+import cn.dreampie.orm.TableMeta;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

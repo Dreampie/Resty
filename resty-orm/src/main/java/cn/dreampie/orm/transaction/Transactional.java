@@ -11,7 +11,7 @@ import java.sql.Connection;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-public @interface Transaction {
+public @interface Transactional {
   String[] name() default {};
 
   boolean[] readonly() default false;

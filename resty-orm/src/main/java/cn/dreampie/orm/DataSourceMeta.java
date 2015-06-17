@@ -62,7 +62,7 @@ public class DataSourceMeta {
    *
    * @return connection
    */
-  Connection getCurrentConnection() {
+  public Connection getCurrentConnection() {
     return connectionTL.get();
   }
 

@@ -1,6 +1,6 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.entity.Attrs;
 import cn.dreampie.log.Logger;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class Metadata {
 
   private static Map<String, TableMeta> tableMetaMap = new HashMap<String, TableMeta>();
 
-  private static Map<Class<? extends Entity>, String> tableMetaClassMap = new HashMap<Class<? extends Entity>, String>();
+  private static Map<Class<? extends Attrs>, String> tableMetaClassMap = new HashMap<Class<? extends Attrs>, String>();
 
   /**
    * 关闭所有的数据源
@@ -62,7 +62,7 @@ public class Metadata {
     return getTableMeta(getMark(dsName, tableName));
   }
 
-  public static TableMeta getTableMeta(Class<? extends Entity> clazz) {
+  public static TableMeta getTableMeta(Class<? extends Attrs> clazz) {
     return getTableMeta(tableMetaClassMap.get(clazz));
   }
 
@@ -72,7 +72,7 @@ public class Metadata {
     return mm;
   }
 
-  public static String getTableMetaMark(Class<? extends Entity> clazz) {
+  public static String getTableMetaMark(Class<? extends Attrs> clazz) {
     return tableMetaClassMap.get(clazz);
   }
 
@@ -80,7 +80,7 @@ public class Metadata {
     String dsName = dsm.getDsName();
     checkNotNull(dsName, "DataSourceName could not be null.");
     if (dsName.contains(CONNECTOR)) {
-      throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for name '" + dsName + "'.");
+      throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for tableName '" + dsName + "'.");
     }
     if (dataSourceMetaMap.size() == 0) {
       defaultDsName = dsName;
@@ -92,26 +92,26 @@ public class Metadata {
   }
 
   static TableMeta addTableMeta(TableMeta tableMeta) {
-    return addTableMeta(tableMeta.getModelClass(), tableMeta);
+    return addTableMeta(null, tableMeta);
   }
 
-  static TableMeta addTableMeta(Class<? extends Entity> clazz, TableMeta tableMeta) {
+  static TableMeta addTableMeta(Class<? extends Attrs> clazz, TableMeta tableMeta) {
 
     String dsName = tableMeta.getDsName();
     checkNotNull(dsName, "DataSourceName could not be null.");
     if (dsName.contains(CONNECTOR)) {
-      throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for name '" + dsName + "'.");
+      throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for tableName '" + dsName + "'.");
     }
     String tableName = tableMeta.getTableName();
     checkNotNull(tableName, "TableName could not be null.");
 
     if (tableName.contains(CONNECTOR)) {
-      throw new IllegalArgumentException("TableName not support '" + CONNECTOR + "' for name '" + tableName + "'.");
+      throw new IllegalArgumentException("TableName not support '" + CONNECTOR + "' for tableName '" + tableName + "'.");
     }
     String mark = getMark(dsName, tableName);
     if (clazz != null) {
       if (tableMetaClassMap.containsKey(clazz)) {
-        logger.error("Covering multiple class '" + clazz + "' for table '" + tableName + "' in '" + dsName + "'.");
+        logger.error("Covering multiple class '" + clazz + "' for tableName '" + tableName + "' in '" + dsName + "'.");
       }
       tableMetaClassMap.put(clazz, mark);
     }

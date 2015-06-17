@@ -8,7 +8,7 @@ import java.util.*;
 /**
  * Created by ice on 14-12-31.
  */
-public abstract class Entity<M extends Entity> {
+public abstract class Attrs<M extends Attrs> {
 
   private Map<String, Object> attrs = new CaseInsensitiveMap<Object>();
   /**

@@ -9,11 +9,11 @@ import java.util.List;
 /**
  * Plugins.
  */
-final public class PluginLoader {
+final public class Plugins {
 
   private final List<Plugin> plugins = new ArrayList<Plugin>();
 
-  public PluginLoader add(Plugin plugin) {
+  public Plugins add(Plugin plugin) {
     if (plugin != null)
       this.plugins.add(plugin);
     return this;

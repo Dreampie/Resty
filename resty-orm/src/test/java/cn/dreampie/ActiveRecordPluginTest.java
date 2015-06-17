@@ -1,8 +1,8 @@
 package cn.dreampie;
 
 
-import cn.dreampie.orm.ActiveRecordPlugin;
-import cn.dreampie.orm.Record;
+import cn.dreampie.orm.activerecord.ActiveRecordPlugin;
+import cn.dreampie.orm.activerecord.Record;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
 import org.junit.Test;
 

@@ -1,6 +1,6 @@
 package cn.dreampie.config;
 
-import cn.dreampie.orm.ActiveRecordPlugin;
+import cn.dreampie.orm.activerecord.ActiveRecordPlugin;
 import cn.dreampie.orm.provider.c3p0.C3p0DataSourceProvider;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
 import cn.dreampie.route.config.*;
@@ -13,51 +13,51 @@ import cn.dreampie.route.interceptor.transaction.TransactionInterceptor;
  */
 public class AppConfig extends Config {
 
-  public void configConstant(ConstantLoader constantLoader) {
+  public void configConstant(Constants constants) {
     //通过后缀来返回不同的数据类型  你可以自定义自己的  render  如：FreemarkerRender
-    //constantLoader.addRender("json", new JsonRender());
+    //constants.addRender("json", new JsonRender());
 
     //以下配置移植到application.properties
-    //启用缓存并在要自动使用缓存的model上  开启缓存@Table(name = "sec_user", cached = true)
+    //启用缓存并在要自动使用缓存的model上  开启缓存@Entity(tableName = "sec_user", cached = true)
 //    boolean devMode = prop.getBoolean("devMode", false);
-//    constantLoader.setCacheEnable(!devMode);//开发模式下不开启缓存
-//    constantLoader.setDevMode(devMode);
-//    constantLoader.setShowRoute(devMode);//请求时打印route信息
+//    constants.setCacheEnable(!devMode);//开发模式下不开启缓存
+//    constants.setDevMode(devMode);
+//    constants.setShowRoute(devMode);//请求时打印route信息
 
   }
 
-  public void configResource(ResourceLoader resourceLoader) {
+  public void configResource(Resources resources) {
     //设置resource的目录  减少启动扫描目录
-//    resourceLoader.addExcludePackages("cn.dreampie.resource");
-    resourceLoader.addIncludePackages("cn.dreampie.resource");
+//    resources.addExcludePackages("cn.dreampie.resource");
+    resources.addIncludePackages("cn.dreampie.resource");
   }
 
-  public void configPlugin(PluginLoader pluginLoader) {
+  public void configPlugin(Plugins plugins) {
     //第一个数据库
     C3p0DataSourceProvider cdsp = new C3p0DataSourceProvider("default");
     ActiveRecordPlugin activeRecordCdsp = new ActiveRecordPlugin(cdsp);
     activeRecordCdsp.addIncludePackages("cn.dreampie.resource");
-    pluginLoader.add(activeRecordCdsp);
+    plugins.add(activeRecordCdsp);
 
     //第二个数据库
     DruidDataSourceProvider ddsp = new DruidDataSourceProvider("demo");
     ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp);
-    pluginLoader.add(activeRecordDdsp);
+    plugins.add(activeRecordDdsp);
 
 //    JndiDataSourceProvider jdsp = new JndiDataSourceProvider("jndiDs", "jndiName");
 //    ActiveRecordPlugin activeRecordJdsp = new ActiveRecordPlugin(ddsp, true);
-//    pluginLoader.add(activeRecordJdsp);
+//    plugins.add(activeRecordJdsp);
   }
 
-  public void configInterceptor(InterceptorLoader interceptorLoader) {
+  public void configInterceptor(Interceptors interceptors) {
     //权限拦截器
-    interceptorLoader.add(new SecurityInterceptor(2, new MyAuthenticateService()));
-    //事务的拦截器 @Transaction
-    interceptorLoader.add(new TransactionInterceptor());
+    interceptors.add(new SecurityInterceptor(2, new MyAuthenticateService()));
+    //事务的拦截器 @Transactional
+    interceptors.add(new TransactionInterceptor());
   }
 
-  public void configHandler(HandlerLoader handlerLoader) {
+  public void configHandler(Handlers handlers) {
     //跨域
-    handlerLoader.add(new CORSHandler());
+    handlers.add(new CORSHandler());
   }
 }

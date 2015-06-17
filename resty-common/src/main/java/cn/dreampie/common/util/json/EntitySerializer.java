@@ -1,6 +1,6 @@
 package cn.dreampie.common.util.json;
 
-import cn.dreampie.common.entity.Entity;
+import cn.dreampie.common.entity.Attrs;
 import cn.dreampie.common.util.Stringer;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.annotation.JSONField;
@@ -30,15 +30,15 @@ public enum EntitySerializer implements ObjectSerializer {
     }
 
     String mName;
-    if (object instanceof Entity) {
-      if (((Entity) object).checkMethod()) {
+    if (object instanceof Attrs) {
+      if (((Attrs) object).checkMethod()) {
         Method[] methods = object.getClass().getDeclaredMethods();
         JSONField fieldAnn = null;
         for (Method m : methods) {
           fieldAnn = m.getAnnotation(JSONField.class);
           mName = m.getName();
           if ((fieldAnn == null || fieldAnn.serialize()) && m.getParameterTypes().length == 0 && mName.length() > 3 && mName.startsWith("get")
-              && !hasMethod((Entity) object, mName)) {
+              && !hasMethod((Attrs) object, mName)) {
             try {
               m.invoke(object);
             } catch (Exception e) {
@@ -47,12 +47,12 @@ public enum EntitySerializer implements ObjectSerializer {
           }
         }
       }
-      serializer.write(((Entity) object).getAttrs());
+      serializer.write(((Attrs) object).getAttrs());
     }
 
   }
 
-  private boolean hasMethod(Entity object, String mName) {
+  private boolean hasMethod(Attrs object, String mName) {
     Map<String, Object> attrs = (Map<String, Object>) object.getAttrs();
     String name = mName.replace("get", "");
     return attrs.containsKey(Stringer.firstLowerCase(name))

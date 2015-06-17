@@ -53,7 +53,7 @@ public abstract class Entity<M extends Entity> {
    * @return Map<String, Object>
    */
   public Map<String, Object> getModifyAttrs() {
-    return Collections.unmodifiableMap(modifyAttrs);
+    return modifyAttrs;
   }
 
   /**

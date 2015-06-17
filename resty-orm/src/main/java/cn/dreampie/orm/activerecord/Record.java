@@ -132,7 +132,7 @@ public class Record extends Base<Record> {
   public Record useDS(String useDS) {
     checkNotNull(useDS, "DataSourceName could not be null.");
     if (!this.useCache && !tableMeta.getDsName().equals(useDS)) {
-      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(useDS, tableMeta.getTableName(), tableMeta.getGeneratedKey(), tableMeta.isGenerated(), tableMeta.getGenerator(), tableMeta.getPrimaryKey(), tableMeta.isCached()), Metadata.getDataSourceMeta(useDS));
+      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(useDS, tableMeta.getTableName(), tableMeta.getId(), tableMeta.isGenerated(), tableMeta.getGenerator(), tableMeta.getPrimaryKey(), tableMeta.isCached()), Metadata.getDataSourceMeta(useDS));
       return this;
     } else {
       if (tableMeta.getDsName().equals(useDS)) {

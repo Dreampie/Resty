@@ -2,6 +2,7 @@ package cn.dreampie.orm;
 
 import cn.dreampie.common.generate.Generator;
 import cn.dreampie.orm.dialect.Dialect;
+import cn.dreampie.orm.repository.GenerateType;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -12,18 +13,18 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 
 public class TableMeta implements Serializable {
 
-  private final String generatedKey;
+  private final String id;
+  private final GenerateType generateType;
   private final Generator generator;
-  private final String[] primaryKey;
   private final String tableName, dsName;
   private final boolean cached;
   private SortedMap<String, ColumnMeta> columnMetadata;
 
 
-  public TableMeta(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached) {
-    this.generatedKey = generatedKey;
+  public TableMeta(String dsName, String tableName, String id, GenerateType generateType, Generator generator, boolean cached) {
+    this.id = id;
+    this.generateType = generateType;
     this.generator = generator;
-    this.primaryKey = primaryKey;
     this.tableName = tableName;
     this.cached = cached;
     this.dsName = dsName;
@@ -35,6 +36,10 @@ public class TableMeta implements Serializable {
 
   public boolean isCached() {
     return cached;
+  }
+
+  public GenerateType getGenerateType() {
+    return generateType;
   }
 
   public Generator getGenerator() {
@@ -49,12 +54,8 @@ public class TableMeta implements Serializable {
     return columnMetadata != null && columnMetadata.isEmpty();
   }
 
-  public String getGeneratedKey() {
-    return generatedKey;
-  }
-
-  public String[] getPrimaryKey() {
-    return primaryKey;
+  public String getId() {
+    return id;
   }
 
   public String getDbType() {

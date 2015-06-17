@@ -284,7 +284,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
     logSql(sql, params);
     PreparedStatement pst;
     //如果没有自动生成的主键 则不获取
-    String generatedKey = tableMeta.getGeneratedKey();
+    String generatedKey = tableMeta.getId();
     boolean generated = tableMeta.getGenerator();
     if (!generated) {
       pst = conn.prepareStatement(sql, new String[]{generatedKey});
@@ -313,7 +313,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
 
     PreparedStatement pst = null;
     //如果没有自动生成的主键 则不获取
-    String generatedKey = tableMeta.getGeneratedKey();
+    String generatedKey = tableMeta.getId();
     boolean generated = tableMeta.isGenerated();
     if (!generated) {
       String[] returnKeys = new String[params.length];
@@ -369,7 +369,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
    * @return
    */
   private String[] getPrimaryKeys(TableMeta tableMeta) {
-    String generatedKey = tableMeta.getGeneratedKey();
+    String generatedKey = tableMeta.getId();
     String[] primaryKey = tableMeta.getPrimaryKey();
     String[] keys;
     boolean generated = tableMeta.isGenerated();
@@ -396,7 +396,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
    */
   private Object[] getPrimaryValues(TableMeta tableMeta) {
     Map<String, Object> attrs = getAttrs();
-    String generatedKey = tableMeta.getGeneratedKey();
+    String generatedKey = tableMeta.getId();
     boolean generated = tableMeta.isGenerated();
     Object id = null;
     if (!generated) {
@@ -427,7 +427,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
    * Get id after save method.
    */
   protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta) throws SQLException {
-    String generatedKey = tableMeta.getGeneratedKey();
+    String generatedKey = tableMeta.getId();
     boolean generated = tableMeta.isGenerated();
     if (!generated) {
       if (get(generatedKey) == null) {
@@ -444,7 +444,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
    * 获取主键
    */
   protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta, List<? extends Attrs> models) throws SQLException {
-    String generatedKey = tableMeta.getGeneratedKey();
+    String generatedKey = tableMeta.getId();
     boolean generated = tableMeta.isGenerated();
     if (!generated) {
       ResultSet rs = pst.getGeneratedKeys();
@@ -547,7 +547,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
    */
   public M findColsById(String columns, Object id) {
     TableMeta tableMeta = getTableMeta();
-    String sql = getDialect().select(tableMeta.getTableName(), "", tableMeta.getGeneratedKey() + "=?", columns.split(","));
+    String sql = getDialect().select(tableMeta.getTableName(), "", tableMeta.getId() + "=?", columns.split(","));
     List<M> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }
@@ -624,7 +624,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
     }
     boolean generated = tableMeta.isGenerated();
     if (generated) {
-      set(tableMeta.getGeneratedKey(), tableMeta.getGenerator().generateKey());
+      set(tableMeta.getId(), tableMeta.getGenerator().generateKey());
     }
 
     DataSourceMeta dsm = getDataSourceMeta();
@@ -682,7 +682,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
       firstModel.purgeCache();
     }
 
-    String generatedKey = tableMeta.getGeneratedKey();
+    String generatedKey = tableMeta.getId();
     //是否需要主键生成器生成值
     boolean generated = tableMeta.isGenerated();
     Generator generator = tableMeta.getGenerator();
@@ -795,7 +795,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
     TableMeta tableMeta = getTableMeta();
     Dialect dialect = getDialect();
 
-    String generatedKey = tableMeta.getGeneratedKey();
+    String generatedKey = tableMeta.getId();
     boolean generated = tableMeta.isGenerated();
     Object id = null;
     if (!generated) {
@@ -914,7 +914,7 @@ public abstract class Base<M extends Base> extends Attrs<M> implements Externali
   public boolean deleteById(Object id) {
     checkNotNull(id, "You can't delete model without primaryKey.");
     TableMeta tableMeta = getTableMeta();
-    String sql = getDialect().delete(tableMeta.getTableName(), tableMeta.getGeneratedKey() + "=?");
+    String sql = getDialect().delete(tableMeta.getTableName(), tableMeta.getId() + "=?");
     return update(sql, id);
   }
 

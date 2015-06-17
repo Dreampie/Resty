@@ -23,7 +23,7 @@ public class Metadata {
 
   private static Map<String, TableMeta> tableMetaMap = new HashMap<String, TableMeta>();
 
-  private static Map<Class<? extends Attrs>, String> tableMetaClassMap = new HashMap<Class<? extends Attrs>, String>();
+  private static Map<Class<?>, String> tableMetaClassMap = new HashMap<Class<?>, String>();
 
   /**
    * 关闭所有的数据源
@@ -62,7 +62,7 @@ public class Metadata {
     return getTableMeta(getMark(dsName, tableName));
   }
 
-  public static TableMeta getTableMeta(Class<? extends Attrs> clazz) {
+  public static TableMeta getTableMeta(Class<?> clazz) {
     return getTableMeta(tableMetaClassMap.get(clazz));
   }
 
@@ -72,7 +72,7 @@ public class Metadata {
     return mm;
   }
 
-  public static String getTableMetaMark(Class<? extends Attrs> clazz) {
+  public static String getTableMetaMark(Class<?> clazz) {
     return tableMetaClassMap.get(clazz);
   }
 
@@ -95,7 +95,7 @@ public class Metadata {
     return addTableMeta(null, tableMeta);
   }
 
-  static TableMeta addTableMeta(Class<? extends Attrs> clazz, TableMeta tableMeta) {
+  static TableMeta addTableMeta(Class<?> clazz, TableMeta tableMeta) {
 
     String dsName = tableMeta.getDsName();
     checkNotNull(dsName, "DataSourceName could not be null.");

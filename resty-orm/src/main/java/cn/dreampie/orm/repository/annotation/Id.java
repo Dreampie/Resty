@@ -15,8 +15,6 @@ import java.lang.annotation.*;
 public @interface Id {
   String name();//列名
 
-  boolean nullable() default true;//是否可以为空
-
   GenerateType generate() default GenerateType.AUTO;
 
   Class<? extends Generator> generator() default DefaultGenerator.class;//id生成策略

@@ -1,42 +1,34 @@
-package cn.dreampie.orm.activerecord;
-
-import cn.dreampie.orm.DataSourceMeta;
-import cn.dreampie.orm.TableMeta;
+package cn.dreampie.orm.repository;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ice on 14-12-30.
  */
-public class BaseBuilder {
-//  private static final Logger logger = Logger.getLogger(BaseBuilder.class);
+public class ResultBuilder {
 
-  public static <T> List<T> build(ResultSet rs, Class<? extends Base> modelClass, DataSourceMeta dataSourceMeta, TableMeta tableMeta) throws SQLException, InstantiationException, IllegalAccessException {
-    List<T> result = new ArrayList<T>();
+  public static List<Map<String, Object>> build(ResultSet rs) throws SQLException {
+    List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
     ResultSetMetaData rsmd = rs.getMetaData();
     int columnCount = rsmd.getColumnCount();
     String[] labelNames = new String[columnCount + 1];
     int[] types = new int[columnCount + 1];
     buildLabelNamesAndTypes(rsmd, labelNames, types);
 
-    Base entity;
-    Object value;
+    Map<String, Object> entity;
 
     while (rs.next()) {
-      if (Record.class.isAssignableFrom(modelClass)) {
-        entity = new Record(tableMeta);
-      } else {
-        entity = modelClass.newInstance();
-      }
+      entity = new HashMap<String, Object>();
       for (int i = 1; i <= columnCount; i++) {
-        value = rs.getObject(i);
-        entity.init(labelNames[i], value);
+        entity.put(labelNames[i], rs.getObject(i));
       }
-      result.add((T) entity);
+      result.add(entity);
     }
     return result;
   }

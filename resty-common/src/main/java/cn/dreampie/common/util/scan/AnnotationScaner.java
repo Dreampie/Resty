@@ -7,20 +7,34 @@ import java.lang.annotation.Annotation;
  */
 public class AnnotationScaner extends Scaner {
 
-  private Class<? extends Annotation> target;
+  private Class<? extends Annotation>[] targets;
+  private boolean or = true;
 
-  public AnnotationScaner(Class<? extends Annotation> target) {
-    this.target = target;
+  public AnnotationScaner(Class<? extends Annotation>... targets) {
+    this.targets = targets;
+  }
+
+  public AnnotationScaner(boolean or, Class<? extends Annotation>... targets) {
+    this.or = or;
+    this.targets = targets;
+  }
+
+  public static AnnotationScaner of(Class<? extends Annotation> target) {
+    return new AnnotationScaner(target);
   }
 
   /**
    * 要扫描的类父级
    *
-   * @param target class
+   * @param targets class
    * @return scaner
    */
-  public static AnnotationScaner of(Class<? extends Annotation> target) {
-    return new AnnotationScaner(target);
+  public static AnnotationScaner or(Class<? extends Annotation>... targets) {
+    return new AnnotationScaner(targets);
+  }
+
+  public static AnnotationScaner and(Class<? extends Annotation>... targets) {
+    return new AnnotationScaner(false, targets);
   }
 
   /**
@@ -30,6 +44,16 @@ public class AnnotationScaner extends Scaner {
    * @return
    */
   public boolean checkTarget(Class<?> clazz) {
-    return clazz.getAnnotation(target) != null;
+    boolean result = !or;
+    for (Class<? extends Annotation> target : targets) {
+      if (or) {
+        result = clazz.getAnnotation(target) != null;
+        if (result) break;
+      } else {
+        result = result && clazz.getAnnotation(target) != null;
+        if (!result) break;
+      }
+    }
+    return result;
   }
 }

@@ -16,4 +16,6 @@ public @interface Entity {
   CaseStyle style() default CaseStyle.UNDERSCORE;//属性风格
 
   boolean cached() default false;//是否使用缓存
+
+  long version() default 0;
 }

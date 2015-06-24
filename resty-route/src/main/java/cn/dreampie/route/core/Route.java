@@ -823,14 +823,14 @@ public class Route {
         pathParamRegex.appendCodePoint(curChar);
       } else {
         if (curChar == ':') {
-          // we were in path tableName, the column marks the separator with the regex definition, we go in regex mode
+          // we were in path table, the column marks the separator with the regex definition, we go in regex mode
           inRegexDef = true;
           pathParamRegex.append("(");
         } else {
 
-          //only letters are authorized in path param tableName
+          //only letters are authorized in path param table
           checkArgument(Character.isLetterOrDigit(curChar), "illegal path parameter definition '%s' at offset %d" +
-                  " - only letters and digits are authorized in path param tableName",
+                  " - only letters and digits are authorized in path param table",
               pathPatternParser.pathPattern, pathPatternParser.offset);
 
           pathParamName.appendCodePoint(curChar);

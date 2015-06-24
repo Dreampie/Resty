@@ -1,7 +1,8 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.meta;
 
 import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.log.Logger;
+import cn.dreampie.orm.Metadata;
 import cn.dreampie.orm.exception.DBException;
 
 import java.net.ConnectException;
@@ -15,37 +16,35 @@ import java.util.SortedMap;
 /**
  * Created by wangrenhui on 14/12/30.
  */
-public class TableMetaBuilder {
+public class EntityMetaBuilder {
 
-  private static final Logger logger = Logger.getLogger(TableMetaBuilder.class);
+  private static final Logger logger = Logger.getLogger(EntityMetaBuilder.class);
 
-  public static Set<TableMeta> buildTableMeta(Set<TableMeta> tableMetas, DataSourceMeta dsm) {
-    TableMeta temp = null;
+  public static Set<EntityMeta> buildColumnMeta(Set<EntityMeta> entityMetas, DataSourceMeta dsm) {
+    EntityMeta temp = null;
     Connection conn = null;
     try {
       conn = dsm.getDataSource().getConnection();
-      for (TableMeta tableMeta : tableMetas) {
-        temp = tableMeta;
-        temp.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
-        //添加到model元数据集合
-        Metadata.addTableMeta(temp);
+      for (EntityMeta entityMeta : entityMetas) {
+        temp = entityMeta;
+        temp.setColumnMetas(fetchColumnMeta(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), entityMeta.getTable()));
       }
     } catch (Exception e) {
       logAcess(dsm, temp, e);
     } finally {
       dsm.close(conn);
     }
-    return tableMetas;
+    return entityMetas;
   }
 
-  private static void logAcess(DataSourceMeta dsm, TableMeta temp, Exception e) {
+  private static void logAcess(DataSourceMeta dsm, EntityMeta temp, Exception e) {
 
     String message = e.getMessage();
     if (e instanceof ConnectException) {
-      message = "Could not connect dataSource for tableName '" + dsm.getDsName() + "'";
+      message = "Could not connect dataSource for name '" + dsm.getDsName() + "'";
     } else {
       if (temp != null) {
-        message = "Could not create tableName object, maybe the tableName " + temp.getTableName() + " is not exists.";
+        message = "Could not create table meta, maybe the table '" + temp.getTable() + "' is not exists.";
       }
     }
 
@@ -58,30 +57,30 @@ public class TableMetaBuilder {
     throw new DBException(message, e);
   }
 
-  public static TableMeta buildTableMeta(TableMeta tableMeta, DataSourceMeta dsm) {
+  public static EntityMeta buildColumnMeta(EntityMeta entityMeta, DataSourceMeta dsm) {
     Connection conn = null;
     try {
       conn = dsm.getDataSource().getConnection();
-      tableMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
+      entityMeta.setColumnMetas(fetchColumnMeta(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), entityMeta.getTable()));
       //添加到record元数据集合
-      Metadata.addTableMeta(tableMeta);
+      Metadata.addEntityMeta(entityMeta);
     } catch (Exception e) {
-      logAcess(dsm, tableMeta, e);
+      logAcess(dsm, entityMeta, e);
     } finally {
       dsm.close(conn);
     }
-    return tableMeta;
+    return entityMeta;
   }
 
 
   /**
-   * Returns a hash keyed off a column tableName.
+   * Returns a hash keyed off a column table.
    *
    * @return
    * @throws java.sql.SQLException
    */
-  private static SortedMap<String, ColumnMeta> fetchMetaParams(DatabaseMetaData databaseMetaData, String databaseProductName, String table) throws SQLException {
-    // Valid tableName tableName format: tablename or schemaname.tablename
+  private static SortedMap<String, ColumnMeta> fetchColumnMeta(DatabaseMetaData databaseMetaData, String databaseProductName, String table) throws SQLException {
+    // Valid table table format: tablename or schemaname.tablename
     String schema = null;
     String tableName;
 
@@ -94,10 +93,10 @@ public class TableMetaBuilder {
         schema = vals[0];
         tableName = vals[1];
         if (schema.length() == 0 || tableName.length() == 0) {
-          throw new DBException("Invalid tableName tableName : " + table);
+          throw new DBException("Invalid table table : " + table);
         }
       } else {
-        throw new DBException("Invalid tableName tableName: " + table);
+        throw new DBException("Invalid table table: " + table);
       }
     } else {
       tableName = table;
@@ -108,7 +107,7 @@ public class TableMetaBuilder {
     SortedMap<String, ColumnMeta> columns = getColumns(rs, dbProduct);
     rs.close();
 
-    //try upper case tableName tableName - Oracle uses upper case
+    //try upper case table table - Oracle uses upper case
     if (columns.isEmpty()) {
       rs = databaseMetaData.getColumns(null, schema, tableName.toUpperCase(), null);
       dbProduct = databaseProductName.toLowerCase();
@@ -124,10 +123,10 @@ public class TableMetaBuilder {
     }
 
     if (columns.size() > 0) {
-      logger.debug("Fetched metadata for tableName: %s", table);
+      logger.debug("Fetched metadata for table: %s", table);
     } else {
-      logger.warn("Failed to retrieve metadata for tableName: '%s'."
-              + " Are you sure this tableName exists? For some databases tableName tableName are case sensitive.",
+      logger.warn("Failed to retrieve metadata for table: '%s'."
+              + " Are you sure this table exists? For some databases table table are case sensitive.",
           table);
     }
     return columns;
@@ -139,7 +138,7 @@ public class TableMetaBuilder {
     SortedMap<String, ColumnMeta> columns = new CaseInsensitiveMap<ColumnMeta>();
     while (rs.next()) {
       if (dbProduct.equals("h2") && "INFORMATION_SCHEMA".equals(rs.getString("TABLE_SCHEMA"))) {
-        continue; // skip h2 INFORMATION_SCHEMA tableName columns.
+        continue; // skip h2 INFORMATION_SCHEMA table columns.
       }
 
       ColumnMeta cm = new ColumnMeta(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"), rs.getInt("DATA_TYPE"), rs.getInt("COLUMN_SIZE"));

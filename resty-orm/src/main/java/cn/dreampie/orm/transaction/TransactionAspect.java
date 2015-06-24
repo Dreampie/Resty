@@ -1,16 +1,14 @@
 package cn.dreampie.orm.transaction;
 
+import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.DataSourceMeta;
-import cn.dreampie.orm.Metadata;
 import cn.dreampie.orm.aspect.Aspect;
 import cn.dreampie.orm.aspect.AspectHandler;
 import cn.dreampie.orm.exception.TransactionException;
+import cn.dreampie.orm.meta.DataSourceMeta;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by wangrenhui on 15/1/2.
@@ -22,43 +20,39 @@ public class TransactionAspect implements Aspect {
   public Object aspect(InvocationHandler ih, Object proxy, Method method, Object[] args) throws Throwable {
     Object result = null;
 
-    List<DataSourceMeta> dataSourceMetas = null;
+    TransactionManager transactionManager;
     Transactional transactionalAnn = method.getAnnotation(Transactional.class);
     if (transactionalAnn != null) {
-      String[] names = transactionalAnn.name();
-      if (names.length == 0) {
-        names = new String[]{Metadata.getDefaultDsName()};
-      }
-      int[] levels = transactionalAnn.level();
-      boolean[] readonlys = transactionalAnn.readonly();
-      dataSourceMetas = new ArrayList<DataSourceMeta>();
-      DataSourceMeta dataSourceMeta;
+      transactionManager = DataSourceMeta.initTransactionManager(transactionalAnn.readonly(), transactionalAnn.level());
+
       try {
-        for (int i = 0; i < names.length; i++) {
-          dataSourceMeta = Metadata.getDataSourceMeta(names[i]);
-          dataSourceMeta.initTransaction(readonlys.length == 1 ? readonlys[0] : readonlys[i], levels.length == 1 ? levels[0] : levels[i]);
-          dataSourceMetas.add(dataSourceMeta);
-        }
         //执行操作
         result = ih.invoke(proxy, method, args);
-        for (DataSourceMeta dsm : dataSourceMetas) {
-          dsm.commitTransaction();
+
+        for (DataSourceMeta dataSourceMeta : transactionManager.getDataSourceMetas()) {
+          dataSourceMeta.commitTransaction();
         }
+
       } catch (Throwable t) {
-        for (DataSourceMeta dsm : dataSourceMetas) {
-          dsm.rollbackTransaction();
+        for (DataSourceMeta dataSourceMeta : transactionManager.getDataSourceMetas()) {
+          dataSourceMeta.commitTransaction();
         }
+
         String message = t.getMessage();
-        Throwable cause = t.getCause();
         if (message == null) {
+          Throwable cause = t.getCause();
           if (cause != null) {
             message = cause.getMessage();
           }
         }
-        throw new TransactionException(message, t);
+        if (t instanceof WebException) {
+          throw t;
+        } else {
+          throw new TransactionException(message, t);
+        }
       } finally {
-        for (DataSourceMeta dsm : dataSourceMetas) {
-          dsm.endTranasaction();
+        for (DataSourceMeta dataSourceMeta : transactionManager.getDataSourceMetas()) {
+          dataSourceMeta.endTranasaction();
         }
       }
     } else {

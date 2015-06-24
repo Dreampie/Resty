@@ -1,4 +1,4 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.meta;
 
 import java.io.Serializable;
 
@@ -17,9 +17,9 @@ public class ColumnMeta implements Serializable {
   }
 
   /**
-   * Column tableName as reported by DBMS driver.
+   * Column table as reported by DBMS driver.
    *
-   * @return column tableName as reported by DBMS driver.
+   * @return column table as reported by DBMS driver.
    */
   public String getColumnName() {
     return columnName;
@@ -44,9 +44,9 @@ public class ColumnMeta implements Serializable {
   }
 
   /**
-   * Column type tableName as reported by DBMS driver.
+   * Column type table as reported by DBMS driver.
    *
-   * @return column type tableName as reported by DBMS driver.
+   * @return column type table as reported by DBMS driver.
    */
   public String getTypeName() {
     return typeName;

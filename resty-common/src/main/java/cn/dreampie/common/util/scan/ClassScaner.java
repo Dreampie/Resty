@@ -5,20 +5,34 @@ package cn.dreampie.common.util.scan;
  */
 public class ClassScaner extends Scaner {
 
-  private Class<?> target;
+  private Class<?>[] targets;
+  private boolean or = true;
 
-  public ClassScaner(Class<?> target) {
-    this.target = target;
+  public ClassScaner(Class<?>... targets) {
+    this.targets = targets;
+  }
+
+  public ClassScaner(boolean or, Class<?>... targets) {
+    this.or = or;
+    this.targets = targets;
+  }
+
+  public static ClassScaner of(Class<?> target) {
+    return new ClassScaner(target);
   }
 
   /**
    * 要扫描的类父级
    *
-   * @param target class
+   * @param targets class
    * @return scaner
    */
-  public static ClassScaner of(Class<?> target) {
-    return new ClassScaner(target);
+  public static ClassScaner or(Class<?>... targets) {
+    return new ClassScaner(targets);
+  }
+
+  public static ClassScaner and(Class<?>... targets) {
+    return new ClassScaner(false, targets);
   }
 
   /**
@@ -28,6 +42,16 @@ public class ClassScaner extends Scaner {
    * @return
    */
   public boolean checkTarget(Class<?> clazz) {
-    return target.isAssignableFrom(clazz) && target != clazz;
+    boolean result = !or;
+    for (Class<?> target : targets) {
+      if (or) {
+        result = target.isAssignableFrom(clazz) && target != clazz;
+        if (result) break;
+      } else {
+        result = result && target.isAssignableFrom(clazz) && target != clazz;
+        if (!result) break;
+      }
+    }
+    return result;
   }
 }

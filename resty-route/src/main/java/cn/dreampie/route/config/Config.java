@@ -19,13 +19,7 @@ public class Config {
    */
   public void configResource(Resources resources) {
   }
-
-  /**
-   * Config service
-   */
-  public void configService(Services services) {
-  }
-
+  
   /**
    * Config plugin
    */

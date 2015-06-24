@@ -18,7 +18,7 @@ public class AppConfig extends Config {
     //constants.addRender("json", new JsonRender());
 
     //以下配置移植到application.properties
-    //启用缓存并在要自动使用缓存的model上  开启缓存@Entity(tableName = "sec_user", cached = true)
+    //启用缓存并在要自动使用缓存的model上  开启缓存@Entity(table = "sec_user", cached = true)
 //    boolean devMode = prop.getBoolean("devMode", false);
 //    constants.setCacheEnable(!devMode);//开发模式下不开启缓存
 //    constants.setDevMode(devMode);

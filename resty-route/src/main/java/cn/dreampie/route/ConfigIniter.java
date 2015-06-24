@@ -9,49 +9,49 @@ import java.util.List;
 
 public class ConfigIniter {
 
-  private static final Constants CONSTANT_LOADER = new Constants();
-  private static final Resources RESOURCE_LOADER = new Resources();
-  private static final Plugins PLUGIN_LOADER = new Plugins();
-  private static final Interceptors INTERCEPTOR_LOADER = new Interceptors();
-  private static final Handlers HANDLER_LOADER = new Handlers();
+  private static final Constants CONSTANTS = new Constants();
+  private static final Resources RESOURCES = new Resources();
+  private static final Plugins PLUGINS = new Plugins();
+  private static final Interceptors INTERCEPTORS = new Interceptors();
+  private static final Handlers HANDLERS = new Handlers();
 
   public ConfigIniter(Config config) {
-    config.configConstant(CONSTANT_LOADER);
-    config.configPlugin(PLUGIN_LOADER);
+    config.configConstant(CONSTANTS);
+    config.configPlugin(PLUGINS);
     startPlugins();//must start plugin before init other
-    config.configResource(RESOURCE_LOADER);
-    buildRrsource();//scan resource class
-    config.configInterceptor(INTERCEPTOR_LOADER);
-    config.configHandler(HANDLER_LOADER);
+    config.configResource(RESOURCES);
+    buildResource();//scan resource class
+    config.configInterceptor(INTERCEPTORS);
+    config.configHandler(HANDLERS);
   }
 
-  public Constants getConstantLoader() {
-    return CONSTANT_LOADER;
+  public Constants getConstants() {
+    return CONSTANTS;
   }
 
-  public Resources getResourceLoader() {
-    return RESOURCE_LOADER;
+  public Resources getResources() {
+    return RESOURCES;
   }
 
-  public void buildRrsource() {
-    RESOURCE_LOADER.build();
+  public void buildResource() {
+    RESOURCES.build();
   }
 
-  public Plugins getPluginLoader() {
-    return PLUGIN_LOADER;
+  public Plugins getPlugins() {
+    return PLUGINS;
   }
 
-  public Interceptors getInterceptorLoader() {
-    return INTERCEPTOR_LOADER;
+  public Interceptors getInterceptors() {
+    return INTERCEPTORS;
   }
 
-  public Handlers getHandlerLoader() {
-    return HANDLER_LOADER;
+  public Handlers getHandlers() {
+    return HANDLERS;
   }
 
 
   public void startPlugins() {
-    List<Plugin> plugins = PLUGIN_LOADER.getPlugins();
+    List<Plugin> plugins = PLUGINS.getPlugins();
     if (plugins != null) {
       for (Plugin plugin : plugins) {
         if (!plugin.start()) {
@@ -62,7 +62,7 @@ public class ConfigIniter {
   }
 
   public void stopPlugins() {
-    List<Plugin> plugins = PLUGIN_LOADER.getPlugins();
+    List<Plugin> plugins = PLUGINS.getPlugins();
     if (plugins != null) {
       for (Plugin plugin : plugins) {
         if (!plugin.stop()) {

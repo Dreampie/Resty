@@ -13,13 +13,5 @@ import java.lang.annotation.*;
 @Documented
 public @interface Column {
   String name();//列名
-
-  boolean nullable() default true;//是否可以为空
-
-  String foreign() default "";//外键列
-
-  CascadeType cascade() default CascadeType.QUERY;//级联方式
-
-  JoinType join() default JoinType.JOIN;//join方式
 }
 

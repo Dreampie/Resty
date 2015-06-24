@@ -12,9 +12,8 @@ import java.sql.Connection;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Transactional {
-  String[] name() default {};
 
-  boolean[] readonly() default false;
+  boolean readonly() default false;
 
-  int[] level() default Connection.TRANSACTION_READ_COMMITTED;
+  int level() default Connection.TRANSACTION_READ_COMMITTED;
 }

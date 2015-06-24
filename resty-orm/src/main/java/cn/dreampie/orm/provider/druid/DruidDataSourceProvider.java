@@ -2,8 +2,6 @@ package cn.dreampie.orm.provider.druid;
 
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
-import cn.dreampie.orm.dialect.Dialect;
-import cn.dreampie.orm.dialect.DialectFactory;
 import cn.dreampie.orm.provider.DataSourceProvider;
 import com.alibaba.druid.DruidRuntimeException;
 import com.alibaba.druid.filter.Filter;
@@ -70,7 +68,6 @@ public class DruidDataSourceProvider implements DataSourceProvider {
    */
   private String validationQuery = "select 1";
   private DruidDataSource ds;
-  private Dialect dialect;
   private boolean showSql = false;
 
   public DruidDataSourceProvider() {
@@ -86,8 +83,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     checkNotNull(this.user, "Could not found database user for " + "db." + dsName + ".user");
     this.password = prop.get("db." + dsName + ".password");
     checkNotNull(this.password, "Could not found database password for " + "db." + dsName + ".password");
-    this.dialect = DialectFactory.get(prop.get("db." + dsName + ".dialect", "mysql"));
-    this.driverClass = prop.get("db." + dsName + ".driver", dialect.driverClass());
+    this.driverClass = prop.get("db." + dsName + ".driver");
     this.showSql = prop.getBoolean("db." + dsName + ".showSql", false);
 
     this.filters = prop.get("druid." + dsName + ".filters");
@@ -106,7 +102,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.logAbandoned = prop.getBoolean("druid." + dsName + ".logAbandoned", false);
     this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("druid." + dsName + ".maxPoolPreparedStatementPerConnectionSize", 10);
 
-    this.validationQuery = prop.get("druid." + dsName + ".validationQuery", this.dialect.validQuery());
+    this.validationQuery = prop.get("druid." + dsName + ".validationQuery");
     buidDataSource();
   }
 
@@ -130,8 +126,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     checkNotNull(this.user, "Could not found database user for custom.");
     this.password = password;
     checkNotNull(this.password, "Could not found database password for custom.");
-    this.dialect = DialectFactory.get(dbType);
-    this.driverClass = driverClass == null ? dialect.driverClass() : driverClass;
+    this.driverClass = driverClass;
     this.showSql = showSql;
     buidDataSource();
   }
@@ -174,10 +169,6 @@ public class DruidDataSourceProvider implements DataSourceProvider {
 
   public DataSource getDataSource() {
     return ds;
-  }
-
-  public Dialect getDialect() {
-    return dialect;
   }
 
   public String getDsName() {

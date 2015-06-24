@@ -14,8 +14,6 @@ import java.lang.annotation.*;
 public @interface OneToOne {
   String name();//列名
 
-  boolean nullable() default true;//是否可以为空
-
   String foreign() default "";//外键列
 
   boolean lazy() default true;//延迟加载

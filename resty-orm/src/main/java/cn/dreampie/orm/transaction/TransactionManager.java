@@ -1,26 +1,30 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.transaction;
 
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.exception.TransactionException;
+import cn.dreampie.orm.meta.DataSourceMeta;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wangrenhui on 15/4/3.
  */
 public class TransactionManager {
   private final static Logger logger = Logger.getLogger(TransactionManager.class);
-  private DataSourceMeta dataSourceMeta;
   private boolean begined;
   private int level;//事务级别
   private Boolean readonly;//只读
   private Boolean autoCommit;
 
-  public TransactionManager(DataSourceMeta dataSourceMeta, boolean readonly, int level) {
-    this.dataSourceMeta = dataSourceMeta;
+  private List<DataSourceMeta> dataSourceMetas;
+
+  public TransactionManager(boolean readonly, int level) {
     this.readonly = readonly;
     this.level = level;
+    this.dataSourceMetas=new ArrayList<DataSourceMeta>();
   }
 
   /**
@@ -32,10 +36,15 @@ public class TransactionManager {
     return begined;
   }
 
+  public List<DataSourceMeta> getDataSourceMetas() {
+    return dataSourceMetas;
+  }
+
   /**
    * 开始事务
    */
-  public void begin() throws TransactionException {
+  public void begin(DataSourceMeta dataSourceMeta) throws TransactionException {
+    dataSourceMetas.add(dataSourceMeta);
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
       if (conn == null) {
@@ -63,7 +72,7 @@ public class TransactionManager {
   /**
    * 提交事务
    */
-  public void commit() throws TransactionException {
+  public void commit(DataSourceMeta dataSourceMeta) throws TransactionException {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
       if (conn != null) {
@@ -82,7 +91,7 @@ public class TransactionManager {
   /**
    * 设置Connection的原始状态
    */
-  public void end() {
+  public void end(DataSourceMeta dataSourceMeta) {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
       if (conn != null) {
@@ -106,7 +115,7 @@ public class TransactionManager {
   /**
    * 发生异常回滚事务
    */
-  public void rollback() {
+  public void rollback(DataSourceMeta dataSourceMeta) {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
       if (conn != null) {

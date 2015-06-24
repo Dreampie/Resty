@@ -23,12 +23,12 @@ public final class RestyIniter {
     this.config = config;
     configIniter = new ConfigIniter(config);
     //build route
-    RouteBuilder routeBuilder = new RouteBuilder(configIniter.getResourceLoader(), configIniter.getInterceptorLoader());
+    RouteBuilder routeBuilder = new RouteBuilder(configIniter.getResources(), configIniter.getInterceptors());
     routeBuilder.build();
     //add handler
     //must after route build
     Handler routeHandler = new RouteHandler(routeBuilder);
-    handler = HandlerFactory.getHandler(configIniter.getHandlerLoader().getHandlerList(), routeHandler);
+    handler = HandlerFactory.getHandler(configIniter.getHandlers().getHandlerList(), routeHandler);
     //start job when config over
     config.afterStart();
   }

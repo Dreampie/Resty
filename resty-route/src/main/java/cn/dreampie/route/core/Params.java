@@ -69,7 +69,7 @@ public class Params {
   }
 
   /**
-   * Return param tableName of this route.
+   * Return param table of this route.
    */
   public String[] getNames() {
     Set<String> nameSet = params.keySet();

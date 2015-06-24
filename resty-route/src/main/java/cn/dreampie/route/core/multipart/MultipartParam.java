@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class MultipartParam {
   private Hashtable<String, UploadedFile> uploadedFiles;
-  private Hashtable<String, List<String>> params;  // tableName - Vector of values
+  private Hashtable<String, List<String>> params;  // table - Vector of values
 
   public MultipartParam(Hashtable<String, UploadedFile> uploadedFiles, Hashtable<String, List<String>> params) {
     this.uploadedFiles = uploadedFiles;

@@ -1,8 +1,8 @@
 package cn.dreampie.example;
 
 import cn.dreampie.orm.activerecord.Record;
-import cn.dreampie.orm.callable.ObjectCall;
-import cn.dreampie.orm.callable.ResultSetCall;
+import cn.dreampie.orm.callback.Callback;
+import cn.dreampie.orm.callback.ResultSetCall;
 import cn.dreampie.orm.page.FullPage;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.resource.user.model.UserInfo;
@@ -135,13 +135,13 @@ public class SqlTest {
   //@Test
   public void testProcess() {
     //返回一个指定类型的值
-    Integer r = User.dao.queryCall("{CALL PROCESS(?,?)}", new ObjectCall() {
-      public Object call(CallableStatement cstmt) throws SQLException {
-        cstmt.setInt(1, 1);
-        cstmt.registerOutParameter(2, Types.BIGINT);
-        cstmt.execute();
-        cstmt.executeQuery();
-        return cstmt.getInt(2);
+    Integer r = User.dao.queryCall("{CALL PROCESS(?,?)}", new Callback() {
+      public Object call(CallableStatement cs) throws SQLException {
+        cs.setInt(1, 1);
+        cs.registerOutParameter(2, Types.BIGINT);
+        cs.execute();
+        cs.executeQuery();
+        return cs.getInt(2);
       }
     });
 

@@ -1,9 +1,9 @@
-package cn.dreampie.orm;
+package cn.dreampie.orm.meta;
 
 import cn.dreampie.log.Logger;
-import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.TransactionException;
 import cn.dreampie.orm.provider.DataSourceProvider;
+import cn.dreampie.orm.transaction.TransactionManager;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -19,8 +19,8 @@ public class DataSourceMeta {
   private static final Logger logger = Logger.getLogger(DataSourceMeta.class);
   //不能使用static 让每个数据源都有一个connectionTL
   private final ThreadLocal<Connection> connectionTL = new ThreadLocal<Connection>();
-  private final ThreadLocal<TransactionManager> transactionManagerTL = new ThreadLocal<TransactionManager>();
-  private final ThreadLocal<Integer> transactionDeepTL = new ThreadLocal<Integer>();
+  private static final ThreadLocal<TransactionManager> transactionManagerTL = new ThreadLocal<TransactionManager>();
+  private static final ThreadLocal<Integer> transactionDeepTL = new ThreadLocal<Integer>();
   private DataSourceProvider dataSourceProvider;
 
   public DataSourceMeta(DataSourceProvider dataSourceProvider) {
@@ -35,10 +35,6 @@ public class DataSourceMeta {
     return dataSourceProvider.getDataSource();
   }
 
-  public Dialect getDialect() {
-    return dataSourceProvider.getDialect();
-  }
-
   public boolean isShowSql() {
     return dataSourceProvider.isShowSql();
   }
@@ -50,6 +46,7 @@ public class DataSourceMeta {
    * @throws SQLException
    */
   public Connection getConnection() throws SQLException {
+    beginTransaction();
     Connection conn = connectionTL.get();
     if (conn != null) {
       return conn;
@@ -71,27 +68,28 @@ public class DataSourceMeta {
    *
    * @param connection connection
    */
-  void setCurrentConnection(Connection connection) {
+  public void setCurrentConnection(Connection connection) {
     connectionTL.set(connection);
   }
 
   /**
    * 移除连接对象
    */
-  void rmCurrentConnection() {
+  public void rmCurrentConnection() {
     connectionTL.remove();
   }
 
   /**
    * 初始化事务对象
    */
-  public void initTransaction(boolean readonly, int level) {
+  public static TransactionManager initTransactionManager(boolean readonly, int level) {
     if (transactionManagerTL.get() == null) {
-      transactionManagerTL.set(new TransactionManager(this, readonly, level));
+      transactionManagerTL.set(new TransactionManager(readonly, level));
       transactionDeepTL.set(1);
     } else {
       transactionDeepTL.set(transactionDeepTL.get() + 1);
     }
+    return transactionManagerTL.get();
   }
 
   /**
@@ -103,7 +101,7 @@ public class DataSourceMeta {
     TransactionManager transactionManager = transactionManagerTL.get();
     //当前事务管理对象
     if (transactionManager != null && !transactionManager.isBegined()) {
-      transactionManager.begin();
+      transactionManager.begin(this);
     }
   }
 
@@ -116,7 +114,7 @@ public class DataSourceMeta {
     if (transactionDeepTL.get() == 1) {
       TransactionManager transactionManager = transactionManagerTL.get();
       if (transactionManager != null) {
-        transactionManager.commit();
+        transactionManager.commit(this);
       }
     }
   }
@@ -130,7 +128,7 @@ public class DataSourceMeta {
     if (transactionDeepTL.get() == 1) {
       TransactionManager transactionManager = transactionManagerTL.get();
       if (transactionManager != null) {
-        transactionManager.rollback();
+        transactionManager.rollback(this);
       }
     }
   }
@@ -144,7 +142,7 @@ public class DataSourceMeta {
     if (transactionDeepTL.get() == 1) {
       TransactionManager transactionManager = transactionManagerTL.get();
       if (transactionManager != null) {
-        transactionManager.end();
+        transactionManager.end(this);
       }
       transactionManagerTL.remove();
     } else {

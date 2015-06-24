@@ -113,7 +113,7 @@ final public class Resources {
         this.add(resourceClazz);
         //加入容器
         ApplicationContainer.set(resourceClazz);
-        logger.info("Resources.add(" + resourceClazz.getName() + ")");
+        logger.info("@Resources.add(" + resourceClazz.getName() + ")");
       }
     } else {
       logger.warn("Could not load any resources.");

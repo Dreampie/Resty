@@ -2,8 +2,6 @@ package cn.dreampie.orm.provider.c3p0;
 
 import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
-import cn.dreampie.orm.dialect.Dialect;
-import cn.dreampie.orm.dialect.DialectFactory;
 import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.provider.DataSourceProvider;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -53,7 +51,6 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
 
   private String preferredTestQuery = "select 1";
   private ComboPooledDataSource ds;
-  private Dialect dialect;
 
   public C3p0DataSourceProvider() {
     this("default");
@@ -68,8 +65,7 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     checkNotNull(this.user, "Could not found database user for " + "db." + dsName + ".user");
     this.password = prop.get("db." + dsName + ".password");
     checkNotNull(this.password, "Could not found database password for " + "db." + dsName + ".password");
-    this.dialect = DialectFactory.get(prop.get("db." + dsName + ".dialect", "mysql"));
-    this.driverClass = prop.get("db." + dsName + ".driver", dialect.driverClass());
+    this.driverClass = prop.get("db." + dsName + ".driver");
     this.showSql = prop.getBoolean("db." + dsName + ".showSql", false);
 
     this.maxStatements = prop.getInt("c3p0." + dsName + ".maxStatements", C3P0Defaults.maxStatements());
@@ -94,7 +90,7 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     this.autoCommitOnClose = prop.getBoolean("c3p0." + dsName + ".breakAfterAcquireFailure", C3P0Defaults.autoCommitOnClose());
     this.automaticTestTable = prop.get("c3p0." + dsName + ".testOnBorrow", C3P0Defaults.automaticTestTable());
 
-    this.preferredTestQuery = prop.get("c3p0." + dsName + ".preferredTestQuery", this.dialect.validQuery());
+    this.preferredTestQuery = prop.get("c3p0." + dsName + ".preferredTestQuery");
     buidDataSource();
   }
 
@@ -125,8 +121,7 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     checkNotNull(this.user, "Could not found database user for custom.");
     this.password = password;
     checkNotNull(this.password, "Could not found database password for custom.");
-    this.dialect = DialectFactory.get(dbType);
-    this.driverClass = driverClass == null ? dialect.driverClass() : driverClass;
+    this.driverClass = driverClass;
     this.showSql = showSql;
     buidDataSource();
   }
@@ -139,7 +134,9 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     ds.setPassword(password);
 
     try {
-      ds.setDriverClass(driverClass);
+      if (driverClass != null) {
+        ds.setDriverClass(driverClass);
+      }
     } catch (PropertyVetoException e) {
       ds = null;
       throw new DBException("ComboPooledDataSource set driverClass error.");
@@ -170,10 +167,6 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
 
   public DataSource getDataSource() {
     return ds;
-  }
-
-  public Dialect getDialect() {
-    return dialect;
   }
 
   public String getDsName() {

@@ -19,7 +19,7 @@ import java.util.Set;
 @API("/users")
 public class UserResource extends ApiResource {
   //用于使用service层的 事务
-  // @Transactional(tableName = {"default", "demo"})的注解需要写在service的接口上
+  // @Transactional(table = {"default", "demo"})的注解需要写在service的接口上
   // 注意java的自动代理必须存在接口
   private UserService userService = AspectFactory.newInstance(new UserServiceImpl(), new TransactionAspect());
 

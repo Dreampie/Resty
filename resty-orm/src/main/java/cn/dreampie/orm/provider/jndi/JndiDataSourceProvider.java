@@ -1,7 +1,5 @@
 package cn.dreampie.orm.provider.jndi;
 
-import cn.dreampie.orm.dialect.Dialect;
-import cn.dreampie.orm.dialect.DialectFactory;
 import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.provider.DataSourceProvider;
 
@@ -16,7 +14,6 @@ import javax.sql.DataSource;
 public class JndiDataSourceProvider implements DataSourceProvider {
 
   private DataSource ds;
-  private Dialect dialect;
   private String dsName;
   private boolean showSql;
 
@@ -52,16 +49,11 @@ public class JndiDataSourceProvider implements DataSourceProvider {
     } catch (NamingException e) {
       throw new DBException(e.getMessage(), e);
     }
-    this.dialect = DialectFactory.get(dialect == null ? "mysql" : dialect);
     this.showSql = showSql;
   }
 
   public DataSource getDataSource() {
     return ds;
-  }
-
-  public Dialect getDialect() {
-    return dialect;
   }
 
   public String getDsName() {

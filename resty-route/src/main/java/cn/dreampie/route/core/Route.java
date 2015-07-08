@@ -245,22 +245,27 @@ public class Route {
           formParams = request.getQueryParams();
           jsonParams = getJson(request);
         }
+
+        printMatchRoute(request.getContentType(), jsonParams, pathParams, formParams, null);
         params = parseJsonParams(jsonParams, pathParams, formParams);
       } else {
         formParams = request.getQueryParams();
         //print match route
         if (multipartParam != null) {
           fileParams = multipartParam.getUploadedFiles();
+
+          printMatchRoute(request.getContentType(), null, pathParams, formParams, fileParams);
           params = parseFormParams(pathParams, multipartParam.getParams(), fileParams);
         } else {
+          printMatchRoute(request.getContentType(), null, pathParams, formParams, null);
           params = parseFormParams(pathParams, formParams, new Hashtable<String, UploadedFile>());
         }
       }
     } catch (Exception e) {
+      printMatchRoute(request.getContentType(), jsonParams, pathParams, formParams, fileParams);
       throwException(e);
     }
     routeMatch = new RouteMatch(pathPattern, restPath, extension, params, request, response);
-    printMatchRoute(request.getContentType(), jsonParams, pathParams, formParams, fileParams);
     return routeMatch;
   }
 

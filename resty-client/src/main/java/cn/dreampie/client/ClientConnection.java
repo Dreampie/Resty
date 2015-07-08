@@ -111,10 +111,10 @@ public class ClientConnection {
         } else {
           url = new URL(apiUrl + clientRequest.getEncodedRestPath());
         }
-        conn = openHttpURLConnection(url, httpMethod);
+        conn = openHttpURLConnection(url, clientRequest, httpMethod);
       } else {
         conn = getStreamConnection(httpMethod, clientRequest);
-        outputParam(conn, httpMethod, clientRequest.getJsonParam());
+        outputParam(conn, httpMethod, clientRequest.getJsonParam(), clientRequest.getEncoding());
       }
     } else if (contentType.contains(ContentType.MULTIPART) || httpMethod.equals(HttpMethod.POST)) {
       //上传文件类型
@@ -150,11 +150,11 @@ public class ClientConnection {
         writer.flush();
         writer.close();
       } else {
-        outputParam(conn, httpMethod, clientRequest.getEncodedParams());
+        outputParam(conn, httpMethod, clientRequest.getEncodedParams(), clientRequest.getEncoding());
       }
     } else {
       url = new URL(apiUrl + clientRequest.getEncodedUrl());
-      conn = openHttpURLConnection(url, httpMethod);
+      conn = openHttpURLConnection(url, clientRequest, httpMethod);
     }
 
     //ssl判断
@@ -180,7 +180,7 @@ public class ClientConnection {
     URL url;
     HttpURLConnection conn;
     url = new URL(apiUrl + clientRequest.getEncodedRestPath());
-    conn = openHttpURLConnection(url, httpMethod);
+    conn = openHttpURLConnection(url, clientRequest, httpMethod);
 
     conn.setDoOutput(true);
     conn.setUseCaches(false);
@@ -195,13 +195,13 @@ public class ClientConnection {
    * @param requestParams
    * @throws IOException
    */
-  private void outputParam(HttpURLConnection conn, String method, String requestParams) throws IOException {
+  private void outputParam(HttpURLConnection conn, String method, String requestParams, String encoding) throws IOException {
     //写入参数
     if (requestParams != null && !"".equals(requestParams)) {
       DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
       logger.debug("Request out method " + method + ",out parameters " + requestParams);
 
-      writer.writeBytes(requestParams);
+      writer.write(requestParams.getBytes(encoding));
       writer.flush();
       writer.close();
     }
@@ -247,10 +247,8 @@ public class ClientConnection {
    * @return
    * @throws IOException
    */
-  private HttpURLConnection openHttpURLConnection(URL url, String method) throws IOException {
+  private HttpURLConnection openHttpURLConnection(URL url, ClientRequest clientRequest, String method) throws IOException {
     logger.info("Open connection for api " + url.getPath());
-
-    ClientRequest clientRequest = clientRequestTL.get();
 
     HttpURLConnection.setFollowRedirects(true);
     HttpURLConnection conn;

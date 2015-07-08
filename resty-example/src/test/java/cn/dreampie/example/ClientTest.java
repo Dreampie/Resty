@@ -44,7 +44,7 @@ public class ClientTest {
   public void testPost() {
     ClientRequest request = new ClientRequest("/tests/1");
     request.addParam("params", Jsoner.toJSON(new HashMap<String, String>() {{
-      put("a", "1");
+      put("a", "哈哈");
     }}));
     System.out.println(client.build(request).post());
   }
@@ -58,7 +58,7 @@ public class ClientTest {
   @Test
   public void testPut() {
     ClientRequest request = new ClientRequest("/tests/1");
-    request.setJsonParam("{\"id\":\"1\",\"username\":\"k\"}");
+    request.setJsonParam("{\"id\":\"1\",\"username\":\"哈市大\"}");
     System.out.println(client.build(request).put());
   }
 //  httpurlconnection patch

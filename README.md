@@ -22,27 +22,12 @@ Resty例子：[resty-demo](https://github.com/Dreampie/resty-demo)
 
 maven使用方式：
 
-1. 添加maven snapshots仓库
-```xml
-<repositories>
-    <repository>
-      <id>oss-snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-```
-2. 添加依赖包
+1. 添加依赖包
 ```xml
 <dependency>
     <groupId>cn.dreampie</groupId>
     <artifactId>resty-route</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 </dependency>
 ```
 

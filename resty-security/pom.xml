@@ -5,14 +5,14 @@
   <parent>
     <artifactId>resty</artifactId>
     <groupId>cn.dreampie</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>resty-security</artifactId>
   <name>resty-security</name>
   <packaging>jar</packaging>
-  <version>${parent.version}</version>
+  <version>1.0.1</version>
   <url>https://github.com/Dreampie/${parent.name}</url>
   <description>Resty security</description>
 

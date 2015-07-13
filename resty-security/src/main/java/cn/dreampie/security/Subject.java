@@ -57,7 +57,7 @@ public class Subject {
     if (principal != null) {
       credentials.removePrincipal(principal.getUsername());
     }
-    return updateCurrent(new Session(session.getSessionKey(), null, session.getValues(), session.getExpires()));
+    return updateCurrent(new Session());
   }
 
   /**

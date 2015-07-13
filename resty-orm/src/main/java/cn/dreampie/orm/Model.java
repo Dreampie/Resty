@@ -1,6 +1,5 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.entity.exception.EntityException;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;

@@ -3,7 +3,10 @@ package cn.dreampie.common.entity;
 import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.json.Jsoner;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by ice on 14-12-31.

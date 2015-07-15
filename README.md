@@ -2,8 +2,9 @@
 Resty 一款极简的restful轻量级的web框架
 ===========
 
-[![Join the chat at https://gitter.im/Dreampie/Resty](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Dreampie/Resty?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+[![Join the chat at https://gitter.im/Dreampie/Resty](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Dreampie/Resty?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)  
+[![Issue Stats](http://issuestats.com/github/Dreampie/Resty/badge/pr?style=flat)](http://issuestats.com/github/Dreampie/Resty) 
+[![Issue Stats](http://issuestats.com/github/Dreampie/Resty/badge/issue?style=flat)](http://issuestats.com/github/Dreampie/Resty)
 <a href="http://dreampie.gitbooks.io/resty-chs/content/index.html" target="_blank">开发文档</a>
 
 如果你还不是很了解restful，或者认为restful只是一种规范不具有实际意义，推荐一篇osc两年前的文章：[RESTful API 设计最佳实践](http://www.oschina.net/translate/best-practices-for-a-pragmatic-restful-api)  和 Infoq的一篇极其理论的文章  [理解本真的REST架构风格](http://www.infoq.com/cn/articles/understanding-restful-style) 虽然有点老，介绍的也很简单，大家权当了解，restful的更多好处，还请google

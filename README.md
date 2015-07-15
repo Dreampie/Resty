@@ -2,7 +2,7 @@
 Resty 一款极简的restful轻量级的web框架
 ===========
 
-[![Join the chat at https://gitter.im/Dreampie/Resty](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Dreampie/Resty?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)  
+[![Join the chat at https://gitter.im/Dreampie/Resty](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Dreampie/Resty?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 [![Issue Stats](http://issuestats.com/github/Dreampie/Resty/badge/pr?style=flat)](http://issuestats.com/github/Dreampie/Resty) 
 [![Issue Stats](http://issuestats.com/github/Dreampie/Resty/badge/issue?style=flat)](http://issuestats.com/github/Dreampie/Resty)
 <a href="http://dreampie.gitbooks.io/resty-chs/content/index.html" target="_blank">开发文档</a>

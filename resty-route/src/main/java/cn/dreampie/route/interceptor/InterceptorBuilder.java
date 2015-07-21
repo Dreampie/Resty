@@ -6,7 +6,9 @@ import cn.dreampie.route.interceptor.annotation.Interceptors;
 import cn.dreampie.route.interceptor.exception.InterceptorException;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,36 +44,36 @@ public class InterceptorBuilder {
    */
   public Interceptor[] buildRouteInterceptors(Interceptor[] defaultInters, Interceptor[] resourceInters, Class<? extends Resource> resourceClass, Interceptor[] methodInters, Method method) {
 
-    int size = defaultInters.length + resourceInters.length + methodInters.length;
-    Interceptor[] allInters = (size == 0 ? NULL_INTERCEPTOR_ARRAY : new Interceptor[size]);
+    List<Interceptor> allInters = new ArrayList<Interceptor>();
 
-    int index = 0;
     for (Interceptor defaultInter : defaultInters) {
-      allInters[index++] = defaultInter;
+      allInters.add(defaultInter);
     }
     for (Interceptor resourceInter : resourceInters) {
-      allInters[index++] = resourceInter;
+      allInters.add(resourceInter);
     }
     for (Interceptor methodInter : methodInters) {
-      allInters[index++] = methodInter;
+      allInters.add(methodInter);
     }
     //去除clean的aop
 
     Class<? extends Interceptor>[] resourceClears = getResourceClears(resourceClass);
     Class<? extends Interceptor>[] methodClears = getMethodClears(method);
-    for (int i = 0; i < allInters.length; i++) {
-      i = clearInterceptor(allInters, resourceClears, i);
-      i = clearInterceptor(allInters, methodClears, i);
+    if ((resourceClears != null && resourceClears.length > 0) || (methodClears != null && methodClears.length > 0)) {
+      for (int i = 0; i < allInters.size(); i++) {
+        i = clearInterceptor(allInters, resourceClears, i);
+        i = clearInterceptor(allInters, methodClears, i);
+      }
     }
 
-    return allInters;
+    return allInters.toArray(new Interceptor[allInters.size()]);
   }
 
-  private int clearInterceptor(Interceptor[] allInters, Class<? extends Interceptor>[] clears, int i) {
-    if (clears != null && clears.length > 0) {
+  private int clearInterceptor(List<Interceptor> allInters, Class<? extends Interceptor>[] clears, int i) {
+    if (allInters.size() > 0 && clears != null && clears.length > 0) {
       for (Class<? extends Interceptor> ic : clears) {
-        if (ic == allInters[i].getClass()) {
-          allInters[i] = allInters[i + 1];
+        if (ic == allInters.get(i).getClass()) {
+          allInters.remove(i);
           i--;
         }
       }

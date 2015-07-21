@@ -16,7 +16,6 @@ import java.util.List;
  */
 public class TransactionInterceptor implements Interceptor {
 
-
   public void intercept(RouteInvocation ri) {
 
     List<DataSourceMeta> dataSourceMetas = null;

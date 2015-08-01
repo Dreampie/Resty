@@ -105,10 +105,6 @@ public final class RouteBuilder {
       }
       //遍历方法看是不是 restful api
       for (Method method : methods) {
-
-        methodInters = interceptorBuilder.buildMethodInterceptors(method);
-        routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
-
         //文件上传 构建器
         file = method.getAnnotation(FILE.class);
         if (file != null) {
@@ -120,30 +116,50 @@ public final class RouteBuilder {
         //delete 请求
         delete = method.getAnnotation(DELETE.class);
         if (delete != null) {
+
+          methodInters = interceptorBuilder.buildMethodInterceptors(method);
+          routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
+
           addRoute(HttpMethod.DELETE, apiPath, delete.value(), delete.des(), multipartBuilder, routeInters, classParamNames, delete.valid(), resourceClazz, method);
           continue;
         }
         //get 请求
         get = method.getAnnotation(GET.class);
         if (get != null) {
+
+          methodInters = interceptorBuilder.buildMethodInterceptors(method);
+          routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
+
           addRoute(HttpMethod.GET, apiPath, get.value(), get.des(), multipartBuilder, routeInters, classParamNames, get.valid(), resourceClazz, method);
           continue;
         }
         //post 请求
         post = method.getAnnotation(POST.class);
         if (post != null) {
+
+          methodInters = interceptorBuilder.buildMethodInterceptors(method);
+          routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
+
           addRoute(HttpMethod.POST, apiPath, post.value(), post.des(), multipartBuilder, routeInters, classParamNames, post.valid(), resourceClazz, method);
           continue;
         }
         //put 请求
         put = method.getAnnotation(PUT.class);
         if (put != null) {
+
+          methodInters = interceptorBuilder.buildMethodInterceptors(method);
+          routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
+
           addRoute(HttpMethod.PUT, apiPath, put.value(), put.des(), multipartBuilder, routeInters, classParamNames, put.valid(), resourceClazz, method);
           continue;
         }
         //patch 请求
         patch = method.getAnnotation(PATCH.class);
         if (patch != null) {
+
+          methodInters = interceptorBuilder.buildMethodInterceptors(method);
+          routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
+
           addRoute(HttpMethod.PATCH, apiPath, patch.value(), patch.des(), multipartBuilder, routeInters, classParamNames, patch.valid(), resourceClazz, method);
           continue;
         }

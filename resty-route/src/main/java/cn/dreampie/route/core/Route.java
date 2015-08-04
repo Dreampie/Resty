@@ -254,8 +254,14 @@ public class Route {
         if (multipartParam != null) {
           fileParams = multipartParam.getUploadedFiles();
 
+          if (formParams != null) {
+            formParams.putAll(multipartParam.getParams());
+          } else {
+            formParams = multipartParam.getParams();
+          }
+
           printMatchRoute(request.getContentType(), null, pathParams, formParams, fileParams);
-          params = parseFormParams(pathParams, multipartParam.getParams(), fileParams);
+          params = parseFormParams(pathParams, formParams, fileParams);
         } else {
           printMatchRoute(request.getContentType(), null, pathParams, formParams, null);
           params = parseFormParams(pathParams, formParams, new Hashtable<String, UploadedFile>());

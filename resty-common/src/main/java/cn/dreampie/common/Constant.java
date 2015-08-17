@@ -25,7 +25,7 @@ public final class Constant {
   public final static boolean showRoute;//请求时打印route匹配信息
   public final static String apiPrefix;//api开发的标志  比如 /api/v1.0/xxx  起始前缀/api为标志 （当api请求没有匹配到route时，会返回404状态）如果是独立域名 可以不配置该项 表示 所以url都是api访问 当非api类型请求是  没有匹配到route时  foward的url （和api请求时的处理  不一致）
   public final static String exceptionHolder;
-  public static final String xForwardedSupport;
+  public static final String[] xForwardedSupports;
   private final static Logger logger = Logger.getLogger(Constant.class);
 
   static {
@@ -48,7 +48,7 @@ public final class Constant {
       showRoute = false;
       apiPrefix = null;
       exceptionHolder = null;
-      xForwardedSupport = null;
+      xForwardedSupports = new String[]{};
     } else {
       encoding = constants.get("app.encoding", Encoding.UTF_8.name());
       devMode = constants.getBoolean("app.devMode", false);
@@ -67,7 +67,13 @@ public final class Constant {
       showRoute = constants.getBoolean("app.showRoute", false);
       apiPrefix = constants.get("app.apiPrefix");
       exceptionHolder = constants.get("app.exceptionHolder");
-      xForwardedSupport = constants.get("app.xForwardedSupport");
+
+      String xForwardedSupportsStr = constants.get("app.xForwardedSupports");
+      if (xForwardedSupportsStr == null) {
+        xForwardedSupports = new String[]{};
+      } else {
+        xForwardedSupports = xForwardedSupportsStr.split(",");
+      }
     }
   }
 }

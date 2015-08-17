@@ -97,16 +97,16 @@ public abstract class AbstractRequest implements Request {
   protected void checkProxyRequest() {
     if (getHeader("X-Forwarded-Proto") != null) {
       String localClientAddress = getLocalClientAddress();
-      if (Constant.xForwardedSupport != null) {
-        List<String> forwardedSupportes = Arrays.asList(Constant.xForwardedSupport.split(","));
-        if (forwardedSupportes.size() <= 0 || (!forwardedSupportes.contains("*") && !forwardedSupportes.contains(localClientAddress))) {
+      if (Constant.xForwardedSupports != null && Constant.xForwardedSupports.length > 0) {
+        List<String> forwardedSupports = Arrays.asList(Constant.xForwardedSupports);
+        if (forwardedSupports.size() <= 0 || (!forwardedSupports.contains("*") && !forwardedSupports.contains(localClientAddress))) {
           throw new IllegalArgumentException(
               "Unauthorized proxy request from " + localClientAddress + "\n" +
-                  "If you are the application developer or operator, you can set `app.xForwardedSupport`\n" +
+                  "If you are the application developer or operator, you can set `app.xForwardedSupports`\n" +
                   "application.properties property to allow proxy requests from this proxy IP with:\n" +
-                  "  app.xForwardedSupport=" + localClientAddress + "\n" +
+                  "  app.xForwardedSupports=" + localClientAddress + "\n" +
                   "Or if you want to allow any proxy request:\n" +
-                  "  app.xForwardedSupport=*");
+                  "  app.xForwardedSupports=*");
         }
       }
     }

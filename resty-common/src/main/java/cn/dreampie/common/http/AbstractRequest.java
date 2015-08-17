@@ -1,9 +1,11 @@
 package cn.dreampie.common.http;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.Request;
 import cn.dreampie.common.util.Joiner;
 
 import javax.servlet.RequestDispatcher;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -95,13 +97,18 @@ public abstract class AbstractRequest implements Request {
   protected void checkProxyRequest() {
     if (getHeader("X-Forwarded-Proto") != null) {
       String localClientAddress = getLocalClientAddress();
-      throw new IllegalArgumentException(
-          "Unauthorized proxy request from " + localClientAddress + "\n" +
-              "If you are the application developer or operator, you can set `resty.http.XForwardedSupport`\n" +
-              "system property to allow proxy requests from this proxy IP with:\n" +
-              "  -Dresty.http.XForwardedSupport=" + localClientAddress + "\n" +
-              "Or if you want to allow any proxy request:\n" +
-              "  -Dresty.http.XForwardedSupport=all");
+      if (Constant.xForwardedSupport != null) {
+        List<String> forwardedSupportes = Arrays.asList(Constant.xForwardedSupport.split(","));
+        if (forwardedSupportes.size() <= 0 || (!forwardedSupportes.contains("*") && !forwardedSupportes.contains(localClientAddress))) {
+          throw new IllegalArgumentException(
+              "Unauthorized proxy request from " + localClientAddress + "\n" +
+                  "If you are the application developer or operator, you can set `app.xForwardedSupport`\n" +
+                  "application.properties property to allow proxy requests from this proxy IP with:\n" +
+                  "  app.xForwardedSupport=" + localClientAddress + "\n" +
+                  "Or if you want to allow any proxy request:\n" +
+                  "  app.xForwardedSupport=*");
+        }
+      }
     }
   }
 

@@ -72,6 +72,10 @@ public abstract class AbstractRequest implements Request {
   }
 
   protected String getScheme() {
+    String forwarded = getHeader("X-Forwarded-Proto");
+    if (forwarded != null) {
+      return forwarded;
+    }
     String via = getHeader("Via");
     if (via != null) {
       boolean secured = via.toUpperCase(Locale.ENGLISH).startsWith("HTTPS");

@@ -48,7 +48,7 @@ public final class Constant {
       showRoute = false;
       apiPrefix = null;
       exceptionHolder = null;
-      xForwardedSupports = new String[]{};
+      xForwardedSupports = new String[]{"127.0.0.1"};
     } else {
       encoding = constants.get("app.encoding", Encoding.UTF_8.name());
       devMode = constants.getBoolean("app.devMode", false);

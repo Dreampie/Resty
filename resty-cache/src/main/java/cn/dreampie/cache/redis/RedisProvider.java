@@ -7,7 +7,9 @@ import cn.dreampie.common.util.properties.Prop;
 import cn.dreampie.common.util.properties.Proper;
 import cn.dreampie.common.util.serialize.Serializer;
 import cn.dreampie.log.Logger;
+
 import org.apache.commons.pool2.impl.BaseObjectPoolConfig;
+
 import redis.clients.jedis.*;
 import redis.clients.util.Pool;
 
@@ -149,7 +151,7 @@ public class RedisProvider extends CacheProvider {
     }
   }
 
-  public void addCache(String group, String key, Object cache) {
+  public boolean addCache(String group, String key, Object cache) {
     String jkey = getRedisKey(group, key);
     ShardedJedis shardedJedis = null;
     Jedis jedis = null;
@@ -165,12 +167,14 @@ public class RedisProvider extends CacheProvider {
       }
     } catch (Exception e) {
       logger.warn("%s", e, e);
+      return false;
     } finally {
       returnResource(shardedJedis, jedis);
     }
+    return true;
   }
 
-  public void removeCache(String group, String key) {
+  public boolean removeCache(String group, String key) {
     String jkey = getRedisKey(group, key);
     ShardedJedis shardedJedis = null;
     Jedis jedis = null;
@@ -186,9 +190,11 @@ public class RedisProvider extends CacheProvider {
       }
     } catch (Exception e) {
       logger.warn("%s", e, e);
+      return false;
     } finally {
       returnResource(shardedJedis, jedis);
     }
+    return true;
   }
 
   public void doFlush(CacheEvent event) {
@@ -232,5 +238,28 @@ public class RedisProvider extends CacheProvider {
       jedis.del(keySet.toArray(keys));
     }
   }
+
+public boolean addCache(String group, int seconds, String key, Object cache) {
+	String jkey = getRedisKey(group, key);
+	ShardedJedis shardedJedis = null;
+	Jedis jedis = null;
+	try {
+		shardedJedis = getShardedJedis();
+		if (shardedJedis != null) {
+			shardedJedis.setex(jkey.getBytes(), seconds, Serializer.serialize(cache));
+		} else {
+			jedis = getJedis();
+			if (jedis != null) {
+				jedis.setex(jkey.getBytes(), seconds, Serializer.serialize(cache));
+			}
+		}
+	} catch (Exception e) {
+		logger.warn("%s", e, e);
+		return false;
+	} finally {
+		returnResource(shardedJedis, jedis);
+	}
+	return true;
+}
 
 }

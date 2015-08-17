@@ -53,7 +53,7 @@ public abstract class CacheProvider {
    * @param key   key of the item.
    * @param cache cache item to add to cache.
    */
-  public abstract void addCache(String group, String key, Object cache);
+  public abstract boolean addCache(String group, String key, Object cache);
 
   /**
    * remove item from cache.
@@ -61,7 +61,7 @@ public abstract class CacheProvider {
    * @param group group name of cache.
    * @param key   key of the item.
    */
-  public abstract void removeCache(String group, String key);
+  public abstract boolean removeCache(String group, String key);
 
   public abstract void doFlush(CacheEvent event);
 

@@ -65,15 +65,29 @@ public class EHCacheProvider extends CacheProvider {
   }
 
 
-  public void addCache(String group, String key, Object cache) {
-    createIfMissing(group);
-    cacheManager.getCache(group).put(new Element(key, cache));
+  public boolean addCache(String group, String key, Object cache) {
+	  try {
+	    createIfMissing(group);
+	    cacheManager.getCache(group).put(new Element(key, cache));
+	  } catch (Exception e) {
+	      logger.warn("%s", e, e);
+	      return false;
+	  }
+	  return true;
   }
 
-  public void removeCache(String group, String key) {
-    if (cacheManager.getCache(group) != null) {
-      cacheManager.getCache(group).remove(key);
-    }
+  public boolean removeCache(String group, String key) {
+	 try {
+	    if (cacheManager.getCache(group) != null) {
+	      cacheManager.getCache(group).remove(key);
+	    }else{
+	    	return false;
+	    }
+	  } catch (Exception e) {
+	      logger.warn("%s", e, e);
+	      return false;
+	  }
+	 return true;
   }
 
   public void doFlush(CacheEvent event) {
@@ -84,4 +98,5 @@ public class EHCacheProvider extends CacheProvider {
       cacheManager.removeCache(event.getGroup());
     }
   }
+
 }

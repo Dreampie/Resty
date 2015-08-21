@@ -202,10 +202,6 @@ public class Route {
       return null;
     }
     String restPath = request.getRestPath();
-    Matcher m = pattern.matcher(restPath);
-    if (!m.matches()) {
-      return null;
-    }
 
     String extension = "";
     if (restPath.contains(".")) {
@@ -216,6 +212,11 @@ public class Route {
       } else {
         extension = "";
       }
+    }
+
+    Matcher m = pattern.matcher(restPath);
+    if (!m.matches()) {
+      return null;
     }
     //pathParams
     Map<String, String> pathParams = new HashMap<String, String>();

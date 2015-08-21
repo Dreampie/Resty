@@ -4,10 +4,12 @@ import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.util.Maper;
+import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.orm.Base;
 import cn.dreampie.orm.Record;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.resource.user.model.User;
+import cn.dreampie.route.core.Headers;
 import cn.dreampie.route.core.annotation.*;
 import cn.dreampie.route.core.multipart.FILE;
 
@@ -78,7 +80,10 @@ public class TestResource extends ApiResource {
   public File download() {
     return new File(getRequest().getRealPath("/") + "upload/resty000.jar");
   }
-
+  @GET("/headers")
+  public Headers headers(Headers headers) {
+    return headers;
+  }
 
   @GET("/boom")
   public boolean test() {

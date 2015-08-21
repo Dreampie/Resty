@@ -109,6 +109,8 @@ public interface Request {
 
   Enumeration<String> getHeaders(String headerName);
 
+  Map<String,String> getHeaders();
+
   String getContentType();
 
   String getCookieValue(String cookieName);

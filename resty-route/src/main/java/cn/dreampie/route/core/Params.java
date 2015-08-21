@@ -25,6 +25,10 @@ public class Params {
     this.params = entity.getAttrs();
   }
 
+  public Params(CaseInsensitiveMap<Object> params) {
+    this.params = params;
+  }
+
   /**
    * Put key value pair to the params.
    */

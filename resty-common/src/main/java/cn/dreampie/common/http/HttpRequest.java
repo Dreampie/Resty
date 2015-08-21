@@ -179,6 +179,16 @@ public class HttpRequest extends AbstractRequest {
     return request.getHeaders(headerName);
   }
 
+  public Map<String, String> getHeaders() {
+    Map<String, String> map = new HashMap<String, String>();
+    Enumeration headerNames = request.getHeaderNames();
+    while (headerNames.hasMoreElements()) {
+      String key = (String) headerNames.nextElement();
+      String value = request.getHeader(key);
+      map.put(key, value);
+    }
+    return map;
+  }
 
   public String getContentType() {
     return request.getContentType();

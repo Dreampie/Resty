@@ -63,12 +63,23 @@ public class RouteInvocation {
         Object invokeResult;
         //执行方法
         if (route.getAllParamNames().size() > 0) {
+          List<Class<?>> allParamTypes = route.getAllParamTypes();
           List<String> allParamNames = route.getAllParamNames();
           //执行方法的参数
           Object[] args = new Object[allParamNames.size()];
           int i = 0;
           for (String name : allParamNames) {
-            args[i++] = params.get(name);
+            if (HttpRequest.class.isAssignableFrom(allParamTypes.get(i))) {
+              args[i++] = routeMatch.getRequest();
+            } else if (HttpResponse.class.isAssignableFrom(allParamTypes.get(i))) {
+              args[i++] = routeMatch.getResponse();
+            } else if (Headers.class.isAssignableFrom(allParamTypes.get(i))) {
+              args[i++] = routeMatch.getHeaders();
+            } else if (Params.class.isAssignableFrom(allParamTypes.get(i))) {
+              args[i++] = routeMatch.getParams();
+            } else {
+              args[i++] = params.get(name);
+            }
           }
           invokeResult = method.invoke(resource, args);
         } else {

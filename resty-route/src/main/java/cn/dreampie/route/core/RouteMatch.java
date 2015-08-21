@@ -14,6 +14,7 @@ public class RouteMatch {
   private final String path;
   private final String extension;
   private final Params params;
+  private final Headers headers;
   private final HttpRequest request;
   private final HttpResponse response;
 
@@ -24,8 +25,9 @@ public class RouteMatch {
     this.path = checkNotNull(path);
     this.params = checkNotNull(params);
     this.extension = checkNotNull(extension);
-    this.request = request;
-    this.response = response;
+    this.request = checkNotNull(request);
+    this.headers = new Headers(request.getHeaders());
+    this.response = checkNotNull(response);
   }
 
   public String getPath() {
@@ -48,6 +50,9 @@ public class RouteMatch {
     return response;
   }
 
+  public Headers getHeaders() {
+    return headers;
+  }
 
   public String toString() {
     return "RouteMatch{" +

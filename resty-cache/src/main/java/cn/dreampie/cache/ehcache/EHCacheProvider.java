@@ -67,7 +67,14 @@ public class EHCacheProvider extends CacheProvider {
 
   public void addCache(String group, String key, Object cache) {
     createIfMissing(group);
-    cacheManager.getCache(group).put(new Element(key, cache));
+    Element element = new Element(key, cache);
+    cacheManager.getCache(group).put(element);
+  }
+
+  public void addCache(String group, String key, Object cache, int expire) {
+    createIfMissing(group);
+    Element element = new Element(key, cache, false, expire, expire);
+    cacheManager.getCache(group).put(element);
   }
 
   public void removeCache(String group, String key) {

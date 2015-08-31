@@ -170,6 +170,29 @@ public class RedisProvider extends CacheProvider {
     }
   }
 
+  public void addCache(String group, String key, Object cache, int expire) {
+    ShardedJedis shardedJedis = null;
+    Jedis jedis = null;
+    try {
+      byte[] jkey = getRedisKey(group, key).getBytes();
+      shardedJedis = getShardedJedis();
+      if (shardedJedis != null) {
+        shardedJedis.set(jkey, Serializer.serialize(cache));
+        shardedJedis.expire(jkey, expire);
+      } else {
+        jedis = getJedis();
+        if (jedis != null) {
+          jedis.set(jkey, Serializer.serialize(cache));
+          jedis.expire(jkey, expire);
+        }
+      }
+    } catch (Exception e) {
+      logger.warn("%s", e, e);
+    } finally {
+      returnResource(shardedJedis, jedis);
+    }
+  }
+
   public void removeCache(String group, String key) {
     String jkey = getRedisKey(group, key);
     ShardedJedis shardedJedis = null;

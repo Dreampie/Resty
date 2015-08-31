@@ -55,6 +55,7 @@ public abstract class CacheProvider {
    */
   public abstract void addCache(String group, String key, Object cache);
 
+  public abstract void addCache(String group, String key, Object cache,int expire);
   /**
    * remove item from cache.
    *

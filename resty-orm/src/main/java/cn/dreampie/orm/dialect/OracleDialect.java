@@ -19,7 +19,7 @@ public class OracleDialect extends DefaultDialect {
   public String paginateWith(int pageNumber, int pageSize, String sql) {
     int satrt = (pageNumber - 1) * pageSize + 1;
     int end = pageNumber * pageSize;
-    return "SELECT * FROM ( SELECT _row.*, ROWNUM rownum_ FROM (  " + sql + " ) _row where ROWNUM <= " + end + ") paginate_alias" + " WHERE paginate_alias.rownum_ >= " + satrt;
+    return "SELECT * FROM ( SELECT row_.*, ROWNUM rownum_ FROM (  " + sql + " ) row_ WHERE ROWNUM <= " + end + ") paginate_alias" + " WHERE paginate_alias.rownum_ >= " + satrt;
   }
 
 }

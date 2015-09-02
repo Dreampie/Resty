@@ -620,9 +620,13 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     if (tableMeta.isCached()) {
       purgeCache();
     }
+    String generatedKey = tableMeta.getGeneratedKey();
+
     boolean generated = tableMeta.isGenerated();
-    if (generated) {
-      set(tableMeta.getGeneratedKey(), tableMeta.getGenerator().generateKey());
+    if (get(generatedKey) == null) {
+      if (generated) {
+        set(generatedKey, tableMeta.getGenerator().generateKey());
+      }
     }
 
     DataSourceMeta dsm = getDataSourceMeta();
@@ -681,11 +685,14 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
 
     String generatedKey = tableMeta.getGeneratedKey();
+
     //是否需要主键生成器生成值
     boolean generated = tableMeta.isGenerated();
     Generator generator = tableMeta.getGenerator();
-    if (generated) {
-      firstModel.set(generatedKey, generator.generateKey());
+    if (get(generatedKey) == null) {
+      if (generated) {
+        firstModel.set(generatedKey, generator.generateKey());
+      }
     }
 
     DataSourceMeta dsm = firstModel.getDataSourceMeta();
@@ -705,7 +712,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       for (int i = 0; i < params.length; i++) {
         for (int j = 0; j < params[i].length; j++) {
           //如果是自动生成主键 使用生成器生成
-          if (generated && columns[j].equals(generatedKey)) {
+          if (generated && columns[j].equals(generatedKey) && models.get(i).get(generatedKey)==null) {
             models.get(i).set(columns[j], generator.generateKey());
           }
           params[i][j] = models.get(i).get(columns[j]);

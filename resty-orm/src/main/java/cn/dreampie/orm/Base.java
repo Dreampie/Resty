@@ -215,8 +215,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
       StringBuilder log = new StringBuilder("Sql: {").append(sql).append("} ");
       if (params != null && params.length > 0) {
+        int i = 0;
         for (Object[] para : params) {
-          log.append(", params: ").append('{');
+          log.append(", params[").append(i++).append("]: ").append('{');
           log.append(Joiner.on("}, {").useForNull("null").join(para));
           log.append('}');
         }

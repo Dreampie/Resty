@@ -1,9 +1,9 @@
-package cn.dreampie.common.util.pattern;
+package cn.dreampie.common.util.matcher;
 
 /**
  * Created by ice on 14-9-10.
  */
-public interface PatternMatcher {
+public interface Matcher {
 
   /**
    * Returns <code>true</code> if the given <code>source</code> matches the specified <code>pattern</code>,

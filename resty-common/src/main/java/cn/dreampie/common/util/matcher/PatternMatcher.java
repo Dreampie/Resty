@@ -1,4 +1,4 @@
-package cn.dreampie.common.util.pattern;
+package cn.dreampie.common.util.matcher;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * Created by ice on 14-12-30.
  */
-public class PatternValidator {
+public class PatternMatcher {
 
 
   /**

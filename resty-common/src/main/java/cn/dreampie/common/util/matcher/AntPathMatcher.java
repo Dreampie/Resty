@@ -1,4 +1,4 @@
-package cn.dreampie.common.util.pattern;
+package cn.dreampie.common.util.matcher;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 /**
  * Created by ice on 14-9-10.
  */
-public class AntPathMatcher implements PatternMatcher {
+public class AntPathMatcher implements Matcher {
 
   /**
    * Default path separator: "/"

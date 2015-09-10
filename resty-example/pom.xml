@@ -3,7 +3,7 @@
   <parent>
     <artifactId>resty</artifactId>
     <groupId>cn.dreampie</groupId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -13,18 +13,18 @@
   <name>resty-example</name>
   <url>http://maven.apache.org</url>
 
-  <!--<repositories>-->
-  <!--<repository>-->
-  <!--<id>ossrh</id>-->
-  <!--<url>https://oss.sonatype.org/content/repositories/snapshots</url>-->
-  <!--<releases>-->
-  <!--<enabled>false</enabled>-->
-  <!--</releases>-->
-  <!--<snapshots>-->
-  <!--<enabled>true</enabled>-->
-  <!--</snapshots>-->
-  <!--</repository>-->
-  <!--</repositories>-->
+  <repositories>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -170,6 +170,13 @@
           <port>9090</port>
           <path>/</path>
           <!-- 应用的部署位置 -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
         </configuration>
       </plugin>
     </plugins>

@@ -49,8 +49,12 @@ public enum SessionCache {
    * @param value object to cache.
    */
   public void add(String group, String key, Object value) {
+    add(group, key, value, -1);
+  }
+
+  public void add(String group, String key, Object value, int expired) {
     if (enabled) {
-      cacheProvider.addCache(group, key, value);
+      cacheProvider.addCache(group, key, value, expired);
     }
   }
 

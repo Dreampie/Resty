@@ -26,6 +26,7 @@ public class RedisProvider extends CacheProvider {
   private static final Pool pool;
   private static final String host;
   private static final int timeout;
+  private static final int expired;
 
   static {
     Prop config = null;
@@ -39,6 +40,7 @@ public class RedisProvider extends CacheProvider {
       String[] hp;
       host = config.get("redis.host");
       timeout = config.getInt("redis.timeout", Protocol.DEFAULT_TIMEOUT);
+      expired = config.getInt("redis.expired", -1);
       JedisPoolConfig poolConfig = new JedisPoolConfig();
       poolConfig.setLifo(config.getBoolean("redis.pool.lifo", BaseObjectPoolConfig.DEFAULT_LIFO));
       poolConfig.setMaxWaitMillis(config.getLong("redis.pool.maxWaitMillis", BaseObjectPoolConfig.DEFAULT_MAX_WAIT_MILLIS));
@@ -80,6 +82,7 @@ public class RedisProvider extends CacheProvider {
       host = "127.0.0.1:6379";
       pool = null;
       timeout = Protocol.DEFAULT_TIMEOUT;
+      expired = -1;
     }
   }
 
@@ -149,28 +152,7 @@ public class RedisProvider extends CacheProvider {
     }
   }
 
-  public void addCache(String group, String key, Object cache) {
-    String jkey = getRedisKey(group, key);
-    ShardedJedis shardedJedis = null;
-    Jedis jedis = null;
-    try {
-      shardedJedis = getShardedJedis();
-      if (shardedJedis != null) {
-        shardedJedis.set(jkey.getBytes(), Serializer.serialize(cache));
-      } else {
-        jedis = getJedis();
-        if (jedis != null) {
-          jedis.set(jkey.getBytes(), Serializer.serialize(cache));
-        }
-      }
-    } catch (Exception e) {
-      logger.warn("%s", e, e);
-    } finally {
-      returnResource(shardedJedis, jedis);
-    }
-  }
-
-  public void addCache(String group, String key, Object cache, int expire) {
+  public void addCache(String group, String key, Object cache, int expired) {
     ShardedJedis shardedJedis = null;
     Jedis jedis = null;
     try {
@@ -178,12 +160,24 @@ public class RedisProvider extends CacheProvider {
       shardedJedis = getShardedJedis();
       if (shardedJedis != null) {
         shardedJedis.set(jkey, Serializer.serialize(cache));
-        shardedJedis.expire(jkey, expire);
+        if (expired != -1) {
+          shardedJedis.expire(jkey, expired);
+        } else {
+          if (RedisProvider.expired != -1) {
+            shardedJedis.expire(jkey, RedisProvider.expired);
+          }
+        }
       } else {
         jedis = getJedis();
         if (jedis != null) {
           jedis.set(jkey, Serializer.serialize(cache));
-          jedis.expire(jkey, expire);
+          if (expired != -1) {
+            jedis.expire(jkey, expired);
+          } else {
+            if (RedisProvider.expired != -1) {
+              jedis.expire(jkey, RedisProvider.expired);
+            }
+          }
         }
       }
     } catch (Exception e) {

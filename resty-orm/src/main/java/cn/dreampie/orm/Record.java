@@ -28,6 +28,10 @@ public class Record extends Base<Record> {
     this(tableName, DEFAULT_GENERATED_KEY, null, new String[]{}, cached);
   }
 
+  public Record(String tableName, boolean cached, int expired) {
+    this(tableName, DEFAULT_GENERATED_KEY, null, new String[]{}, cached, expired);
+  }
+
   public Record(String tableName, String generatedKey) {
     this(null, tableName, generatedKey);
   }
@@ -64,6 +68,10 @@ public class Record extends Base<Record> {
     this(null, tableName, generatedKey, generator, primaryKey, cached);
   }
 
+  public Record(String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached, int expired) {
+    this(null, tableName, generatedKey, generator, primaryKey, cached, expired);
+  }
+
   /**
    * @param dsName       数据源
    * @param tableName    表名
@@ -74,6 +82,10 @@ public class Record extends Base<Record> {
    */
   public Record(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached) {
     setTableMeta(dsName, tableName, generatedKey, generator, primaryKey, cached);
+  }
+
+  public Record(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached, int expired) {
+    setTableMeta(dsName, tableName, generatedKey, generator, primaryKey, cached, expired);
   }
 
   /**
@@ -129,7 +141,7 @@ public class Record extends Base<Record> {
   public Record useDS(String useDS) {
     checkNotNull(useDS, "DataSourceName could not be null.");
     if (!this.useCache && !tableMeta.getDsName().equals(useDS)) {
-      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(useDS, tableMeta.getTableName(), tableMeta.getGeneratedKey(), tableMeta.isGenerated(), tableMeta.getGenerator(), tableMeta.getPrimaryKey(), tableMeta.isCached()), Metadata.getDataSourceMeta(useDS));
+      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(useDS, tableMeta.getTableName(), tableMeta.getGeneratedKey(), tableMeta.isGenerated(), tableMeta.getGenerator(), tableMeta.getPrimaryKey(), tableMeta.isCached(), tableMeta.getExpired()), Metadata.getDataSourceMeta(useDS));
       return this;
     } else {
       if (tableMeta.getDsName().equals(useDS)) {
@@ -205,6 +217,12 @@ public class Record extends Base<Record> {
     return this;
   }
 
+
+  public Record setTableMeta(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached) {
+    setTableMeta(dsName, tableName, generatedKey, generator, primaryKey, cached, -1);
+    return this;
+  }
+
   /**
    * 设置table信息
    *
@@ -216,7 +234,7 @@ public class Record extends Base<Record> {
    * @param cached       缓存
    * @return record
    */
-  public Record setTableMeta(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached) {
+  public Record setTableMeta(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached, int expired) {
     if (primaryKey == null) {
       primaryKey = new String[]{};
     }
@@ -228,7 +246,7 @@ public class Record extends Base<Record> {
     if (Metadata.hasTableMeta(dsName, tableName)) {
       this.tableMeta = Metadata.getTableMeta(dsName, tableName);
     } else {
-      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(dsName, tableName, generatedKey, generator != null, generator, primaryKey, cached), Metadata.getDataSourceMeta(dsName));
+      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(dsName, tableName, generatedKey, generator != null, generator, primaryKey, cached, expired), Metadata.getDataSourceMeta(dsName));
     }
     return this;
   }

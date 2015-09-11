@@ -59,9 +59,14 @@ public enum QueryCache {
    * @param cache     object to cache.
    */
   public void add(String type, String dsName, String tableName, String query, Object[] params, Object cache) {
+    add(type, dsName, tableName, query, params, cache, -1);
+  }
+
+  public void add(String type, String dsName, String tableName, String query, Object[] params, Object cache, int expired) {
+
     if (enabled) {
       String group = getGroup(type, dsName, tableName);
-      cacheProvider.addCache(group, getKey(group, query, params), cache);
+      cacheProvider.addCache(group, getKey(group, query, params), cache, expired);
     }
   }
 

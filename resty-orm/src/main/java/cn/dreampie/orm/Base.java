@@ -170,7 +170,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected void addCache(String sql, Object[] params, Object cache) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().add(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params, cache);
+      QueryCache.instance().add(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params, cache, tableMeta.getExpired());
     }
   }
 

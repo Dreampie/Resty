@@ -53,9 +53,12 @@ public abstract class CacheProvider {
    * @param key   key of the item.
    * @param cache cache item to add to cache.
    */
-  public abstract void addCache(String group, String key, Object cache);
+  public void addCache(String group, String key, Object cache) {
+    addCache(group, key, cache, -1);
+  }
 
-  public abstract void addCache(String group, String key, Object cache,int expire);
+  public abstract void addCache(String group, String key, Object cache, int expired);
+
   /**
    * remove item from cache.
    *

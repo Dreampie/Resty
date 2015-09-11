@@ -22,10 +22,11 @@ public class TableMeta implements Serializable {
   private final String tableName, dsName;
   private final Class<? extends Entity> modelClass;
   private final boolean cached;
+  private final int expired;
   private SortedMap<String, ColumnMeta> columnMetadata;
 
 
-  protected TableMeta(String dsName, String tableName, String generatedKey, boolean generated, Generator generator, String[] primaryKey, boolean cached) {
+  protected TableMeta(String dsName, String tableName, String generatedKey, boolean generated, Generator generator, String[] primaryKey, boolean cached, int expired) {
     this.modelClass = null;
     this.generatedKey = generatedKey;
     this.generator = generator;
@@ -33,6 +34,7 @@ public class TableMeta implements Serializable {
     this.primaryKey = primaryKey;
     this.tableName = tableName;
     this.cached = cached;
+    this.expired = expired;
     this.dsName = dsName;
   }
 
@@ -54,6 +56,7 @@ public class TableMeta implements Serializable {
     this.primaryKey = tableAnnotation.primaryKey();
     this.tableName = tableAnnotation.name();
     this.cached = tableAnnotation.cached();
+    this.expired = tableAnnotation.expired();
     this.dsName = dsName;
   }
 
@@ -79,6 +82,10 @@ public class TableMeta implements Serializable {
 
   public String getTableName() {
     return tableName;
+  }
+
+  public int getExpired() {
+    return expired;
   }
 
   protected boolean tableExists() {

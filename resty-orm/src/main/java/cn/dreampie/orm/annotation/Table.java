@@ -24,4 +24,6 @@ public @interface Table {
   String[] primaryKey() default {};//非自动生成的主键放在这儿
 
   boolean cached() default false;//是否使用缓存
+
+  int expired() default -1;//缓存过期时间 默认在更新时过期，或者在缓存配置文件中设置过期时间
 }

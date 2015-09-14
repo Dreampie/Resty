@@ -2,7 +2,7 @@ package cn.dreampie.config;
 
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.security.AuthenticateService;
-import cn.dreampie.security.DefaultPasswordService;
+import cn.dreampie.security.PasswordService;
 import cn.dreampie.security.Principal;
 import cn.dreampie.security.credential.Credential;
 
@@ -21,9 +21,9 @@ public class MyAuthenticateService extends AuthenticateService {
    * @return 用户权限对象
    */
   public Principal getPrincipal(String username) {
-    DefaultPasswordService defaultPasswordService = new DefaultPasswordService();
+    PasswordService passwordService = getPasswordService();
 
-    User u = new User().set("username", username).set("password", defaultPasswordService.hash("123")).put("permissions", new HashSet<String>() {{
+    User u = new User().set("username", username).set("password", passwordService.hash("123")).put("permissions", new HashSet<String>() {{
       add("users");
     }});
 

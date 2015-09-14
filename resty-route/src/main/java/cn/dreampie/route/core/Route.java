@@ -651,7 +651,7 @@ public class Route {
       }
     }
 
-    if (formParams.size() > 0) {
+    if (formParams != null && formParams.size() > 0) {
       for (Map.Entry<String, List<String>> formEntry : formParams.entrySet()) {
         name = formEntry.getKey();
         if (!params.containsName(name)) {

@@ -3,6 +3,7 @@ package cn.dreampie.example;
 import cn.dreampie.client.Client;
 import cn.dreampie.client.ClientRequest;
 import cn.dreampie.client.ClientResult;
+import cn.dreampie.client.ClientUser;
 import cn.dreampie.common.util.json.Jsoner;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -22,7 +23,7 @@ public class ClientTest {
 
   @Before
   public void setUp() throws Exception {
-    client = new Client("http://localhost:9090/api/v1.0", "/sessions", "awesa", "123", false);
+    client = new Client("http://localhost:9090/api/v1.0", "/sessions", new ClientUser("xxx", "123", false));
   }
 
   @Test

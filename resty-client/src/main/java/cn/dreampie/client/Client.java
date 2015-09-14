@@ -130,10 +130,11 @@ public class Client extends ClientConnection {
 
     ClientRequest clientRequest = clientRequestTL.get();
     try {
-      if (httpCode == HttpURLConnection.HTTP_OK || httpCode == HttpURLConnection.HTTP_PARTIAL) {
-        logger.debug("Reading an OK (%s) response", httpCode);
-        is = conn.getInputStream();
-      } else if (httpCode == HttpURLConnection.HTTP_NOT_FOUND) {
+//      if (httpCode == HttpURLConnection.HTTP_OK || httpCode == HttpURLConnection.HTTP_PARTIAL) {
+//        logger.debug("Reading an OK (%s) response", httpCode);
+//        is = conn.getInputStream();
+//      } else
+      if (httpCode == HttpURLConnection.HTTP_NOT_FOUND) {
         logger.debug("Reading a Not Found (%s) response", httpCode);
       } else if (httpCode == HttpURLConnection.HTTP_NO_CONTENT) {
         logger.debug("Returning a No Content (null) (%s) response", httpCode);
@@ -143,6 +144,9 @@ public class Client extends ClientConnection {
         if (!clientRequest.equals(loginRequest)) {
           return login(clientRequest);
         }
+      } else {
+        logger.debug("Reading an OK (%s) response", httpCode);
+        is = conn.getInputStream();
       }
       if (is == null) {
         is = conn.getErrorStream();

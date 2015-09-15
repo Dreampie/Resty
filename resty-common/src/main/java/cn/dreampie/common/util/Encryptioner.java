@@ -66,7 +66,7 @@ public class Encryptioner {
     try {
       StringBuilder result = new StringBuilder();
       MessageDigest md = MessageDigest.getInstance(algorithm);
-      if (salt != null) {
+      if (salt != null && !salt.isEmpty()) {
         md.update(salt.getBytes(Encoding.UTF_8));
       }
       byte[] bytes = md.digest(srcStr.getBytes(Encoding.UTF_8));

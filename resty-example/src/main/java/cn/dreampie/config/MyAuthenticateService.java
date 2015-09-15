@@ -23,11 +23,11 @@ public class MyAuthenticateService extends AuthenticateService {
   public Principal getPrincipal(String username) {
     PasswordService passwordService = getPasswordService();
 
-    User u = new User().set("username", username).set("password", passwordService.hash("123")).put("permissions", new HashSet<String>() {{
+    User u = new User().set("username", username).set("password", passwordService.hash("123", "x")).put("permissions", new HashSet<String>() {{
       add("users");
     }});
 
-    Principal<User> principal = new Principal<User>(u.<String>get("username"), u.<String>get("password"), (Set) u.get("permissions"), u);
+    Principal<User> principal = new Principal<User>(u.<String>get("username"), u.<String>get("password"), "x", (Set) u.get("permissions"), u);
     return principal;
   }
 

@@ -23,7 +23,7 @@ public class ClientTest {
 
   @Before
   public void setUp() throws Exception {
-    client = new Client("http://localhost:9090/api/v1.0", "/sessions", new ClientUser("xxx", "123", false));
+    client = new Client("http://localhost:9090/api/v1.0", "/sessions", new ClientUser("xxx","123",false));
   }
 
   @Test

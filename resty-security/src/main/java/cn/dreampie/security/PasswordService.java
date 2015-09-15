@@ -8,4 +8,6 @@ public interface PasswordService {
   public String hash(String password);
 
   public boolean match(String password, String passwordHash);
+
+  public boolean match(String password, String passwordHash, String salt);
 }

@@ -75,7 +75,15 @@ public class Subject {
     if (principal == null) {
       throw new WebException(HttpStatus.NOT_FOUND, "User not found.");
     }
-    if (passwordService.match(password, principal.getPasswordHash())) {
+    boolean match = false;
+    String salt = principal.getSalt();
+    if (salt != null && !salt.isEmpty()) {
+      match = passwordService.match(password, principal.getPasswordHash(), salt);
+    } else {
+      match = passwordService.match(password, principal.getPasswordHash());
+    }
+
+    if (match) {
       //授权用户
       //时间
       long expires = -1;

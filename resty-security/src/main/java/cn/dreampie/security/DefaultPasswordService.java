@@ -14,10 +14,18 @@ public class DefaultPasswordService implements PasswordService {
   }
 
   public String hash(String password) {
-    return Encryptioner.sha512Encrypt(password);
+    return Encryptioner.sha512(password);
+  }
+
+  public String hash(String password, String salt) {
+    return Encryptioner.sha512(password, salt);
   }
 
   public boolean match(String password, String passwordHash) {
     return hash(password).equals(passwordHash);
+  }
+
+  public boolean match(String password, String passwordHash, String salt) {
+    return hash(password, salt).equals(passwordHash);
   }
 }

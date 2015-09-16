@@ -155,7 +155,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected <T> T getCache(String sql, Object[] params) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      return (T) QueryCache.instance().get(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params);
+      return (T) QueryCache.instance().get(tableMeta.getDsName(), tableMeta.getTableName(), getMClass().getSimpleName(), sql, params);
     }
     return null;
   }
@@ -170,7 +170,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected void addCache(String sql, Object[] params, Object cache) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().add(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params, cache, tableMeta.getExpired());
+      QueryCache.instance().add(tableMeta.getDsName(), tableMeta.getTableName(), getMClass().getSimpleName(), sql, params, cache, tableMeta.getExpired());
     }
   }
 
@@ -180,7 +180,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   public void purgeCache() {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().purge(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName());
+      QueryCache.instance().purge(tableMeta.getDsName(), tableMeta.getTableName());
     }
   }
 
@@ -193,7 +193,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected void removeCache(String sql, Object[] params) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().remove(getMClass().getSimpleName(), tableMeta.getDsName(), tableMeta.getTableName(), sql, params);
+      QueryCache.instance().remove(tableMeta.getDsName(), tableMeta.getTableName(), getMClass().getSimpleName(), sql, params);
     }
   }
 

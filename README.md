@@ -34,6 +34,22 @@ maven使用方式：
 </dependency>
 ```
 
+2.如果使用带有-SNAPSHOT后缀的包，请添加该仓库
+```xml
+<repositories>
+    <repository>
+      <id>oss-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+```
+
 一、独有优点：
 -----------
 

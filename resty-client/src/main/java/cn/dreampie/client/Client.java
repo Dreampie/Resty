@@ -136,7 +136,9 @@ public class Client extends ClientConnection {
     int httpCode = conn.getResponseCode();
     logger.debug("Connection done. The server's response code is: %s", httpCode);
     InputStream is = null;
-    if (httpCode < HttpURLConnection.HTTP_BAD_REQUEST) {
+
+    boolean isSuccess = httpCode < HttpURLConnection.HTTP_BAD_REQUEST;
+    if (isSuccess) {
       is = conn.getInputStream();
     }
 
@@ -154,7 +156,7 @@ public class Client extends ClientConnection {
       } else {
         //是否是下载文件
         String downloadFile = clientRequest.getDownloadFile();
-        if (downloadFile != null) {
+        if (isSuccess && downloadFile != null) {
           File file;
           File fileOrDirectory = new File(downloadFile);
           if (fileOrDirectory.isDirectory()) {

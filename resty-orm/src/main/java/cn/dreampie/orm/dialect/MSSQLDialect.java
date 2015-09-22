@@ -1,7 +1,5 @@
 package cn.dreampie.orm.dialect;
 
-import cn.dreampie.orm.exception.DBException;
-
 import java.util.regex.Matcher;
 
 /**
@@ -36,7 +34,8 @@ public class MSSQLDialect extends DefaultDialect {
 
     //mssql ROW_NUMBER分页必须要至少一个ORDER BY
     if (orderBys == null) {
-      throw new DBException("MSSQL offset queries require an order by column.");
+      orderBys = "CURRENT_TIMESTAMP";
+      //throw new DBException("MSSQL offset queries require an order by column.");
     }
 
     StringBuilder querySql = new StringBuilder();

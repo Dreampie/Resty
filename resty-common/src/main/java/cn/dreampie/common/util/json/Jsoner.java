@@ -50,7 +50,11 @@ public class Jsoner {
   }
 
   public static String toJSON(Object object) {
-    return JSON.toJSONString(object, serializerFeatures);
+    if (serializerFeatures != null) {
+      return JSON.toJSONString(object, serializerFeatures);
+    } else {
+      return JSON.toJSONString(object);
+    }
   }
 
   public static String toJSON(Object object, SerializerFeature... features) {
@@ -58,7 +62,11 @@ public class Jsoner {
   }
 
   public static String toJSON(Object object, SerializeFilter[] filters) {
-    return JSON.toJSONString(object, filters, serializerFeatures);
+    if (serializerFeatures != null) {
+      return JSON.toJSONString(object, filters, serializerFeatures);
+    } else {
+      return JSON.toJSONString(object, filters);
+    }
   }
 
   public static String toJSON(Object object, SerializeFilter[] filters, SerializerFeature... features) {
@@ -66,7 +74,11 @@ public class Jsoner {
   }
 
   public static String toJSON(Object object, SerializeConfig config) {
-    return JSON.toJSONString(object, config, serializerFeatures);
+    if (serializerFeatures != null) {
+      return JSON.toJSONString(object, config, serializerFeatures);
+    } else {
+      return JSON.toJSONString(object, config);
+    }
   }
 
   public static String toJSON(Object object, SerializeConfig config, SerializerFeature... features) {
@@ -74,7 +86,11 @@ public class Jsoner {
   }
 
   public static String toJSON(Object object, SerializeConfig config, SerializeFilter filter) {
-    return JSON.toJSONString(object, config, filter, serializerFeatures);
+    if (serializerFeatures != null) {
+      return JSON.toJSONString(object, config, filter, serializerFeatures);
+    } else {
+      return JSON.toJSONString(object, config, filter);
+    }
   }
 
   public static String toJSON(Object object, SerializeConfig config, SerializeFilter filter, SerializerFeature... features) {
@@ -91,7 +107,11 @@ public class Jsoner {
 
   public static <T> T toObject(String json, Class<T> clazz) {
     try {
-      return JSON.parseObject(json, clazz, deserializerFeatures);
+      if (deserializerFeatures != null) {
+        return JSON.parseObject(json, clazz, deserializerFeatures);
+      } else {
+        return JSON.parseObject(json, clazz);
+      }
     } catch (JSONException e) {
       throw new JsonException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
     }
@@ -107,7 +127,11 @@ public class Jsoner {
 
   public static <T> T toObject(String json, Class<T> clazz, ParseProcess processor) {
     try {
-      return JSON.parseObject(json, clazz, processor, deserializerFeatures);
+      if (deserializerFeatures != null) {
+        return JSON.parseObject(json, clazz, processor, deserializerFeatures);
+      } else {
+        return JSON.parseObject(json, clazz, processor);
+      }
     } catch (JSONException e) {
       throw new JsonException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
     }
@@ -132,7 +156,11 @@ public class Jsoner {
 
   public static <T> T toObject(String json, Type type) {
     try {
-      return JSON.parseObject(json, type, deserializerFeatures);
+      if (deserializerFeatures != null) {
+        return JSON.parseObject(json, type, deserializerFeatures);
+      } else {
+        return JSON.parseObject(json, type);
+      }
     } catch (JSONException e) {
       throw new JsonException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
     }
@@ -148,7 +176,11 @@ public class Jsoner {
 
   public static <T> T toObject(String json, Type type, ParseProcess processor) {
     try {
-      return JSON.parseObject(json, type, processor, deserializerFeatures);
+      if (deserializerFeatures != null) {
+        return JSON.parseObject(json, type, processor, deserializerFeatures);
+      } else {
+        return JSON.parseObject(json, type, processor);
+      }
     } catch (JSONException e) {
       throw new JsonException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
     }

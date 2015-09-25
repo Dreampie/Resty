@@ -34,11 +34,11 @@ public class Jsoner {
   }
 
   public static void addSerializerFeature(SerializerFeature... features) {
-    Jsoner.serializerFeatures = features;
+    serializerFeatures = features;
   }
 
   public static void addDeserializerFeature(Feature... features) {
-    Jsoner.deserializerFeatures = features;
+    deserializerFeatures = features;
   }
 
   public static void addSerializer(Type type, ObjectSerializer serializer) {

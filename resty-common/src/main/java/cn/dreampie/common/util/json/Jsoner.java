@@ -18,6 +18,8 @@ import java.lang.reflect.Type;
 public class Jsoner {
   private static SerializeConfig config = SerializeConfig.getGlobalInstance();
   private static ParserConfig parserConfig = ParserConfig.getGlobalInstance();
+  private static SerializerFeature[] serializerFeatures;
+  private static Feature[] deserializerFeatures;
 
   static {
     config.put(java.util.Date.class, new SimpleDateFormatSerializer("yyyy-MM-dd HH:mm:ss"));
@@ -31,6 +33,14 @@ public class Jsoner {
     addDeserializer(type, deserializer);
   }
 
+  public static void addSerializerFeature(SerializerFeature... features) {
+    Jsoner.serializerFeatures = features;
+  }
+
+  public static void addDeserializerFeature(Feature... features) {
+    Jsoner.deserializerFeatures = features;
+  }
+
   public static void addSerializer(Type type, ObjectSerializer serializer) {
     config.put(type, serializer);
   }
@@ -40,19 +50,31 @@ public class Jsoner {
   }
 
   public static String toJSON(Object object) {
-    return JSON.toJSONString(object, SerializerFeature.DisableCircularReferenceDetect);
+    return JSON.toJSONString(object, serializerFeatures);
   }
 
   public static String toJSON(Object object, SerializerFeature... features) {
     return JSON.toJSONString(object, features);
   }
 
+  public static String toJSON(Object object, SerializeFilter[] filters) {
+    return JSON.toJSONString(object, filters, serializerFeatures);
+  }
+
   public static String toJSON(Object object, SerializeFilter[] filters, SerializerFeature... features) {
     return JSON.toJSONString(object, filters, features);
   }
 
+  public static String toJSON(Object object, SerializeConfig config) {
+    return JSON.toJSONString(object, config, serializerFeatures);
+  }
+
   public static String toJSON(Object object, SerializeConfig config, SerializerFeature... features) {
     return JSON.toJSONString(object, config, features);
+  }
+
+  public static String toJSON(Object object, SerializeConfig config, SerializeFilter filter) {
+    return JSON.toJSONString(object, config, filter, serializerFeatures);
   }
 
   public static String toJSON(Object object, SerializeConfig config, SerializeFilter filter, SerializerFeature... features) {
@@ -69,7 +91,7 @@ public class Jsoner {
 
   public static <T> T toObject(String json, Class<T> clazz) {
     try {
-      return JSON.parseObject(json, clazz);
+      return JSON.parseObject(json, clazz, deserializerFeatures);
     } catch (JSONException e) {
       throw new JsonException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
     }
@@ -82,6 +104,15 @@ public class Jsoner {
       throw new JsonException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
     }
   }
+
+  public static <T> T toObject(String json, Class<T> clazz, ParseProcess processor) {
+    try {
+      return JSON.parseObject(json, clazz, processor, deserializerFeatures);
+    } catch (JSONException e) {
+      throw new JsonException("Could not cast \"" + json + "\" to " + clazz.getName(), e);
+    }
+  }
+
 
   public static <T> T toObject(String json, Class<T> clazz, ParseProcess processor, Feature... features) {
     try {
@@ -99,9 +130,25 @@ public class Jsoner {
     }
   }
 
+  public static <T> T toObject(String json, Type type) {
+    try {
+      return JSON.parseObject(json, type, deserializerFeatures);
+    } catch (JSONException e) {
+      throw new JsonException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
+    }
+  }
+
   public static <T> T toObject(String json, Type type, Feature... features) {
     try {
       return JSON.parseObject(json, type, features);
+    } catch (JSONException e) {
+      throw new JsonException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
+    }
+  }
+
+  public static <T> T toObject(String json, Type type, ParseProcess processor) {
+    try {
+      return JSON.parseObject(json, type, processor, deserializerFeatures);
     } catch (JSONException e) {
       throw new JsonException("Could not cast \"" + json + "\" to " + type.getClass().getName(), e);
     }

@@ -108,7 +108,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected abstract boolean isUseCache();
 
   /**
-   * 本次不实用缓存
+   * 本次不使用缓存
    *
    * @return Model
    */

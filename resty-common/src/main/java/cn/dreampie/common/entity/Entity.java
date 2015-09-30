@@ -167,11 +167,15 @@ public abstract class Entity<M extends Entity> {
    */
   public <T> T get(String attr, Class<T> clazz) {
     Object value = attrs.get(attr);
-    if (clazz.isAssignableFrom(value.getClass())) {
-      return (T) value;
-    } else {
-      return Jsoner.toObject(Jsoner.toJSON(value), clazz);
+    T result = null;
+    if (value != null) {
+      if (clazz.isAssignableFrom(value.getClass())) {
+        result = (T) value;
+      } else {
+        result = Jsoner.toObject(Jsoner.toJSON(value), clazz);
+      }
     }
+    return result;
   }
 
   /**

@@ -524,7 +524,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return Model
    */
   public M findFirst(String sql, Object... params) {
-    List<M> result = find(sql, params);
+    TableMeta tableMeta = getTableMeta();
+    List<M> result = find(tableMeta.getDialect().paginateWith(1, 1, sql), params);
     return result.size() > 0 ? result.get(0) : null;
   }
 
@@ -1279,7 +1280,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * and it return Object if your sql has select only one column.
    */
   public <T> T queryFirst(String sql, Object... params) {
-    List<T> result = query(sql, params);
+    TableMeta tableMeta = getTableMeta();
+    List<T> result = query(tableMeta.getDialect().paginateWith(1, 1, sql), params);
     return result.size() > 0 ? result.get(0) : null;
   }
 
@@ -1341,7 +1343,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return
    */
   public <T> T queryCallFirst(String sql, ResultSetCall resultSetCall) {
-    List<T> result = queryCall(sql, resultSetCall);
+    TableMeta tableMeta = getTableMeta();
+    List<T> result = queryCall(tableMeta.getDialect().paginateWith(1, 1, sql), resultSetCall);
     return result.size() > 0 ? result.get(0) : null;
   }
 
@@ -1381,7 +1384,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return
    */
   public M findCallFirst(String sql, ResultSetCall resultSetCall) {
-    List<M> result = findCall(sql, resultSetCall);
+    TableMeta tableMeta = getTableMeta();
+    List<M> result = findCall(tableMeta.getDialect().paginateWith(1, 1, sql), resultSetCall);
     return result.size() > 0 ? result.get(0) : null;
   }
 

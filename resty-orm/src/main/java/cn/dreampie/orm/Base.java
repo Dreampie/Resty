@@ -537,7 +537,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     return findColsById("*", id);
   }
 
-  public M findByIds(Object... ids) {
+  public List<M> findByIds(Object... ids) {
     return findColsByIds("*", ids);
   }
 
@@ -555,12 +555,11 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     return result.size() > 0 ? result.get(0) : null;
   }
 
-  public M findColsByIds(String columns, Object... ids) {
+  public List<M> findColsByIds(String columns, Object... ids) {
     TableMeta tableMeta = getTableMeta();
     String[] keys = getPrimaryKeys(tableMeta);
     String sql = getDialect().select(tableMeta.getTableName(), "", Joiner.on("=? AND ").join(keys) + "=?", columns.split(","));
-    List<M> result = find(sql, ids);
-    return result.size() > 0 ? result.get(0) : null;
+    return find(sql, ids);
   }
 
   /**

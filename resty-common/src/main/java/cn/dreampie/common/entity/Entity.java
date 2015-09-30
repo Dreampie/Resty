@@ -179,7 +179,7 @@ public abstract class Entity<M extends Entity> {
       }
       return result;
     } else {
-      throw new EntityException("Attr '" + attr + "' could not foud.");
+      throw new EntityException("Attribute '" + attr + "' could not found.");
     }
   }
 

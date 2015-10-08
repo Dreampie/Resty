@@ -560,10 +560,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
         throw new IllegalArgumentException("Your table must have least one generatedKey or primaryKey.");
       }
     }
-
-    String sql = getDialect().select(tableMeta.getTableName(), "", generatedKey + "=?", columns.split(","));
-    List<M> result = find(sql, id);
-    return result.size() > 0 ? result.get(0) : null;
+    Dialect dialect = getDialect();
+    String sql = dialect.select(tableMeta.getTableName(), "", generatedKey + "=?", columns.split(","));
+    return findFirst(sql, id);
   }
 
   public List<M> findColsByIds(String columns, Object... ids) {

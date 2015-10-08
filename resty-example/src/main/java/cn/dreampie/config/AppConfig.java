@@ -1,5 +1,6 @@
 package cn.dreampie.config;
 
+import cn.dreampie.common.spring.SpringPlugin;
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.provider.c3p0.C3p0DataSourceProvider;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
@@ -27,17 +28,18 @@ public class AppConfig extends Config {
   }
 
   public void configPlugin(PluginLoader pluginLoader) {
-    //第一个数据库
-    C3p0DataSourceProvider cdsp = new C3p0DataSourceProvider("default");
-    ActiveRecordPlugin activeRecordCdsp = new ActiveRecordPlugin(cdsp);
-    activeRecordCdsp.addIncludePackages("cn.dreampie.resource");
-    pluginLoader.add(activeRecordCdsp);
+//    //第一个数据库
+//    C3p0DataSourceProvider cdsp = new C3p0DataSourceProvider("default");
+//    ActiveRecordPlugin activeRecordCdsp = new ActiveRecordPlugin(cdsp);
+//    activeRecordCdsp.addIncludePackages("cn.dreampie.resource");
+//    pluginLoader.add(activeRecordCdsp);
+//
+//    //第二个数据库
+//    DruidDataSourceProvider ddsp = new DruidDataSourceProvider("demo");
+//    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp);
+//    pluginLoader.add(activeRecordDdsp);
 
-    //第二个数据库
-    DruidDataSourceProvider ddsp = new DruidDataSourceProvider("demo");
-    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp);
-    pluginLoader.add(activeRecordDdsp);
-
+    pluginLoader.add(new SpringPlugin(HelloApp.class));
 //    JndiDataSourceProvider jdsp = new JndiDataSourceProvider("jndiDs", "jndiName");
 //    ActiveRecordPlugin activeRecordJdsp = new ActiveRecordPlugin(ddsp, true);
 //    pluginLoader.add(activeRecordJdsp);

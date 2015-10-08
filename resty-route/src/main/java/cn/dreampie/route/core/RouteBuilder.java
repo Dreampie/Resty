@@ -2,6 +2,7 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.common.http.HttpMethod;
+import cn.dreampie.common.spring.SpringBuilder;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
 import cn.dreampie.route.config.InterceptorLoader;
@@ -93,6 +94,7 @@ public final class RouteBuilder {
 
     //addResources
     for (Class<? extends Resource> resourceClazz : resourceLoader.getResources()) {
+      SpringBuilder.register(resourceClazz);//如果spring plugin init注入到spring容器
       resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);
       classParamNames = ParamNamesScaner.getParamNames(resourceClazz);
 

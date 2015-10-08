@@ -6,6 +6,7 @@ import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.ImageResult;
 import cn.dreampie.common.http.result.WebResult;
+import cn.dreampie.common.spring.SpringBuilder;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
@@ -51,7 +52,10 @@ public class RouteInvocation {
       Resource resource = null;
       try {
         //初始化resource
-        resource = route.getResourceClass().newInstance();
+        resource = SpringBuilder.getBean(route.getResourceClass());
+        if (resource == null) {
+          resource = route.getResourceClass().newInstance();
+        }
         resource.setRouteMatch(routeMatch);
         //获取所有参数
         Params params = routeMatch.getParams();

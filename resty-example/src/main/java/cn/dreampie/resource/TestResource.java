@@ -4,7 +4,6 @@ import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.util.Maper;
-import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.orm.Base;
 import cn.dreampie.orm.Record;
 import cn.dreampie.orm.transaction.Transaction;
@@ -12,6 +11,8 @@ import cn.dreampie.resource.user.model.User;
 import cn.dreampie.route.core.Headers;
 import cn.dreampie.route.core.annotation.*;
 import cn.dreampie.route.core.multipart.FILE;
+import cn.dreampie.service.HelloService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.Date;
@@ -24,9 +25,13 @@ import java.util.Map;
 @API("/tests")
 public class TestResource extends ApiResource {
 
+  @Autowired
+  private HelloService helloService;
+
   @GET("/:get")
   public WebResult<List<User>> get(String get, Date x) {
     System.out.println("xxxxx" + x);
+    System.out.println(helloService.hello());
     //如果需要返回请求状态  new WebResult
     return new WebResult<List<User>>(HttpStatus.OK, User.dao.findAll());
   }
@@ -80,6 +85,7 @@ public class TestResource extends ApiResource {
   public File download() {
     return new File(getRequest().getRealPath("/") + "upload/resty000.jar");
   }
+
   @GET("/headers")
   public Headers headers(Headers headers) {
     return headers;

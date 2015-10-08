@@ -551,7 +551,17 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   public M findColsById(String columns, Object id) {
     TableMeta tableMeta = getTableMeta();
-    String sql = getDialect().select(tableMeta.getTableName(), "", tableMeta.getGeneratedKey() + "=?", columns.split(","));
+    String generatedKey = tableMeta.getGeneratedKey();
+    if (generatedKey.isEmpty()) {
+      String[] primaryKeys = getPrimaryKeys(tableMeta);
+      if (primaryKeys.length > 0) {
+        generatedKey = primaryKeys[0];
+      } else {
+        throw new IllegalArgumentException("Your table must have least one generatedKey or primaryKey.");
+      }
+    }
+
+    String sql = getDialect().select(tableMeta.getTableName(), "", generatedKey + "=?", columns.split(","));
     List<M> result = find(sql, id);
     return result.size() > 0 ? result.get(0) : null;
   }

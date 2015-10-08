@@ -435,20 +435,25 @@ public class Route {
     if (throwable instanceof WebException) {
       throw (WebException) throwable;
     } else {
-      String message = getExceptionMssage(throwable);
-      logger.error("Route method invoke error.", throwable);
+      String message = getExceptionMssage(throwable, 0);
+      Throwable cause = throwable.getCause();
+      if (cause != null) {
+        logger.error("Route method invoke error.", cause);
+      } else {
+        logger.error("Route method invoke error.", throwable);
+      }
       throw new WebException(message);
     }
   }
 
-  private String getExceptionMssage(Throwable throwable) {
+  private String getExceptionMssage(Throwable throwable, int deep) {
     String message = throwable.getMessage();
     if (message == null) {
       Throwable cause = throwable.getCause();
       if (cause != null) {
         message = cause.getMessage();
-        if (message == null && !throwable.equals(cause)) {
-          message = getExceptionMssage(cause);
+        if (message == null && !throwable.equals(cause) && deep < 100) {
+          message = getExceptionMssage(cause, ++deep);
         }
       }
     }

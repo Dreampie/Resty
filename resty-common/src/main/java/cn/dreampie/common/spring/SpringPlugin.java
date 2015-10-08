@@ -43,13 +43,14 @@ public class SpringPlugin implements Plugin {
         this.context = new ClassPathXmlApplicationContext(configFiles);
       }
     }
-
     SpringBuilder.setContext(context);
+    SpringHolder.keeping = true;
     return true;
   }
 
   public boolean stop() {
     this.context.close();
+    SpringHolder.keeping = false;
     return true;
   }
 }

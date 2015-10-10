@@ -34,14 +34,17 @@ public abstract class DefaultDialect implements Dialect {
     put(Types.DOUBLE, Double.class);
     put(Types.DECIMAL, BigDecimal.class);
   }};
-  protected final Pattern selectPattern = Pattern.compile("^\\s*SELECT\\s*",
+  protected final Pattern selectPattern = Pattern.compile("^\\s*SELECT\\s+",
+      Pattern.CASE_INSENSITIVE);
+  protected final Pattern orderPattern = Pattern.compile("\\s+ORDER\\s+BY\\s+",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-  protected final Pattern orderPattern = Pattern.compile("\\s*ORDER\\s*BY\\s*",
+  protected final Pattern groupPattern = Pattern.compile("\\s+GROUP\\s+BY\\s+",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-  protected final Pattern groupPattern = Pattern.compile("\\s*GROUP\\s*BY\\s*",
+  protected final Pattern havingPattern = Pattern.compile("\\s+HAVING\\s+",
       Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-  protected final Pattern havingPattern = Pattern.compile("\\s*HAVING\\s*",
-      Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
+  protected final Pattern selectSinglePattern = Pattern.compile("^\\s*SELECT\\s+((COUNT)\\([\\s\\S]*\\)\\s*,?)+(\\s*|\\s+(FROM[\\s\\S]*))?$",
+      Pattern.CASE_INSENSITIVE);
 
   public Class getColumnType(int type) {
     return typeMappings.get(type);

@@ -1191,7 +1191,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return Long
    */
   public Long countAll() {
-    return queryFirst(getDialect().count(getTableMeta().getTableName()));
+    return new Long(queryFirst(getDialect().count(getTableMeta().getTableName())).toString());
   }
 
   /**
@@ -1200,7 +1200,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return Long
    */
   public Long countBy(String where, Object... params) {
-    return queryFirst(getDialect().count(getTableMeta().getTableName(), getAlias(), where), params);
+    return new Long(queryFirst(getDialect().count(getTableMeta().getTableName(), getAlias(), where), params).toString());
   }
 
   /**

@@ -29,4 +29,5 @@ public class OracleDialect extends DefaultDialect {
     int end = pageNumber * pageSize;
     return "SELECT * FROM ( SELECT row_.*, ROWNUM rownum_ FROM (  " + sql + " ) row_ WHERE ROWNUM <= " + end + ") paginate_alias" + " WHERE paginate_alias.rownum_ >= " + start;
   }
+
 }

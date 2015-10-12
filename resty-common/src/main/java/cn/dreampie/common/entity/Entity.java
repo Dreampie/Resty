@@ -166,11 +166,20 @@ public abstract class Entity<M extends Entity> {
    * Parse attr to any type
    */
   public <T> T get(String attr, Class<T> clazz) {
-    Object value = attrs.get(attr);
-    if (clazz.isAssignableFrom(value.getClass())) {
-      return (T) value;
+    if (attrs.containsKey(attr)) {
+      Object value = attrs.get(attr);
+      T result = null;
+
+      if (value != null) {
+        if (clazz.isAssignableFrom(value.getClass())) {
+          result = (T) value;
+        } else {
+          result = Jsoner.toObject(Jsoner.toJSON(value), clazz);
+        }
+      }
+      return result;
     } else {
-      return Jsoner.toObject(Jsoner.toJSON(value), clazz);
+      throw new EntityException("Attribute '" + attr + "' could not found.");
     }
   }
 

@@ -108,7 +108,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected abstract boolean isUseCache();
 
   /**
-   * 本次不实用缓存
+   * 本次不使用缓存
    *
    * @return Model
    */
@@ -524,7 +524,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return Model
    */
   public M findFirst(String sql, Object... params) {
-    List<M> result = find(sql, params);
+    TableMeta tableMeta = getTableMeta();
+    List<M> result = find(tableMeta.getDialect().paginateWith(1, 1, sql), params);
     return result.size() > 0 ? result.get(0) : null;
   }
 
@@ -537,7 +538,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     return findColsById("*", id);
   }
 
-  public M findByIds(Object... ids) {
+  public List<M> findByIds(Object... ids) {
     return findColsByIds("*", ids);
   }
 
@@ -550,17 +551,25 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   public M findColsById(String columns, Object id) {
     TableMeta tableMeta = getTableMeta();
-    String sql = getDialect().select(tableMeta.getTableName(), "", tableMeta.getGeneratedKey() + "=?", columns.split(","));
-    List<M> result = find(sql, id);
-    return result.size() > 0 ? result.get(0) : null;
+    String generatedKey = tableMeta.getGeneratedKey();
+    if (generatedKey.isEmpty()) {
+      String[] primaryKeys = getPrimaryKeys(tableMeta);
+      if (primaryKeys.length > 0) {
+        generatedKey = primaryKeys[0];
+      } else {
+        throw new IllegalArgumentException("Your table must have least one generatedKey or primaryKey.");
+      }
+    }
+    Dialect dialect = getDialect();
+    String sql = dialect.select(tableMeta.getTableName(), "", generatedKey + "=?", columns.split(","));
+    return findFirst(sql, id);
   }
 
-  public M findColsByIds(String columns, Object... ids) {
+  public List<M> findColsByIds(String columns, Object... ids) {
     TableMeta tableMeta = getTableMeta();
     String[] keys = getPrimaryKeys(tableMeta);
     String sql = getDialect().select(tableMeta.getTableName(), "", Joiner.on("=? AND ").join(keys) + "=?", columns.split(","));
-    List<M> result = find(sql, ids);
-    return result.size() > 0 ? result.get(0) : null;
+    return find(sql, ids);
   }
 
   /**
@@ -1182,7 +1191,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return Long
    */
   public Long countAll() {
-    return queryFirst(getDialect().count(getTableMeta().getTableName()));
+    return new Long(queryFirst(getDialect().count(getTableMeta().getTableName())).toString());
   }
 
   /**
@@ -1191,7 +1200,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return Long
    */
   public Long countBy(String where, Object... params) {
-    return queryFirst(getDialect().count(getTableMeta().getTableName(), getAlias(), where), params);
+    return new Long(queryFirst(getDialect().count(getTableMeta().getTableName(), getAlias(), where), params).toString());
   }
 
   /**
@@ -1280,7 +1289,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * and it return Object if your sql has select only one column.
    */
   public <T> T queryFirst(String sql, Object... params) {
-    List<T> result = query(sql, params);
+    TableMeta tableMeta = getTableMeta();
+    List<T> result = query(tableMeta.getDialect().paginateWith(1, 1, sql), params);
     return result.size() > 0 ? result.get(0) : null;
   }
 
@@ -1342,7 +1352,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return
    */
   public <T> T queryCallFirst(String sql, ResultSetCall resultSetCall) {
-    List<T> result = queryCall(sql, resultSetCall);
+    TableMeta tableMeta = getTableMeta();
+    List<T> result = queryCall(tableMeta.getDialect().paginateWith(1, 1, sql), resultSetCall);
     return result.size() > 0 ? result.get(0) : null;
   }
 
@@ -1382,7 +1393,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return
    */
   public M findCallFirst(String sql, ResultSetCall resultSetCall) {
-    List<M> result = findCall(sql, resultSetCall);
+    TableMeta tableMeta = getTableMeta();
+    List<M> result = findCall(tableMeta.getDialect().paginateWith(1, 1, sql), resultSetCall);
     return result.size() > 0 ? result.get(0) : null;
   }
 

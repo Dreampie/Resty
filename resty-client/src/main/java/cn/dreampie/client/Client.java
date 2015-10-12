@@ -188,7 +188,7 @@ public class Client extends ClientConnection {
           }
           result = new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());
         } else {
-          result = new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readString(is));
+          result = new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readString(is,clientRequest.getEncoding()));
           //重新登录情况
           if (loginRequest != null && clientRequire.relogin(result)) {
             logger.info("Relogin to server.");

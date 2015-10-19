@@ -24,7 +24,7 @@ public class ActiveRecordPluginTest {
     Record r = recordDAO.reNew().set("sid", 10).set("username", "x").set("password", "123").set("providername", "default").set("created_at", new Date());
     r.save();
 
-    List<Record> rs = new Record("sec_user", true).findColsByIds("id,sid", new Object[]{r.get("id"), r.get("sid")});
+    Record rs = new Record("sec_user", true).findColsByIds("id,sid", new Object[]{r.get("id"), r.get("sid")});
 
     r.update();
     //Record 解析支持

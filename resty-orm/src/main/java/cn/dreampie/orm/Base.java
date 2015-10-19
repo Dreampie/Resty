@@ -363,6 +363,25 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   }
 
   /**
+   * 获取主键
+   *
+   * @param tableMeta
+   * @return
+   */
+  private String getPrimaryKey(TableMeta tableMeta) {
+    String generatedKey = tableMeta.getGeneratedKey();
+    if (generatedKey.isEmpty()) {
+      String[] primaryKeys = getPrimaryKeys(tableMeta);
+      if (primaryKeys.length > 0) {
+        generatedKey = primaryKeys[0];
+      } else {
+        throw new IllegalArgumentException("Your table must have least one generatedKey or primaryKey.");
+      }
+    }
+    return generatedKey;
+  }
+
+  /**
    * 获取所有的主键key
    *
    * @return
@@ -538,8 +557,25 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     return findColsById("*", id);
   }
 
+  /**
+   * Find model by multi id
+   *
+   * @param ids
+   * @return
+   */
   public M findByIds(Object... ids) {
     return findColsByIds("*", ids);
+  }
+
+
+  /**
+   * Find model by ids
+   *
+   * @param ids
+   * @return
+   */
+  public List<M> findInIds(Object... ids) {
+    return findColsInIds("*", ids);
   }
 
   /**
@@ -551,17 +587,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   public M findColsById(String columns, Object id) {
     TableMeta tableMeta = getTableMeta();
-    String generatedKey = tableMeta.getGeneratedKey();
-    if (generatedKey.isEmpty()) {
-      String[] primaryKeys = getPrimaryKeys(tableMeta);
-      if (primaryKeys.length > 0) {
-        generatedKey = primaryKeys[0];
-      } else {
-        throw new IllegalArgumentException("Your table must have least one generatedKey or primaryKey.");
-      }
-    }
+    String key = getPrimaryKey(tableMeta);
     Dialect dialect = getDialect();
-    String sql = dialect.select(tableMeta.getTableName(), "", generatedKey + "=?", columns.split(","));
+    String sql = dialect.select(tableMeta.getTableName(), "", key + "=?", columns.split(","));
     return findFirst(sql, id);
   }
 
@@ -571,6 +599,24 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     String sql = getDialect().select(tableMeta.getTableName(), "", Joiner.on("=? AND ").join(keys) + "=?", columns.split(","));
     return findFirst(sql, ids);
   }
+
+  public List<M> findColsInIds(String columns, Object... ids) {
+    TableMeta tableMeta = getTableMeta();
+    String key = getPrimaryKey(tableMeta);
+    Dialect dialect = getDialect();
+    StringBuilder appendQuestions = new StringBuilder();
+    for (int i = 0; i < ids.length; i++) {
+      if (i == 0) {
+        appendQuestions.append("?");
+      } else {
+        appendQuestions.append(",?");
+      }
+    }
+
+    String sql = dialect.select(tableMeta.getTableName(), "", key + " IN (" + appendQuestions + ")", columns.split(","));
+    return find(sql, ids);
+  }
+
 
   /**
    * @param pageNumber 页码
@@ -942,6 +988,12 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     return update(sql, id);
   }
 
+  /**
+   * Delete model by multi id
+   *
+   * @param ids
+   * @return
+   */
   public boolean deleteByIds(Object... ids) {
     checkNotNull(ids, "You can't delete model without primaryKey.");
     TableMeta tableMeta = getTableMeta();
@@ -949,6 +1001,32 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     String sql = getDialect().delete(tableMeta.getTableName(), Joiner.on("=? AND ").join(keys) + "=?");
     return update(sql, ids);
   }
+
+
+  /**
+   * Delete model by ids
+   *
+   * @param ids
+   * @return
+   */
+  public boolean deleteInIds(Object... ids) {
+    checkNotNull(ids, "You can't delete model without primaryKey.");
+    TableMeta tableMeta = getTableMeta();
+    String key = getPrimaryKey(tableMeta);
+    Dialect dialect = getDialect();
+    StringBuilder appendQuestions = new StringBuilder();
+    for (int i = 0; i < ids.length; i++) {
+      if (i == 0) {
+        appendQuestions.append("?");
+      } else {
+        appendQuestions.append(",?");
+      }
+    }
+
+    String sql = dialect.delete(tableMeta.getTableName(), key + " IN (" + appendQuestions + ")");
+    return update(sql, ids);
+  }
+
 
   /**
    * 查询全部的model数据

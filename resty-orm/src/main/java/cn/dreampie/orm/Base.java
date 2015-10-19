@@ -984,7 +984,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   public boolean deleteById(Object id) {
     checkNotNull(id, "You can't delete model without primaryKey.");
     TableMeta tableMeta = getTableMeta();
-    String sql = getDialect().delete(tableMeta.getTableName(), tableMeta.getGeneratedKey() + "=?");
+    String key = getPrimaryKey(tableMeta);
+    String sql = getDialect().delete(tableMeta.getTableName(), key + "=?");
     return update(sql, id);
   }
 

@@ -50,7 +50,7 @@ public class JsonTest {
 //    System.out.println(Jsoner.toJSON(new File("/")));
 //    try {
 //      File file = new File("/Users/Dreampie/Pictures/thumb_IMG_1589_1024.jpg");
-//      System.out.println(Jsoner.toJSON(ImageIO.read(file)));
+//      System.out.println(Jsoner.toJSON(ImageIO.get(file)));
 //    } catch (IOException e) {
 //      e.printStackTrace();
 //    }

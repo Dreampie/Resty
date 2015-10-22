@@ -70,9 +70,8 @@ public class SqlTest {
       System.out.println(r.<String>get("username"));
     }
 
-    List<User> us = User.dao.findByIds(id, sid);
-    if (us != null && us.get(0) != null)
-      System.out.println("findByIds," + us.get(0).get("id") + "," + us.get(0).get("sid"));
+    User us = User.dao.findByIds(id, sid);
+    System.out.println("findByIds," + us.get("id") + "," + us.get("sid"));
   }
 
   @Test

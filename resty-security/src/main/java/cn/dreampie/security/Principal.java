@@ -13,18 +13,18 @@ import java.util.Set;
 public class Principal<M extends Entity> implements Serializable {
   public static final String PRINCIPAL_DEF_KEY = "_principal";
   private String username;
-  private String passwordHash;
+  private String password;
   private String salt;
   private Set<String> credentials;
   private M model;
 
-  public Principal(String username, String passwordHash, Set<String> credentials, M model) {
-    this(username, passwordHash, null, credentials, model);
+  public Principal(String username, String password, Set<String> credentials, M model) {
+    this(username, password, null, credentials, model);
   }
 
-  public Principal(String username, String passwordHash, String salt, Set<String> credentials, M model) {
+  public Principal(String username, String password, String salt, Set<String> credentials, M model) {
     this.username = username;
-    this.passwordHash = passwordHash;
+    this.password = password;
     this.salt = salt;
     this.credentials = credentials;
     this.model = model;
@@ -34,8 +34,8 @@ public class Principal<M extends Entity> implements Serializable {
     return username;
   }
 
-  public String getPasswordHash() {
-    return passwordHash;
+  public String getPassword() {
+    return password;
   }
 
   public String getSalt() {

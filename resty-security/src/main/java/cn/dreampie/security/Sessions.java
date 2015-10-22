@@ -22,6 +22,11 @@ public class Sessions {
   public static final String ADDRESS_KEY = "_address";
   public static final String AGENT_KEY = "_agent";
   private static final Logger logger = Logger.getLogger(Sessions.class);
+
+  /**
+   * sessionKey->username
+   */
+  private final Map<String, String> usernames = new ConcurrentHashMap<String, String>();
   /**
    * username->(sessionKey,sessionData)
    */
@@ -34,21 +39,32 @@ public class Sessions {
     this.limit = limit;
   }
 
-  public SessionDatas get(String username) {
-    SessionDatas sessionsUse = null;
+  public SessionDatas get(String sessionKey) {
+    SessionDatas sessionDatas = null;
+    String username = null;
     if (Constant.cacheEnabled) {
-      sessionsUse = SessionCache.instance().get(Session.SESSION_DEF_KEY, username);
+      username = SessionCache.instance().get(Session.SESSION_DEF_KEY, sessionKey);
+      if (username != null) {
+        sessionDatas = SessionCache.instance().get(Session.SESSION_DEF_KEY, username);
+      }
     } else {
-      sessionsUse = sessions.get(username);
+      if (usernames.containsKey(sessionKey)) {
+        username = usernames.get(sessionKey);
+        sessionDatas = sessions.get(username);
+      }
     }
-    if (sessionsUse != null) {
-      Map<String, SessionData> sessionMetadatas = sessionsUse.getSessionMetadatas();
+
+    if (sessionDatas != null) {
+      Map<String, SessionData> sessionMetadatas = sessionDatas.getSessionMetadatas();
       if (sessionMetadatas.size() > 0) {
         //删除超时的session
         removeTimeout(sessionMetadatas);
+
+        //重新保存session数据
+        saveSessionMetadatas(username, sessionKey, sessionDatas, sessionMetadatas);
       }
     }
-    return sessionsUse;
+    return sessionDatas;
   }
 
   /**
@@ -57,14 +73,29 @@ public class Sessions {
    * @param username
    * @param sessionDatas
    */
-  private void save(String username, SessionDatas sessionDatas) {
+  private void save(String username, String sessionKey, SessionDatas sessionDatas) {
     //add cache
     if (Constant.cacheEnabled) {
+      SessionCache.instance().add(Session.SESSION_DEF_KEY, sessionKey, username);
       SessionCache.instance().add(Session.SESSION_DEF_KEY, username, sessionDatas);
     } else {
+      this.usernames.put(sessionKey, username);
       this.sessions.put(username, sessionDatas);
     }
-    logger.info("Save session success. username was: %s.", username);
+    logger.info("Save session success. username was: %s. sessionKey was: %s.", username, sessionKey);
+  }
+
+  /**
+   * 删除sessionKey和username的对应关系
+   *
+   * @param sessionKey
+   */
+  private void removeUsername(String sessionKey) {
+    if (Constant.cacheEnabled) {
+      SessionCache.instance().remove(Session.SESSION_DEF_KEY, sessionKey);
+    } else {
+      usernames.remove(sessionKey);
+    }
   }
 
   /**
@@ -74,25 +105,39 @@ public class Sessions {
    * @param sessionKey
    */
   private void remove(String username, String sessionKey) {
-    SessionDatas sessionDatas = get(username);
+    SessionDatas sessionDatas = get(sessionKey);
     if (sessionDatas != null) {
       Map<String, SessionData> sessionMetadatas = sessionDatas.getSessionMetadatas();
       if (sessionMetadatas.size() > 0) {
         sessionMetadatas.remove(sessionKey);
+        //重新保存session数据
+        saveSessionMetadatas(username, sessionKey, sessionDatas, sessionMetadatas);
       }
-      //一个session也没有
-      if (sessionMetadatas.size() == 0) {
-        if (Constant.cacheEnabled) {
-          SessionCache.instance().remove(Session.SESSION_DEF_KEY, username);
-        } else {
-          this.sessions.remove(username);
-        }
+    }
+  }
+
+  /**
+   * 保存session  剩余数据
+   *
+   * @param username
+   * @param sessionKey
+   * @param sessionDatas
+   * @param sessionMetadatas
+   */
+  private void saveSessionMetadatas(String username, String sessionKey, SessionDatas sessionDatas, Map<String, SessionData> sessionMetadatas) {
+    //一个session也没有
+    if (sessionMetadatas.size() == 0) {
+      if (Constant.cacheEnabled) {
+        removeUsername(sessionKey);
+        SessionCache.instance().remove(Session.SESSION_DEF_KEY, username);
       } else {
-        if (Constant.cacheEnabled) {
-          SessionCache.instance().add(Session.SESSION_DEF_KEY, username, sessionDatas);
-        } else {
-          this.sessions.put(username, sessionDatas);
-        }
+        this.sessions.remove(username);
+      }
+    } else {
+      if (Constant.cacheEnabled) {
+        SessionCache.instance().add(Session.SESSION_DEF_KEY, username, sessionDatas);
+      } else {
+        this.sessions.put(username, sessionDatas);
       }
     }
   }
@@ -115,7 +160,7 @@ public class Sessions {
 
   public SessionDatas update(String username, String sessionKey, Session session) {
     //获取该用户名下的所有session
-    SessionDatas sessionDatas = get(username);
+    SessionDatas sessionDatas = get(sessionKey);
     Map<String, SessionData> sessionMetadatas;
     SessionDatas updatedSessionDatas;
     SessionData sessionData;
@@ -136,16 +181,18 @@ public class Sessions {
       sessionMetadatas.put(sessionKey, new SessionData(sessionKey, defaultExpires, access, access, System.nanoTime(), session));
       updatedSessionDatas = new SessionDatas(username, sessionMetadatas);
     }
-    //如果session已经到达限制数量
-    boolean remove;
-    do {
-      remove = sessionMetadatas != null && sessionMetadatas.size() > limit;
-      if (remove) {
-        removeOldest(sessionMetadatas);
-      }
-    } while (remove);
+    if (limit > 0) {
+      //如果session已经到达限制数量
+      boolean remove;
+      do {
+        remove = sessionMetadatas != null && sessionMetadatas.size() > limit;
+        if (remove) {
+          removeOldest(sessionMetadatas);
+        }
+      } while (remove);
+    }
     //保存session
-    save(username, updatedSessionDatas);
+    save(username, sessionKey, updatedSessionDatas);
     return updatedSessionDatas;
   }
 

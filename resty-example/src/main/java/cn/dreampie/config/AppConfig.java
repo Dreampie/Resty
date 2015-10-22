@@ -1,6 +1,5 @@
 package cn.dreampie.config;
 
-import cn.dreampie.common.spring.SpringPlugin;
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.provider.c3p0.C3p0DataSourceProvider;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
@@ -39,15 +38,15 @@ public class AppConfig extends Config {
     ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp);
     pluginLoader.add(activeRecordDdsp);
 
-    pluginLoader.add(new SpringPlugin(HelloApp.class));
+//    pluginLoader.add(new SpringPlugin(HelloApp.class));
 //    JndiDataSourceProvider jdsp = new JndiDataSourceProvider("jndiDs", "jndiName");
-//    ActiveRecordPlugin activeRecordJdsp = new ActiveRecordPlugin(ddsp, true);
+//    ActiveRecordPlugin activeRecordJdsp = new ActiveRecordPlugin(jdsp);
 //    pluginLoader.add(activeRecordJdsp);
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {
     //权限拦截器
-    interceptorLoader.add(new SecurityInterceptor(2, new MyAuthenticateService()));
+    interceptorLoader.add(new SecurityInterceptor(new MyAuthenticateService()));
     //事务的拦截器 @Transaction
     interceptorLoader.add(new TransactionInterceptor());
   }

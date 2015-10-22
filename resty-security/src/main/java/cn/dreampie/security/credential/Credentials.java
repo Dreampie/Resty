@@ -29,7 +29,7 @@ public class Credentials {
   }
 
   /**
-   * 添加倒认证map
+   * 加倒认证map
    *
    * @param credentialSet 认证set
    */
@@ -98,7 +98,7 @@ public class Credentials {
 
 
   /**
-   * 获取全部凭据
+   * 取全部凭据
    *
    * @return 全部凭据
    */
@@ -124,7 +124,7 @@ public class Credentials {
   }
 
   /**
-   * 获取用户缓存
+   * 取用户缓存
    *
    * @param username 用户名
    * @return 用户

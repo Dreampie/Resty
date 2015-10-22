@@ -10,7 +10,6 @@ import cn.dreampie.security.credential.Credentials;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -47,7 +46,7 @@ public class Subject {
   }
 
   private static Session authenticateAs(Principal principal, long expires) {
-    String sessionKey = UUID.randomUUID().toString();
+    String sessionKey = current().getSessionKey();
     return updateCurrent(new Session(sessionKey, principal, current().getValues(), expires));
   }
 
@@ -75,12 +74,12 @@ public class Subject {
     if (principal == null) {
       throw new WebException(HttpStatus.NOT_FOUND, "User not found.");
     }
-    boolean match = false;
+    boolean match;
     String salt = principal.getSalt();
     if (salt != null && !salt.isEmpty()) {
-      match = passwordService.match(password, principal.getPasswordHash(), salt);
+      match = passwordService.match(password, principal.getPassword(), salt);
     } else {
-      match = passwordService.match(password, principal.getPasswordHash());
+      match = passwordService.match(password, principal.getPassword());
     }
 
     if (match) {
@@ -192,7 +191,7 @@ public class Subject {
   }
 
   /**
-   * 检测权限
+   * 权限
    *
    * @param httpMethod httpMethod
    * @param path       path

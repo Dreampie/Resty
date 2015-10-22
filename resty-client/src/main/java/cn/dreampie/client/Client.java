@@ -116,7 +116,7 @@ public class Client extends ClientConnection {
     //login
     ClientResult result = build(loginRequest).post();
     if (result.getStatus() != HttpStatus.OK) {
-      throw new ClientException("Login error " + result.getStatus() + ", " + result.getResult());
+      throw new ClientException("Login error " + result.getStatus().getCode() + ", " + result.getResult());
     } else {
       if (clientRequest != null) {
         result = build(clientRequest).post();

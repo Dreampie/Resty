@@ -21,6 +21,10 @@ public class Session implements Serializable {
     this(UUID.randomUUID().toString(), null, Maper.<String, String>of(), -1);
   }
 
+  public Session(String sessionKey) {
+    this(sessionKey, null, Maper.<String, String>of(), -1);
+  }
+
   public Session(String sessionKey, Principal principal, Map<String, String> values, long expires) {
     this.sessionKey = sessionKey;
     this.principal = principal;
@@ -32,30 +36,30 @@ public class Session implements Serializable {
     return sessionKey;
   }
 
-  long getExpires() {
+  public long getExpires() {
     return expires;
   }
 
-  Principal getPrincipal() {
+  public Principal getPrincipal() {
     return principal;
   }
 
-  Map<String, String> getValues() {
+  public Map<String, String> getValues() {
     return values;
   }
 
-  String get(String key) {
+  public String get(String key) {
     return values.get(key);
   }
 
-  void set(Map<String, String> values) {
+  public void set(Map<String, String> values) {
     Set<Map.Entry<String, String>> entrySet = values.entrySet();
     for (Map.Entry<String, String> entry : entrySet) {
       set(entry.getKey(), entry.getValue());
     }
   }
 
-  void set(String key, String value) {
+  public void set(String key, String value) {
     if (value == null) {
       values.remove(key);
     } else {
@@ -63,7 +67,7 @@ public class Session implements Serializable {
     }
   }
 
-  String remove(String key) {
+  public String remove(String key) {
     return values.remove(key);
   }
 }

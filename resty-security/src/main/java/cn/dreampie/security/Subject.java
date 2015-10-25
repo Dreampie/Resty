@@ -145,6 +145,10 @@ public class Subject {
     }
   }
 
+  public static void refresh() {
+    credentials.removePrincipal(current().getUsername());
+  }
+
   /**
    * 当前api需要的权限值
    *

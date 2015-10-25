@@ -5,11 +5,11 @@ package cn.dreampie.security;
  */
 public interface PasswordService {
 
-  public String hash(String password);
+  public String crypto(String password);
 
-  public String hash(String password, String salt);
+  public String crypto(String password, String salt);
 
-  public boolean match(String password, String passwordHash);
+  public boolean match(String password, String result);
 
-  public boolean match(String password, String passwordHash, String salt);
+  public boolean match(String password, String result, String salt);
 }

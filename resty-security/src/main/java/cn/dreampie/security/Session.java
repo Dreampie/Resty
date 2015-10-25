@@ -14,52 +14,52 @@ public class Session implements Serializable {
   public static final String SESSION_DEF_KEY = "_session";
   private final Map<String, String> values;
   private final String sessionKey;
-  private final Principal principal;
+  private final String username;
   private final long expires;
 
-  public Session() {
-    this(UUID.randomUUID().toString(), null, Maper.<String, String>of(), -1);
+  public Session(String sessionKey, String username) {
+    this(sessionKey, username, Maper.<String, String>of());
   }
 
-  public Session(String sessionKey) {
-    this(sessionKey, null, Maper.<String, String>of(), -1);
+  public Session(String sessionKey, String username, Map<String, String> values) {
+    this(sessionKey, username, values, -1);
   }
 
-  public Session(String sessionKey, Principal principal, Map<String, String> values, long expires) {
+  public Session(String sessionKey, String username, Map<String, String> values, long expires) {
     this.sessionKey = sessionKey;
-    this.principal = principal;
+    this.username = username;
     this.values = values;
     this.expires = expires;
   }
 
-  public String getSessionKey() {
+  String getSessionKey() {
     return sessionKey;
   }
 
-  public long getExpires() {
+  long getExpires() {
     return expires;
   }
 
-  public Principal getPrincipal() {
-    return principal;
+  String getUsername() {
+    return username;
   }
 
-  public Map<String, String> getValues() {
+  Map<String, String> getValues() {
     return values;
   }
 
-  public String get(String key) {
+  String get(String key) {
     return values.get(key);
   }
 
-  public void set(Map<String, String> values) {
+  void set(Map<String, String> values) {
     Set<Map.Entry<String, String>> entrySet = values.entrySet();
     for (Map.Entry<String, String> entry : entrySet) {
       set(entry.getKey(), entry.getValue());
     }
   }
 
-  public void set(String key, String value) {
+  void set(String key, String value) {
     if (value == null) {
       values.remove(key);
     } else {
@@ -67,7 +67,7 @@ public class Session implements Serializable {
     }
   }
 
-  public String remove(String key) {
+  String remove(String key) {
     return values.remove(key);
   }
 }

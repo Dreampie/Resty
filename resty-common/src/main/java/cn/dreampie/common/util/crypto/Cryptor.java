@@ -48,8 +48,10 @@ public class Cryptor {
       try {
         mac = Mac.getInstance(algorithm);
         if (salt != null && !salt.isEmpty()) {
-          SecretKeySpec signingKey = new SecretKeySpec(salt.getBytes(Encoding.UTF_8), algorithm);
-          mac.init(signingKey);
+          SecretKeySpec secretKey = new SecretKeySpec(salt.getBytes(Encoding.UTF_8), algorithm);
+          mac.init(secretKey);
+        } else {
+          throw new CryptoException("Could not found secretKey for mac's crypto.");
         }
       } catch (GeneralSecurityException e) {
         throw new CryptoException(e.getMessage(), e);

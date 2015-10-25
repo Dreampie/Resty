@@ -130,22 +130,23 @@ public class Credentials {
    * @return 用户
    */
   public Principal getPrincipal(String username) {
-    Principal principal = null;
+    Principal principal;
     if (Constant.cacheEnabled) {
       principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, username);
       //cache 已经失效  从接口获取用户数据
       if (principal == null) {
         principal = authenticateService.getPrincipal(username);
-        SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, username, principal);
+        SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, username, principal, (int) expires);
       }
     } else {
-      principal = principals.get(username);
       boolean find = false;
       if (principals.size() > 1000 || principals.size() <= 0 || System.currentTimeMillis() > lastAccess) {
         principal = authenticateService.getPrincipal(username);
         principals.put(username, principal);
         lastAccess = System.currentTimeMillis() + expires;
         find = true;
+      } else {
+        principal = principals.get(username);
       }
       //如果还没有用户数据
       if (!find && principal == null) {

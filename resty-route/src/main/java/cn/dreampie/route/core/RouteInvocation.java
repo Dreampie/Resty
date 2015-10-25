@@ -7,6 +7,7 @@ import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.ImageResult;
 import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.spring.SpringBuilder;
+import cn.dreampie.common.spring.SpringHolder;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
@@ -54,7 +55,7 @@ public class RouteInvocation {
       Resource resource;
       try {
         //初始化resource
-        if (SpringBuilder.isAlive()) {
+        if (SpringHolder.alive) {
           resource = SpringBuilder.getBean(route.getResourceClass());
         } else {
           resource = route.getResourceClass().newInstance();

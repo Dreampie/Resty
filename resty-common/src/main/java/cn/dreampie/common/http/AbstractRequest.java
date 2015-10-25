@@ -88,14 +88,19 @@ public abstract class AbstractRequest implements Request {
 
   public String getClientAddress() {
     // see http://en.wikipedia.org/wiki/X-Forwarded-For
+    String address;
     checkProxyRequest();
     String xff = getHeader("X-Forwarded-For");
     if (xff != null) {
       String[] xffs = xff.split(",");
-      return xffs.length > 0 ? xffs[0] : getLocalClientAddress();
+      address = xffs.length > 0 ? xffs[0] : getLocalClientAddress();
     } else {
-      return getLocalClientAddress();
+      address = getLocalClientAddress();
     }
+    if (address.startsWith("0:0:0:0:0:0:0:1")) {
+      address = "127.0.0.1";
+    }
+    return address;
   }
 
   protected void checkProxyRequest() {

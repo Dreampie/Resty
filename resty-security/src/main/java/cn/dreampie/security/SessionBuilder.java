@@ -70,23 +70,14 @@ public abstract class SessionBuilder {
    * @param request
    * @return
    */
-  protected Session getAnonymousSession(HttpRequest request, Session session) {
+  protected Session getAnonymousSession(HttpRequest request, String sessionKey) {
     String agent = request.getHeader("User-Agent");
-    session.set(Maper.of(Sessions.ADDRESS_KEY, request.getClientAddress(),
+    String address = request.getClientAddress();
+    Session session = new Session(sessionKey, ANONYMOUS + "@" + address);
+    session.set(Maper.of(Sessions.ADDRESS_KEY, address,
         Sessions.AGENT_KEY, agent == null ? "Unknown" : agent));
     return session;
   }
-
-  /**
-   * 取匿名用户的名字
-   *
-   * @param session
-   * @return
-   */
-  protected String getAnonymousName(Session session) {
-    return ANONYMOUS + "@" + session.get(Sessions.ADDRESS_KEY);
-  }
-
 
   /**
    * 读取session
@@ -106,18 +97,24 @@ public abstract class SessionBuilder {
         Sessions.SessionData sessionData = sessionDatas.getSessionData(sessionKey);
         if (sessionData != null) {
           session = sessionData.getSession();
-          logger.debug("Found session success. username was: %s. session key was: %s.", session.getPrincipal().getUsername(), sessionKey);
+          String username = session.getUsername();
+          if (username != null) {
+            logger.debug("Found session success, username was: %s.", username);
+          } else {
+            logger.debug("Found session success, anonymous was request. ");
+          }
         }
       } else {
-        logger.warn("Invalid user session. session key was: %s. ignoring session.", sessionKey);
+        logger.warn("Invalid user session, ignoring this session.");
       }
     } else {
+      logger.debug("Could not found session key, first request.");
       sessionKey = UUID.randomUUID().toString();
       outputSessionKey(response, sessionKey, -1);//first init session
     }
 
     if (session == null) {
-      session = getAnonymousSession(request, new Session(sessionKey));
+      session = getAnonymousSession(request, sessionKey);
     }
 
     Subject.updateCurrent(session);
@@ -132,26 +129,13 @@ public abstract class SessionBuilder {
    */
   public Session out(Session oldSession, HttpResponse response) {
     Session session = Subject.current();
-    String username;
+    String username = session.getUsername();
     String sessionKey = session.getSessionKey();
-    Principal principal = session.getPrincipal();
 
-    if (principal != null) {
-      username = principal.getUsername();
-    } else {
-      username = getAnonymousName(session);
-    }
     if (session != oldSession) {
       String oldSessionKey = oldSession.getSessionKey();
       //重新存储session数据
-      String oldUsername = null;
-      Principal oldPrincipal = oldSession.getPrincipal();
-      //原本的session
-      if (oldPrincipal != null) {
-        oldUsername = oldPrincipal.getUsername();
-      } else {
-        oldUsername = getAnonymousName(oldSession);
-      }
+      String oldUsername = oldSession.getUsername();
 
       //登录或切换了用户
       if (!oldUsername.equals(username)) {

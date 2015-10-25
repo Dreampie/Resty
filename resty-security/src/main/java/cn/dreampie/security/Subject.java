@@ -45,18 +45,14 @@ public class Subject {
     sessionTL.remove();
   }
 
-  private static Session authenticateAs(Principal principal, long expires) {
-    String sessionKey = current().getSessionKey();
-    return updateCurrent(new Session(sessionKey, principal, current().getValues(), expires));
+  private static Session authenticateAs(String username, long expires) {
+    Session session = current();
+    return updateCurrent(new Session(session.getSessionKey(), username, session.getValues(), expires));
   }
 
   private static Session clearPrincipal() {
     Session session = current();
-    Principal principal = session.getPrincipal();
-    if (principal != null) {
-      credentials.removePrincipal(principal.getUsername());
-    }
-    return updateCurrent(new Session());
+    return updateCurrent(new Session(session.getSessionKey(), SessionBuilder.ANONYMOUS + "@" + session.get(Sessions.ADDRESS_KEY), session.getValues()));
   }
 
   /**
@@ -92,7 +88,7 @@ public class Subject {
         expires = cal.getTimeInMillis();
       }
       //授权用户
-      authenticateAs(principal, expires);
+      authenticateAs(username, expires);
       logger.info("Session authentication as " + username);
     } else {
       throw new WebException(HttpStatus.UNPROCESSABLE_ENTITY, "Password not match.");
@@ -101,7 +97,7 @@ public class Subject {
 
   public static void logout() {
     //add cache
-    Principal principal = current().getPrincipal();
+    Principal principal = getPrincipal();
     if (principal != null) {
       logger.info("Session leave authentication " + principal.getUsername());
     }
@@ -119,7 +115,12 @@ public class Subject {
   }
 
   public static Principal getPrincipal() {
-    return current().getPrincipal();
+    String username = current().getUsername();
+    if (username.startsWith(SessionBuilder.ANONYMOUS)) {
+      return null;
+    } else {
+      return credentials.getPrincipal(current().getUsername());
+    }
   }
 
   public static Map<String, String> getValues() {
@@ -131,11 +132,17 @@ public class Subject {
   }
 
   public static void set(String key, String value) {
-    current().set(key, value);
+    if (!Sessions.ADDRESS_KEY.equals(key) && !Sessions.AGENT_KEY.equals(key)) {
+      current().set(key, value);
+    }
   }
 
   public static String remove(String key) {
-    return current().remove(key);
+    if (!Sessions.ADDRESS_KEY.equals(key) && !Sessions.AGENT_KEY.equals(key)) {
+      return current().remove(key);
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -200,7 +207,7 @@ public class Subject {
     String needCredential = need(httpMethod, path);
     logger.info(httpMethod + " " + path + " need credential " + needCredential);
     if (needCredential != null) {
-      Principal principal = current().getPrincipal();
+      Principal principal = getPrincipal();
       if (principal != null) {
         if (!principal.hasCredential(needCredential)) {
           throw new WebException(HttpStatus.FORBIDDEN);
@@ -221,7 +228,7 @@ public class Subject {
   public static boolean has(String httpMethod, String path) {
     String needCredential = need(httpMethod, path);
     if (needCredential != null) {
-      Principal principal = current().getPrincipal();
+      Principal principal = getPrincipal();
       if (principal != null) {
         if (principal.hasCredential(needCredential)) {
           return true;

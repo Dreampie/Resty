@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cn.dreampie.common.util.Checker.checkNotNull;
+
 /**
  * ActionInvocation invoke the action
  */
@@ -49,13 +51,16 @@ public class RouteInvocation {
     if (index < interceptors.length) {
       interceptors[index++].intercept(this);
     } else if (index++ == interceptors.length) {
-      Resource resource = null;
+      Resource resource;
       try {
         //初始化resource
-        resource = SpringBuilder.getBean(route.getResourceClass());
-        if (resource == null) {
+        if (SpringBuilder.isAlive()) {
+          resource = SpringBuilder.getBean(route.getResourceClass());
+        } else {
           resource = route.getResourceClass().newInstance();
         }
+
+        checkNotNull(resource, "Could init '" + route.getResourceClass() + "' before invoke method.");
         resource.setRouteMatch(routeMatch);
         //获取所有参数
         Params params = routeMatch.getParams();

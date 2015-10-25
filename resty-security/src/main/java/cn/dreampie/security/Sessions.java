@@ -127,8 +127,8 @@ public class Sessions {
   private void saveSessionMetadatas(String username, String sessionKey, SessionDatas sessionDatas, Map<String, SessionData> sessionMetadatas) {
     //一个session也没有
     if (sessionMetadatas.size() == 0) {
+      removeUsername(sessionKey);
       if (Constant.cacheEnabled) {
-        removeUsername(sessionKey);
         SessionCache.instance().remove(Session.SESSION_DEF_KEY, username);
       } else {
         this.sessions.remove(username);

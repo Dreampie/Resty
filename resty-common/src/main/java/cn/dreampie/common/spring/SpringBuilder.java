@@ -6,6 +6,8 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import static cn.dreampie.common.util.Checker.checkNotNull;
+
 /**
  * @author Dreampie
  * @date 2015-10-08
@@ -15,14 +17,33 @@ public class SpringBuilder {
 
   private final static Logger logger = Logger.getLogger(SpringBuilder.class);
 
+  private static boolean alive = false;
   private static ConfigurableApplicationContext context;
 
   public static ConfigurableApplicationContext getContext() {
     return SpringBuilder.context;
   }
 
+  public static boolean isAlive() {
+    return alive;
+  }
+
   public static void setContext(ConfigurableApplicationContext context) {
+    checkNotNull(context, "Could not found context for spring.");
     SpringBuilder.context = context;
+    SpringBuilder.alive = true;
+  }
+
+  public static void refreshContext() {
+    SpringBuilder.context.refresh();
+  }
+
+  public static void removeContext() {
+    if (SpringBuilder.alive) {
+      SpringBuilder.context.close();
+      SpringBuilder.context = null;
+      SpringBuilder.alive = false;
+    }
   }
 
   /**

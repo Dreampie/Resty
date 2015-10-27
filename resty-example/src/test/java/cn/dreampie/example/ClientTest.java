@@ -70,24 +70,24 @@ public class ClientTest {
 //    System.out.println(client.build(request).patch());
 //  }
 
-//  @Test
-//  public void testUpload() {
-//    //upload
-//    ClientRequest uploadRequest = new ClientRequest("/tests/file");
-//    uploadRequest.addUploadFile("testfile", ClientTest.class.getResource("/resty.jar").getFile());
-//    uploadRequest.addParam("des", "test file  paras  测试笔");
-//    ClientResult uploadResult = client.build(uploadRequest).post();
-//    System.out.println(uploadResult.getResult());
-//  }
-//
-//  @Test
-//  public void testDownload() {
-//    //download  支持断点续传
-//    ClientRequest downloadRequest = new ClientRequest("/tests/file");
-//    downloadRequest.setDownloadFile(ClientTest.class.getResource("/").getFile(), false);
-//    ClientResult downloadResult = client.build(downloadRequest).get();
-//    System.out.println(downloadResult);
-//  }
+  @Test
+  public void testUpload() {
+    //upload
+    ClientRequest uploadRequest = new ClientRequest("/tests/file");
+    uploadRequest.addUploadFile("testfile", ClientTest.class.getResource("/resty.jar").getFile());
+    uploadRequest.addParam("des", "test file  paras  测试笔");
+    ClientResult uploadResult = client.build(uploadRequest).post();
+    System.out.println(uploadResult.getResult());
+  }
+
+  @Test
+  public void testDownload() {
+    //download  支持断点续传
+    ClientRequest downloadRequest = new ClientRequest("/tests/file");
+    downloadRequest.setDownloadFile(ClientTest.class.getResource("/").getFile(), false);
+    ClientResult downloadResult = client.build(downloadRequest).get();
+    System.out.println(downloadResult);
+  }
 
   @Test
   public void testSave() {

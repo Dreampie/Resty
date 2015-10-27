@@ -7,6 +7,7 @@ import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.ImageResult;
 import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.spring.SpringBuilder;
+import cn.dreampie.common.spring.SpringHolder;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
@@ -19,6 +20,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static cn.dreampie.common.util.Checker.checkNotNull;
 
 /**
  * ActionInvocation invoke the action
@@ -49,13 +52,16 @@ public class RouteInvocation {
     if (index < interceptors.length) {
       interceptors[index++].intercept(this);
     } else if (index++ == interceptors.length) {
-      Resource resource = null;
+      Resource resource;
       try {
         //初始化resource
-        resource = SpringBuilder.getBean(route.getResourceClass());
-        if (resource == null) {
+        if (SpringHolder.alive) {
+          resource = SpringBuilder.getBean(route.getResourceClass());
+        } else {
           resource = route.getResourceClass().newInstance();
         }
+
+        checkNotNull(resource, "Could init '" + route.getResourceClass() + "' before invoke method.");
         resource.setRouteMatch(routeMatch);
         //获取所有参数
         Params params = routeMatch.getParams();

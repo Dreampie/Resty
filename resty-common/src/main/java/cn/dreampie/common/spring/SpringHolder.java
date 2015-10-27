@@ -6,5 +6,5 @@ package cn.dreampie.common.spring;
  * @what
  */
 public class SpringHolder {
-  public static boolean keeping = false;
+  public static boolean alive = false;
 }

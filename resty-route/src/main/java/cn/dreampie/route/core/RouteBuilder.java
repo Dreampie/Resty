@@ -95,7 +95,7 @@ public final class RouteBuilder {
 
     //addResources
     for (Class<? extends Resource> resourceClazz : resourceLoader.getResources()) {
-      if (SpringHolder.keeping) {
+      if (SpringHolder.alive) {
         SpringBuilder.register(resourceClazz);//如果spring plugin init注入到spring容器
       }
       resourceInters = interceptorBuilder.buildResourceInterceptors(resourceClazz);

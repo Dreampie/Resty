@@ -44,13 +44,11 @@ public class SpringPlugin implements Plugin {
       }
     }
     SpringBuilder.setContext(context);
-    SpringHolder.keeping = true;
     return true;
   }
 
   public boolean stop() {
-    this.context.close();
-    SpringHolder.keeping = false;
+    SpringBuilder.removeContext();
     return true;
   }
 }

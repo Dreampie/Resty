@@ -52,6 +52,7 @@ public class Subject {
 
   private static Session clearPrincipal() {
     Session session = current();
+    credentials.removePrincipal(current().getUsername());
     return updateCurrent(new Session(session.getSessionKey(), SessionBuilder.ANONYMOUS + "@" + session.get(Sessions.ADDRESS_KEY), session.getValues()));
   }
 

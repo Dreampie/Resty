@@ -83,6 +83,8 @@ public class ActiveRecordPlugin implements Plugin {
       } else {
         includeClasses.addAll(ClassScaner.of(Model.class).includePackages(includeClassPackages).<Model>scan());
       }
+    } else {
+      logger.warn("You not include any packages for dsName: " + dataSourceProvider.getDsName());
     }
 
     DataSourceMeta dsm = new DataSourceMeta(dataSourceProvider);

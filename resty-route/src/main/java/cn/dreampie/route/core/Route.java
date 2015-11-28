@@ -5,6 +5,7 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.http.*;
 import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
@@ -72,9 +73,9 @@ public class Route {
   private final Validator[] validators;
   private final int[][] validsLineNumbers;
   private final MultipartBuilder multipartBuilder;
+  private final Map<String, String> headers;
 
-
-  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Validator[] validators, MultipartBuilder multipartBuilder) {
+  public Route(Class<? extends Resource> resourceClass, ParamAttribute paramAttribute, String httpMethod, String pathPattern, Method method, Interceptor[] interceptors, String des, Validator[] validators, MultipartBuilder multipartBuilder, Map<String, String> headers) {
     this.resourceClass = resourceClass;
     this.httpMethod = checkNotNull(httpMethod);
     this.pathPattern = checkNotNull(pathPattern);
@@ -87,6 +88,7 @@ public class Route {
     this.allParamTypes = Arrays.asList(method.getParameterTypes());
     this.allGenericParamTypes = Arrays.asList(method.getGenericParameterTypes());
     this.validators = validators;
+    this.headers = headers;
     //获取拦截器的行号
     if (Constant.showRoute) {
       this.interceptorsLineNumbers = new int[interceptors.length][];
@@ -218,6 +220,14 @@ public class Route {
     if (!m.matches()) {
       return null;
     }
+    if (headers.size() > 0) {
+      for (Map.Entry<String, String> headersEntry : headers.entrySet()) {
+        if (!headersEntry.getValue().equals(request.getHeader(headersEntry.getKey()))) {
+          return null;
+        }
+      }
+    }
+
     //pathParams
     Map<String, String> pathParams = new HashMap<String, String>();
     for (int i = 0; i < m.groupCount() && i < pathParamNames.size(); i++) {
@@ -426,6 +436,10 @@ public class Route {
     return multipartBuilder;
   }
 
+  public Map<String, String> getHeaders() {
+    return headers;
+  }
+
   /**
    * 抛出异常
    *
@@ -435,29 +449,43 @@ public class Route {
     if (throwable instanceof WebException) {
       throw (WebException) throwable;
     } else {
-      String message = getExceptionMssage(throwable, 0);
+      WebException exception = getWebException(throwable, 0);
       Throwable cause = throwable.getCause();
       if (cause != null) {
         logger.error("Route method invoke error.", cause);
       } else {
         logger.error("Route method invoke error.", throwable);
       }
-      throw new WebException(message);
+      throw exception;
     }
   }
 
-  private String getExceptionMssage(Throwable throwable, int deep) {
+  private WebException getWebException(Throwable throwable, int deep) {
+    WebException result = null;
+
     String message = throwable.getMessage();
     if (message == null) {
       Throwable cause = throwable.getCause();
       if (cause != null) {
-        message = cause.getMessage();
-        if (message == null && !throwable.equals(cause) && deep < 100) {
-          message = getExceptionMssage(cause, ++deep);
+        if (cause instanceof WebException) {
+          result = (WebException) cause;
+        } else {
+          message = cause.getMessage();
+          if (message == null && !throwable.equals(cause) && deep < 100) {
+            result = getWebException(cause, ++deep);
+          }
         }
       }
+    } else {
+      if (throwable instanceof WebException) {
+        result = (WebException) throwable;
+      }
     }
-    return message;
+
+    if (result == null) {
+      result = new WebException(HttpStatus.INTERNAL_SERVER_ERROR, message);
+    }
+    return result;
   }
 
   /**

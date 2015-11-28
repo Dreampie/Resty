@@ -14,6 +14,8 @@ import java.lang.annotation.*;
 public @interface DELETE {
   String value() default "";
 
+  String[] headers() default {};
+
   String des() default "";
 
   Class<? extends Validator>[] valid() default {};

@@ -10,4 +10,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface API {
   String value();
+
+  String[] headers() default {};
 }

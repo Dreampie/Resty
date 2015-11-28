@@ -314,7 +314,6 @@ public class PatternMatcher {
     }
   }
 
-
   public static boolean compareDate(String date1, String date2) {
     return compareDate(date1, date2, "yyyy-MM-dd HH:mm:ss");
   }

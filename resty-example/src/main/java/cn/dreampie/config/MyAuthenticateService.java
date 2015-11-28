@@ -14,6 +14,11 @@ import java.util.Set;
  */
 public class MyAuthenticateService extends AuthenticateService {
 
+
+  public PasswordService getPasswordService() {
+    return super.getPasswordService();
+  }
+
   /**
    * 查询用户信息  这儿new一个用户对象来模拟
    *

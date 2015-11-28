@@ -45,7 +45,7 @@ public class DefaultExceptionHolder extends ExceptionHolder {
       if (logger.isErrorEnabled()) {
         logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + HttpStatus.BAD_REQUEST.getCode() + " " + message, exception);
       }
-      response.setStatus(HttpStatus.BAD_REQUEST);
+      response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
       render.render(request, response, message);
     }
   }

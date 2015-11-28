@@ -17,6 +17,8 @@ import java.lang.annotation.*;
 public @interface PUT {
   String value() default "";
 
+  String[] headers() default {};
+
   String des() default "";
 
   Class<? extends Validator>[] valid() default {};

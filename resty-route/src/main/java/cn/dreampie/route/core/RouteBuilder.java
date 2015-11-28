@@ -38,9 +38,9 @@ public final class RouteBuilder {
   /**
    * 添加route
    */
-  private void addRoute(String httpMethod, String apiPath, String methodPath, String des, MultipartBuilder multipartBuilder, Interceptor[] routeInters, Map<String, ParamAttribute> classParamNames, Class<? extends Validator>[] validClasses, Class<? extends Resource> resourceClazz, Method method) {
+  private void addRoute(String httpMethod, String apiPath, String methodPath, String des, MultipartBuilder multipartBuilder, Map<String, String> headers, Interceptor[] routeInters, Map<String, ParamAttribute> classParamNames, Class<? extends Validator>[] validClasses, Class<? extends Resource> resourceClazz, Method method) {
     Route route = new Route(resourceClazz, ParamNamesScaner.getParamNames(method, classParamNames), httpMethod, getApi(apiPath, methodPath), method, routeInters,
-        des, getValidators(validClasses), multipartBuilder);
+        des, getValidators(validClasses), multipartBuilder, headers);
     //资源的标志
     if (apiPath.contains(Route.PARAM_PATTERN)) {
       throw new IllegalArgumentException("Api path could not contains pattern. Because this is a resource url.");
@@ -53,7 +53,7 @@ public final class RouteBuilder {
         Set<Route> routes = routesHttpMethodMap.get(apiPath);
         //判断重复
         for (Route r : routes) {
-          if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern())) {
+          if (r.getHttpMethod().equals(route.getHttpMethod()) && r.getPattern().equals(route.getPattern()) && matchHeaders(r.getHeaders(), route.getHeaders())) {
             throw new IllegalArgumentException("Same path pattern '" + route.getHttpMethod() + " " + route.getPattern() + "' (" + route.getResourceClass().getSimpleName() + ".java:" + route.getAllLineNumbers()[0] + ")");
           }
         }
@@ -64,6 +64,27 @@ public final class RouteBuilder {
     } else {
       routesMap.put(httpMethod, newRouteMap(apiPath, route));
     }
+  }
+
+  /**
+   * 判断header是否相同
+   *
+   * @param source
+   * @param dist
+   * @return
+   */
+  public boolean matchHeaders(Map<String, String> source, Map<String, String> dist) {
+    boolean result = true;
+    if (source.size() == dist.size()) {
+      for (Map.Entry<String, String> sourceEntry : source.entrySet()) {
+        if (!sourceEntry.getValue().equals(dist.get(sourceEntry.getKey()))) {
+          result = false;
+        }
+      }
+    } else {
+      result = false;
+    }
+    return result;
   }
 
 
@@ -125,7 +146,7 @@ public final class RouteBuilder {
           methodInters = interceptorBuilder.buildMethodInterceptors(method);
           routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
 
-          addRoute(HttpMethod.DELETE, apiPath, delete.value(), delete.des(), multipartBuilder, routeInters, classParamNames, delete.valid(), resourceClazz, method);
+          addRoute(HttpMethod.DELETE, apiPath, delete.value(), delete.des(), multipartBuilder, getApiHeader(resourceClazz, delete), routeInters, classParamNames, delete.valid(), resourceClazz, method);
           continue;
         }
         //get 请求
@@ -135,7 +156,7 @@ public final class RouteBuilder {
           methodInters = interceptorBuilder.buildMethodInterceptors(method);
           routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
 
-          addRoute(HttpMethod.GET, apiPath, get.value(), get.des(), multipartBuilder, routeInters, classParamNames, get.valid(), resourceClazz, method);
+          addRoute(HttpMethod.GET, apiPath, get.value(), get.des(), multipartBuilder, getApiHeader(resourceClazz, get), routeInters, classParamNames, get.valid(), resourceClazz, method);
           continue;
         }
         //post 请求
@@ -145,7 +166,7 @@ public final class RouteBuilder {
           methodInters = interceptorBuilder.buildMethodInterceptors(method);
           routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
 
-          addRoute(HttpMethod.POST, apiPath, post.value(), post.des(), multipartBuilder, routeInters, classParamNames, post.valid(), resourceClazz, method);
+          addRoute(HttpMethod.POST, apiPath, post.value(), post.des(), multipartBuilder, getApiHeader(resourceClazz, post), routeInters, classParamNames, post.valid(), resourceClazz, method);
           continue;
         }
         //put 请求
@@ -155,7 +176,7 @@ public final class RouteBuilder {
           methodInters = interceptorBuilder.buildMethodInterceptors(method);
           routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
 
-          addRoute(HttpMethod.PUT, apiPath, put.value(), put.des(), multipartBuilder, routeInters, classParamNames, put.valid(), resourceClazz, method);
+          addRoute(HttpMethod.PUT, apiPath, put.value(), put.des(), multipartBuilder, getApiHeader(resourceClazz, put), routeInters, classParamNames, put.valid(), resourceClazz, method);
           continue;
         }
         //patch 请求
@@ -165,7 +186,7 @@ public final class RouteBuilder {
           methodInters = interceptorBuilder.buildMethodInterceptors(method);
           routeInters = interceptorBuilder.buildRouteInterceptors(defaultInters, resourceInters, resourceClazz, methodInters, method);
 
-          addRoute(HttpMethod.PATCH, apiPath, patch.value(), patch.des(), multipartBuilder, routeInters, classParamNames, patch.valid(), resourceClazz, method);
+          addRoute(HttpMethod.PATCH, apiPath, patch.value(), patch.des(), multipartBuilder, getApiHeader(resourceClazz, patch), routeInters, classParamNames, patch.valid(), resourceClazz, method);
           continue;
         }
       }
@@ -238,6 +259,73 @@ public final class RouteBuilder {
       }
     }
     return apiPath;
+  }
+
+  private Map<String, String> getApiHeader(Class<? extends Resource> resourceClazz) {
+    API api;
+    Map<String, String> apiHeaders = new HashMap<String, String>();
+    api = resourceClazz.getAnnotation(API.class);
+    if (api != null) {
+      String[] apiHeaderValue = api.headers();
+      apiHeaders.putAll(getApiHeaderValue(apiHeaderValue));
+    }
+    Class<?> superClazz = resourceClazz.getSuperclass();
+    if (Resource.class.isAssignableFrom(superClazz)) {
+      apiHeaders.putAll(getApiHeader((Class<? extends Resource>) superClazz));
+    }
+    return apiHeaders;
+  }
+
+  private Map<String, String> getApiHeaderValue(String[] apiHeaderValue) {
+    Map<String, String> apiHeaders = new HashMap<String, String>();
+    if (apiHeaderValue.length > 0) {
+      String[] apiHeaderArr;
+      for (String apiHeader : apiHeaderValue) {
+        apiHeaderArr = apiHeader.split(":");
+        apiHeaders.put(apiHeaderArr[0].trim(), apiHeaderArr[1].trim());
+      }
+    }
+    return apiHeaders;
+  }
+
+  private Map<String, String> getApiHeader(Class<? extends Resource> resourceClazz, POST post) {
+    Map<String, String> apiHeaders = getApiHeader(resourceClazz);
+
+    String[] apiHeaderValue = post.headers();
+    apiHeaders.putAll(getApiHeaderValue(apiHeaderValue));
+    return apiHeaders;
+  }
+
+  private Map<String, String> getApiHeader(Class<? extends Resource> resourceClazz, DELETE delete) {
+    Map<String, String> apiHeaders = getApiHeader(resourceClazz);
+
+    String[] apiHeaderValue = delete.headers();
+    apiHeaders.putAll(getApiHeaderValue(apiHeaderValue));
+    return apiHeaders;
+  }
+
+  private Map<String, String> getApiHeader(Class<? extends Resource> resourceClazz, PUT put) {
+    Map<String, String> apiHeaders = getApiHeader(resourceClazz);
+
+    String[] apiHeaderValue = put.headers();
+    apiHeaders.putAll(getApiHeaderValue(apiHeaderValue));
+    return apiHeaders;
+  }
+
+  private Map<String, String> getApiHeader(Class<? extends Resource> resourceClazz, GET get) {
+    Map<String, String> apiHeaders = getApiHeader(resourceClazz);
+
+    String[] apiHeaderValue = get.headers();
+    apiHeaders.putAll(getApiHeaderValue(apiHeaderValue));
+    return apiHeaders;
+  }
+
+  private Map<String, String> getApiHeader(Class<? extends Resource> resourceClazz, PATCH patch) {
+    Map<String, String> apiHeaders = getApiHeader(resourceClazz);
+
+    String[] apiHeaderValue = patch.headers();
+    apiHeaders.putAll(getApiHeaderValue(apiHeaderValue));
+    return apiHeaders;
   }
 
   public Map<String, Map<String, Set<Route>>> getRoutesMap() {

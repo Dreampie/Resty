@@ -1,6 +1,8 @@
 package cn.dreampie.resource;
 
+import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.UploadedFile;
+import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.util.Maper;
@@ -28,12 +30,14 @@ public class TestResource extends ApiResource {
   @Autowired
   private HelloService helloService;
 
-  @GET("/:get")
-  public WebResult<List<User>> get(String get, Date x) {
-    System.out.println("xxxxx" + x);
-    System.out.println(helloService.hello());
+  @GET(value = "/:get", headers = {"Accept:x"})
+  public WebResult<List<User>> get(String get, Date x, HttpResponse response) {
+    throw new WebException(HttpStatus.NO_CONTENT, "xxx");
+//    response.addCookie( "xxxx", "hh");
+//    System.out.println("xxxxx" + x);
+//    System.out.println(helloService.hello());
     //如果需要返回请求状态  new WebResult
-    return new WebResult<List<User>>(HttpStatus.OK, User.dao.findAll());
+//    return new WebResult<List<User>>(HttpStatus.OK, User.dao.findAll());
   }
 
   @POST("/:post")

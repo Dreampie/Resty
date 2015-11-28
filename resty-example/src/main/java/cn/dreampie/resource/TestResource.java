@@ -30,7 +30,7 @@ public class TestResource extends ApiResource {
   @Autowired
   private HelloService helloService;
 
-  @GET(value = "/:get", headers = {"Accept:x"})
+  @GET(value = "/:get", headers = {"Accept: application/vnd.resty.v1+json"})
   public WebResult<List<User>> get(String get, Date x, HttpResponse response) {
     throw new WebException(HttpStatus.NO_CONTENT, "xxx");
 //    response.addCookie( "xxxx", "hh");

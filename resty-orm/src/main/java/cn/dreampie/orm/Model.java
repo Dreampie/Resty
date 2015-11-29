@@ -96,7 +96,7 @@ public abstract class Model<M extends Model> extends Base<M> {
       if (Metadata.hasTableMeta(useDS, tableName)) {
         tableMeta = Metadata.getTableMeta(useDS, tableName);
       } else {
-        tableMeta = Metadata.addTableMeta(new TableMeta(useDS, tableName, tableMeta.getGeneratedKey(), tableMeta.isGenerated(), tableMeta.getGenerator(), tableMeta.getPrimaryKey(), tableMeta.isCached(),tableMeta.getExpired()));
+        tableMeta = Metadata.addTableMeta(new TableMeta(useDS, new TableSetting(tableName, tableMeta.getGeneratedKey(), tableMeta.getPrimaryKey(), tableMeta.getGenerator(), tableMeta.isCached(), tableMeta.getExpired())));
       }
     }
     checkNotNull(tableMeta, "Could not find tableMeta.");

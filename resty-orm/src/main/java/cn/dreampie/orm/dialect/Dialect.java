@@ -22,6 +22,8 @@ public interface Dialect {
 
   public String insert(String table, String... columns);
 
+  public String insert(String table, String id, String sequence, String... columns);
+
   public String delete(String table);
 
   public String delete(String table, String where);

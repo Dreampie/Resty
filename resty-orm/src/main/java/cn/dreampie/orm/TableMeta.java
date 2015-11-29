@@ -15,34 +15,42 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 
 public class TableMeta implements Serializable {
 
+  private final String dsName, tableName;
   private final String generatedKey;
+  private final String[] primaryKey;
   private final boolean generated;
   private final Generator generator;
-  private final String[] primaryKey;
-  private final String tableName, dsName;
-  private final Class<? extends Entity> modelClass;
   private final boolean cached;
   private final int expired;
+  private final String sequence;
+  private final Class<? extends Entity> modelClass;
   private SortedMap<String, ColumnMeta> columnMetadata;
 
+  protected TableMeta(TableSetting tableSetting) {
+    this(Metadata.getDefaultDsName(), tableSetting);
+  }
 
-  protected TableMeta(String dsName, String tableName, String generatedKey, boolean generated, Generator generator, String[] primaryKey, boolean cached, int expired) {
-    this.modelClass = null;
-    this.generatedKey = generatedKey;
-    this.generator = generator;
-    this.generated = generated;
-    this.primaryKey = primaryKey;
-    this.tableName = tableName;
-    this.cached = cached;
-    this.expired = expired;
+  protected TableMeta(String dsName, TableSetting tableSetting) {
     this.dsName = dsName;
+    this.tableName = tableSetting.getTableName();
+    this.generatedKey = tableSetting.getGeneratedKey();
+    this.primaryKey = tableSetting.getPrimaryKey();
+    this.generated = tableSetting.isGenerated();
+    this.generator = tableSetting.getGenerator();
+    this.cached = tableSetting.isCached();
+    this.expired = tableSetting.getExpired();
+    this.sequence = tableSetting.getSequence();
+    this.modelClass = null;
   }
 
   protected TableMeta(String dsName, Class<? extends Model> modelClass) {
     Table tableAnnotation = modelClass.getAnnotation(Table.class);
     checkNotNull(tableAnnotation, "Could not found @Table Annotation.");
-    this.modelClass = modelClass;
+    this.dsName = dsName;
+    this.tableName = tableAnnotation.name();
     this.generatedKey = tableAnnotation.generatedKey();
+    this.primaryKey = tableAnnotation.primaryKey();
+    this.generated = tableAnnotation.generated();
     Generator generator = null;
     try {
       generator = tableAnnotation.generator().newInstance();
@@ -52,12 +60,10 @@ public class TableMeta implements Serializable {
       throw new DBException(e.getMessage(), e);
     }
     this.generator = generator;
-    this.generated = tableAnnotation.generated();
-    this.primaryKey = tableAnnotation.primaryKey();
-    this.tableName = tableAnnotation.name();
     this.cached = tableAnnotation.cached();
     this.expired = tableAnnotation.expired();
-    this.dsName = dsName;
+    this.sequence = tableAnnotation.sequence();
+    this.modelClass = modelClass;
   }
 
   public String getDsName() {
@@ -106,6 +112,10 @@ public class TableMeta implements Serializable {
 
   public Dialect getDialect() {
     return Metadata.getDataSourceMeta(dsName).getDialect();
+  }
+
+  public String getSequence() {
+    return sequence;
   }
 
   /**

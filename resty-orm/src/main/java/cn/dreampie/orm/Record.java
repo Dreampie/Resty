@@ -1,7 +1,5 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.orm.generate.Generator;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -20,73 +18,14 @@ public class Record extends Base<Record> {
   public Record() {
   }
 
-  public Record(String tableName) {
-    this(tableName, DEFAULT_GENERATED_KEY);
+  public Record(TableSetting tableSetting) {
+    setTableMeta(tableSetting);
   }
 
-  public Record(String tableName, boolean cached) {
-    this(tableName, DEFAULT_GENERATED_KEY, null, new String[]{}, cached);
+  public Record(String dsName, TableSetting tableSetting) {
+    setTableMeta(dsName, tableSetting);
   }
 
-  public Record(String tableName, boolean cached, int expired) {
-    this(tableName, DEFAULT_GENERATED_KEY, null, new String[]{}, cached, expired);
-  }
-
-  public Record(String tableName, String generatedKey) {
-    this(null, tableName, generatedKey);
-  }
-
-  public Record(String tableName, String generatedKey, String[] primaryKey) {
-    this(null, tableName, generatedKey, null, primaryKey);
-  }
-
-  public Record(String dsName, String tableName, String generatedKey) {
-    this(dsName, tableName, generatedKey, new String[]{});
-  }
-
-  public Record(String dsName, String tableName, String generatedKey, String[] primaryKey) {
-    this(dsName, tableName, generatedKey, null, primaryKey);
-  }
-
-  public Record(String tableName, String generatedKey, Generator generator) {
-    this(null, tableName, generatedKey, generator);
-  }
-
-  public Record(String dsName, String tableName, String generatedKey, Generator generator) {
-    this(dsName, tableName, generatedKey, generator, null);
-  }
-
-  public Record(String tableName, String generatedKey, Generator generator, String[] primaryKey) {
-    this(null, tableName, generatedKey, generator, primaryKey);
-  }
-
-  public Record(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey) {
-    this(dsName, tableName, generatedKey, generator, primaryKey, false);
-  }
-
-  public Record(String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached) {
-    this(null, tableName, generatedKey, generator, primaryKey, cached);
-  }
-
-  public Record(String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached, int expired) {
-    this(null, tableName, generatedKey, generator, primaryKey, cached, expired);
-  }
-
-  /**
-   * @param dsName       数据源
-   * @param tableName    表名
-   * @param generatedKey 数据库自动生成的主键
-   * @param generator    主键生成器 默认uuid生成主键
-   * @param primaryKey   其他主键
-   * @param cached       使用对数据缓存
-   */
-  public Record(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached) {
-    setTableMeta(dsName, tableName, generatedKey, generator, primaryKey, cached);
-  }
-
-  public Record(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached, int expired) {
-    setTableMeta(dsName, tableName, generatedKey, generator, primaryKey, cached, expired);
-  }
 
   /**
    * @param tableMeta 数据表的元数据
@@ -141,7 +80,7 @@ public class Record extends Base<Record> {
   public Record useDS(String useDS) {
     checkNotNull(useDS, "DataSourceName could not be null.");
     if (!this.useCache && !tableMeta.getDsName().equals(useDS)) {
-      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(useDS, tableMeta.getTableName(), tableMeta.getGeneratedKey(), tableMeta.isGenerated(), tableMeta.getGenerator(), tableMeta.getPrimaryKey(), tableMeta.isCached(), tableMeta.getExpired()), Metadata.getDataSourceMeta(useDS));
+      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(useDS, new TableSetting(tableMeta.getTableName(), tableMeta.getGeneratedKey(), tableMeta.getPrimaryKey(), tableMeta.getGenerator(), tableMeta.isCached(), tableMeta.getExpired())), Metadata.getDataSourceMeta(useDS));
       return this;
     } else {
       if (tableMeta.getDsName().equals(useDS)) {
@@ -162,91 +101,28 @@ public class Record extends Base<Record> {
     return tableMeta;
   }
 
-  public Record setTableMeta(String tableName) {
-    setTableMeta(tableName, DEFAULT_GENERATED_KEY);
-    return this;
-  }
-
-  public Record setTableMeta(String tableName, boolean cached) {
-    setTableMeta(tableName, DEFAULT_GENERATED_KEY, null, new String[]{}, cached);
-    return this;
-  }
-
-  public Record setTableMeta(String tableName, String generatedKey) {
-    setTableMeta(null, tableName, generatedKey);
-    return this;
-  }
-
-  public Record setTableMeta(String tableName, String generatedKey, String[] primaryKey) {
-    setTableMeta(null, tableName, generatedKey, null, primaryKey);
-    return this;
-  }
-
-  public Record setTableMeta(String dsName, String tableName, String generatedKey) {
-    setTableMeta(dsName, tableName, generatedKey, null, null);
-    return this;
-  }
-
-  public Record setTableMeta(String dsName, String tableName, String generatedKey, String[] primaryKey) {
-    setTableMeta(dsName, tableName, generatedKey, null, primaryKey);
-    return this;
-  }
-
-  public Record setTableMeta(String tableName, String generatedKey, Generator generator) {
-    setTableMeta(null, tableName, generatedKey, generator);
-    return this;
-  }
-
-  public Record setTableMeta(String dsName, String tableName, String generatedKey, Generator generator) {
-    setTableMeta(dsName, tableName, generatedKey, generator, null);
-    return this;
-  }
-
-  public Record setTableMeta(String tableName, String generatedKey, Generator generator, String[] primaryKey) {
-    setTableMeta(null, tableName, generatedKey, generator, primaryKey);
-    return this;
-  }
-
-  public Record setTableMeta(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey) {
-    setTableMeta(dsName, tableName, generatedKey, generator, primaryKey, false);
-    return this;
-  }
-
-  public Record setTableMeta(String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached) {
-    setTableMeta(null, tableName, generatedKey, generator, primaryKey, cached);
-    return this;
-  }
-
-
-  public Record setTableMeta(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached) {
-    setTableMeta(dsName, tableName, generatedKey, generator, primaryKey, cached, -1);
-    return this;
+  public Record setTableMeta(TableSetting tableSetting) {
+    return setTableMeta(null, tableSetting);
   }
 
   /**
    * 设置table信息
    *
    * @param dsName       数据源
-   * @param tableName    表名
-   * @param generatedKey 自动生成主键
-   * @param generator    主键生成器
-   * @param primaryKey   其他主键
-   * @param cached       缓存
+   * @param tableSetting table设置
    * @return record
    */
-  public Record setTableMeta(String dsName, String tableName, String generatedKey, Generator generator, String[] primaryKey, boolean cached, int expired) {
-    if (primaryKey == null) {
-      primaryKey = new String[]{};
-    }
+  public Record setTableMeta(String dsName, TableSetting tableSetting) {
     if (dsName == null) {
       dsName = Metadata.getDefaultDsName();
     }
+    String tableName = tableSetting.getTableName();
     checkNotNull(dsName, "Could not found dataSourceMeta.");
     checkNotNull(tableName, "Could not found tableName.");
     if (Metadata.hasTableMeta(dsName, tableName)) {
       this.tableMeta = Metadata.getTableMeta(dsName, tableName);
     } else {
-      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(dsName, tableName, generatedKey, generator != null, generator, primaryKey, cached, expired), Metadata.getDataSourceMeta(dsName));
+      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(dsName, tableSetting), Metadata.getDataSourceMeta(dsName));
     }
     return this;
   }

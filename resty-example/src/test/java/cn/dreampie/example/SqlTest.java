@@ -1,6 +1,7 @@
 package cn.dreampie.example;
 
 import cn.dreampie.orm.Record;
+import cn.dreampie.orm.TableSetting;
 import cn.dreampie.orm.callable.ObjectCall;
 import cn.dreampie.orm.callable.ResultSetCall;
 import cn.dreampie.orm.page.FullPage;
@@ -23,6 +24,9 @@ import java.util.List;
  */
 @FixMethodOrder(MethodSorters.JVM)
 public class SqlTest {
+
+  private TableSetting tableSetting = new TableSetting("sec_user", true);
+
   @Before
   public void setUp() throws Exception {
     ActiveRecord.init();
@@ -46,7 +50,7 @@ public class SqlTest {
       userInfo.save();
     }
 
-    Record recordDAO = new Record("sec_user", true);
+    Record recordDAO = new Record(tableSetting);
     recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date()).save();
     Record r1 = recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
     Record r2 = recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
@@ -64,7 +68,7 @@ public class SqlTest {
       System.out.println(user.<String>get("username"));
     }
 
-    Record recordDAO = new Record("sec_user", true);
+    Record recordDAO = new Record(tableSetting);
     List<Record> records = recordDAO.findAll();
     for (Record r : records) {
       System.out.println(r.<String>get("username"));
@@ -80,7 +84,7 @@ public class SqlTest {
     for (User user : users.getList()) {
       System.out.println(user.<String>get("username"));
     }
-    Record recordDAO = new Record("sec_user", true);
+    Record recordDAO = new Record(tableSetting);
     FullPage<Record> records = recordDAO.fullPaginate(1, 10, "SELECT * FROM sec_user");
     for (Record record : records.getList()) {
       System.out.println(record.<String>get("username"));
@@ -96,7 +100,7 @@ public class SqlTest {
       user.set("username", "testupdate").update();
     }
     User.dao.update("UPDATE sec_user SET username='c' WHERE username='a'");
-    Record recordDAO = new Record("sec_user", true);
+    Record recordDAO = new Record(tableSetting);
     List<Record> records = recordDAO.findAll();
     int i = 0;
     for (Record record : records) {
@@ -127,7 +131,8 @@ public class SqlTest {
       user.delete();
       i++;
     }
-    Record recordDAO = new Record("sec_user", true);
+    Record recordDAO = new Record(tableSetting);
+    ;
     recordDAO.deleteById("1");
   }
 

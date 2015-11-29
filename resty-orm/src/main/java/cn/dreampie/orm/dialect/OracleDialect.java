@@ -1,5 +1,7 @@
 package cn.dreampie.orm.dialect;
 
+import cn.dreampie.common.util.Joiner;
+
 /**
  * Created by ice on 15-1-12.
  */

@@ -698,7 +698,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       logger.warn("Could not found any data to save.");
       return false;
     } else {
-      String sql = dialect.insert(tableMeta.getTableName(), columns);
+      String sql = dialect.insert(tableMeta.getTableName(), tableMeta.getGeneratedKey(), tableMeta.getSequence(), columns);
       Connection conn = null;
       PreparedStatement pst = null;
       int result = 0;

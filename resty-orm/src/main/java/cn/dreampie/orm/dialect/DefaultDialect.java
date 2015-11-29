@@ -156,14 +156,25 @@ public abstract class DefaultDialect implements Dialect {
   }
 
   public String insert(String table, String... columns) {
+    return insert(table, null, null, columns);
+  }
+
+  public String insert(String table, String id, String sequence, String... columns) {
     StringBuilder sql = new StringBuilder().append("INSERT INTO ").append(table).append(" (");
+    boolean inSequence = id != null && !id.isEmpty() && sequence != null && !sequence.isEmpty();
+
+    if (inSequence) {
+      sql.append(id).append(",");
+    }
     sql.append(Joiner.on(", ").join(columns));
     sql.append(") VALUES (");
+    if (inSequence) {
+      sql.append(sequence).append(",");
+    }
     appendQuestions(sql, columns.length);
     sql.append(')');
     return sql.toString();
   }
-
 
   public String delete(String table) {
     return "DELETE FROM " + table;

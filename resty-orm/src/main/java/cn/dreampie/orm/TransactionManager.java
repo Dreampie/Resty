@@ -38,21 +38,29 @@ public class TransactionManager {
   public void begin() throws TransactionException {
     Connection conn = dataSourceMeta.getCurrentConnection();
     try {
-      if (conn == null) {
-        conn = dataSourceMeta.getConnection();
-        dataSourceMeta.setCurrentConnection(conn);
-      }
-      if (!readonly) {
+      if (readonly == null || !readonly) {
+        if (conn == null) {
+          conn = dataSourceMeta.getWriteConnection();
+          dataSourceMeta.setCurrentConnection(conn);
+        }
         autoCommit = conn.getAutoCommit();
         if (conn.getAutoCommit()) {
           conn.setAutoCommit(false);
         }
+
+        logger.info("Connection for " + dataSourceMeta.getWriteDsName() + " has opened success.");
       } else {
+
+        if (conn == null) {
+          conn = dataSourceMeta.getReadConnection();
+          dataSourceMeta.setCurrentConnection(conn);
+        }
         readonly = conn.isReadOnly();
         conn.setReadOnly(true);
+
+        logger.info("Connection for " + dataSourceMeta.getReadDsName() + " has opened success.");
       }
       conn.setTransactionIsolation(level);
-      logger.info("Connection for " + dataSourceMeta.getDsName() + " has opened success.");
     } catch (SQLException e) {
       throw new TransactionException(e.getMessage(), e);
     } finally {
@@ -70,7 +78,7 @@ public class TransactionManager {
         if (readonly == null || !readonly) {
           if (!conn.getAutoCommit()) {
             conn.commit();
-            logger.info("Connection for " + dataSourceMeta.getDsName() + " has commited success.");
+            logger.info("Connection for " + dataSourceMeta.getWriteDsName() + " has commited success.");
           }
         }
       }
@@ -96,10 +104,20 @@ public class TransactionManager {
         }
         dataSourceMeta.rmCurrentConnection();
         dataSourceMeta.close(conn);
-        logger.info("Connection for " + dataSourceMeta.getDsName() + " has closed success.");
+
+        if (readonly == null || !readonly) {
+          logger.info("Connection for " + dataSourceMeta.getWriteDsName() + " has closed success.");
+        } else {
+          logger.info("Connection for " + dataSourceMeta.getReadDsName() + " has closed success.");
+        }
       }
     } catch (SQLException e) {
-      logger.error("Could not end connection for " + dataSourceMeta.getDsName() + ".", e);
+      if (readonly == null || !readonly) {
+        logger.error("Could not end connection for " + dataSourceMeta.getWriteDsName() + ".", e);
+      } else {
+        logger.error("Could not end connection for " + dataSourceMeta.getReadDsName() + ".", e);
+      }
+
     }
   }
 
@@ -112,11 +130,11 @@ public class TransactionManager {
       if (conn != null) {
         if (readonly == null || !readonly) {
           conn.rollback();
-          logger.info("Connection for " + dataSourceMeta.getDsName() + " has rollbacked success.");
+          logger.info("Connection for " + dataSourceMeta.getWriteDsName() + " has rollbacked success.");
         }
       }
     } catch (SQLException e) {
-      logger.error("Could not rollback connection for " + dataSourceMeta.getDsName() + ".", e);
+      logger.error("Could not rollback connection for " + dataSourceMeta.getWriteDsName() + ".", e);
     }
   }
 }

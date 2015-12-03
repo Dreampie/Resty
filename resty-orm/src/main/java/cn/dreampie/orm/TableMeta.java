@@ -15,7 +15,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 
 public class TableMeta implements Serializable {
 
-  private final String dsName, tableName;
+  private final String dsmName, tableName;
   private final String generatedKey;
   private final String[] primaryKey;
   private final boolean generated;
@@ -25,13 +25,14 @@ public class TableMeta implements Serializable {
   private final String sequence;
   private final Class<? extends Entity> modelClass;
   private SortedMap<String, ColumnMeta> columnMetadata;
+  private TableSetting tableSetting;
 
   protected TableMeta(TableSetting tableSetting) {
-    this(Metadata.getDefaultDsName(), tableSetting);
+    this(Metadata.getDefaultDsmName(), tableSetting);
   }
 
-  protected TableMeta(String dsName, TableSetting tableSetting) {
-    this.dsName = dsName;
+  protected TableMeta(String dsmName, TableSetting tableSetting) {
+    this.dsmName = dsmName;
     this.tableName = tableSetting.getTableName();
     this.generatedKey = tableSetting.getGeneratedKey();
     this.primaryKey = tableSetting.getPrimaryKey();
@@ -41,12 +42,13 @@ public class TableMeta implements Serializable {
     this.expired = tableSetting.getExpired();
     this.sequence = tableSetting.getSequence();
     this.modelClass = null;
+    this.tableSetting = tableSetting;
   }
 
-  protected TableMeta(String dsName, Class<? extends Model> modelClass) {
+  protected TableMeta(String dsmName, Class<? extends Model> modelClass) {
     Table tableAnnotation = modelClass.getAnnotation(Table.class);
     checkNotNull(tableAnnotation, "Could not found @Table Annotation.");
-    this.dsName = dsName;
+    this.dsmName = dsmName;
     this.tableName = tableAnnotation.name();
     this.generatedKey = tableAnnotation.generatedKey();
     this.primaryKey = tableAnnotation.primaryKey();
@@ -64,10 +66,11 @@ public class TableMeta implements Serializable {
     this.expired = tableAnnotation.expired();
     this.sequence = tableAnnotation.sequence();
     this.modelClass = modelClass;
+    this.tableSetting = new TableSetting(tableName, generatedKey, primaryKey, generated, generator, cached, expired, sequence);
   }
 
-  public String getDsName() {
-    return dsName;
+  public String getDsmName() {
+    return dsmName;
   }
 
   public boolean isCached() {
@@ -107,15 +110,19 @@ public class TableMeta implements Serializable {
   }
 
   public String getDbType() {
-    return Metadata.getDataSourceMeta(dsName).getDialect().getDbType();
+    return Metadata.getDataSourceMeta(dsmName).getDialect().getDbType();
   }
 
   public Dialect getDialect() {
-    return Metadata.getDataSourceMeta(dsName).getDialect();
+    return Metadata.getDataSourceMeta(dsmName).getDialect();
   }
 
   public String getSequence() {
     return sequence;
+  }
+
+  public TableSetting getTableSetting() {
+    return tableSetting;
   }
 
   /**

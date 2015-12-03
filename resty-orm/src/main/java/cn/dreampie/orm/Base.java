@@ -88,7 +88,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return DataSourceMeta
    */
   protected DataSourceMeta getDataSourceMeta() {
-    return Metadata.getDataSourceMeta(getTableMeta().getDsName());
+    return Metadata.getDataSourceMeta(getTableMeta().getDsmName());
   }
 
   /**
@@ -117,10 +117,10 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   /**
    * 切换数据源
    *
-   * @param useDS 数据源名称
+   * @param dsmName 数据源名称
    * @return Model
    */
-  public abstract M useDS(String useDS);
+  public abstract M useDSM(String dsmName);
 
   /**
    * 表的别名
@@ -155,7 +155,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected <T> T getCache(String sql, Object[] params) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      return (T) QueryCache.instance().get(tableMeta.getDsName(), tableMeta.getTableName(), getMClass().getSimpleName(), sql, params);
+      return (T) QueryCache.instance().get(tableMeta.getDsmName(), tableMeta.getTableName(), getMClass().getSimpleName(), sql, params);
     }
     return null;
   }
@@ -170,7 +170,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected void addCache(String sql, Object[] params, Object cache) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().add(tableMeta.getDsName(), tableMeta.getTableName(), getMClass().getSimpleName(), sql, params, cache, tableMeta.getExpired());
+      QueryCache.instance().add(tableMeta.getDsmName(), tableMeta.getTableName(), getMClass().getSimpleName(), sql, params, cache, tableMeta.getExpired());
     }
   }
 
@@ -180,7 +180,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   public void purgeCache() {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().purge(tableMeta.getDsName(), tableMeta.getTableName());
+      QueryCache.instance().purge(tableMeta.getDsmName(), tableMeta.getTableName());
     }
   }
 
@@ -193,7 +193,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected void removeCache(String sql, Object[] params) {
     TableMeta tableMeta = getTableMeta();
     if (tableMeta.isCached()) {
-      QueryCache.instance().remove(tableMeta.getDsName(), tableMeta.getTableName(), getMClass().getSimpleName(), sql, params);
+      QueryCache.instance().remove(tableMeta.getDsmName(), tableMeta.getTableName(), getMClass().getSimpleName(), sql, params);
     }
   }
 
@@ -211,8 +211,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @param sql    sql
    * @param params 参数
    */
-  private void logSql(String sql, Object[][] params) {
-    if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
+  private void logSql(boolean showSql, String sql, Object[][] params) {
+    if (showSql && logger.isInfoEnabled()) {
       StringBuilder log = new StringBuilder("Sql: {").append(sql).append("} ");
       if (params != null && params.length > 0) {
         int i = 0;
@@ -233,8 +233,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @param sql    sql
    * @param params 参数
    */
-  private void logSql(String sql, Object[] params) {
-    if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
+  private void logSql(boolean showSql, String sql, Object[] params) {
+    if (showSql && logger.isInfoEnabled()) {
       StringBuilder log = new StringBuilder("Sql: {").append(sql).append("} ");
       if (params != null && params.length > 0) {
         log.append(", params: ").append('{');
@@ -250,8 +250,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    *
    * @param sqls sqls
    */
-  private void logSql(List<String> sqls) {
-    if (getDataSourceMeta().isShowSql() && logger.isInfoEnabled()) {
+  private void logSql(boolean showSql, List<String> sqls) {
+    if (showSql && logger.isInfoEnabled()) {
       logger.info("Sqls: " + '{' + Joiner.on("}, {").useForNull("null").join(sqls) + '}');
     }
   }
@@ -263,9 +263,14 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return Connection
    * @throws SQLException
    */
-  private Connection getConnection(DataSourceMeta dataSourceMeta) throws SQLException {
+  private Connection getWriteConnection(DataSourceMeta dataSourceMeta) throws SQLException {
     dataSourceMeta.beginTransaction();
-    return dataSourceMeta.getConnection();
+    return dataSourceMeta.getWriteConnection();
+  }
+
+  private Connection getReadConnection(DataSourceMeta dataSourceMeta) throws SQLException {
+    dataSourceMeta.beginTransaction();
+    return dataSourceMeta.getReadConnection();
   }
 
   /**
@@ -278,9 +283,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return
    * @throws SQLException
    */
-  private PreparedStatement getPreparedStatement(Connection conn, TableMeta tableMeta, String sql, Object[] params) throws SQLException {
+  private PreparedStatement getPreparedStatement(boolean showSql, Connection conn, TableMeta tableMeta, String sql, Object[] params) throws SQLException {
     //打印sql语句
-    logSql(sql, params);
+    logSql(showSql, sql, params);
     PreparedStatement pst;
     //如果没有自动生成的主键 则不获取
     String generatedKey = tableMeta.getGeneratedKey();
@@ -306,9 +311,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return
    * @throws SQLException
    */
-  private PreparedStatement getPreparedStatement(Connection conn, TableMeta tableMeta, String sql, Object[][] params) throws SQLException {
+  private PreparedStatement getPreparedStatement(boolean showSql, Connection conn, TableMeta tableMeta, String sql, Object[][] params) throws SQLException {
     //打印sql语句
-    logSql(sql, params);
+    logSql(showSql, sql, params);
 
     PreparedStatement pst = null;
     //如果没有自动生成的主键 则不获取
@@ -345,9 +350,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return
    * @throws SQLException
    */
-  private Statement getPreparedStatement(Connection conn, List<String> sqls) throws SQLException {
+  private Statement getPreparedStatement(boolean showSql, Connection conn, List<String> sqls) throws SQLException {
     //打印sql语句
-    logSql(sqls);
+    logSql(showSql, sqls);
     Statement stmt = null;
 
     stmt = conn.createStatement();
@@ -511,12 +516,13 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       checkTableName(tableMeta.getTableName(), sql);
 
     DataSourceMeta dsm = getDataSourceMeta();
+    boolean showSql = dsm.isReadShowSql();
     Connection conn = null;
     PreparedStatement pst = null;
     ResultSet rs = null;
     try {
-      conn = getConnection(dsm);
-      pst = getPreparedStatement(conn, tableMeta, sql, params);
+      conn = getReadConnection(dsm);
+      pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
       rs = pst.executeQuery();
       result = BaseBuilder.build(rs, getMClass(), dsm, tableMeta);
     } catch (SQLException e) {
@@ -690,6 +696,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
 
     DataSourceMeta dsm = getDataSourceMeta();
+    boolean showSql = dsm.isWriteShowSql();
     Dialect dialect = dsm.getDialect();
     String[] columns = getModifyAttrNames();
 
@@ -703,8 +710,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       PreparedStatement pst = null;
       int result = 0;
       try {
-        conn = getConnection(dsm);
-        pst = getPreparedStatement(conn, tableMeta, sql, getModifyAttrValues());
+        conn = getWriteConnection(dsm);
+        pst = getPreparedStatement(showSql, conn, tableMeta, sql, getModifyAttrValues());
 
         result = pst.executeUpdate();
 //        if(!generatedKey.isEmpty()) {
@@ -758,6 +765,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
 
     DataSourceMeta dsm = firstModel.getDataSourceMeta();
+    boolean showSql = dsm.isWriteShowSql();
     Dialect dialect = dsm.getDialect();
 
     String[] columns = firstModel.getModifyAttrNames();
@@ -786,12 +794,12 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       Boolean autoCommit = null;
       int[] result = null;
       try {
-        conn = getConnection(dsm);
+        conn = getWriteConnection(dsm);
         autoCommit = conn.getAutoCommit();
         if (autoCommit) {
           conn.setAutoCommit(false);
         }
-        pst = getPreparedStatement(conn, tableMeta, sql, params);
+        pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
         result = pst.executeBatch();
 //        if (!generatedKey.isEmpty()) {
         setGeneratedKey(pst, tableMeta, models);
@@ -828,6 +836,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   public boolean update(String sql, Object... params) {
     TableMeta tableMeta = getTableMeta();
     DataSourceMeta dsm = getDataSourceMeta();
+    boolean showSql = dsm.isWriteShowSql();
     //清除缓存
     if (tableMeta.isCached()) {
       purgeCache();
@@ -840,8 +849,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     Connection conn = null;
     PreparedStatement pst = null;
     try {
-      conn = getConnection(dsm);
-      pst = getPreparedStatement(conn, tableMeta, sql, params);
+      conn = getWriteConnection(dsm);
+      pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
       result = pst.executeUpdate();
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
@@ -928,25 +937,25 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
   /**
    * Execute a batch of SQL INSERT, UPDATE, or DELETE queries.
-   * int[] result = DbPro.use().batch("myConfig", sqlList, 500);
    *
    * @param sqls The SQL list to execute.
    * @return The number of rows updated per statement
    */
   public boolean execute(List<String> sqls) {
 
+    DataSourceMeta dsm = getDataSourceMeta();
+    boolean showSql = dsm.isWriteShowSql();
     Statement stmt = null;
     int[] result = null;
     Connection conn = null;
     Boolean autoCommit = null;
-    DataSourceMeta dsm = getDataSourceMeta();
     try {
-      conn = getConnection(dsm);
+      conn = getWriteConnection(dsm);
       autoCommit = conn.getAutoCommit();
       if (autoCommit)
         conn.setAutoCommit(false);
 
-      stmt = getPreparedStatement(conn, sqls);
+      stmt = getPreparedStatement(showSql, conn, sqls);
       result = stmt.executeBatch();
       //没有事务的情况下 手动提交
       if (dsm.getCurrentConnection() == null)
@@ -1311,13 +1320,14 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
 
     DataSourceMeta dsm = getDataSourceMeta();
+    boolean showSql = dsm.isReadShowSql();
     Connection conn = null;
     PreparedStatement pst = null;
     ResultSet rs = null;
 
     try {
-      conn = getConnection(dsm);
-      pst = getPreparedStatement(conn, tableMeta, sql, params);
+      conn = getWriteConnection(dsm);
+      pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
       rs = pst.executeQuery();
       result = readQueryResult(rs);
     } catch (SQLException e) {
@@ -1386,7 +1396,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     CallableStatement cstmt = null;
     DataSourceMeta dsm = getDataSourceMeta();
     try {
-      conn = getConnection(dsm);
+      conn = getWriteConnection(dsm);
       cstmt = conn.prepareCall(sql);
       return (T) objectCall.call(cstmt);
     } catch (SQLException e) {
@@ -1414,7 +1424,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     CallableStatement cstmt = null;
     DataSourceMeta dsm = getDataSourceMeta();
     try {
-      conn = getConnection(dsm);
+      conn = getWriteConnection(dsm);
       cstmt = conn.prepareCall(sql);
       return readQueryResult(resultSetCall.call(cstmt));
     } catch (SQLException e) {
@@ -1450,7 +1460,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     TableMeta tableMeta = getTableMeta();
 
     try {
-      conn = getConnection(dsm);
+      conn = getWriteConnection(dsm);
       cstmt = conn.prepareCall(sql);
       return BaseBuilder.build(resultSetCall.call(cstmt), getMClass(), dsm, tableMeta);
     } catch (SQLException e) {

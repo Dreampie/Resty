@@ -15,15 +15,15 @@ public class Record extends Base<Record> {
   private TableMeta tableMeta;
   private boolean useCache = true;
 
-  public Record() {
+  private Record() {
   }
 
   public Record(TableSetting tableSetting) {
-    setTableMeta(tableSetting);
+    this.tableMeta = getTableMeta(null, tableSetting);
   }
 
-  public Record(String dsName, TableSetting tableSetting) {
-    setTableMeta(dsName, tableSetting);
+  public Record(String dsmName, TableSetting tableSetting) {
+    this.tableMeta = getTableMeta(dsmName, tableSetting);
   }
 
 
@@ -38,10 +38,10 @@ public class Record extends Base<Record> {
     return new Record(tableMeta);
   }
 
-  private Record instance(String useDS, boolean useCache) {
+  private Record instance(String dsmName, boolean useCache) {
     Record record;
-    if (useDS != null && !tableMeta.getDsName().equals(useDS)) {
-      record = new Record(tableMeta);
+    if (dsmName != null && !tableMeta.getDsmName().equals(dsmName)) {
+      record = new Record(getTableMeta(dsmName, tableMeta.getTableSetting()));
     } else {
       record = new Record(tableMeta);
     }
@@ -74,19 +74,20 @@ public class Record extends Base<Record> {
   /**
    * 切换数据源
    *
-   * @param useDS 数据源名称
+   * @param dsmName 数据源名称
    * @return Record
    */
-  public Record useDS(String useDS) {
-    checkNotNull(useDS, "DataSourceName could not be null.");
-    if (!this.useCache && !tableMeta.getDsName().equals(useDS)) {
-      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(useDS, new TableSetting(tableMeta.getTableName(), tableMeta.getGeneratedKey(), tableMeta.getPrimaryKey(), tableMeta.getGenerator(), tableMeta.isCached(), tableMeta.getExpired())), Metadata.getDataSourceMeta(useDS));
+  public Record useDSM(String dsmName) {
+    checkNotNull(dsmName, "DataSourceMetaName could not be null.");
+    //如果 useCache=false  表示已经实例化一个零时对象
+    if (!this.useCache && !tableMeta.getDsmName().equals(dsmName)) {
+      this.tableMeta = getTableMeta(dsmName, tableMeta.getTableSetting());
       return this;
     } else {
-      if (tableMeta.getDsName().equals(useDS)) {
+      if (tableMeta.getDsmName().equals(dsmName)) {
         return this;
       } else {
-        return instance(useDS, true);
+        return instance(dsmName, true);
       }
     }
   }
@@ -101,30 +102,26 @@ public class Record extends Base<Record> {
     return tableMeta;
   }
 
-  public Record setTableMeta(TableSetting tableSetting) {
-    return setTableMeta(null, tableSetting);
-  }
-
   /**
-   * 设置table信息
+   * 获取表数据元
    *
-   * @param dsName       数据源
-   * @param tableSetting table设置
-   * @return record
+   * @param dsmName
+   * @param tableSetting
+   * @return
    */
-  public Record setTableMeta(String dsName, TableSetting tableSetting) {
-    if (dsName == null) {
-      dsName = Metadata.getDefaultDsName();
+  private TableMeta getTableMeta(String dsmName, TableSetting tableSetting) {
+    if (dsmName == null) {
+      dsmName = Metadata.getDefaultDsmName();
     }
     String tableName = tableSetting.getTableName();
-    checkNotNull(dsName, "Could not found dataSourceMeta.");
+    checkNotNull(dsmName, "Could not found dataSourceMeta.");
     checkNotNull(tableName, "Could not found tableName.");
-    if (Metadata.hasTableMeta(dsName, tableName)) {
-      this.tableMeta = Metadata.getTableMeta(dsName, tableName);
+
+    if (Metadata.hasTableMeta(dsmName, tableName)) {
+      return Metadata.getTableMeta(dsmName, tableName);
     } else {
-      this.tableMeta = TableMetaBuilder.buildTableMeta(new TableMeta(dsName, tableSetting), Metadata.getDataSourceMeta(dsName));
+      return TableMetaBuilder.buildTableMeta(new TableMeta(dsmName, tableSetting), Metadata.getDataSourceMeta(dsmName));
     }
-    return this;
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
@@ -135,7 +132,7 @@ public class Record extends Base<Record> {
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
-    //增加一个新的对象 String dsName, String tableName, String pKeys, boolean lockKey, boolean cached
+    //增加一个新的对象 String dsmName, String tableName, String pKeys, boolean lockKey, boolean cached
     out.writeObject(tableMeta);
     out.writeObject(getAttrs());
     out.writeObject(useCache);

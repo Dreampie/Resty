@@ -24,10 +24,18 @@ public class ActiveRecordPlugin implements Plugin {
   private Set<String> includeClassPackages = new HashSet<String>();
   private Set<String> excludeClassPackages = new HashSet<String>();
 
-  private DataSourceProvider dataSourceProvider;
+  private String dsmName;
+  private DataSourceProvider writeDataSourceProvider;
+  private DataSourceProvider readDataSourceProvider;
 
-  public ActiveRecordPlugin(DataSourceProvider dataSourceProvider) {
-    this.dataSourceProvider = dataSourceProvider;
+  public ActiveRecordPlugin(DataSourceProvider writeDataSourceProvider) {
+    this(writeDataSourceProvider.getDsName(), writeDataSourceProvider, null);
+  }
+
+  public ActiveRecordPlugin(String dsmName, DataSourceProvider writeDataSourceProvider, DataSourceProvider readDataSourceProvider) {
+    this.dsmName = dsmName;
+    this.writeDataSourceProvider = writeDataSourceProvider;
+    this.readDataSourceProvider = readDataSourceProvider;
   }
 
   public ActiveRecordPlugin addExcludeClasses(Class<? extends Model>... classes) {
@@ -84,10 +92,10 @@ public class ActiveRecordPlugin implements Plugin {
         includeClasses.addAll(ClassScaner.of(Model.class).includePackages(includeClassPackages).<Model>scan());
       }
     } else {
-      logger.warn("You not include any packages for dsName: " + dataSourceProvider.getDsName());
+      logger.warn("You not include any packages for dsmName: " + dsmName);
     }
 
-    DataSourceMeta dsm = new DataSourceMeta(dataSourceProvider);
+    DataSourceMeta dsm = new DataSourceMeta(dsmName, writeDataSourceProvider, readDataSourceProvider);
     if (includeClasses.size() > 0) {
       Set<TableMeta> tableMetas = new HashSet<TableMeta>();
       TableMeta tableMeta = null;
@@ -110,7 +118,7 @@ public class ActiveRecordPlugin implements Plugin {
           continue;
         }
         //add modelMeta
-        tableMeta = new TableMeta(dataSourceProvider.getDsName(), modelClass);
+        tableMeta = new TableMeta(dsmName, modelClass);
         tableMetas.add(tableMeta);
         logger.info("Models.add(" + tableMeta.getTableName() + ", " + modelClass.getName() + ")");
 
@@ -120,7 +128,7 @@ public class ActiveRecordPlugin implements Plugin {
       //model 元数据
       TableMetaBuilder.buildTableMeta(tableMetas, dsm);
     } else {
-      logger.warn("Could not load any model for   " + dsm.getDsName() + ".");
+      logger.warn("Could not load any model for   " + dsmName + ".");
     }
     //Record 解析支持
     Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());

@@ -10,7 +10,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 public abstract class Model<M extends Model> extends Base<M> {
 
   private boolean useCache = true;
-  private String useDS = null;
+  private String useDSM = null;
 
   /**
    * 是否使用缓存
@@ -21,11 +21,11 @@ public abstract class Model<M extends Model> extends Base<M> {
     return useCache;
   }
 
-  private M instance(String useDS, boolean useCache) {
+  private M instance(String useDSM, boolean useCache) {
     Model<M> instance = null;
     try {
       instance = getMClass().newInstance();
-      instance.useDS = useDS;
+      instance.useDSM = useDSM;
       instance.useCache = useCache;
       instance.reSetAttrs(this.getAttrs()).reSetModifyAttrs(this.getModifyAttrs());
     } catch (InstantiationException e) {
@@ -42,7 +42,7 @@ public abstract class Model<M extends Model> extends Base<M> {
    * @return Model对象
    */
   public M unCache() {
-    if (this.useDS != null) {
+    if (this.useDSM != null) {
       this.useCache = false;
       return (M) this;
     } else {
@@ -57,19 +57,19 @@ public abstract class Model<M extends Model> extends Base<M> {
   /**
    * 本次操作使用新数据源
    *
-   * @param useDS 数据源名称
+   * @param dsmName 数据源名称
    * @return Model对象
    */
-  public M useDS(String useDS) {
-    checkNotNull(useDS, "DataSourceName could not be null.");
+  public M useDSM(String dsmName) {
+    checkNotNull(dsmName, "DataSourceMetaName could not be null.");
     if (!this.useCache) {
-      this.useDS = useDS;
+      this.useDSM = dsmName;
       return (M) this;
     } else {
-      if (useDS.equals(this.useDS)) {
+      if (dsmName.equals(this.useDSM)) {
         return (M) this;
       } else {
-        return instance(useDS, true);
+        return instance(dsmName, true);
       }
     }
   }
@@ -91,12 +91,12 @@ public abstract class Model<M extends Model> extends Base<M> {
    */
   protected TableMeta getTableMeta() {
     TableMeta tableMeta = Metadata.getTableMeta(getMClass());
-    if (useDS != null) {
+    if (useDSM != null) {
       String tableName = tableMeta.getTableName();
-      if (Metadata.hasTableMeta(useDS, tableName)) {
-        tableMeta = Metadata.getTableMeta(useDS, tableName);
+      if (Metadata.hasTableMeta(useDSM, tableName)) {
+        tableMeta = Metadata.getTableMeta(useDSM, tableName);
       } else {
-        tableMeta = Metadata.addTableMeta(new TableMeta(useDS, new TableSetting(tableName, tableMeta.getGeneratedKey(), tableMeta.getPrimaryKey(), tableMeta.getGenerator(), tableMeta.isCached(), tableMeta.getExpired())));
+        tableMeta = Metadata.addTableMeta(new TableMeta(useDSM, new TableSetting(tableName, tableMeta.getGeneratedKey(), tableMeta.getPrimaryKey(), tableMeta.getGenerator(), tableMeta.isCached(), tableMeta.getExpired())));
       }
     }
     checkNotNull(tableMeta, "Could not find tableMeta.");

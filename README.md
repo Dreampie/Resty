@@ -78,8 +78,8 @@ recordDAO.deleteById("1");
 
 //本次查询放弃使用cache 
 recordDAO.unCache().findBy(where,paras);
-//把record的数据源切换到dsName数据源上
-recordDAO.useDS(dsName).findBy(where,paras);
+//把record的数据源切换到dsmName数据源上
+recordDAO.useDS(dsmName).findBy(where,paras);
 
 //等等，完全摆脱model，实现快速操作数据
 
@@ -90,8 +90,8 @@ Model支持动态切换数据源和本次查询放弃使用cache
 User dao=new User();
 //本次查询放弃使用cache 
 dao.unCache().findBy(where,paras);
-//把model的数据源切换到dsName数据源上
-dao.useDS(dsName).findBy(where,paras);
+//把model的数据源切换到dsmName数据源上
+dao.useDS(dsmName).findBy(where,paras);
 
 ```
 
@@ -145,7 +145,7 @@ flyway.demo.migration.initOnMigrate=true
 
 
 
-//数据库的配置精简  自动从文件读取参数  只需配置model扫描目录 和dsName
+//数据库的配置精简  自动从文件读取参数  只需配置model扫描目录 和dsmName
 public void configPlugin(PluginLoader pluginLoader) {
   //第一个数据库
   ActiveRecordPlugin activeRecordPlugin = new ActiveRecordPlugin(new DruidDataSourceProvider("default"), true);

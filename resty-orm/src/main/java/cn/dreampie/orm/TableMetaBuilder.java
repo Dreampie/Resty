@@ -23,7 +23,7 @@ public class TableMetaBuilder {
     TableMeta temp = null;
     Connection conn = null;
     try {
-      conn = dsm.getDataSource().getConnection();
+      conn = dsm.getWriteDataSource().getConnection();
       for (TableMeta tableMeta : tableMetas) {
         temp = tableMeta;
         temp.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
@@ -42,7 +42,7 @@ public class TableMetaBuilder {
 
     String message = e.getMessage();
     if (e instanceof ConnectException) {
-      message = "Could not connect dataSource for name '" + dsm.getDsName() + "'";
+      message = "Could not connect dataSource for name '" + dsm.getWriteDsName() + "'";
     } else {
       if (temp != null) {
         message = "Could not create table object, maybe the table " + temp.getTableName() + " is not exists.";
@@ -61,7 +61,7 @@ public class TableMetaBuilder {
   public static TableMeta buildTableMeta(TableMeta tableMeta, DataSourceMeta dsm) {
     Connection conn = null;
     try {
-      conn = dsm.getDataSource().getConnection();
+      conn = dsm.getWriteDataSource().getConnection();
       tableMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
       //添加到record元数据集合
       Metadata.addTableMeta(tableMeta);
@@ -126,9 +126,7 @@ public class TableMetaBuilder {
     if (columns.size() > 0) {
       logger.debug("Fetched metadata for table: %s", table);
     } else {
-      logger.warn("Failed to retrieve metadata for table: '%s'."
-              + " Are you sure this table exists? For some databases table name are case sensitive.",
-          table);
+      logger.warn("Failed to retrieve metadata for table: '%s'. Are you sure this table exists? For some databases table name are case sensitive.", table);
     }
     return columns;
   }

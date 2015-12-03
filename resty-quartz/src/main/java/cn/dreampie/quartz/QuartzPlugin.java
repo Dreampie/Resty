@@ -21,8 +21,8 @@ import java.util.*;
 public class QuartzPlugin implements Plugin {
 
   private static final Logger logger = Logger.getLogger(QuartzPlugin.class);
-  private static String dsName;
-  private static boolean dsAlone;
+  private static String dsmName;
+  private static boolean dsmAlone;
   /**
    * 默认配置文件*
    */
@@ -33,37 +33,37 @@ public class QuartzPlugin implements Plugin {
     this(null);
   }
 
-  public QuartzPlugin(String dsName) {
-    this(null, null, dsName, false);
+  public QuartzPlugin(String dsmName) {
+    this(null, null, dsmName, false);
   }
 
-  public QuartzPlugin(String dsName, boolean dsAlone) {
-    this(null, null, dsName, dsAlone);
+  public QuartzPlugin(String dsmName, boolean dsmAlone) {
+    this(null, null, dsmName, dsmAlone);
   }
 
   public QuartzPlugin(String config, String jobs) {
-    this(config, jobs, Metadata.getDefaultDsName(), false);
+    this(config, jobs, Metadata.getDefaultDsmName(), false);
   }
 
-  public QuartzPlugin(String config, String jobs, String dsName, boolean dsAlone) {
+  public QuartzPlugin(String config, String jobs, String dsmName, boolean dsmAlone) {
     if (config != null) {
       this.config = config;
     }
     if (jobs != null) {
       this.jobs = jobs;
     }
-    if (dsName != null) {
-      QuartzPlugin.dsName = dsName;
+    if (dsmName != null) {
+      QuartzPlugin.dsmName = dsmName;
     }
-    QuartzPlugin.dsAlone = dsAlone;
+    QuartzPlugin.dsmAlone = dsmAlone;
   }
 
-  public static String getDsName() {
-    return dsName;
+  public static String getDsmName() {
+    return dsmName;
   }
 
-  public static boolean isDsAlone() {
-    return dsAlone;
+  public static boolean isDsmAlone() {
+    return dsmAlone;
   }
 
   public boolean start() {

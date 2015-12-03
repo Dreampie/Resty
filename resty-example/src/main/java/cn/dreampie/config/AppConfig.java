@@ -36,8 +36,15 @@ public class AppConfig extends Config {
 //    //第二个数据库
 //    DruidDataSourceProvider ddsp = new DruidDataSourceProvider("demo");
 //    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp);
-//    activeRecordCdsp.addIncludePackages("cn.dreampie.resource");
+//    activeRecordDdsp.addIncludePackages("cn.dreampie.resource");
 //    pluginLoader.add(activeRecordDdsp);
+
+    //读写分离
+    DruidDataSourceProvider writeDsp = new DruidDataSourceProvider("write");
+    DruidDataSourceProvider readDsp = new DruidDataSourceProvider("read");
+    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin("readwrite", writeDsp, readDsp);
+    activeRecordDdsp.addIncludePackages("cn.dreampie.resource");
+    pluginLoader.add(activeRecordDdsp);
 
 //    pluginLoader.add(new SpringPlugin(HelloApp.class));
 //    JndiDataSourceProvider jdsp = new JndiDataSourceProvider("jndiDs", "jndiName");

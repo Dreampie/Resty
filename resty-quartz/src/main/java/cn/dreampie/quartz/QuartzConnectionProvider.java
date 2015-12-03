@@ -16,16 +16,16 @@ public class QuartzConnectionProvider implements ConnectionProvider {
   private DataSourceMeta dataSourceMeta;
 
   public Connection getConnection() throws SQLException {
-    return dataSourceMeta.getConnection();
+    return dataSourceMeta.getWriteConnection();
   }
 
   public void shutdown() throws SQLException {
-    if (QuartzPlugin.isDsAlone()) {
+    if (QuartzPlugin.isDsmAlone()) {
       dataSourceMeta.close();
     }
   }
 
   public void initialize() throws SQLException {
-    dataSourceMeta = Metadata.getDataSourceMeta(QuartzPlugin.getDsName());
+    dataSourceMeta = Metadata.getDataSourceMeta(QuartzPlugin.getDsmName());
   }
 }

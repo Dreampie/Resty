@@ -17,30 +17,70 @@ import java.sql.Statement;
 public class DataSourceMeta {
 
   private static final Logger logger = Logger.getLogger(DataSourceMeta.class);
-  //不能使用static 让每个数据源都有一个connectionTL
-  private final ThreadLocal<Connection> connectionTL = new ThreadLocal<Connection>();
-  private final ThreadLocal<TransactionManager> transactionManagerTL = new ThreadLocal<TransactionManager>();
-  private final ThreadLocal<Integer> transactionDeepTL = new ThreadLocal<Integer>();
-  private DataSourceProvider dataSourceProvider;
+  //不能使用static 让每个数据源都有一个connectionHolder
+  private final ThreadLocal<Connection> connectionHolder = new ThreadLocal<Connection>();
+  private final ThreadLocal<TransactionManager> transactionManagerHolder = new ThreadLocal<TransactionManager>();
+  private final ThreadLocal<Integer> transactionDeepHolder = new ThreadLocal<Integer>();
+  private final String dsmName;
+  private DataSourceProvider writeDataSourceProvider;
+  private DataSourceProvider readDataSourceProvider;
 
-  public DataSourceMeta(DataSourceProvider dataSourceProvider) {
-    this.dataSourceProvider = dataSourceProvider;
+  public DataSourceMeta(DataSourceProvider writeDataSourceProvider) {
+    this(writeDataSourceProvider.getDsName(), writeDataSourceProvider, null);
   }
 
-  public String getDsName() {
-    return dataSourceProvider.getDsName();
+  public DataSourceMeta(String dsmName, DataSourceProvider writeDataSourceProvider, DataSourceProvider readDataSourceProvider) {
+    this.dsmName = dsmName;
+    this.writeDataSourceProvider = writeDataSourceProvider;
+    this.readDataSourceProvider = readDataSourceProvider;
+
+    if (readDataSourceProvider != null && !writeDataSourceProvider.getDialect().equals(readDataSourceProvider.getDialect())) {
+      throw new IllegalArgumentException("Different read and write database dialect");
+    }
   }
 
-  DataSource getDataSource() {
-    return dataSourceProvider.getDataSource();
+  public String getDsmName() {
+    return dsmName;
   }
 
   public Dialect getDialect() {
-    return dataSourceProvider.getDialect();
+    return writeDataSourceProvider.getDialect();
   }
 
-  public boolean isShowSql() {
-    return dataSourceProvider.isShowSql();
+  public String getWriteDsName() {
+    return writeDataSourceProvider.getDsName();
+  }
+
+  DataSource getWriteDataSource() {
+    return writeDataSourceProvider.getDataSource();
+  }
+
+  public boolean isWriteShowSql() {
+    return writeDataSourceProvider.isShowSql();
+  }
+
+  public String getReadDsName() {
+    if (readDataSourceProvider != null) {
+      return readDataSourceProvider.getDsName();
+    } else {
+      return getWriteDsName();
+    }
+  }
+
+  DataSource getReadDataSource() {
+    if (readDataSourceProvider != null) {
+      return readDataSourceProvider.getDataSource();
+    } else {
+      return getWriteDataSource();
+    }
+  }
+
+  public boolean isReadShowSql() {
+    if (readDataSourceProvider != null) {
+      return readDataSourceProvider.isShowSql();
+    } else {
+      return isWriteShowSql();
+    }
   }
 
   /**
@@ -49,12 +89,24 @@ public class DataSourceMeta {
    * @return 连接对象
    * @throws SQLException
    */
-  public Connection getConnection() throws SQLException {
-    Connection conn = connectionTL.get();
+  public Connection getWriteConnection() throws SQLException {
+    Connection conn = connectionHolder.get();
     if (conn != null) {
       return conn;
     }
-    return getDataSource().getConnection();
+    return getWriteDataSource().getConnection();
+  }
+
+  public Connection getReadConnection() throws SQLException {
+    Connection conn = connectionHolder.get();
+    if (conn != null) {
+      return conn;
+    }
+    if (readDataSourceProvider != null) {
+      return getReadDataSource().getConnection();
+    } else {
+      return getWriteDataSource().getConnection();
+    }
   }
 
   /**
@@ -63,7 +115,7 @@ public class DataSourceMeta {
    * @return connection
    */
   Connection getCurrentConnection() {
-    return connectionTL.get();
+    return connectionHolder.get();
   }
 
   /**
@@ -72,25 +124,25 @@ public class DataSourceMeta {
    * @param connection connection
    */
   void setCurrentConnection(Connection connection) {
-    connectionTL.set(connection);
+    connectionHolder.set(connection);
   }
 
   /**
    * 移除连接对象
    */
   void rmCurrentConnection() {
-    connectionTL.remove();
+    connectionHolder.remove();
   }
 
   /**
    * 初始化事务对象
    */
   public void initTransaction(boolean readonly, int level) {
-    if (transactionManagerTL.get() == null) {
-      transactionManagerTL.set(new TransactionManager(this, readonly, level));
-      transactionDeepTL.set(1);
+    if (transactionManagerHolder.get() == null) {
+      transactionManagerHolder.set(new TransactionManager(this, readonly, level));
+      transactionDeepHolder.set(1);
     } else {
-      transactionDeepTL.set(transactionDeepTL.get() + 1);
+      transactionDeepHolder.set(transactionDeepHolder.get() + 1);
     }
   }
 
@@ -100,7 +152,7 @@ public class DataSourceMeta {
    * @throws TransactionException
    */
   public void beginTransaction() throws TransactionException {
-    TransactionManager transactionManager = transactionManagerTL.get();
+    TransactionManager transactionManager = transactionManagerHolder.get();
     //当前事务管理对象
     if (transactionManager != null && !transactionManager.isBegined()) {
       transactionManager.begin();
@@ -113,8 +165,8 @@ public class DataSourceMeta {
    * @throws TransactionException
    */
   public void commitTransaction() throws TransactionException {
-    if (transactionDeepTL.get() == 1) {
-      TransactionManager transactionManager = transactionManagerTL.get();
+    if (transactionDeepHolder.get() == 1) {
+      TransactionManager transactionManager = transactionManagerHolder.get();
       if (transactionManager != null) {
         transactionManager.commit();
       }
@@ -127,8 +179,8 @@ public class DataSourceMeta {
    * @throws TransactionException
    */
   public void rollbackTransaction() {
-    if (transactionDeepTL.get() == 1) {
-      TransactionManager transactionManager = transactionManagerTL.get();
+    if (transactionDeepHolder.get() == 1) {
+      TransactionManager transactionManager = transactionManagerHolder.get();
       if (transactionManager != null) {
         transactionManager.rollback();
       }
@@ -141,14 +193,14 @@ public class DataSourceMeta {
    * @throws TransactionException
    */
   public void endTranasaction() {
-    if (transactionDeepTL.get() == 1) {
-      TransactionManager transactionManager = transactionManagerTL.get();
+    if (transactionDeepHolder.get() == 1) {
+      TransactionManager transactionManager = transactionManagerHolder.get();
       if (transactionManager != null) {
         transactionManager.end();
       }
-      transactionManagerTL.remove();
+      transactionManagerHolder.remove();
     } else {
-      transactionDeepTL.set(transactionDeepTL.get() - 1);
+      transactionDeepHolder.set(transactionDeepHolder.get() - 1);
     }
   }
 
@@ -156,7 +208,10 @@ public class DataSourceMeta {
    * 关闭数据源
    */
   public final void close() {
-    dataSourceProvider.close();
+    writeDataSourceProvider.close();
+    if (readDataSourceProvider != null) {
+      readDataSourceProvider.close();
+    }
   }
 
   /**
@@ -202,7 +257,7 @@ public class DataSourceMeta {
    * @param conn Connection
    */
   public final void close(Connection conn) {
-    if (connectionTL.get() == null) {   // in transaction if conn in threadlocal
+    if (connectionHolder.get() == null) {   // in transaction if conn in threadlocal
       if (conn != null)
         try {
           conn.close();

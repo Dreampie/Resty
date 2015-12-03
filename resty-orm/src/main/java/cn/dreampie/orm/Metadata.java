@@ -17,7 +17,7 @@ public class Metadata {
 
   private static final String CONNECTOR = "@";
 
-  private static String defaultDsName;
+  private static String defaultDsmName;
 
   private static Map<String, DataSourceMeta> dataSourceMetaMap = new HashMap<String, DataSourceMeta>();
 
@@ -37,29 +37,29 @@ public class Metadata {
   /**
    * 判断是不是存在数据源
    *
-   * @param dsName
+   * @param dsmName
    * @return
    */
-  public static boolean hasDataSourceMeta(String dsName) {
-    return dataSourceMetaMap.containsKey(dsName);
+  public static boolean hasDataSourceMeta(String dsmName) {
+    return dataSourceMetaMap.containsKey(dsmName);
   }
 
-  public static DataSourceMeta getDataSourceMeta(String dsName) {
-    DataSourceMeta dsm = dataSourceMetaMap.get(dsName);
-    checkNotNull(dsm, "Could not found DataSourceMetadata for this dsName:" + dsName);
+  public static DataSourceMeta getDataSourceMeta(String dsmName) {
+    DataSourceMeta dsm = dataSourceMetaMap.get(dsmName);
+    checkNotNull(dsm, "Could not found DataSourceMetadata for this dsmName:" + dsmName);
     return dsm;
   }
 
-  public static boolean hasTableMeta(String dsName, String tableName) {
-    return tableMetaMap.containsKey(getMark(dsName, tableName));
+  public static boolean hasTableMeta(String dsmName, String tableName) {
+    return tableMetaMap.containsKey(getMark(dsmName, tableName));
   }
 
   public static boolean hasTableMeta(String mark) {
     return tableMetaMap.containsKey(mark);
   }
 
-  public static TableMeta getTableMeta(String dsName, String tableName) {
-    return getTableMeta(getMark(dsName, tableName));
+  public static TableMeta getTableMeta(String dsmName, String tableName) {
+    return getTableMeta(getMark(dsmName, tableName));
   }
 
   public static TableMeta getTableMeta(Class<? extends Entity> clazz) {
@@ -68,7 +68,7 @@ public class Metadata {
 
   public static TableMeta getTableMeta(String mark) {
     TableMeta mm = tableMetaMap.get(mark);
-    checkNotNull(mm, "Could not found TableMetadata for this dsName" + CONNECTOR + "tableName : " + mark);
+    checkNotNull(mm, "Could not found TableMetadata for this dsmName" + CONNECTOR + "tableName : " + mark);
     return mm;
   }
 
@@ -77,18 +77,18 @@ public class Metadata {
   }
 
   static DataSourceMeta addDataSourceMeta(DataSourceMeta dsm) {
-    String dsName = dsm.getDsName();
-    checkNotNull(dsName, "DataSourceName could not be null.");
-    if (dsName.contains(CONNECTOR)) {
-      throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for name '" + dsName + "'.");
+    String dsmName = dsm.getDsmName();
+    checkNotNull(dsmName, "DataSourceMetaName could not be null.");
+    if (dsmName.contains(CONNECTOR)) {
+      throw new IllegalArgumentException("DataSourceMetaName not support '" + CONNECTOR + "' for name '" + dsmName + "'.");
     }
     if (dataSourceMetaMap.size() == 0) {
-      defaultDsName = dsName;
+      defaultDsmName = dsmName;
     }
-    if (dataSourceMetaMap.containsKey(dsName)) {
-      logger.error("Covering multiple dataSources for dsName '%s'.", dsName);
+    if (dataSourceMetaMap.containsKey(dsmName)) {
+      logger.error("Covering multiple dataSources for dsmName '%s'.", dsmName);
     }
-    return dataSourceMetaMap.put(dsName, dsm);
+    return dataSourceMetaMap.put(dsmName, dsm);
   }
 
   static TableMeta addTableMeta(TableMeta tableMeta) {
@@ -97,10 +97,10 @@ public class Metadata {
 
   static TableMeta addTableMeta(Class<? extends Entity> clazz, TableMeta tableMeta) {
 
-    String dsName = tableMeta.getDsName();
-    checkNotNull(dsName, "DataSourceName could not be null.");
-    if (dsName.contains(CONNECTOR)) {
-      throw new IllegalArgumentException("DataSourceName not support '" + CONNECTOR + "' for name '" + dsName + "'.");
+    String dsmName = tableMeta.getDsmName();
+    checkNotNull(dsmName, "DataSourceMetaName could not be null.");
+    if (dsmName.contains(CONNECTOR)) {
+      throw new IllegalArgumentException("DataSourceMetaName not support '" + CONNECTOR + "' for name '" + dsmName + "'.");
     }
     String tableName = tableMeta.getTableName();
     checkNotNull(tableName, "TableName could not be null.");
@@ -108,10 +108,10 @@ public class Metadata {
     if (tableName.contains(CONNECTOR)) {
       throw new IllegalArgumentException("TableName not support '" + CONNECTOR + "' for name '" + tableName + "'.");
     }
-    String mark = getMark(dsName, tableName);
+    String mark = getMark(dsmName, tableName);
     if (clazz != null) {
       if (tableMetaClassMap.containsKey(clazz)) {
-        logger.error("Covering multiple class '" + clazz + "' for table '" + tableName + "' in '" + dsName + "'.");
+        logger.error("Covering multiple class '" + clazz + "' for table '" + tableName + "' in '" + dsmName + "'.");
       }
       tableMetaClassMap.put(clazz, mark);
     }
@@ -119,11 +119,11 @@ public class Metadata {
     return tableMeta;
   }
 
-  public static String getDefaultDsName() {
-    return defaultDsName;
+  public static String getDefaultDsmName() {
+    return defaultDsmName;
   }
 
-  static String getMark(String dsName, String tableName) {
-    return dsName + CONNECTOR + tableName;
+  static String getMark(String dsmName, String tableName) {
+    return dsmName + CONNECTOR + tableName;
   }
 }

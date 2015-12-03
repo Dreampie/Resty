@@ -58,20 +58,20 @@ public enum QueryCache {
    * @param params    - list of parameters for a query.
    * @param cache     object to cache.
    */
-  public void add(String dsName, String tableName, String type, String query, Object[] params, Object cache) {
-    add(type, dsName, tableName, query, params, cache, -1);
+  public void add(String dsmName, String tableName, String type, String query, Object[] params, Object cache) {
+    add(type, dsmName, tableName, query, params, cache, -1);
   }
 
-  public void add(String dsName, String tableName, String type, String query, Object[] params, Object cache, int expired) {
+  public void add(String dsmName, String tableName, String type, String query, Object[] params, Object cache, int expired) {
 
     if (enabled) {
-      String group = getGroup(dsName, tableName);
+      String group = getGroup(dsmName, tableName);
       cacheProvider.addCache(group, getKey(group, type, query, params), cache, expired);
     }
   }
 
-  private String getGroup(String dsName, String tableName) {
-    return dsName + Constant.CONNECTOR + tableName;
+  private String getGroup(String dsmName, String tableName) {
+    return dsmName + Constant.CONNECTOR + tableName;
   }
 
   /**
@@ -82,10 +82,10 @@ public enum QueryCache {
    * @param params    list of query parameters, can be null if no parameters are provided.
    * @return cache object or null if nothing found.
    */
-  public <T> T get(String dsName, String tableName, String type, String query, Object[] params) {
+  public <T> T get(String dsmName, String tableName, String type, String query, Object[] params) {
 
     if (enabled) {
-      String group = getGroup(dsName, tableName);
+      String group = getGroup(dsmName, tableName);
       String key = getKey(group, type, query, params);
       Object item = cacheProvider.getCache(group, key);
       if (item == null) {
@@ -102,13 +102,13 @@ public enum QueryCache {
     return group + Constant.CONNECTOR + type + Constant.CONNECTOR + query + Constant.CONNECTOR + (params == null ? null : Arrays.asList(params).toString());
   }
 
-  private String getKey(String dsName, String tableName, String type, String query, Object[] params) {
-    return getKey(getGroup(dsName, tableName), type, query, params);
+  private String getKey(String dsmName, String tableName, String type, String query, Object[] params) {
+    return getKey(getGroup(dsmName, tableName), type, query, params);
   }
 
-  public void remove(String dsName, String tableName, String type, String query, Object[] params) {
+  public void remove(String dsmName, String tableName, String type, String query, Object[] params) {
     if (enabled) {
-      String group = getGroup(dsName, tableName);
+      String group = getGroup(dsmName, tableName);
       cacheProvider.removeCache(group, getKey(group, type, query, params));
     }
   }
@@ -119,9 +119,9 @@ public enum QueryCache {
    *
    * @param tableName table name whose caches are to be purged.
    */
-  public void purge(String dsName, String tableName) {
+  public void purge(String dsmName, String tableName) {
     if (enabled) {
-      cacheProvider.flush(new CacheEvent(getGroup(dsName, tableName), getClass().getName()));
+      cacheProvider.flush(new CacheEvent(getGroup(dsmName, tableName), getClass().getName()));
     }
   }
 

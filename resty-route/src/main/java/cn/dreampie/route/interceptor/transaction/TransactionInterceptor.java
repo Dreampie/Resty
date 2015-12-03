@@ -23,7 +23,7 @@ public class TransactionInterceptor implements Interceptor {
     if (transactionAnn != null) {
       String[] names = transactionAnn.name();
       if (names.length == 0) {
-        names = new String[]{Metadata.getDefaultDsName()};
+        names = new String[]{Metadata.getDefaultDsmName()};
       }
       int[] levels = transactionAnn.level();
       boolean[] readonlys = transactionAnn.readonly();

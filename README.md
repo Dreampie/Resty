@@ -54,7 +54,9 @@ maven使用方式：
 -----------
 
 重大更新：
+
 1.2.0更新内容：使用header来控制api版本，基于数据源的读写分离，更简单的tableSetting.[详情查看](http://www.oschina.net/news/68791/resty-1-2-0-snapshot)
+
 1.1.0版本重大更新：快速接入spring，缓存，加密，header，XForwardedSupports等，[详情查看](http://www.oschina.net/news/67001/resty-1-1-0-snapshot)
 
 

@@ -619,14 +619,15 @@ public class Route {
 
     //只有一个参数时 直接把该参数 放入方法
     boolean oneParamParse = false;
+    int paramSize = allParamNames.size() - pathParamNames.size();
     if (Constant.oneParamParse) {
-      oneParamParse = (allParamNames.size() - pathParamNames.size()) == 1;
+      oneParamParse = paramSize == 1;
     }
 
     Object obj = null;
     List<String> valueArr = null;
 
-    boolean hasJsonParam = null != json && !"".equals(json);
+    boolean hasJsonParam = null != json && !"".equals(json) && paramSize > 0;
     Object receiveParams = null;
     if (hasJsonParam && !oneParamParse) {
       receiveParams = Jsoner.toObject(json);

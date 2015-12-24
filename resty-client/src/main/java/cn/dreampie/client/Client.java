@@ -89,7 +89,7 @@ public class Client extends ClientConnection {
     try {
       conn = getHttpConnection(httpMethod);
       conn.connect();
-      return readResponse(conn);
+      return readResponse(httpMethod, conn);
     } catch (Exception e) {
 
       if (e instanceof ClientException) {
@@ -112,14 +112,14 @@ public class Client extends ClientConnection {
     }
   }
 
-  private ClientResult login(ClientRequest clientRequest) {
+  private ClientResult login(String httpMethod, ClientRequest clientRequest) {
     //login
     ClientResult result = build(loginRequest).post();
     if (result.getStatus() != HttpStatus.OK) {
       throw new ClientException("Login error " + result.getStatus().getCode() + ", " + result.getResult());
     } else {
       if (clientRequest != null) {
-        result = build(clientRequest).post();
+        result = build(clientRequest).ask(httpMethod);
       }
     }
     return result;
@@ -132,7 +132,7 @@ public class Client extends ClientConnection {
    * @return
    * @throws IOException
    */
-  private ClientResult readResponse(HttpURLConnection conn) throws IOException {
+  private ClientResult readResponse(String httpMethod, HttpURLConnection conn) throws IOException {
     int httpCode = conn.getResponseCode();
     logger.debug("Connection done. The server's response code is: %s", httpCode);
     InputStream is = null;
@@ -188,12 +188,12 @@ public class Client extends ClientConnection {
           }
           result = new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());
         } else {
-          result = new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readString(is,clientRequest.getEncoding()));
+          result = new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readString(is, clientRequest.getEncoding()));
           //重新登录情况
           if (loginRequest != null && clientRequire.relogin(result)) {
             logger.info("Relogin to server.");
             if (!clientRequest.equals(loginRequest)) {
-              return login(clientRequest);
+              return login(httpMethod, clientRequest);
             }
           }
           logger.debug("Reading an OK (%s) response", httpCode);

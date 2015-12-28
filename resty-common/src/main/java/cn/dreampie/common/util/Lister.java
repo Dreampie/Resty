@@ -19,4 +19,10 @@ public class Lister {
     if (objects == null || objects.size() == 0) return new ArrayList<T>();
     return (List<T>) Serializer.unserialize(Serializer.serialize(objects));
   }
+
+  public static <T> List<T> copyOf(List<T> dist, List<T> source) {
+    if (source == null || source.size() == 0) return dist;
+    dist.addAll((List<T>) Serializer.unserialize(Serializer.serialize(source)));
+    return dist;
+  }
 }

@@ -334,7 +334,7 @@ public abstract class Entity<M extends Entity> {
   }
 
   public Object[] getModifyAttrValues(String generatedKey) {
-    Map<String, Object> attrValueMap = Maper.copyOf(modifyAttrs);
+    Map<String, Object> attrValueMap = Maper.copyOf(new CaseInsensitiveMap<Object>(), modifyAttrs);
     if (generatedKey != null && !generatedKey.isEmpty()) {
       attrValueMap.remove(generatedKey);
     }

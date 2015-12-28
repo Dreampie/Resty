@@ -51,9 +51,12 @@ public class Maper {
     }};
   }
 
-  public static <K, V> Map<K, V> copyOf(Map<K, V> maps) {
-    Map<K, V> map = new HashMap<K, V>();
-    map.putAll(maps);
-    return map;
+  public static <K, V> Map<K, V> copyOf(Map<K, V> map) {
+    return copyOf(new HashMap<K, V>(), map);
+  }
+
+  public static <K, V> Map<K, V> copyOf(Map<K, V> dist, Map<K, V> source) {
+    dist.putAll(source);
+    return dist;
   }
 }

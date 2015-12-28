@@ -12,7 +12,6 @@ public class TableSetting implements Serializable {
   private String tableName;
   private String generatedKey;
   private String[] primaryKey;
-  private boolean generated;
   private Generator generator;
   private boolean cached;
   private int expired;
@@ -55,10 +54,10 @@ public class TableSetting implements Serializable {
   }
 
   public TableSetting(String tableName, String generatedKey, String[] primaryKey, Generator generator, boolean cached, int expired) {
-    this(tableName, generatedKey, primaryKey, generator != null, generator, cached, expired, null);
+    this(tableName, generatedKey, primaryKey, generator, cached, expired, null);
   }
 
-  public TableSetting(String tableName, String generatedKey, String[] primaryKey, boolean generated, Generator generator, boolean cached, int expired, String sequence) {
+  public TableSetting(String tableName, String generatedKey, String[] primaryKey, Generator generator, boolean cached, int expired, String sequence) {
     this.tableName = tableName;
     if (generatedKey != null) {
       this.generatedKey = generatedKey;
@@ -70,7 +69,6 @@ public class TableSetting implements Serializable {
     } else {
       this.primaryKey = new String[]{};
     }
-    this.generated = generated;
     this.generator = generator;
     this.cached = cached;
     this.expired = expired;
@@ -109,15 +107,6 @@ public class TableSetting implements Serializable {
     } else {
       this.primaryKey = new String[]{};
     }
-    return this;
-  }
-
-  public boolean isGenerated() {
-    return generated;
-  }
-
-  public TableSetting setGenerated(boolean generated) {
-    this.generated = generated;
     return this;
   }
 

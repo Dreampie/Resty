@@ -3,8 +3,8 @@ package cn.dreampie.orm;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.orm.annotation.Table;
 import cn.dreampie.orm.dialect.Dialect;
-import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.generate.Generator;
+import cn.dreampie.orm.generate.GeneratorFactory;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -18,7 +18,6 @@ public class TableMeta implements Serializable {
   private final String dsmName, tableName;
   private final String generatedKey;
   private final String[] primaryKey;
-  private final boolean generated;
   private final Generator generator;
   private final boolean cached;
   private final int expired;
@@ -36,7 +35,6 @@ public class TableMeta implements Serializable {
     this.tableName = tableSetting.getTableName();
     this.generatedKey = tableSetting.getGeneratedKey();
     this.primaryKey = tableSetting.getPrimaryKey();
-    this.generated = tableSetting.isGenerated();
     this.generator = tableSetting.getGenerator();
     this.cached = tableSetting.isCached();
     this.expired = tableSetting.getExpired();
@@ -52,21 +50,12 @@ public class TableMeta implements Serializable {
     this.tableName = tableAnnotation.name();
     this.generatedKey = tableAnnotation.generatedKey();
     this.primaryKey = tableAnnotation.primaryKey();
-    this.generated = tableAnnotation.generated();
-    Generator generator = null;
-    try {
-      generator = tableAnnotation.generator().newInstance();
-    } catch (InstantiationException e) {
-      throw new DBException(e.getMessage(), e);
-    } catch (IllegalAccessException e) {
-      throw new DBException(e.getMessage(), e);
-    }
-    this.generator = generator;
+    this.generator = GeneratorFactory.get(tableAnnotation.generatedType());
     this.cached = tableAnnotation.cached();
     this.expired = tableAnnotation.expired();
     this.sequence = tableAnnotation.sequence();
     this.modelClass = modelClass;
-    this.tableSetting = new TableSetting(tableName, generatedKey, primaryKey, generated, generator, cached, expired, sequence);
+    this.tableSetting = new TableSetting(tableName, generatedKey, primaryKey, generator, cached, expired, sequence);
   }
 
   public String getDsmName() {
@@ -75,10 +64,6 @@ public class TableMeta implements Serializable {
 
   public boolean isCached() {
     return cached;
-  }
-
-  public boolean isGenerated() {
-    return generated;
   }
 
   public Generator getGenerator() {

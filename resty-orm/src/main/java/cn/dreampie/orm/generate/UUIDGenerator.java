@@ -7,7 +7,7 @@ import java.util.UUID;
  * @date 2015-04-30
  * @what 生成主键
  */
-public class DefaultGenerator implements Generator {
+public class UUIDGenerator implements Generator {
 
   /**
    * 非自动生成主键的产生策略 UUID

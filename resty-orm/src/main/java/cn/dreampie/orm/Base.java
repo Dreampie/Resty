@@ -289,8 +289,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     PreparedStatement pst;
     //如果没有自动生成的主键 则不获取
     String generatedKey = tableMeta.getGeneratedKey();
-    boolean generated = tableMeta.isGenerated();
-    if (!generatedKey.isEmpty() && !generated) {
+    boolean generated = tableMeta.getGenerator() == null;
+    if (!generatedKey.isEmpty() && generated) {
       pst = conn.prepareStatement(sql, new String[]{generatedKey});
     } else {
       pst = conn.prepareStatement(sql);
@@ -318,8 +318,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     PreparedStatement pst = null;
     //如果没有自动生成的主键 则不获取
     String generatedKey = tableMeta.getGeneratedKey();
-    boolean generated = tableMeta.isGenerated();
-    if (!generatedKey.isEmpty() && !generated) {
+    boolean generated = tableMeta.getGenerator() == null;
+    if (!generatedKey.isEmpty() && generated) {
       String[] returnKeys = new String[params.length];
       for (int i = 0; i < params.length; i++) {
         returnKeys[i] = generatedKey;
@@ -395,9 +395,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     String generatedKey = tableMeta.getGeneratedKey();
     String[] primaryKey = tableMeta.getPrimaryKey();
     String[] keys;
-    boolean generated = tableMeta.isGenerated();
+    boolean generated = tableMeta.getGenerator() == null;
     int i = 0;
-    if (!generatedKey.isEmpty() && !generated) {
+    if (!generatedKey.isEmpty()) {
       keys = new String[primaryKey.length + 1];
       keys[i++] = generatedKey;
     } else {
@@ -420,9 +420,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   private Object[] getPrimaryValues(TableMeta tableMeta) {
     Map<String, Object> attrs = getAttrs();
     String generatedKey = tableMeta.getGeneratedKey();
-    boolean generated = tableMeta.isGenerated();
+    boolean generated = tableMeta.getGenerator() == null;
     Object id = null;
-    if (!generatedKey.isEmpty() && !generated) {
+    if (!generatedKey.isEmpty()) {
       id = attrs.get(generatedKey);
       checkNotNull(id, "You can't delete model without generatedKey " + generatedKey + ".");
     }
@@ -430,7 +430,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     String[] primaryKeys = tableMeta.getPrimaryKey();
     Object[] values;
     int i = 0;
-    if (!generatedKey.isEmpty() && !generated) {
+    if (!generatedKey.isEmpty()) {
       values = new Object[primaryKeys.length + 1];
       values[i++] = id;
     } else {
@@ -452,8 +452,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta) throws SQLException {
     String generatedKey = tableMeta.getGeneratedKey();
     if (!generatedKey.isEmpty()) {
-      boolean generated = tableMeta.isGenerated();
-      if (!generated) {
+      boolean generated = tableMeta.getGenerator() == null;
+      if (generated) {
         if (get(generatedKey) == null) {
           ResultSet rs = pst.getGeneratedKeys();
           if (rs.next()) {
@@ -471,8 +471,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta, List<? extends Entity> models) throws SQLException {
     String generatedKey = tableMeta.getGeneratedKey();
     if (!generatedKey.isEmpty()) {
-      boolean generated = tableMeta.isGenerated();
-      if (!generated) {
+      boolean generated = tableMeta.getGenerator() == null;
+      if (generated) {
         ResultSet rs = pst.getGeneratedKeys();
         for (Entity<?> model : models) {
           if (model.get(generatedKey) == null) {
@@ -688,9 +688,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
     String generatedKey = tableMeta.getGeneratedKey();
 
-    boolean generated = tableMeta.isGenerated();
+    boolean generated = tableMeta.getGenerator() == null;
     if (!generatedKey.isEmpty() && get(generatedKey) == null) {
-      if (generated) {
+      if (!generated) {
         set(generatedKey, tableMeta.getGenerator().generateKey());
       }
     }
@@ -698,7 +698,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     DataSourceMeta dsm = getDataSourceMeta();
     boolean showSql = dsm.isWriteShowSql();
     Dialect dialect = dsm.getDialect();
-    String[] columns = getModifyAttrNames();
+    String[] columns = getModifyAttrNames(generatedKey);
 
     //判断是否有更新
     if (columns.length <= 0) {
@@ -714,9 +714,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
         pst = getPreparedStatement(showSql, conn, tableMeta, sql, getModifyAttrValues());
 
         result = pst.executeUpdate();
-//        if(!generatedKey.isEmpty()) {
         setGeneratedKey(pst, tableMeta);
-//        }
         clearModifyAttrs();
         return result >= 1;
       } catch (SQLException e) {
@@ -756,10 +754,10 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     String generatedKey = tableMeta.getGeneratedKey();
 
     //是否需要主键生成器生成值
-    boolean generated = tableMeta.isGenerated();
+    boolean generated = tableMeta.getGenerator() == null;
     Generator generator = tableMeta.getGenerator();
     if (!generatedKey.isEmpty() && get(generatedKey) == null) {
-      if (generated) {
+      if (!generated) {
         firstModel.set(generatedKey, generator.generateKey());
       }
     }
@@ -768,7 +766,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     boolean showSql = dsm.isWriteShowSql();
     Dialect dialect = dsm.getDialect();
 
-    String[] columns = firstModel.getModifyAttrNames();
+    String[] columns = firstModel.getModifyAttrNames(generatedKey);
 
     //判断是否有更新
     if (columns.length <= 0) {
@@ -782,7 +780,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       for (int i = 0; i < params.length; i++) {
         for (int j = 0; j < params[i].length; j++) {
           //如果是自动生成主键 使用生成器生成
-          if (!generatedKey.isEmpty() && generated && columns[j].equals(generatedKey) && models.get(i).get(generatedKey) == null) {
+          if (!generatedKey.isEmpty() && !generated && columns[j].equals(generatedKey) && models.get(i).get(generatedKey) == null) {
             models.get(i).set(columns[j], generator.generateKey());
           }
           params[i][j] = models.get(i).get(columns[j]);
@@ -801,9 +799,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
         }
         pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
         result = pst.executeBatch();
-//        if (!generatedKey.isEmpty()) {
         setGeneratedKey(pst, tableMeta, models);
-//        }
         //没有事务的情况下 手动提交
         if (dsm.getCurrentConnection() == null)
           conn.commit();
@@ -865,32 +861,32 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * Update model.
    */
   public boolean update() {
-
-    Map<String, Object> attrs = getAttrs();
-
-    if (getModifyAttrs().isEmpty())
-      return false;
-
     TableMeta tableMeta = getTableMeta();
     Dialect dialect = getDialect();
 
     String generatedKey = tableMeta.getGeneratedKey();
-    boolean generated = tableMeta.isGenerated();
+
+    if (getModifyAttrNames(generatedKey).length <= 0) {
+      logger.warn("Could not found any modified attributes.");
+      return false;
+    }
+
+    //是否使用数据库自增
     Object id = null;
-    if (!generatedKey.isEmpty() && !generated) {
-      id = attrs.get(generatedKey);
+    if (!generatedKey.isEmpty()) {
+      id = get(generatedKey);
       checkNotNull(id, "You can't update model without Generated Key " + generatedKey + ".");
     }
     String where = null;
     Object[] params = null;
-    Object[] modifys = getModifyAttrValues();
+    Object[] modifys = getModifyAttrValues(generatedKey);
     //锁定主键 更新的时候 使用所有主键作为条件
     Object[] ids;
     String[] keys;
     String[] pkeys = tableMeta.getPrimaryKey();
     int i = 0;
     int j = 0;
-    if (!generatedKey.isEmpty() && !generated) {
+    if (!generatedKey.isEmpty()) {
       ids = new Object[pkeys.length + 1];
       keys = new String[pkeys.length + 1];
       keys[j++] = generatedKey;
@@ -901,7 +897,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
     for (String pKey : pkeys) {
       keys[j++] = pKey;
-      ids[i++] = attrs.get(pKey);
+      ids[i++] = get(pKey);
     }
     if (ids.length > 0) {
       params = new Object[ids.length + modifys.length];
@@ -912,7 +908,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       params = modifys;
     }
 
-    String[] columns = getModifyAttrNames();
+    String[] columns = getModifyAttrNames(generatedKey);
     //判断是否有更新
     if (columns.length <= 0) {
       logger.warn("Could not found any data to update.");

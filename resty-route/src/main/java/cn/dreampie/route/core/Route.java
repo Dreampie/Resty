@@ -627,10 +627,14 @@ public class Route {
     Object obj = null;
     List<String> valueArr = null;
 
-    boolean hasJsonParam = null != json && !"".equals(json) && paramSize > 0;
+    boolean hasJsonParam = null != json && !"".equals(json);
     Object receiveParams = null;
     if (hasJsonParam && !oneParamParse) {
-      receiveParams = Jsoner.toObject(json);
+      if (json.startsWith("\"") || json.startsWith("{") || json.startsWith("[")) {
+        receiveParams = Jsoner.toObject(json);
+      } else {
+        receiveParams = Jsoner.toObject("\"" + json + "\"");
+      }
       hasJsonParam = receiveParams != null;
     }
     for (String name : allParamNames) {

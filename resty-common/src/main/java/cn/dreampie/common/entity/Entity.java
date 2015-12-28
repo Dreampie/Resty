@@ -1,6 +1,7 @@
 package cn.dreampie.common.entity;
 
 import cn.dreampie.common.entity.exception.EntityException;
+import cn.dreampie.common.util.Maper;
 import cn.dreampie.common.util.json.Jsoner;
 
 import java.util.Collection;
@@ -310,12 +311,18 @@ public abstract class Entity<M extends Entity> {
     return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
   }
 
+  public String[] getModifyAttrNames() {
+    return getModifyAttrNames(null);
+  }
 
   /**
    * Return attribute name of this entity.
    */
-  public String[] getModifyAttrNames() {
+  public String[] getModifyAttrNames(String generatedKey) {
     Set<String> attrNameSet = modifyAttrs.keySet();
+    if (generatedKey != null && !generatedKey.isEmpty()) {
+      attrNameSet.remove(generatedKey);
+    }
     return attrNameSet.toArray(new String[attrNameSet.size()]);
   }
 
@@ -323,10 +330,17 @@ public abstract class Entity<M extends Entity> {
    * Return attribute values of this entity.
    */
   public Object[] getModifyAttrValues() {
-    Collection<Object> attrValueCollection = modifyAttrs.values();
-    return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
+    return getModifyAttrValues(null);
   }
 
+  public Object[] getModifyAttrValues(String generatedKey) {
+    Map<String, Object> attrValueMap = Maper.copyOf(modifyAttrs);
+    if (generatedKey != null && !generatedKey.isEmpty()) {
+      attrValueMap.remove(generatedKey);
+    }
+    Collection<Object> attrValueCollection = attrValueMap.values();
+    return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
+  }
 
   public String toString() {
     return toJson();

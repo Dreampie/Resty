@@ -395,7 +395,6 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     String generatedKey = tableMeta.getGeneratedKey();
     String[] primaryKey = tableMeta.getPrimaryKey();
     String[] keys;
-    boolean generated = tableMeta.getGenerator() == null;
     int i = 0;
     if (!generatedKey.isEmpty()) {
       keys = new String[primaryKey.length + 1];
@@ -420,7 +419,6 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   private Object[] getPrimaryValues(TableMeta tableMeta) {
     Map<String, Object> attrs = getAttrs();
     String generatedKey = tableMeta.getGeneratedKey();
-    boolean generated = tableMeta.getGenerator() == null;
     Object id = null;
     if (!generatedKey.isEmpty()) {
       id = attrs.get(generatedKey);
@@ -698,7 +696,19 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     DataSourceMeta dsm = getDataSourceMeta();
     boolean showSql = dsm.isWriteShowSql();
     Dialect dialect = dsm.getDialect();
-    String[] columns = getModifyAttrNames(generatedKey);
+    String[] columns;
+    if (generated) {
+      columns = getModifyAttrNames(generatedKey);
+    } else {
+      columns = getModifyAttrNames();
+    }
+
+    Object[] params;
+    if (generated) {
+      params = getModifyAttrValues(generatedKey);
+    } else {
+      params = getModifyAttrValues();
+    }
 
     //判断是否有更新
     if (columns.length <= 0) {
@@ -711,7 +721,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       int result = 0;
       try {
         conn = getWriteConnection(dsm);
-        pst = getPreparedStatement(showSql, conn, tableMeta, sql, getModifyAttrValues());
+        pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
 
         result = pst.executeUpdate();
         setGeneratedKey(pst, tableMeta);
@@ -766,7 +776,12 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     boolean showSql = dsm.isWriteShowSql();
     Dialect dialect = dsm.getDialect();
 
-    String[] columns = firstModel.getModifyAttrNames(generatedKey);
+    String[] columns;
+    if (generated) {
+      columns = getModifyAttrNames(generatedKey);
+    } else {
+      columns = getModifyAttrNames();
+    }
 
     //判断是否有更新
     if (columns.length <= 0) {
@@ -831,6 +846,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   public boolean update(String sql, Object... params) {
     TableMeta tableMeta = getTableMeta();
+
     DataSourceMeta dsm = getDataSourceMeta();
     boolean showSql = dsm.isWriteShowSql();
     //清除缓存
@@ -879,7 +895,8 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
     String where = null;
     Object[] params = null;
-    Object[] modifys = getModifyAttrValues(generatedKey);
+    Object[] values = getModifyAttrValues(generatedKey);
+
     //锁定主键 更新的时候 使用所有主键作为条件
     Object[] ids;
     String[] keys;
@@ -900,15 +917,16 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       ids[i++] = get(pKey);
     }
     if (ids.length > 0) {
-      params = new Object[ids.length + modifys.length];
-      System.arraycopy(modifys, 0, params, 0, modifys.length);
-      System.arraycopy(ids, 0, params, modifys.length, ids.length);
+      params = new Object[ids.length + values.length];
+      System.arraycopy(values, 0, params, 0, values.length);
+      System.arraycopy(ids, 0, params, values.length, ids.length);
       where = Joiner.on("=? AND ").join(keys) + "=?";
     } else {
-      params = modifys;
+      params = values;
     }
 
     String[] columns = getModifyAttrNames(generatedKey);
+
     //判断是否有更新
     if (columns.length <= 0) {
       logger.warn("Could not found any data to update.");

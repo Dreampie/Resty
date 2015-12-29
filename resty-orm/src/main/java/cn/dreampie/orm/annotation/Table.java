@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 public @interface Table {
   String name();//表名
 
-  String generatedKey() default Base.DEFAULT_GENERATED_KEY;//自动生成的主键
+  String generatedKey() default Base.DEFAULT_GENERATED_KEY;//自动生成的主键 如果没有自动生成的主键设置为空字符串
 
   String sequence() default "";//序列值
 

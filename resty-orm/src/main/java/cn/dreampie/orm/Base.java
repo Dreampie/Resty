@@ -449,15 +449,13 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta) throws SQLException {
     String generatedKey = tableMeta.getGeneratedKey();
-    if (!generatedKey.isEmpty()) {
-      boolean generated = tableMeta.getGenerator() == null && !generatedKey.isEmpty();
-      if (generated) {
-        if (get(generatedKey) == null) {
-          ResultSet rs = pst.getGeneratedKeys();
-          if (rs.next()) {
-            set(generatedKey, rs.getObject(1));    // It returns Long object for int colType
-            rs.close();
-          }
+    boolean generated = tableMeta.getGenerator() == null && !generatedKey.isEmpty();
+    if (generated) {
+      if (get(generatedKey) == null) {
+        ResultSet rs = pst.getGeneratedKeys();
+        if (rs.next()) {
+          set(generatedKey, rs.getObject(1));    // It returns Long object for int colType
+          rs.close();
         }
       }
     }
@@ -468,19 +466,17 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   protected void setGeneratedKey(PreparedStatement pst, TableMeta tableMeta, List<? extends Entity> models) throws SQLException {
     String generatedKey = tableMeta.getGeneratedKey();
-    if (!generatedKey.isEmpty()) {
-      boolean generated = tableMeta.getGenerator() == null && !generatedKey.isEmpty();
-      if (generated) {
-        ResultSet rs = pst.getGeneratedKeys();
-        for (Entity<?> model : models) {
-          if (model.get(generatedKey) == null) {
-            if (rs.next()) {
-              model.set(generatedKey, rs.getObject(1));
-            }
+    boolean generated = tableMeta.getGenerator() == null && !generatedKey.isEmpty();
+    if (generated) {
+      ResultSet rs = pst.getGeneratedKeys();
+      for (Entity<?> model : models) {
+        if (model.get(generatedKey) == null) {
+          if (rs.next()) {
+            model.set(generatedKey, rs.getObject(1));
           }
         }
-        rs.close();
       }
+      rs.close();
     }
   }
 
@@ -684,11 +680,13 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     if (tableMeta.isCached()) {
       purgeCache();
     }
-    String generatedKey = tableMeta.getGeneratedKey();
 
-    boolean generated = tableMeta.getGenerator() == null && !generatedKey.isEmpty();
-    if (!generated && get(generatedKey) == null) {
-      set(generatedKey, tableMeta.getGenerator().generateKey());
+    String generatedKey = tableMeta.getGeneratedKey();
+    Generator generator = tableMeta.getGenerator();
+
+    boolean generated = generator == null && !generatedKey.isEmpty();
+    if (!generated && generator != null && get(generatedKey) == null) {
+      set(generatedKey, generator.generateKey());
     }
 
     DataSourceMeta dsm = getDataSourceMeta();
@@ -760,11 +758,11 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
 
     String generatedKey = tableMeta.getGeneratedKey();
-
     //是否需要主键生成器生成值
-    boolean generated = tableMeta.getGenerator() == null && !generatedKey.isEmpty();
     Generator generator = tableMeta.getGenerator();
-    if (!generated && get(generatedKey) == null) {
+
+    boolean generated = generator == null && !generatedKey.isEmpty();
+    if (!generated && generator != null && get(generatedKey) == null) {
       firstModel.set(generatedKey, generator.generateKey());
     }
 

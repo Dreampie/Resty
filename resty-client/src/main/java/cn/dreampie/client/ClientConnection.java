@@ -224,7 +224,7 @@ public class ClientConnection {
       clientFile = uploadFiles.get(key);
       if (clientFile == null) continue;
 
-      writer.write(("\r\n" + "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + key + "\"; filename=\"" + clientFile.getName() + "\"\r\n" + "Content-Type:" + clientFile.getMimeType() + "\r\n\r\n").getBytes());
+      writer.write(("\r\n" + "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + key + "\"; filename=\"" + clientFile.getName() + "\"\r\n" + "Content-Type:" + clientFile.getContentType() + "\r\n\r\n").getBytes());
 
       DataInputStream in = new DataInputStream(clientFile.getInputStream());
       int bytes = 0;

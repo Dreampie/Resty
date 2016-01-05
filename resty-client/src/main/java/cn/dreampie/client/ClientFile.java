@@ -1,6 +1,5 @@
 package cn.dreampie.client;
 
-import cn.dreampie.common.util.Checker;
 import cn.dreampie.common.util.HttpTyper;
 
 import java.io.File;
@@ -15,7 +14,7 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
  */
 public class ClientFile {
   private String name;
-  private String mimeType;
+  private String contentType;
   private InputStream inputStream;
 
   public ClientFile(String filepath) throws FileNotFoundException {
@@ -24,13 +23,13 @@ public class ClientFile {
 
   public ClientFile(File file) throws FileNotFoundException {
     this.name = file.getName();
-    this.mimeType = HttpTyper.getContentTypeFromExtension(name);
+    this.contentType = HttpTyper.getContentTypeFromExtension(name);
     this.inputStream = new FileInputStream(file);
   }
 
-  public ClientFile(String name, String mimeType, InputStream inputStream) {
+  public ClientFile(String name, String contentType, InputStream inputStream) {
     this.name = name;
-    this.mimeType = mimeType;
+    this.contentType = contentType;
     this.inputStream = checkNotNull(inputStream);
   }
 
@@ -38,8 +37,8 @@ public class ClientFile {
     return name;
   }
 
-  public String getMimeType() {
-    return mimeType;
+  public String getContentType() {
+    return contentType;
   }
 
   public InputStream getInputStream() {

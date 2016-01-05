@@ -203,12 +203,12 @@ public class ClientRequest {
   /**
    * @param name       param name
    * @param filename   file name
-   * @param mimeType
+   * @param contentType
    * @param fileStream
    * @return
    */
-  public ClientRequest addUploadFile(String name, String filename, String mimeType, InputStream fileStream) {
-    this.uploadFiles.put(name, new ClientFile(filename, mimeType, fileStream));
+  public ClientRequest addUploadFile(String name, String filename, String contentType, InputStream fileStream) {
+    this.uploadFiles.put(name, new ClientFile(filename, contentType, fileStream));
     setContentType(ContentType.MULTIPART + ";charset=" + encoding);
     return this;
   }

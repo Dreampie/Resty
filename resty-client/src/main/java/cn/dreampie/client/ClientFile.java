@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import static cn.dreampie.common.util.Checker.checkNotNull;
+
 /**
  * Created by Dreampie on 16/1/5.
  */
@@ -29,7 +31,7 @@ public class ClientFile {
   public ClientFile(String name, String mimeType, InputStream inputStream) {
     this.name = name;
     this.mimeType = mimeType;
-    this.inputStream = Checker.checkNotNull(inputStream);
+    this.inputStream = checkNotNull(inputStream);
   }
 
   public String getName() {

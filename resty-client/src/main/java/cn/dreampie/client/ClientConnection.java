@@ -3,13 +3,15 @@ package cn.dreampie.client;
 import cn.dreampie.client.exception.ClientException;
 import cn.dreampie.common.http.ContentType;
 import cn.dreampie.common.http.HttpMethod;
-import cn.dreampie.common.util.HttpTyper;
 import cn.dreampie.common.util.stream.DefaultFileRenamer;
 import cn.dreampie.common.util.stream.FileRenamer;
 import cn.dreampie.log.Logger;
 
 import javax.net.ssl.*;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -120,7 +122,7 @@ public class ClientConnection {
       //上传文件类型
       conn = getStreamConnection(httpMethod, clientRequest);
       //是上传文件
-      Map<String, String> uploadFiles = clientRequest.getUploadFiles();
+      Map<String, ClientFile> uploadFiles = clientRequest.getUploadFiles();
       if (uploadFiles != null && uploadFiles.size() > 0) {
         String boundary = "---------------------------" + getRandomString(13); //boundary就是request头和上传文件内容的分隔符
         conn.setRequestProperty("Content-Type", contentType + "boundary=" + boundary);
@@ -143,7 +145,7 @@ public class ClientConnection {
           writer.write(builder.toString().getBytes());
         }
         //上传文件
-        writeUploadFiles(boundary, clientRequest.getUploadFiles(), writer);
+        writeUploadFiles(boundary, uploadFiles, writer);
 
         byte[] endData = ("\r\n--" + boundary + "--\r\n").getBytes();
         writer.write(endData);
@@ -210,26 +212,21 @@ public class ClientConnection {
   /**
    * 写入文件到  服务器
    *
-   * @param boundary 分隔符
-   * @param params   文件集合
-   * @param writer   写入对象
+   * @param boundary    分隔符
+   * @param uploadFiles 文件集合
+   * @param writer      写入对象
    * @throws IOException
    */
-  private void writeUploadFiles(String boundary, Map<String, String> params, DataOutputStream writer) throws IOException {
+  private void writeUploadFiles(String boundary, Map<String, ClientFile> uploadFiles, DataOutputStream writer) throws IOException {
     // file
-    String value = null;
-    for (String key : params.keySet()) {
-      value = params.get(key);
-      if (value == null) continue;
-      File file = new File(value);
-      if (!file.exists())
-        throw new FileNotFoundException("File not found " + file.getPath());
+    ClientFile clientFile;
+    for (String key : uploadFiles.keySet()) {
+      clientFile = uploadFiles.get(key);
+      if (clientFile == null) continue;
 
-      String filename = file.getName();
-      String contentType = HttpTyper.getContentTypeFromExtension(filename);
-      writer.write(("\r\n" + "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + key + "\"; filename=\"" + filename + "\"\r\n" + "Content-Type:" + contentType + "\r\n\r\n").getBytes());
+      writer.write(("\r\n" + "--" + boundary + "\r\n" + "Content-Disposition: form-data; name=\"" + key + "\"; filename=\"" + clientFile.getName() + "\"\r\n" + "Content-Type:" + clientFile.getMimeType() + "\r\n\r\n").getBytes());
 
-      DataInputStream in = new DataInputStream(new FileInputStream(file));
+      DataInputStream in = new DataInputStream(clientFile.getInputStream());
       int bytes = 0;
       byte[] bufferOut = new byte[1024];
       while ((bytes = in.read(bufferOut)) != -1) {

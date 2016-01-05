@@ -5,6 +5,9 @@ import cn.dreampie.common.http.Encoding;
 import cn.dreampie.common.util.Checker;
 import cn.dreampie.common.util.Maper;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -24,7 +27,7 @@ public class ClientRequest {
   private int readTimeOut = 10000;
   private boolean overwrite = false;
   private String downloadFile;
-  private Map<String, String> uploadFiles = Maper.of();
+  private Map<String, ClientFile> uploadFiles = Maper.of();
   private String contentType = ContentType.FORM + ";charset=" + encoding;
   private String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36";
 
@@ -175,18 +178,37 @@ public class ClientRequest {
     return this;
   }
 
-  public Map<String, String> getUploadFiles() {
+  public Map<String, ClientFile> getUploadFiles() {
     return uploadFiles;
   }
 
-  public ClientRequest setUploadFiles(Map<String, String> uploadFiles) {
+  public ClientRequest setUploadFiles(Map<String, ClientFile> uploadFiles) {
     this.uploadFiles = uploadFiles;
     setContentType(ContentType.MULTIPART + ";charset=" + encoding);
     return this;
   }
 
-  public ClientRequest addUploadFile(String name, String filepath) {
-    this.uploadFiles.put(name, filepath);
+  public ClientRequest addUploadFile(String name, String filepath) throws FileNotFoundException {
+    this.uploadFiles.put(name, new ClientFile(filepath));
+    setContentType(ContentType.MULTIPART + ";charset=" + encoding);
+    return this;
+  }
+
+  public ClientRequest addUploadFile(String name, File file) throws FileNotFoundException {
+    this.uploadFiles.put(name, new ClientFile(file));
+    setContentType(ContentType.MULTIPART + ";charset=" + encoding);
+    return this;
+  }
+
+  /**
+   * @param name       param name
+   * @param filename   file name
+   * @param mimeType
+   * @param fileStream
+   * @return
+   */
+  public ClientRequest addUploadFile(String name, String filename, String mimeType, InputStream fileStream) {
+    this.uploadFiles.put(name, new ClientFile(filename, mimeType, fileStream));
     setContentType(ContentType.MULTIPART + ";charset=" + encoding);
     return this;
   }

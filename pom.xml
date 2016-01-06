@@ -16,6 +16,7 @@
     <module>resty-client</module>
     <module>resty-quartz</module>
     <module>resty-mail</module>
+    <module>resty-captcha</module>
     <module>resty-example</module>
   </modules>
   <name>resty</name>

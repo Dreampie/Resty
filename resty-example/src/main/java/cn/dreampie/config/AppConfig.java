@@ -17,7 +17,7 @@ public class AppConfig extends Config {
   public void configConstant(ConstantLoader constantLoader) {
     //通过后缀来返回不同的数据类型  你可以自定义自己的  render  如：FreemarkerRender
     //constantLoader.addRender("json", new JsonRender());
-    constantLoader.addJsonSerializerFeature(SerializerFeature.DisableCircularReferenceDetect);
+    constantLoader.addJsonSerializerFeature(SerializerFeature.WriteNullStringAsEmpty);
   }
 
   public void configResource(ResourceLoader resourceLoader) {
@@ -40,11 +40,11 @@ public class AppConfig extends Config {
 //    pluginLoader.add(activeRecordDdsp);
 
     //读写分离
-    DruidDataSourceProvider writeDsp = new DruidDataSourceProvider("write");
-    DruidDataSourceProvider readDsp = new DruidDataSourceProvider("read");
-    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin("readwrite", writeDsp, readDsp);
-    activeRecordDdsp.addIncludePackages("cn.dreampie.resource");
-    pluginLoader.add(activeRecordDdsp);
+//    DruidDataSourceProvider writeDsp = new DruidDataSourceProvider("write");
+//    DruidDataSourceProvider readDsp = new DruidDataSourceProvider("read");
+//    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin("readwrite", writeDsp, readDsp);
+//    activeRecordDdsp.addIncludePackages("cn.dreampie.resource");
+//    pluginLoader.add(activeRecordDdsp);
 
 //    pluginLoader.add(new SpringPlugin(HelloApp.class));
 //    JndiDataSourceProvider jdsp = new JndiDataSourceProvider("jndiDs", "jndiName");
@@ -61,6 +61,6 @@ public class AppConfig extends Config {
 
   public void configHandler(HandlerLoader handlerLoader) {
     //跨域
-    handlerLoader.add(new CORSHandler());
+    handlerLoader.add(new CORSHandler("GET,POST,PUT,DELETE"));
   }
 }

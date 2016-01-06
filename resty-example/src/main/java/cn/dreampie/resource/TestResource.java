@@ -1,5 +1,7 @@
 package cn.dreampie.resource;
 
+import cn.dreampie.captcha.CaptchaFactory;
+import cn.dreampie.captcha.service.Captcha;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.exception.WebException;
@@ -16,6 +18,7 @@ import cn.dreampie.route.core.multipart.FILE;
 import cn.dreampie.service.HelloService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
@@ -99,5 +102,20 @@ public class TestResource extends ApiResource {
   public boolean test() {
     return new User().set("username", "test" + Thread.currentThread().getName()).set("providername", "test").set("created_at", new Date())
         .set("password", "123456").set("sid", "1").save();
+  }
+
+  @GET
+  public String get() {
+    return "ok";
+  }
+
+  private static CaptchaFactory captchaFactory = new CaptchaFactory();
+
+  @GET("/captcha")
+  public BufferedImage captcha() {
+    Captcha captcha = captchaFactory.getCaptcha();
+    //把值存好
+    System.out.println(captcha.getChallenge());
+    return captcha.getImage();
   }
 }

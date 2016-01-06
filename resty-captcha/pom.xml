@@ -7,22 +7,23 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>resty-oauth</artifactId>
+  <artifactId>resty-captcha</artifactId>
   <packaging>jar</packaging>
-
-  <name>resty-oauth</name>
-  <url>http://maven.apache.org</url>
+  <version>${parent.version}</version>
+  <name>resty-captcha</name>
+  <url>https://github.com/Dreampie/${parent.name}</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <servlet.version>3.1.0</servlet.version>
+    <resty.version>${parent.version}</resty.version>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-common</artifactId>
+      <version>${resty.version}</version>
     </dependency>
   </dependencies>
 </project>

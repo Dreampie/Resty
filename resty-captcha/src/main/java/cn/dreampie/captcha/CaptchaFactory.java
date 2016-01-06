@@ -23,36 +23,34 @@ public class CaptchaFactory {
   private ConfigurableCaptchaService captchaService = null;
 
   public CaptchaFactory() {
-    if (captchaService == null) {
-      captchaService = new ConfigurableCaptchaService();
+    captchaService = new ConfigurableCaptchaService();
 
-      // 颜色创建工厂
-      captchaService.setColorFactory(new SingleColorFactory(new Color(0, 0, 0)));
+    // 颜色创建工厂
+    captchaService.setColorFactory(new SingleColorFactory(new Color(0, 0, 0)));
 
-      // 图片滤镜设置
-      captchaService.setFilterFactory(getFilterFactory(CaptchaFilter.Curves));
+    // 图片滤镜设置
+    captchaService.setFilterFactory(getFilterFactory(CaptchaFilter.Curves));
 
-      // 随机字体生成器
-      RandomFontFactory fontFactory = new RandomFontFactory();
-      fontFactory.setMaxSize(45);
-      fontFactory.setMinSize(45);
-      captchaService.setFontFactory(fontFactory);
+    // 随机字体生成器
+    RandomFontFactory fontFactory = new RandomFontFactory();
+    fontFactory.setMaxSize(45);
+    fontFactory.setMinSize(45);
+    captchaService.setFontFactory(fontFactory);
 
-      // 随机字符生成器,去除掉容易混淆的字母和数字,如o和0等
-      RandomWordFactory wordFactory = new RandomWordFactory();
-      wordFactory.setCharacters("ABCDEFGHIJKLMNPQRSTUVWXYZ123456789");
-      wordFactory.setMaxLength(4);
-      wordFactory.setMinLength(4);
-      captchaService.setWordFactory(wordFactory);
+    // 随机字符生成器,去除掉容易混淆的字母和数字,如o和0等
+    RandomWordFactory wordFactory = new RandomWordFactory();
+    wordFactory.setCharacters("ABCDEFGHIJKLMNPQRSTUVWXYZ123456789");
+    wordFactory.setMaxLength(4);
+    wordFactory.setMinLength(4);
+    captchaService.setWordFactory(wordFactory);
 
-      // 文字渲染器设置
-      BestFitTextRenderer textRenderer = new BestFitTextRenderer();
-      textRenderer.setBottomMargin(1);
-      textRenderer.setTopMargin(1);
-      captchaService.setTextRenderer(textRenderer);
+    // 文字渲染器设置
+    BestFitTextRenderer textRenderer = new BestFitTextRenderer();
+    textRenderer.setBottomMargin(1);
+    textRenderer.setTopMargin(1);
+    captchaService.setTextRenderer(textRenderer);
 
-      captchaService.setBackgroundFactory(new RandomColorBackgroundFactory());
-    }
+    captchaService.setBackgroundFactory(new RandomColorBackgroundFactory());
   }
 
   public Captcha getCaptcha() {

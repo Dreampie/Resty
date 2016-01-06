@@ -12,7 +12,6 @@ import cn.dreampie.captcha.text.renderer.BestFitTextRenderer;
 import cn.dreampie.captcha.text.renderer.TextRenderer;
 import cn.dreampie.captcha.word.RandomWordFactory;
 import cn.dreampie.captcha.word.WordFactory;
-import cn.dreampie.log.Logger;
 
 import java.awt.*;
 
@@ -21,16 +20,9 @@ import java.awt.*;
  */
 public class CaptchaFactory {
 
-  private Logger logger = Logger.getLogger(CaptchaFactory.class);
-  private String captchaKey = null;
   private ConfigurableCaptchaService captchaService = null;
 
   public CaptchaFactory() {
-    this("captcha");
-  }
-
-  public CaptchaFactory(String captchaKey) {
-    this.captchaKey = captchaKey;
     if (captchaService == null) {
       captchaService = new ConfigurableCaptchaService();
 
@@ -93,21 +85,6 @@ public class CaptchaFactory {
         break;
     }
     return filterFactory;
-  }
-
-
-  /**
-   * 验证码key
-   *
-   * @return
-   */
-  public String getCaptchaKey() {
-    return captchaKey;
-  }
-
-  public CaptchaFactory setCaptchaKey(String captchaKey) {
-    this.captchaKey = captchaKey;
-    return this;
   }
 
   public FilterFactory getFilterFactory() {

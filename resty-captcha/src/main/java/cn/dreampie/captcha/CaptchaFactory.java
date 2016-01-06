@@ -89,6 +89,16 @@ public class CaptchaFactory {
     return captchaService.getFilterFactory();
   }
 
+  /**
+   * 滤镜效果
+   * @param captchaFilter
+   * @return
+   */
+  public CaptchaFactory setFilterFactory(CaptchaFilter captchaFilter) {
+    captchaService.setFilterFactory(getFilterFactory(captchaFilter));
+    return this;
+  }
+
   public CaptchaFactory setFilterFactory(FilterFactory filterFactory) {
     captchaService.setFilterFactory(filterFactory);
     return this;

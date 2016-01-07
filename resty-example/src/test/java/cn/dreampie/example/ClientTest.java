@@ -10,6 +10,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -71,7 +72,7 @@ public class ClientTest {
 //  }
 
   @Test
-  public void testUpload() {
+  public void testUpload() throws FileNotFoundException {
     //upload
     ClientRequest uploadRequest = new ClientRequest("/tests/file");
     uploadRequest.addUploadFile("testfile", ClientTest.class.getResource("/resty.jar").getFile());

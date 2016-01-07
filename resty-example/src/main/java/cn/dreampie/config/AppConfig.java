@@ -28,16 +28,16 @@ public class AppConfig extends Config {
 
   public void configPlugin(PluginLoader pluginLoader) {
 //    //第一个数据库
-//    C3p0DataSourceProvider cdsp = new C3p0DataSourceProvider("default");
-//    ActiveRecordPlugin activeRecordCdsp = new ActiveRecordPlugin(cdsp);
-//    activeRecordCdsp.addIncludePackages("cn.dreampie.resource");
-//    pluginLoader.add(activeRecordCdsp);
+    C3p0DataSourceProvider cdsp = new C3p0DataSourceProvider("default");
+    ActiveRecordPlugin activeRecordCdsp = new ActiveRecordPlugin(cdsp);
+    activeRecordCdsp.addIncludePackages("cn.dreampie.resource");
+    pluginLoader.add(activeRecordCdsp);
 //
 //    //第二个数据库
-//    DruidDataSourceProvider ddsp = new DruidDataSourceProvider("demo");
-//    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp);
-//    activeRecordDdsp.addIncludePackages("cn.dreampie.resource");
-//    pluginLoader.add(activeRecordDdsp);
+    DruidDataSourceProvider ddsp = new DruidDataSourceProvider("demo");
+    ActiveRecordPlugin activeRecordDdsp = new ActiveRecordPlugin(ddsp);
+//    activeRecordDdsp.addIncludePackages("cn.dreampie.demo"); 只是测试 没有具体的包有该数据源的对象
+    pluginLoader.add(activeRecordDdsp);
 
     //读写分离
 //    DruidDataSourceProvider writeDsp = new DruidDataSourceProvider("write");

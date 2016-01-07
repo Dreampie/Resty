@@ -198,14 +198,6 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   }
 
   /**
-   * Check the table name. The table name must in sql.
-   */
-  protected void checkTableName(String tableName, String sql) {
-    if (!sql.toLowerCase().contains(tableName.toLowerCase()))
-      throw new DBException("The table name: " + tableName + " not in your sql.");
-  }
-
-  /**
    * sql语句
    *
    * @param sql    sql
@@ -505,9 +497,6 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     } else {
       logger.debug("This query not use cache.");
     }
-
-    if (devMode)
-      checkTableName(tableMeta.getTableName(), sql);
 
     DataSourceMeta dsm = getDataSourceMeta();
     boolean showSql = dsm.isReadShowSql();
@@ -846,9 +835,6 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     //清除缓存
     if (tableMeta.isCached()) {
       purgeCache();
-    }
-    if (devMode) {
-      checkTableName(tableMeta.getTableName(), sql);
     }
 
     int result = -1;

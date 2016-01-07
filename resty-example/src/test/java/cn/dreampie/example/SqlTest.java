@@ -33,6 +33,21 @@ public class SqlTest {
   }
 
   @Test
+  public void testSql() {
+    Record recordDAO = new Record();
+
+    List<Record> records = recordDAO.find("select * from sec_user");
+    System.out.println(records.size());
+
+    recordDAO.execute("create table tb1 select * from sec_user");
+    List<Record> records1 = recordDAO.find("select * from tb1");
+    System.out.println(records1.size());
+
+    recordDAO.execute("insert into tb1(sid,username,password,providername,created_at)values(1000,'xx','11','12','2014-10-00 10:00:00');");
+  }
+
+
+  @Test
   public void testSave() {
     User u = new User().set("sid", 1).set("username", "a").set("providername", "test").set("password", "123456").set("created_at", new Date());
     u.save();
@@ -54,6 +69,7 @@ public class SqlTest {
     recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date()).save();
     Record r1 = recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
     Record r2 = recordDAO.reNew().set("sid", 2).set("username", "test").set("providername", "test").set("password", "123456").set("created_at", new Date());
+
 
     recordDAO.save(r1, r2);
   }

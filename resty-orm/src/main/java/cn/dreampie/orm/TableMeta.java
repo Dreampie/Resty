@@ -26,6 +26,19 @@ public class TableMeta implements Serializable {
   private SortedMap<String, ColumnMeta> columnMetadata;
   private TableSetting tableSetting;
 
+  protected TableMeta(String dsmName) {
+    this.dsmName = dsmName;
+    this.tableName = null;
+    this.generatedKey = "";
+    this.primaryKey = new String[]{};
+    this.generator = null;
+    this.cached = false;
+    this.expired = -1;
+    this.sequence = null;
+    this.modelClass = null;
+    this.tableSetting = null;
+  }
+
   protected TableMeta(TableSetting tableSetting) {
     this(Metadata.getDefaultDsmName(), tableSetting);
   }

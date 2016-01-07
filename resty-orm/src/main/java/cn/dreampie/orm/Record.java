@@ -15,7 +15,8 @@ public class Record extends Base<Record> {
   private TableMeta tableMeta;
   private boolean useCache = true;
 
-  private Record() {
+  public Record() {
+    this.tableMeta = getTableMeta(null);
   }
 
   public Record(TableSetting tableSetting) {
@@ -102,6 +103,17 @@ public class Record extends Base<Record> {
     return tableMeta;
   }
 
+
+  /**
+   * 获取数据元
+   *
+   * @param dsmName
+   * @return
+   */
+  private TableMeta getTableMeta(String dsmName) {
+    return getTableMeta(dsmName, null);
+  }
+
   /**
    * 获取表数据元
    *
@@ -113,14 +125,19 @@ public class Record extends Base<Record> {
     if (dsmName == null) {
       dsmName = Metadata.getDefaultDsmName();
     }
-    String tableName = tableSetting.getTableName();
-    checkNotNull(dsmName, "Could not found dataSourceMeta.");
-    checkNotNull(tableName, "Could not found tableName.");
 
-    if (Metadata.hasTableMeta(dsmName, tableName)) {
-      return Metadata.getTableMeta(dsmName, tableName);
+    if (tableSetting == null) {
+      return new TableMeta(dsmName);
     } else {
-      return TableMetaBuilder.buildTableMeta(new TableMeta(dsmName, tableSetting), Metadata.getDataSourceMeta(dsmName));
+      String tableName = tableSetting.getTableName();
+      checkNotNull(dsmName, "Could not found dataSourceMeta.");
+      checkNotNull(tableName, "Could not found tableName.");
+
+      if (Metadata.hasTableMeta(dsmName, tableName)) {
+        return Metadata.getTableMeta(dsmName, tableName);
+      } else {
+        return TableMetaBuilder.buildTableMeta(new TableMeta(dsmName, tableSetting), Metadata.getDataSourceMeta(dsmName));
+      }
     }
   }
 

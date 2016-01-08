@@ -174,6 +174,10 @@ public class RouteInvocation {
     return route.getMethod();
   }
 
+  public Class getResourceClass() {
+    return route.getResourceClass();
+  }
+
   public RouteMatch getRouteMatch() {
     return routeMatch;
   }

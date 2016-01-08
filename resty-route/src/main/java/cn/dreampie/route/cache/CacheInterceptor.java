@@ -33,7 +33,7 @@ public class CacheInterceptor implements Interceptor {
   }
 
   public void intercept(RouteInvocation ri) {
-    API apiAnno = ri.getMethod().getClass().getAnnotation(API.class);
+    API apiAnno = (API) ri.getResourceClass().getAnnotation(API.class);
     String apiValue = apiAnno.value();
     RouteMatch routeMatch = ri.getRouteMatch();
     HttpRequest request = routeMatch.getRequest();
@@ -57,6 +57,9 @@ public class CacheInterceptor implements Interceptor {
         return; // no further processing required
       }
 
+      //设置ETag
+      setETag(apiValue, response, group, version);
+
       Object result = SimpleCache.instance().get(group, uri);
       if (result == null) {
         result = ri.invoke();
@@ -66,11 +69,14 @@ public class CacheInterceptor implements Interceptor {
         ri.render(result);
       }
     } else {
-      ri.invoke();
+      //重置ETag
+      setETag(apiValue, response, group, null);
       SimpleCache.instance().flush(group);//清楚 get 缓存
-      version = null;//重置ETag
+      ri.invoke();
     }
+  }
 
+  private void setETag(String apiValue, HttpResponse response, String group, String version) {
     // set header for the next time the client calls
     if (version == null) {
       version = UUID.randomUUID().toString();

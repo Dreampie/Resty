@@ -1,8 +1,6 @@
-package cn.dreampie.security.cache;
+package cn.dreampie.cache;
 
 
-import cn.dreampie.cache.CacheEvent;
-import cn.dreampie.cache.CacheProvider;
 import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 
@@ -10,10 +8,10 @@ import cn.dreampie.log.Logger;
 /**
  * This is a main cache facade. It could be architected in the future to add more cache implementations besides OSCache.
  */
-public enum SessionCache {
+public enum SimpleCache {
   INSTANCE;
 
-  private final static Logger logger = Logger.getLogger(SessionCache.class);
+  private final static Logger logger = Logger.getLogger(SimpleCache.class);
 
   private final boolean enabled = Constant.cacheEnabled;
 
@@ -21,8 +19,8 @@ public enum SessionCache {
 
   //singleton
 
-  private SessionCache() {
-    cacheProvider = CacheProvider.PROVIDER;
+  private SimpleCache() {
+    cacheProvider = CacheProvider.INSTANCE;
   }
 
 
@@ -31,7 +29,7 @@ public enum SessionCache {
    *
    * @return one and only one instance of this class.
    */
-  public static SessionCache instance() {
+  public static SimpleCache instance() {
     return INSTANCE;
   }
 

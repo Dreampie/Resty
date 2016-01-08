@@ -25,7 +25,7 @@ public enum QueryCache {
   //singleton
 
   private QueryCache() {
-    cacheProvider = CacheProvider.PROVIDER;
+    cacheProvider = CacheProvider.INSTANCE;
   }
 
 

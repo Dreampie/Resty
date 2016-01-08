@@ -35,12 +35,12 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
     return response.getOutputStream();
   }
 
-  public Response addCookie(String cookie, String value, int expiration) {
-    return addCookie(cookie, value, expiration, true);
+  public Response addCookie(String name, String value, int expiration) {
+    return addCookie(name, value, expiration, true);
   }
 
-  public Response addCookie(String cookie, String value, int expiration, boolean httpOnly) {
-    Cookie existingCookie = HttpRequest.getCookie(request.getCookies(), cookie);
+  public Response addCookie(String name, String value, int expiration, boolean httpOnly) {
+    Cookie existingCookie = HttpRequest.getCookie(request.getCookies(), name);
     if (existingCookie != null) {
       if ("/".equals(existingCookie.getPath())
           || existingCookie.getPath() == null // in some cases cookies set on path '/' are returned with a null path
@@ -57,14 +57,14 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
         existingCookie.setMaxAge(0);
         response.addCookie(existingCookie);
 
-        Cookie c = new Cookie(cookie, value);
+        Cookie c = new Cookie(name, value);
         c.setPath("/");
         c.setMaxAge(expiration);
 //        c.setHttpOnly(httpOnly);
         response.addCookie(c);
       }
     } else {
-      Cookie c = new Cookie(cookie, value);
+      Cookie c = new Cookie(name, value);
       c.setPath("/");
       c.setMaxAge(expiration);
 //      c.setHttpOnly(httpOnly);

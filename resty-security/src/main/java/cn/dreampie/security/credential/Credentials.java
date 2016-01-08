@@ -4,7 +4,7 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.security.AuthenticateService;
 import cn.dreampie.security.Principal;
-import cn.dreampie.security.cache.SessionCache;
+import cn.dreampie.cache.SimpleCache;
 
 import java.util.*;
 
@@ -105,10 +105,10 @@ public class Credentials {
   public Map<String, Map<String, Set<Credential>>> getAllCredentials() {
     if (Constant.cacheEnabled) {
       //load  all  cache
-      credentialMap = SessionCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
+      credentialMap = SimpleCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
       if (credentialMap == null) {
         credentialMap = addCredentials(authenticateService.getAllCredentials());
-        SessionCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, credentialMap);
+        SimpleCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, credentialMap);
       }
     } else {
       if (credentialMap.size() <= 0 || System.currentTimeMillis() > lastAccess) {
@@ -132,11 +132,11 @@ public class Credentials {
   public Principal getPrincipal(String username) {
     Principal principal;
     if (Constant.cacheEnabled) {
-      principal = SessionCache.instance().get(Principal.PRINCIPAL_DEF_KEY, username);
+      principal = SimpleCache.instance().get(Principal.PRINCIPAL_DEF_KEY, username);
       //cache 已经失效  从接口获取用户数据
       if (principal == null) {
         principal = authenticateService.getPrincipal(username);
-        SessionCache.instance().add(Principal.PRINCIPAL_DEF_KEY, username, principal, (int) expires);
+        SimpleCache.instance().add(Principal.PRINCIPAL_DEF_KEY, username, principal, (int) expires);
       }
     } else {
       boolean find = false;
@@ -164,7 +164,7 @@ public class Credentials {
    */
   public void removePrincipal(String username) {
     if (Constant.cacheEnabled) {
-      SessionCache.instance().remove(Principal.PRINCIPAL_DEF_KEY, username);
+      SimpleCache.instance().remove(Principal.PRINCIPAL_DEF_KEY, username);
     } else {
       principals.remove(username);
     }

@@ -33,6 +33,8 @@ public class RouteInvocation {
   private RouteMatch routeMatch;
   private Interceptor[] interceptors;
   private int index = 0;
+  private boolean wasInvoke = false;
+  private Object invokeResult = null;
 
   // ActionInvocationWrapper need this constructor
   private RouteInvocation() {
@@ -48,7 +50,7 @@ public class RouteInvocation {
   /**
    * Invoke the route.
    */
-  public void invoke() {
+  private void methodInvoke() {
     if (index < interceptors.length) {
       interceptors[index++].intercept(this);
     } else if (index++ == interceptors.length) {
@@ -70,7 +72,6 @@ public class RouteInvocation {
         validate(params);
         Method method = route.getMethod();
         method.setAccessible(true);
-        Object invokeResult;
         //执行方法
         if (route.getAllParamNames().size() > 0) {
           List<Class<?>> allParamTypes = route.getAllParamTypes();
@@ -95,6 +96,7 @@ public class RouteInvocation {
         } else {
           invokeResult = method.invoke(resource);
         }
+        wasInvoke = true;
         //输出结果
         render(invokeResult);
       } catch (Exception e) {
@@ -109,8 +111,8 @@ public class RouteInvocation {
    *
    * @param invokeResult invokeResult
    */
-  private void render(Object invokeResult) {
-    Object result = null;
+  public void render(Object invokeResult) {
+    Object result;
     HttpRequest request = routeMatch.getRequest();
     HttpResponse response = routeMatch.getResponse();
     //通过特定的webresult返回并携带状态码
@@ -174,5 +176,12 @@ public class RouteInvocation {
 
   public RouteMatch getRouteMatch() {
     return routeMatch;
+  }
+
+  public Object invoke() {
+    if (!wasInvoke) {
+      methodInvoke();
+    }
+    return invokeResult;
   }
 }

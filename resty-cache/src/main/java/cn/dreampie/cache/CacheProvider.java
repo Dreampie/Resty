@@ -11,7 +11,7 @@ import java.util.List;
  * Abstract method to be sub-classed by various caching technologies.
  */
 public abstract class CacheProvider {
-  public final static CacheProvider PROVIDER;
+  public final static CacheProvider INSTANCE;
   private final static Logger logger = Logger.getLogger(CacheProvider.class);
 
   static {
@@ -32,7 +32,7 @@ public abstract class CacheProvider {
         }
       }
     }
-    PROVIDER = cacheProvider;
+    INSTANCE = cacheProvider;
   }
 
   List<CacheEventListener> listeners = new ArrayList<CacheEventListener>();

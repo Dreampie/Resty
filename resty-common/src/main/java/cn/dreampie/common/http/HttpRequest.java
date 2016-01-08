@@ -25,24 +25,23 @@ public class HttpRequest extends AbstractRequest {
     this.servletContext = servletContext;
   }
 
-  private static String getCookieValue(Cookie[] cookies,
-                                       String cookieName) {
+  private static String getCookieValue(Cookie[] cookies, String name) {
     if (cookies == null) {
       return null;
     }
     for (Cookie cookie : cookies) {
-      if (cookieName.equals(cookie.getName()))
+      if (name.equals(cookie.getName()))
         return cookie.getValue();
     }
     return null;
   }
 
-  static Cookie getCookie(Cookie[] cookies, String cookieName) {
+  static Cookie getCookie(Cookie[] cookies, String name) {
     if (cookies == null) {
       return null;
     }
     for (Cookie cookie : cookies) {
-      if (cookieName.equals(cookie.getName()))
+      if (name.equals(cookie.getName()))
         return cookie;
     }
     return null;
@@ -145,8 +144,8 @@ public class HttpRequest extends AbstractRequest {
     return cookies;
   }
 
-  public String getCookieValue(String cookieName) {
-    return getCookieValue(request.getCookies(), cookieName);
+  public String getCookieValue(String name) {
+    return getCookieValue(request.getCookies(), name);
   }
 
   public boolean isPersistentCookie(String cookie) {
@@ -171,12 +170,12 @@ public class HttpRequest extends AbstractRequest {
     return request.getRequestDispatcher(url);
   }
 
-  public String getHeader(String headerName) {
-    return request.getHeader(headerName);
+  public String getHeader(String name) {
+    return request.getHeader(name);
   }
 
-  public Enumeration<String> getHeaders(String headerName) {
-    return request.getHeaders(headerName);
+  public Enumeration<String> getHeaders(String name) {
+    return request.getHeaders(name);
   }
 
   public Map<String, String> getHeaders() {

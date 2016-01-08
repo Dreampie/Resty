@@ -3,6 +3,7 @@ package cn.dreampie.config;
 import cn.dreampie.orm.ActiveRecordPlugin;
 import cn.dreampie.orm.provider.c3p0.C3p0DataSourceProvider;
 import cn.dreampie.orm.provider.druid.DruidDataSourceProvider;
+import cn.dreampie.route.cache.CacheInterceptor;
 import cn.dreampie.route.config.*;
 import cn.dreampie.route.handler.cors.CORSHandler;
 import cn.dreampie.route.interceptor.security.SecurityInterceptor;
@@ -53,6 +54,8 @@ public class AppConfig extends Config {
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {
+    //缓存
+    interceptorLoader.add(new CacheInterceptor());
     //权限拦截器
     interceptorLoader.add(new SecurityInterceptor(new MyAuthenticateService()));
     //事务的拦截器 @Transaction

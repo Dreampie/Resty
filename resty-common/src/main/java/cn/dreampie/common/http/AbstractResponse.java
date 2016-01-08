@@ -113,15 +113,15 @@ public abstract class AbstractResponse<R> implements Response {
   }
 
 
-  public Response addCookie(String cookie, String value) {
-    addCookie(cookie, value, -1);
+  public Response addCookie(String name, String value) {
+    addCookie(name, value, -1);
     return this;
   }
 
 
-  public final Response setHeader(String headerName, String header) {
-    doSetHeader(headerName, header);
-    headers.put(headerName.toLowerCase(Locale.ENGLISH), header);
+  public final Response setHeader(String name, String value) {
+    doSetHeader(name, value);
+    headers.put(name.toLowerCase(Locale.ENGLISH), value);
     return this;
   }
 
@@ -135,8 +135,8 @@ public abstract class AbstractResponse<R> implements Response {
 
   protected abstract void doAddHeader(String headerName, String header);
 
-  public String getHeader(String headerName) {
-    return headers.get(headerName.toLowerCase(Locale.ENGLISH));
+  public String getHeader(String value) {
+    return headers.get(value.toLowerCase(Locale.ENGLISH));
   }
 
 

@@ -105,15 +105,15 @@ public interface Request {
 
   Map<String, List<String>> getQueryParams();
 
-  String getHeader(String headerName);
+  String getHeader(String name);
 
-  Enumeration<String> getHeaders(String headerName);
+  Enumeration<String> getHeaders(String name);
 
   Map<String,String> getHeaders();
 
   String getContentType();
 
-  String getCookieValue(String cookieName);
+  String getCookieValue(String name);
 
   boolean isPersistentCookie(String cookie);
 

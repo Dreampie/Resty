@@ -2,7 +2,7 @@ package cn.dreampie.security;
 
 import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
-import cn.dreampie.security.cache.SessionCache;
+import cn.dreampie.cache.SimpleCache;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -43,9 +43,9 @@ public class Sessions {
     SessionDatas sessionDatas = null;
     String username = null;
     if (Constant.cacheEnabled) {
-      username = SessionCache.instance().get(Session.SESSION_DEF_KEY, sessionKey);
+      username = SimpleCache.instance().get(Session.SESSION_DEF_KEY, sessionKey);
       if (username != null) {
-        sessionDatas = SessionCache.instance().get(Session.SESSION_DEF_KEY, username);
+        sessionDatas = SimpleCache.instance().get(Session.SESSION_DEF_KEY, username);
       }
     } else {
       if (usernames.containsKey(sessionKey)) {
@@ -76,8 +76,8 @@ public class Sessions {
   private void save(String username, String sessionKey, SessionDatas sessionDatas) {
     //add cache
     if (Constant.cacheEnabled) {
-      SessionCache.instance().add(Session.SESSION_DEF_KEY, sessionKey, username);
-      SessionCache.instance().add(Session.SESSION_DEF_KEY, username, sessionDatas);
+      SimpleCache.instance().add(Session.SESSION_DEF_KEY, sessionKey, username);
+      SimpleCache.instance().add(Session.SESSION_DEF_KEY, username, sessionDatas);
     } else {
       this.usernames.put(sessionKey, username);
       this.sessions.put(username, sessionDatas);
@@ -92,7 +92,7 @@ public class Sessions {
    */
   private void removeUsername(String sessionKey) {
     if (Constant.cacheEnabled) {
-      SessionCache.instance().remove(Session.SESSION_DEF_KEY, sessionKey);
+      SimpleCache.instance().remove(Session.SESSION_DEF_KEY, sessionKey);
     } else {
       usernames.remove(sessionKey);
     }
@@ -129,13 +129,13 @@ public class Sessions {
     if (sessionMetadatas.size() == 0) {
       removeUsername(sessionKey);
       if (Constant.cacheEnabled) {
-        SessionCache.instance().remove(Session.SESSION_DEF_KEY, username);
+        SimpleCache.instance().remove(Session.SESSION_DEF_KEY, username);
       } else {
         this.sessions.remove(username);
       }
     } else {
       if (Constant.cacheEnabled) {
-        SessionCache.instance().add(Session.SESSION_DEF_KEY, username, sessionDatas);
+        SimpleCache.instance().add(Session.SESSION_DEF_KEY, username, sessionDatas);
       } else {
         this.sessions.put(username, sessionDatas);
       }

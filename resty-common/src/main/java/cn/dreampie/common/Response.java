@@ -53,21 +53,21 @@ public interface Response {
 
   OutputStream getOutputStream() throws IOException;
 
-  Response addCookie(String cookie, String value);
+  Response addCookie(String name, String value);
 
-  Response addCookie(String cookie, String value, int expires);
+  Response addCookie(String name, String value, int expires);
 
   Response clearCookie(String cookie);
 
-  Response setHeader(String headerName, String header);
+  Response setHeader(String name, String value);
 
   /**
    * Returns the value of a header previously set with setHeader().
    *
-   * @param headerName the name of the header to get.
+   * @param value the name of the header to get.
    * @return the header value.
    */
-  String getHeader(String headerName);
+  String getHeader(String value);
 
 
   /**

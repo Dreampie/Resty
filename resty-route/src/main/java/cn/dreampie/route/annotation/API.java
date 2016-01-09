@@ -1,4 +1,4 @@
-package cn.dreampie.route.core.annotation;
+package cn.dreampie.route.annotation;
 
 import java.lang.annotation.*;
 

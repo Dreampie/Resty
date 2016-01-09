@@ -13,7 +13,7 @@ import cn.dreampie.orm.TableSetting;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.route.core.Headers;
-import cn.dreampie.route.core.annotation.*;
+import cn.dreampie.route.annotation.*;
 import cn.dreampie.route.core.multipart.FILE;
 import cn.dreampie.service.HelloService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +111,7 @@ public class TestResource extends ApiResource {
 
   private static CaptchaFactory captchaFactory = new CaptchaFactory();
 
-  @GET("/captcha")
+  @GET(value = "/captcha", cached = false)
   public BufferedImage captcha() {
     Captcha captcha = captchaFactory.getCaptcha();
     //把值存好

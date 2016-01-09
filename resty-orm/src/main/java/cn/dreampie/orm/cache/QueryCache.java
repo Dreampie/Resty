@@ -16,11 +16,14 @@ import java.util.Arrays;
 public enum QueryCache {
   INSTANCE;
 
+  public static final String QUERY_DEF_KEY = "_query";
+
   private final static Logger logger = Logger.getLogger(QueryCache.class);
 
   private final boolean enabled = Constant.cacheEnabled;
 
   private final CacheProvider cacheProvider;
+
 
   //singleton
 
@@ -71,7 +74,7 @@ public enum QueryCache {
   }
 
   private String getGroup(String dsmName, String tableName) {
-    return dsmName + Constant.CONNECTOR + tableName;
+    return QUERY_DEF_KEY + Constant.CONNECTOR + dsmName + Constant.CONNECTOR + tableName;
   }
 
   /**
@@ -100,10 +103,6 @@ public enum QueryCache {
 
   private String getKey(String group, String type, String query, Object[] params) {
     return group + Constant.CONNECTOR + type + Constant.CONNECTOR + query + Constant.CONNECTOR + (params == null ? null : Arrays.asList(params).toString());
-  }
-
-  private String getKey(String dsmName, String tableName, String type, String query, Object[] params) {
-    return getKey(getGroup(dsmName, tableName), type, query, params);
   }
 
   public void remove(String dsmName, String tableName, String type, String query, Object[] params) {

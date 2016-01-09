@@ -7,7 +7,7 @@ import cn.dreampie.resource.ApiResource;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.resource.user.service.UserService;
 import cn.dreampie.resource.user.service.UserServiceImpl;
-import cn.dreampie.route.core.annotation.*;
+import cn.dreampie.route.annotation.*;
 
 import java.util.Date;
 import java.util.List;

@@ -1,7 +1,7 @@
 package cn.dreampie.resource;
 
 import cn.dreampie.route.core.Resource;
-import cn.dreampie.route.core.annotation.API;
+import cn.dreampie.route.annotation.API;
 
 /**
  * Created by ice on 14-12-29.

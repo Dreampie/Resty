@@ -481,16 +481,13 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   public List<M> find(String sql, Object... params) {
     List<M> result = null;
-    boolean cached = false;
     boolean useCache = isUseCache();
 
     TableMeta tableMeta = getTableMeta();
     if (useCache) {
-      cached = tableMeta.isCached();
       //hit cache
-      if (cached) {
-        result = getCache(sql, params);
-      }
+      result = getCache(sql, params);
+
       if (result != null) {
         return result;
       }
@@ -518,9 +515,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       dsm.close(rs, pst, conn);
     }
     //add cache
-    if (cached) {
-      addCache(sql, params, result);
-    }
+    addCache(sql, params, result);
     return result;
   }
 
@@ -666,9 +661,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   public boolean save() {
     TableMeta tableMeta = getTableMeta();
     //清除缓存
-    if (tableMeta.isCached()) {
       purgeCache();
-    }
 
     String generatedKey = tableMeta.getGeneratedKey();
     Generator generator = tableMeta.getGenerator();
@@ -742,9 +735,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
     TableMeta tableMeta = firstModel.getTableMeta();
     //清除models缓存
-    if (tableMeta.isCached()) {
       firstModel.purgeCache();
-    }
 
     String generatedKey = tableMeta.getGeneratedKey();
     //是否需要主键生成器生成值
@@ -833,9 +824,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     DataSourceMeta dsm = getDataSourceMeta();
     boolean showSql = dsm.isWriteShowSql();
     //清除缓存
-    if (tableMeta.isCached()) {
       purgeCache();
-    }
 
     int result = -1;
     Connection conn = null;
@@ -1288,19 +1277,15 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    */
   public <T> List<T> query(String sql, Object... params) {
 
-    boolean cached = false;
     boolean useCache = isUseCache();
     TableMeta tableMeta = getTableMeta();
 
     List<T> result = null;
     if (useCache) {
-      cached = tableMeta.isCached();
       //hit cache
-      if (cached) {
-        result = getCache(sql, params);
-        if (result != null) {
-          return result;
-        }
+      result = getCache(sql, params);
+      if (result != null) {
+        return result;
       }
     } else {
       logger.debug("This query not use cache.");
@@ -1323,9 +1308,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       dsm.close(rs, pst, conn);
     }
     //add cache
-    if (cached) {
-      addCache(sql, params, result);
-    }
+    addCache(sql, params, result);
     return result;
   }
 

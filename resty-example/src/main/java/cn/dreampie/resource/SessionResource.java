@@ -1,9 +1,9 @@
 package cn.dreampie.resource;
 
 import cn.dreampie.resource.user.model.User;
-import cn.dreampie.route.core.annotation.API;
-import cn.dreampie.route.core.annotation.DELETE;
-import cn.dreampie.route.core.annotation.POST;
+import cn.dreampie.route.annotation.API;
+import cn.dreampie.route.annotation.DELETE;
+import cn.dreampie.route.annotation.POST;
 import cn.dreampie.security.Subject;
 
 /**

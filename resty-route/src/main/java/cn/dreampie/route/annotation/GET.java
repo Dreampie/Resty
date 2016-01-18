@@ -1,4 +1,4 @@
-package cn.dreampie.route.core.annotation;
+package cn.dreampie.route.annotation;
 
 import cn.dreampie.route.valid.Validator;
 
@@ -19,4 +19,6 @@ public @interface GET {
   String des() default "";
 
   Class<? extends Validator>[] valid() default {};
+
+  boolean cached() default true;
 }

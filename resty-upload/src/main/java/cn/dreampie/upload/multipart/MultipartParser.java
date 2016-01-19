@@ -148,8 +148,8 @@ public class MultipartParser {
       type = (type1.length() > type2.length() ? type1 : type2);
     }
 
-    if (type == null || !type.toLowerCase().startsWith(ContentType.MULTIPART)) {
-      throw new WebException("Posted content type isn't '" + ContentType.MULTIPART + "'.");
+    if (type == null || !type.toLowerCase().startsWith(ContentType.MULTIPART.value())) {
+      throw new WebException("Posted content type isn't '" + ContentType.MULTIPART.value() + "'.");
     }
     // Check the content length to prevent denial of service attacks
     int length = req.getContentLength();

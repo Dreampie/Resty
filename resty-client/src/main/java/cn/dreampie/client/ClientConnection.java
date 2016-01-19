@@ -105,7 +105,7 @@ public class ClientConnection {
 
     String contentType = clientRequest.getContentType();
     //json请求
-    if (contentType.contains(ContentType.JSON)) {
+    if (contentType.contains(ContentType.JSON.value())) {
       // 除了post意外其他请求类型都用 拼接参数方式
       if (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) {
         if (!"".equals(clientRequest.getJsonParam())) {
@@ -118,7 +118,7 @@ public class ClientConnection {
         conn = getStreamConnection(httpMethod, clientRequest);
         outputParam(conn, httpMethod, clientRequest.getJsonParam(), clientRequest.getEncoding());
       }
-    } else if (contentType.contains(ContentType.MULTIPART) || httpMethod.equals(HttpMethod.POST)) {
+    } else if (contentType.contains(ContentType.MULTIPART.value()) || httpMethod.equals(HttpMethod.POST)) {
       //上传文件类型
       conn = getStreamConnection(httpMethod, clientRequest);
       //是上传文件

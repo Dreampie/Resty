@@ -12,7 +12,7 @@ public class TextRender extends Render {
 
   public void render(HttpRequest request, HttpResponse response, Object out) {
     if (out != null) {
-      response.setContentType(ContentType.TEXT);
+      response.setContentType(ContentType.TEXT.value());
       write(request, response, out.toString());
     }
   }

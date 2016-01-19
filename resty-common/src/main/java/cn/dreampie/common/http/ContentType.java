@@ -3,17 +3,37 @@ package cn.dreampie.common.http;
 /**
  * Created by wangrenhui on 15/4/29.
  */
-public class ContentType {
+public enum ContentType {
 
-  public static final String TEXT = "text/plain";
-  public static final String HTML = "text/html";
-  public static final String XML = "text/xml";
-  public static final String JSON = "application/json";
-  public static final String FORM = "application/x-www-form-urlencoded";
-  public static final String MULTIPART = "multipart/form-data";
-  public static final String FILE = "application/octet-stream";
-  public static final String PNG = "image/png";
-  public static final String JPEG = "image/jpeg";
-  public static final String GIF = "image/gif";
+  TEXT("text", "text/plain"),
+  HTML("html", "text/html"),
+  XML("xml", "text/xml"),
+  JSON("json", "application/json"),
+  FORM("form", "application/x-www-form-urlencoded"),
+  MULTIPART("multipart", "multipart/form-data"),
+  FILE("file", "application/octet-stream"),
+  PNG("png", "image/png"),
+  JPEG("jpg", "image/jpeg"),
+  GIF("gif", "image/gif");
 
+  private String type;
+  private String value;
+
+  private ContentType(String type, String value) {
+    this.type = type;
+    this.value = value;
+  }
+
+  public static ContentType typeOf(String type) {
+    for (ContentType contentType : values()) {
+      if (contentType.type.equals(type)) {
+        return contentType;
+      }
+    }
+    throw new IllegalArgumentException("Invalid Content-Type: " + type);
+  }
+
+  public String value() {
+    return value;
+  }
 }

@@ -248,7 +248,7 @@ public class Route {
     String jsonParams = null;
     String contentType = request.getContentType();
     try {
-      if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON)) {
+      if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON.value())) {
         //从 queryString 取json
         if (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) {
           jsonParams = request.getQueryString();

@@ -23,11 +23,14 @@ public class HttpTyper {
     }
   }
 
-  public static String getContentTypeFromExtension(String filename) {
+  public static String getContentTypeFromFileName(String filename) {
     String ext = filename.substring(filename.lastIndexOf('.') + 1);
     return mimeType.getProperty(ext);
   }
 
+  public static String getContentTypeFromExtension(String ext) {
+    return mimeType.getProperty(ext);
+  }
 
   public static boolean isTextContentType(String contentType) {
     // the list is not fully exhaustive, should cover most cases.

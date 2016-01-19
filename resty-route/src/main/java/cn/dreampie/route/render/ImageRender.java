@@ -1,6 +1,7 @@
 package cn.dreampie.route.render;
 
 import cn.dreampie.common.Render;
+import cn.dreampie.common.http.ContentType;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.WebException;
@@ -28,6 +29,7 @@ public class ImageRender extends Render {
       if (result == null) {
         throw new WebException(HttpStatus.NOT_FOUND, "Image not support '" + out + "'.");
       } else {
+        response.setContentType(ContentType.typeOf(result.getType()).value());
         write(request, response, result.getType(), result.getResult());
       }
     }

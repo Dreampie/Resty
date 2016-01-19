@@ -15,7 +15,7 @@ public class JsonRender extends Render {
 
   public void render(HttpRequest request, HttpResponse response, Object out) {
     if (out != null) {
-      response.setContentType(ContentType.JSON);
+      response.setContentType(ContentType.JSON.value());
       if (out instanceof String) {
         if (((String) out).startsWith("\"") || ((String) out).startsWith("{") || ((String) out).startsWith("[")) {
           write(request, response, (String) out);

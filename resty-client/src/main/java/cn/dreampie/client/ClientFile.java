@@ -23,7 +23,7 @@ public class ClientFile {
 
   public ClientFile(File file) throws FileNotFoundException {
     this.name = file.getName();
-    this.contentType = HttpTyper.getContentTypeFromExtension(name);
+    this.contentType = HttpTyper.getContentTypeFromFileName(name);
     this.inputStream = new FileInputStream(file);
   }
 

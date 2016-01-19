@@ -90,7 +90,7 @@ public class FileRender extends Render {
           }
 
           String fileName = file.getName();
-          response.setContentType(ContentType.FILE);
+          response.setContentType(ContentType.FILE.value());
           response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
 
           OutputStream outputStream = response.getOutputStream();

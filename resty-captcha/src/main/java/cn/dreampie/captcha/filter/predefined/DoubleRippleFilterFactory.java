@@ -35,7 +35,7 @@ public class DoubleRippleFilterFactory extends AbstractFilterFactory {
     ripple = new DoubleRippleImageOp();
   }
 
-  @Override
+
   public List<BufferedImageOp> getFilters() {
     if (filters == null) {
       filters = new ArrayList<BufferedImageOp>();

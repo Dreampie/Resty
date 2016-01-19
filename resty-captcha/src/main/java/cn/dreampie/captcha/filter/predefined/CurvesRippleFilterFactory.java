@@ -18,7 +18,6 @@
  */
 package cn.dreampie.captcha.filter.predefined;
 
-import cn.dreampie.captcha.color.ColorFactory;
 import cn.dreampie.captcha.filter.library.CurvesImageOp;
 
 import java.awt.image.BufferedImageOp;
@@ -32,11 +31,6 @@ public class CurvesRippleFilterFactory extends RippleFilterFactory {
   public CurvesRippleFilterFactory() {
   }
 
-  public CurvesRippleFilterFactory(ColorFactory colorFactory) {
-    setColorFactory(colorFactory);
-  }
-
-  @Override
   protected List<BufferedImageOp> getPreRippleFilters() {
     List<BufferedImageOp> list = new ArrayList<BufferedImageOp>();
     list.add(curves);
@@ -49,10 +43,6 @@ public class CurvesRippleFilterFactory extends RippleFilterFactory {
 
   public void setStrokeMax(float strokeMax) {
     curves.setStrokeMax(strokeMax);
-  }
-
-  public void setColorFactory(ColorFactory colorFactory) {
-    curves.setColorFactory(colorFactory);
   }
 
 }

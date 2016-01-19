@@ -16,21 +16,23 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with Patchca. If not, see <http://www.gnu.org/licenses/>.
  */
-package cn.dreampie.captcha.text.renderer;
+package cn.dreampie.captcha.text.render;
 
-public class BestFitTextRenderer extends AbstractTextRenderer {
+import cn.dreampie.captcha.color.ColorFactory;
+import cn.dreampie.captcha.font.FontFactory;
 
-  @Override
-  protected void arrangeCharacters(int width, int height, TextString ts) {
-    double widthRemaining = (width - ts.getWidth() - leftMargin - rightMargin) / ts.getCharacters().size();
-    double x = leftMargin + widthRemaining / 2;
-    height -= topMargin + bottomMargin;
-    for (TextCharacter tc : ts.getCharacters()) {
-      double y = topMargin + (height + tc.getAscent() * 0.7) / 2;
-      tc.setX(x);
-      tc.setY(y);
-      x += tc.getWidth() + widthRemaining;
-    }
-  }
+import java.awt.image.BufferedImage;
+
+public interface TextRenderer {
+
+  void setLeftMargin(int leftMargin);
+
+  void setRightMargin(int rightMargin);
+
+  void setTopMargin(int topMargin);
+
+  void setBottomMargin(int bottomMargin);
+
+  void draw(String text, BufferedImage canvas, FontFactory fontFactory, ColorFactory colorFactory);
 
 }

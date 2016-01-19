@@ -27,9 +27,17 @@ public class RandomWordFactory implements WordFactory {
   protected int maxLength;
 
   public RandomWordFactory() {
-    characters = "absdegkmnopwx23456789";
-    minLength = 6;
-    maxLength = 6;
+    this("ABCDEFGHIJKLMNPQRSTUVWXYZ123456789", 4);
+  }
+
+  public RandomWordFactory(String characters, int length) {
+    this(characters, length, length);
+  }
+
+  public RandomWordFactory(String characters, int minLength, int maxLength) {
+    this.characters = characters;
+    this.minLength = minLength;
+    this.maxLength = maxLength;
   }
 
   public void setCharacters(String characters) {

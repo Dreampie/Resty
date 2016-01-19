@@ -22,20 +22,20 @@ import java.awt.image.BufferedImage;
 
 public class Captcha {
 
-  private String challenge;
+  private String word;
   private BufferedImage image;
 
-  public Captcha(String challenge, BufferedImage image) {
-    this.challenge = challenge;
+  public Captcha(String word, BufferedImage image) {
+    this.word = word;
     this.image = image;
   }
 
-  public String getChallenge() {
-    return challenge;
+  public String getWord() {
+    return word;
   }
 
-  public void setChallenge(String challenge) {
-    this.challenge = challenge;
+  public void setWord(String word) {
+    this.word = word;
   }
 
   public BufferedImage getImage() {

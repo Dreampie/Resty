@@ -38,6 +38,10 @@ public class SingleColorBackgroundFactory implements BackgroundFactory {
     colorFactory = new SingleColorFactory(color);
   }
 
+  public ColorFactory getColorFactory() {
+    return colorFactory;
+  }
+
   public void setColorFactory(ColorFactory colorFactory) {
     this.colorFactory = colorFactory;
   }

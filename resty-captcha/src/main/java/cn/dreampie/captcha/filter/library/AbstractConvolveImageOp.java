@@ -27,7 +27,7 @@ public abstract class AbstractConvolveImageOp extends AbstractImageOp {
     this.matrix = matrix;
   }
 
-  @Override
+
   protected void filter(int[] inPixels, int[] outPixels, int width, int height) {
     long time1 = System.currentTimeMillis();
     int matrixWidth = matrix[0].length;
@@ -56,9 +56,6 @@ public abstract class AbstractConvolveImageOp extends AbstractImageOp {
         outPixels[x + y * width] = (limitByte((int) sum[0]) << 24) | (limitByte((int) sum[1]) << 16) | (limitByte((int) sum[2]) << 8) | (limitByte((int) sum[3]));
       }
     }
-    long time2 = System.currentTimeMillis() - time1;
-    //System.out.println("AbstractConvolveImageOp " + time2);
-
   }
 
 

@@ -18,24 +18,23 @@
  */
 package cn.dreampie.captcha.service;
 
+import cn.dreampie.captcha.background.RandomColorBackgroundFactory;
 import cn.dreampie.captcha.background.SingleColorBackgroundFactory;
-import cn.dreampie.captcha.color.SingleColorFactory;
+import cn.dreampie.captcha.color.RandomColorFactory;
 import cn.dreampie.captcha.filter.predefined.CurvesRippleFilterFactory;
 import cn.dreampie.captcha.font.RandomFontFactory;
-import cn.dreampie.captcha.text.renderer.BestFitTextRenderer;
+import cn.dreampie.captcha.text.render.BestFitTextRender;
 import cn.dreampie.captcha.word.AdaptiveRandomWordFactory;
 
 public class ConfigurableCaptchaService extends AbstractCaptchaService {
 
   public ConfigurableCaptchaService() {
-    backgroundFactory = new SingleColorBackgroundFactory();
     wordFactory = new AdaptiveRandomWordFactory();
     fontFactory = new RandomFontFactory();
-    textRenderer = new BestFitTextRenderer();
-    colorFactory = new SingleColorFactory();
-    filterFactory = new CurvesRippleFilterFactory(colorFactory);
-    textRenderer.setLeftMargin(10);
-    textRenderer.setRightMargin(10);
+    textRenderer = new BestFitTextRender();
+    colorFactory = new RandomColorFactory();
+    backgroundFactory = new RandomColorBackgroundFactory(colorFactory);
+    filterFactory = new CurvesRippleFilterFactory();
     width = 160;
     height = 70;
   }

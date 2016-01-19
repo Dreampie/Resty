@@ -19,7 +19,6 @@
 package cn.dreampie.captcha.font;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -32,11 +31,18 @@ public class RandomFontFactory implements FontFactory {
   protected boolean randomStyle;
 
   public RandomFontFactory() {
-    families = new ArrayList<String>();
-    families.add("Verdana");
-    families.add("Tahoma");
-    minSize = 45;
-    maxSize = 45;
+    this(new String[]{"Verdana", "Tahoma"}, 45, false);
+  }
+
+  public RandomFontFactory(String[] families, int size, boolean randomStyle) {
+    this(families, size, size, randomStyle);
+  }
+
+  public RandomFontFactory(String[] families, int minSize, int maxSize, boolean randomStyle) {
+    this.families = Arrays.asList(families);
+    this.minSize = minSize;
+    this.maxSize = maxSize;
+    this.randomStyle = randomStyle;
   }
 
   public RandomFontFactory(List<String> families) {

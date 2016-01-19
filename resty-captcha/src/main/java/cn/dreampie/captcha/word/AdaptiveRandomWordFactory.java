@@ -25,15 +25,15 @@ public class AdaptiveRandomWordFactory extends RandomWordFactory {
   protected String wideCharacters;
 
   public AdaptiveRandomWordFactory() {
-    characters = "absdegkmnopwx23456789";
-    wideCharacters = "mw";
+    characters = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
+    wideCharacters = "MW";
   }
 
   public void setWideCharacters(String wideCharacters) {
     this.wideCharacters = wideCharacters;
   }
 
-  @Override
+
   public String getNextWord() {
     Random rnd = new Random();
     StringBuffer sb = new StringBuffer();

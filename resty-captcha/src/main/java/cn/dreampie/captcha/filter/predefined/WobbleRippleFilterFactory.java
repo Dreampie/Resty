@@ -33,7 +33,7 @@ public class WobbleRippleFilterFactory extends RippleFilterFactory {
     wobble = new WobbleImageOp();
   }
 
-  @Override
+
   protected List<BufferedImageOp> getPreRippleFilters() {
     List<BufferedImageOp> list = new ArrayList<BufferedImageOp>();
     list.add(wobble);

@@ -22,7 +22,7 @@ import cn.dreampie.captcha.background.SingleColorBackgroundFactory;
 import cn.dreampie.captcha.color.SingleColorFactory;
 import cn.dreampie.captcha.filter.FilterFactory;
 import cn.dreampie.captcha.font.RandomFontFactory;
-import cn.dreampie.captcha.text.renderer.BestFitTextRenderer;
+import cn.dreampie.captcha.text.render.BestFitTextRender;
 import cn.dreampie.captcha.word.AdaptiveRandomWordFactory;
 
 import java.awt.*;
@@ -33,7 +33,7 @@ public class SimpleCaptchaService extends AbstractCaptchaService {
     backgroundFactory = new SingleColorBackgroundFactory(backgroundColor);
     wordFactory = new AdaptiveRandomWordFactory();
     fontFactory = new RandomFontFactory();
-    textRenderer = new BestFitTextRenderer();
+    textRenderer = new BestFitTextRender();
     colorFactory = new SingleColorFactory(textColor);
     filterFactory = ff;
     this.width = width;
@@ -44,14 +44,14 @@ public class SimpleCaptchaService extends AbstractCaptchaService {
     backgroundFactory = new SingleColorBackgroundFactory(backgroundColor);
     wordFactory = new AdaptiveRandomWordFactory();
     fontFactory = new RandomFontFactory(fontNames);
-    textRenderer = new BestFitTextRenderer();
+    textRenderer = new BestFitTextRender();
     colorFactory = new SingleColorFactory(textColor);
     filterFactory = ff;
     this.width = width;
     this.height = height;
   }
 
-  @Override
+
   public Captcha getCaptcha() {
     return null;
   }

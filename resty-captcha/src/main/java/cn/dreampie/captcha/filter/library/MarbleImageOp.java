@@ -60,7 +60,7 @@ public class MarbleImageOp extends AbstractTransformImageOp {
     this.turbulence = turbulence;
   }
 
-  @Override
+
   protected synchronized void init() {
     tx = new double[256];
     ty = new double[256];
@@ -71,7 +71,7 @@ public class MarbleImageOp extends AbstractTransformImageOp {
     }
   }
 
-  @Override
+
   protected void transform(int x, int y, double[] t) {
     int d = limitByte((int) (127 * (1 + PerlinNoise.noise2D(((double) x) / scale + randomX, ((double) y) / scale + randomY))));
     t[0] = x + tx[d];

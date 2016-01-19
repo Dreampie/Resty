@@ -38,7 +38,7 @@ public class DiffuseImageOp extends AbstractTransformImageOp {
     this.amount = amount;
   }
 
-  @Override
+
   protected synchronized void init() {
     tx = new double[256];
     ty = new double[256];
@@ -49,7 +49,7 @@ public class DiffuseImageOp extends AbstractTransformImageOp {
     }
   }
 
-  @Override
+
   protected void transform(int x, int y, double[] t) {
     Random r = new Random();
     int angle = (int) (r.nextFloat() * 255);

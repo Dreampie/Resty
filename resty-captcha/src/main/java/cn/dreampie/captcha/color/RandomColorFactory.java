@@ -23,13 +23,17 @@ import java.util.Random;
 
 public class RandomColorFactory implements ColorFactory {
 
+  private Random r = new Random();
   private Color min;
   private Color max;
-  private Color color;
 
   public RandomColorFactory() {
-    min = new Color(20, 40, 80);
-    max = new Color(21, 50, 140);
+    this(new Color(20, 40, 80), new Color(25, 60, 170));
+  }
+
+  public RandomColorFactory(Color min, Color max) {
+    this.min = min;
+    this.max = max;
   }
 
   public void setMin(Color min) {
@@ -40,15 +44,10 @@ public class RandomColorFactory implements ColorFactory {
     this.max = max;
   }
 
-
   public Color getColor(int index) {
-    if (color == null) {
-      Random r = new Random();
-      color = new Color(min.getRed() + r.nextInt((max.getRed() - min.getRed())),
-          min.getGreen() + r.nextInt((max.getGreen() - min.getGreen())),
-          min.getBlue() + r.nextInt((max.getBlue() - min.getBlue())));
-    }
-    return color;
+    return new Color(min.getRed() + r.nextInt((max.getRed() - min.getRed())),
+        min.getGreen() + r.nextInt((max.getGreen() - min.getGreen())),
+        min.getBlue() + r.nextInt((max.getBlue() - min.getBlue())));
   }
 
 }

@@ -44,7 +44,7 @@ public class RippleFilterFactory extends AbstractFilterFactory {
 
   }
 
-  @Override
+
   public List<BufferedImageOp> getFilters() {
     if (filters == null) {
       filters = new ArrayList<BufferedImageOp>();

@@ -25,7 +25,6 @@ public class ConfigurableFilterFactory extends AbstractFilterFactory {
 
   private List<BufferedImageOp> filters;
 
-  @Override
   public List<BufferedImageOp> getFilters() {
     return filters;
   }

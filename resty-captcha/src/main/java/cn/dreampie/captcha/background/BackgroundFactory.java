@@ -19,9 +19,15 @@
 
 package cn.dreampie.captcha.background;
 
+import cn.dreampie.captcha.color.ColorFactory;
+
 import java.awt.image.BufferedImage;
 
 public interface BackgroundFactory {
+
+  void setColorFactory(ColorFactory colorFactory);
+
+  ColorFactory getColorFactory();
 
   void fillBackground(BufferedImage dest);
 }

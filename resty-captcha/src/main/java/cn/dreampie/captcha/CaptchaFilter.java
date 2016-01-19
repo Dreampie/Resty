@@ -20,6 +20,15 @@ public enum CaptchaFilter {
     this.value = value;
   }
 
+  public static CaptchaFilter valueOf(int value) {
+    for (CaptchaFilter filter : values()) {
+      if (filter.value() == value) {
+        return filter;
+      }
+    }
+    throw new IllegalArgumentException("Invalid filter value : " + value);
+  }
+
   public int value() {
     return this.value;
   }

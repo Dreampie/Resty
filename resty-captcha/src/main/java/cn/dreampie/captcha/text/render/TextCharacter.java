@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with Patchca. If not, see <http://www.gnu.org/licenses/>.
  */
-package cn.dreampie.captcha.text.renderer;
+package cn.dreampie.captcha.text.render;
 
 import java.awt.*;
 import java.awt.font.TextAttribute;

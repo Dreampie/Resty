@@ -1,19 +1,15 @@
 package cn.dreampie.captcha;
 
 import cn.dreampie.captcha.background.BackgroundFactory;
-import cn.dreampie.captcha.color.SingleColorFactory;
+import cn.dreampie.captcha.color.ColorFactory;
 import cn.dreampie.captcha.filter.FilterFactory;
 import cn.dreampie.captcha.filter.predefined.*;
 import cn.dreampie.captcha.font.FontFactory;
 import cn.dreampie.captcha.font.RandomFontFactory;
 import cn.dreampie.captcha.service.Captcha;
 import cn.dreampie.captcha.service.ConfigurableCaptchaService;
-import cn.dreampie.captcha.text.renderer.BestFitTextRenderer;
-import cn.dreampie.captcha.text.renderer.TextRenderer;
-import cn.dreampie.captcha.word.RandomWordFactory;
+import cn.dreampie.captcha.text.render.TextRenderer;
 import cn.dreampie.captcha.word.WordFactory;
-
-import java.awt.*;
 
 /**
  * Created by Dreampie on 16/1/6.
@@ -24,33 +20,6 @@ public class CaptchaFactory {
 
   public CaptchaFactory() {
     captchaService = new ConfigurableCaptchaService();
-
-    // 颜色创建工厂
-    captchaService.setColorFactory(new SingleColorFactory(new Color(0, 0, 0)));
-
-    // 图片滤镜设置
-    captchaService.setFilterFactory(getFilterFactory(CaptchaFilter.Curves));
-
-    // 随机字体生成器
-    RandomFontFactory fontFactory = new RandomFontFactory();
-    fontFactory.setMaxSize(45);
-    fontFactory.setMinSize(45);
-    captchaService.setFontFactory(fontFactory);
-
-    // 随机字符生成器,去除掉容易混淆的字母和数字,如o和0等
-    RandomWordFactory wordFactory = new RandomWordFactory();
-    wordFactory.setCharacters("ABCDEFGHIJKLMNPQRSTUVWXYZ123456789");
-    wordFactory.setMaxLength(4);
-    wordFactory.setMinLength(4);
-    captchaService.setWordFactory(wordFactory);
-
-    // 文字渲染器设置
-    BestFitTextRenderer textRenderer = new BestFitTextRenderer();
-    textRenderer.setBottomMargin(1);
-    textRenderer.setTopMargin(1);
-    captchaService.setTextRenderer(textRenderer);
-
-    captchaService.setBackgroundFactory(new RandomColorBackgroundFactory());
   }
 
   public Captcha getCaptcha() {
@@ -67,7 +36,7 @@ public class CaptchaFactory {
     FilterFactory filterFactory = null;
     switch (captchaFilter) {
       case Curves:
-        filterFactory = new CurvesRippleFilterFactory(captchaService.getColorFactory());
+        filterFactory = new CurvesRippleFilterFactory();
         break;
       case Marble:
         filterFactory = new MarbleRippleFilterFactory();
@@ -89,18 +58,19 @@ public class CaptchaFactory {
     return captchaService.getFilterFactory();
   }
 
+  public CaptchaFactory setFilterFactory(FilterFactory filterFactory) {
+    captchaService.setFilterFactory(filterFactory);
+    return this;
+  }
+
   /**
    * 滤镜效果
+   *
    * @param captchaFilter
    * @return
    */
   public CaptchaFactory setFilterFactory(CaptchaFilter captchaFilter) {
     captchaService.setFilterFactory(getFilterFactory(captchaFilter));
-    return this;
-  }
-
-  public CaptchaFactory setFilterFactory(FilterFactory filterFactory) {
-    captchaService.setFilterFactory(filterFactory);
     return this;
   }
 
@@ -114,16 +84,19 @@ public class CaptchaFactory {
   }
 
   public CaptchaFactory setBackgroundFactory(BackgroundFactory backgroundFactory) {
+    if (backgroundFactory.getColorFactory() == null) {
+      backgroundFactory.setColorFactory(captchaService.getColorFactory());
+    }
     captchaService.setBackgroundFactory(backgroundFactory);
     return this;
   }
 
-  public Color getDrawColor() {
-    return captchaService.getColorFactory().getColor(0);
+  public ColorFactory getColorFactory() {
+    return captchaService.getColorFactory();
   }
 
-  public CaptchaFactory setDrawColor(final Color drawColor) {
-    captchaService.setColorFactory(new SingleColorFactory(drawColor));
+  public CaptchaFactory setColorFactory(ColorFactory colorFactory) {
+    captchaService.setColorFactory(colorFactory);
     return this;
   }
 
@@ -150,7 +123,7 @@ public class CaptchaFactory {
     return captchaService.getWordFactory();
   }
 
-  public CaptchaFactory setWordFactory(RandomWordFactory wordFactory) {
+  public CaptchaFactory setWordFactory(WordFactory wordFactory) {
     captchaService.setWordFactory(wordFactory);
     return this;
   }

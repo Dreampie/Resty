@@ -16,18 +16,36 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with Patchca. If not, see <http://www.gnu.org/licenses/>.
  */
-package cn.dreampie.captcha.text.renderer;
+package cn.dreampie.captcha.text.render;
 
-public class SimpleTextRenderer extends AbstractTextRenderer {
+import java.util.Random;
 
-  @Override
+public class RandomYBestFitTextRender extends AbstractTextRender {
+
+  public RandomYBestFitTextRender() {
+    super();
+  }
+
+  public RandomYBestFitTextRender(int leftRightMargin, int topBottomMargin) {
+    super(leftRightMargin, topBottomMargin);
+  }
+
+  public RandomYBestFitTextRender(int leftMargin, int rightMargin, int topMargin, int bottomMargin) {
+    super(leftMargin, rightMargin, topMargin, bottomMargin);
+  }
+
   protected void arrangeCharacters(int width, int height, TextString ts) {
-    double x = leftMargin;
+    double widthRemaining = (width - ts.getWidth() - leftMargin - rightMargin) / ts.getCharacters().size();
+    double vmiddle = height / 2;
+    double x = leftMargin + widthRemaining / 2;
+    Random r = new Random();
+    height -= topMargin + bottomMargin;
     for (TextCharacter tc : ts.getCharacters()) {
-      double y = topMargin + (height + tc.getAscent() * 0.7) / 2;
+      double heightRemaining = height - tc.getHeight();
+      double y = vmiddle + 0.35 * tc.getAscent() + (1 - 2 * r.nextDouble()) * heightRemaining;
       tc.setX(x);
       tc.setY(y);
-      x += tc.getWidth();
+      x += tc.getWidth() + widthRemaining;
     }
   }
 

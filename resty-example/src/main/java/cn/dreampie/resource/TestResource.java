@@ -12,8 +12,8 @@ import cn.dreampie.orm.Record;
 import cn.dreampie.orm.TableSetting;
 import cn.dreampie.orm.transaction.Transaction;
 import cn.dreampie.resource.user.model.User;
-import cn.dreampie.route.core.Headers;
 import cn.dreampie.route.annotation.*;
+import cn.dreampie.route.core.Headers;
 import cn.dreampie.route.core.multipart.FILE;
 import cn.dreampie.service.HelloService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,9 +113,14 @@ public class TestResource extends ApiResource {
 
   @GET(value = "/captcha", cached = false)
   public BufferedImage captcha() {
+//    captchaFactory.setWordFactory(new RandomWordFactory("ABCDEFGHIJKLMNPQRSTUVWXYZ123456789",4));
+//    captchaFactory.setColorFactory(new SingleColorFactory(new Color(25, 60, 170)));
+//    captchaFactory.setBackgroundFactory(new RandomColorBackgroundFactory(new Color(25, 60, 170)));
+
     Captcha captcha = captchaFactory.getCaptcha();
     //把值存好
-    System.out.println(captcha.getChallenge());
+    System.out.println(captcha.getWord());
+
     return captcha.getImage();
   }
 }

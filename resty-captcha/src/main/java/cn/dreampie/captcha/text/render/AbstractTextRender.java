@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with Patchca. If not, see <http://www.gnu.org/licenses/>.
  */
-package cn.dreampie.captcha.text.renderer;
+package cn.dreampie.captcha.text.render;
 
 import cn.dreampie.captcha.color.ColorFactory;
 import cn.dreampie.captcha.font.FontFactory;
@@ -26,16 +26,26 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
-public abstract class AbstractTextRenderer implements TextRenderer {
+public abstract class AbstractTextRender implements TextRenderer {
 
   protected int leftMargin;
   protected int rightMargin;
   protected int topMargin;
   protected int bottomMargin;
 
-  public AbstractTextRenderer() {
-    leftMargin = rightMargin = 5;
-    topMargin = bottomMargin = 5;
+  public AbstractTextRender() {
+    this(10, 5);
+  }
+
+  public AbstractTextRender(int leftRightMargin, int topBottomMargin) {
+    this(leftRightMargin, leftRightMargin, topBottomMargin, topBottomMargin);
+  }
+
+  public AbstractTextRender(int leftMargin, int rightMargin, int topMargin, int bottomMargin) {
+    this.leftMargin = leftMargin;
+    this.rightMargin = rightMargin;
+    this.topMargin = topMargin;
+    this.bottomMargin = bottomMargin;
   }
 
   protected abstract void arrangeCharacters(int width, int height, TextString ts);

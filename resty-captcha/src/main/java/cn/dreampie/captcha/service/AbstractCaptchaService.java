@@ -22,10 +22,12 @@ import cn.dreampie.captcha.background.BackgroundFactory;
 import cn.dreampie.captcha.color.ColorFactory;
 import cn.dreampie.captcha.filter.FilterFactory;
 import cn.dreampie.captcha.font.FontFactory;
-import cn.dreampie.captcha.text.renderer.TextRenderer;
+import cn.dreampie.captcha.text.render.TextRenderer;
 import cn.dreampie.captcha.word.WordFactory;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 public abstract class AbstractCaptchaService implements CaptchaService {
 
@@ -106,9 +108,30 @@ public abstract class AbstractCaptchaService implements CaptchaService {
   public Captcha getCaptcha() {
     BufferedImage bufImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
     backgroundFactory.fillBackground(bufImage);
+    try {
+      File f = new File("/tmp/test1.png");
+      ImageIO.write(bufImage, "png", f);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
     String word = wordFactory.getNextWord();
     textRenderer.draw(word, bufImage, fontFactory, colorFactory);
+    try {
+      File f = new File("/tmp/test2.png");
+      ImageIO.write(bufImage, "png", f);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
     bufImage = filterFactory.applyFilters(bufImage);
+    try {
+      File f = new File("/tmp/test3.png");
+      ImageIO.write(bufImage, "png", f);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
     return new Captcha(word, bufImage);
   }
 

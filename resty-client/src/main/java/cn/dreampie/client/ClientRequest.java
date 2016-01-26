@@ -28,7 +28,7 @@ public class ClientRequest {
   private boolean overwrite = false;
   private String downloadFile;
   private Map<String, ClientFile> uploadFiles = Maper.of();
-  private String contentType = ContentType.FORM + ";charset=" + encoding;
+  private String contentType = ContentType.FORM.value() + ";charset=" + encoding;
   private String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36";
 
 
@@ -127,7 +127,7 @@ public class ClientRequest {
   }
 
   public ClientRequest setJsonParam(String jsonParam) {
-    setContentType(ContentType.JSON + ";charset=" + encoding);
+    setContentType(ContentType.JSON.value() + ";charset=" + encoding);
     this.jsonParam = checkNotNull(jsonParam, "Json param could not be null.");
     return this;
   }
@@ -184,19 +184,19 @@ public class ClientRequest {
 
   public ClientRequest setUploadFiles(Map<String, ClientFile> uploadFiles) {
     this.uploadFiles = uploadFiles;
-    setContentType(ContentType.MULTIPART + ";charset=" + encoding);
+    setContentType(ContentType.MULTIPART.value() + ";charset=" + encoding);
     return this;
   }
 
   public ClientRequest addUploadFile(String name, String filepath) throws FileNotFoundException {
     this.uploadFiles.put(name, new ClientFile(filepath));
-    setContentType(ContentType.MULTIPART + ";charset=" + encoding);
+    setContentType(ContentType.MULTIPART.value() + ";charset=" + encoding);
     return this;
   }
 
   public ClientRequest addUploadFile(String name, File file) throws FileNotFoundException {
     this.uploadFiles.put(name, new ClientFile(file));
-    setContentType(ContentType.MULTIPART + ";charset=" + encoding);
+    setContentType(ContentType.MULTIPART.value() + ";charset=" + encoding);
     return this;
   }
 
@@ -209,7 +209,7 @@ public class ClientRequest {
    */
   public ClientRequest addUploadFile(String name, String filename, String contentType, InputStream fileStream) {
     this.uploadFiles.put(name, new ClientFile(filename, contentType, fileStream));
-    setContentType(ContentType.MULTIPART + ";charset=" + encoding);
+    setContentType(ContentType.MULTIPART.value() + ";charset=" + encoding);
     return this;
   }
 

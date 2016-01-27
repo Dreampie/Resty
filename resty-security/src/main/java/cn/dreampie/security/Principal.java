@@ -2,8 +2,6 @@ package cn.dreampie.security;
 
 
 import cn.dreampie.common.entity.Entity;
-import cn.dreampie.common.http.exception.WebException;
-import cn.dreampie.common.http.result.HttpStatus;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -53,10 +51,6 @@ public class Principal<M extends Entity> implements Serializable {
   }
 
   public M getModel() {
-    if (model == null) {
-      throw new WebException(HttpStatus.UNAUTHORIZED, "Could not found any user for this session.");
-    } else {
-      return model;
-    }
+    return model;
   }
 }

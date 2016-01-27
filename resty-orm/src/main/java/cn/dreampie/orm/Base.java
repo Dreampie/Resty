@@ -829,7 +829,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     PreparedStatement pst = null;
     try {
       conn = getWriteConnection(dsm);
-      pst = getPreparedStatement(showSql, false, conn, tableMeta, sql, params);
+      pst = getPreparedStatement(showSql, true, conn, tableMeta, sql, params);
       result = pst.executeUpdate();
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);

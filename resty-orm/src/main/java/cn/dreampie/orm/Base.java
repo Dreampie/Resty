@@ -1,6 +1,5 @@
 package cn.dreampie.orm;
 
-import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.Joiner;
@@ -274,14 +273,14 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return
    * @throws SQLException
    */
-  private PreparedStatement getPreparedStatement(boolean showSql, Connection conn, TableMeta tableMeta, String sql, Object[] params) throws SQLException {
+  private PreparedStatement getPreparedStatement(boolean showSql, boolean needGeneratedKey, Connection conn, TableMeta tableMeta, String sql, Object[] params) throws SQLException {
     //打印sql语句
     logSql(showSql, sql, params);
     PreparedStatement pst;
     //如果没有自动生成的主键 则不获取
     String generatedKey = tableMeta.getGeneratedKey();
     boolean generated = tableMeta.getGenerator() == null && !generatedKey.isEmpty();
-    if (generated) {
+    if (generated && needGeneratedKey) {
       pst = conn.prepareStatement(sql, new String[]{generatedKey});
     } else {
       pst = conn.prepareStatement(sql);
@@ -302,7 +301,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return
    * @throws SQLException
    */
-  private PreparedStatement getPreparedStatement(boolean showSql, Connection conn, TableMeta tableMeta, String sql, Object[][] params) throws SQLException {
+  private PreparedStatement getPreparedStatement(boolean showSql, boolean needGeneratedKey, Connection conn, TableMeta tableMeta, String sql, Object[][] params) throws SQLException {
     //打印sql语句
     logSql(showSql, sql, params);
 
@@ -310,7 +309,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     //如果没有自动生成的主键 则不获取
     String generatedKey = tableMeta.getGeneratedKey();
     boolean generated = tableMeta.getGenerator() == null && !generatedKey.isEmpty();
-    if (generated) {
+    if (generated && needGeneratedKey) {
       String[] returnKeys = new String[params.length];
       for (int i = 0; i < params.length; i++) {
         returnKeys[i] = generatedKey;
@@ -501,7 +500,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     ResultSet rs = null;
     try {
       conn = getReadConnection(dsm);
-      pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
+      pst = getPreparedStatement(showSql, false, conn, tableMeta, sql, params);
       rs = pst.executeQuery();
       result = BaseBuilder.build(rs, getMClass(), dsm, tableMeta);
     } catch (SQLException e) {
@@ -660,7 +659,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
   public boolean save() {
     TableMeta tableMeta = getTableMeta();
     //清除缓存
-      purgeCache();
+    purgeCache();
 
     String generatedKey = tableMeta.getGeneratedKey();
     Generator generator = tableMeta.getGenerator();
@@ -698,7 +697,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       int result = 0;
       try {
         conn = getWriteConnection(dsm);
-        pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
+        pst = getPreparedStatement(showSql, true, conn, tableMeta, sql, params);
 
         result = pst.executeUpdate();
         setGeneratedKey(pst, tableMeta);
@@ -734,7 +733,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     }
     TableMeta tableMeta = firstModel.getTableMeta();
     //清除models缓存
-      firstModel.purgeCache();
+    firstModel.purgeCache();
 
     String generatedKey = tableMeta.getGeneratedKey();
     //是否需要主键生成器生成值
@@ -785,7 +784,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
         if (autoCommit) {
           conn.setAutoCommit(false);
         }
-        pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
+        pst = getPreparedStatement(showSql, true, conn, tableMeta, sql, params);
         result = pst.executeBatch();
         setGeneratedKey(pst, tableMeta, models);
         //没有事务的情况下 手动提交
@@ -823,14 +822,14 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     DataSourceMeta dsm = getDataSourceMeta();
     boolean showSql = dsm.isWriteShowSql();
     //清除缓存
-      purgeCache();
+    purgeCache();
 
     int result = -1;
     Connection conn = null;
     PreparedStatement pst = null;
     try {
       conn = getWriteConnection(dsm);
-      pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
+      pst = getPreparedStatement(showSql, false, conn, tableMeta, sql, params);
       result = pst.executeUpdate();
     } catch (SQLException e) {
       throw new DBException(e.getMessage(), e);
@@ -1298,7 +1297,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
     try {
       conn = getWriteConnection(dsm);
-      pst = getPreparedStatement(showSql, conn, tableMeta, sql, params);
+      pst = getPreparedStatement(showSql, false, conn, tableMeta, sql, params);
       rs = pst.executeQuery();
       result = readQueryResult(rs);
     } catch (SQLException e) {

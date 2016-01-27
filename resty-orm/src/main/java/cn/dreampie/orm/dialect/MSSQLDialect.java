@@ -12,7 +12,7 @@ public class MSSQLDialect extends DefaultDialect {
   }
 
   public String validQuery() {
-    return "select 1";
+    return "SELECT 1";
   }
 
   public String driverClass() {

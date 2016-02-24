@@ -207,7 +207,8 @@ public abstract class Entity<M extends Entity> {
    * @param attr the attr name of the entity
    */
   public M remove(String attr) {
-    attrs.remove(attr);
+    this.attrs.remove(attr);
+    this.modifyAttrs.remove(attr);
     return (M) this;
   }
 
@@ -218,8 +219,9 @@ public abstract class Entity<M extends Entity> {
    */
   public M remove(String... attrs) {
     if (attrs != null)
-      for (String c : attrs)
-        this.attrs.remove(c);
+      for (String attr : attrs) {
+        remove(attr);
+      }
     return (M) this;
   }
 
@@ -244,15 +246,22 @@ public abstract class Entity<M extends Entity> {
   public M keep(String... attrs) {
     if (attrs != null && attrs.length > 0) {
       Map<String, Object> newAttrs = new HashMap<String, Object>(attrs.length);
+      Map<String, Object> newModifyAttrs = new HashMap<String, Object>();
       for (String c : attrs) {
         if (this.attrs.containsKey(c)) { // prevent put null value to the newAttrs
           newAttrs.put(c, this.attrs.get(c));
+          if (this.modifyAttrs.containsKey(c)) {
+            newModifyAttrs.put(c, this.attrs.get(c));
+          }
         }
       }
       this.attrs.clear();
       this.attrs.putAll(newAttrs);
+      this.modifyAttrs.clear();
+      this.modifyAttrs.putAll(newModifyAttrs);
     } else {
       this.attrs.clear();
+      this.modifyAttrs.clear();
     }
     return (M) this;
   }
@@ -263,12 +272,19 @@ public abstract class Entity<M extends Entity> {
    * @param attr the attr name of the entity
    */
   public M keep(String attr) {
-    if (attrs.containsKey(attr)) {  // prevent put null value to the newAttrs
-      Object keepIt = attrs.get(attr);
-      attrs.clear();
-      attrs.put(attr, keepIt);
-    } else
-      attrs.clear();
+    if (this.attrs.containsKey(attr)) {  // prevent put null value to the newAttrs
+
+      Object keepIt = this.attrs.get(attr);
+      this.attrs.clear();
+      this.attrs.put(attr, keepIt);
+      if (this.modifyAttrs.containsKey(attr)) {
+        this.modifyAttrs.clear();
+        this.modifyAttrs.put(attr, keepIt);
+      }
+    } else {
+      this.attrs.clear();
+      this.modifyAttrs.clear();
+    }
     return (M) this;
   }
 

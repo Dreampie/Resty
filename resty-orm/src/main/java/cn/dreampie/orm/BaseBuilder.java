@@ -1,5 +1,7 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.entity.Conversion;
+
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -21,7 +23,9 @@ public class BaseBuilder {
     buildLabelNamesAndTypes(rsmd, labelNames, types);
 
     Base entity;
+    String name;
     Object value;
+    Conversion conversion;
 
     while (rs.next()) {
       if (Record.class.isAssignableFrom(modelClass)) {
@@ -31,7 +35,12 @@ public class BaseBuilder {
       }
       for (int i = 1; i <= columnCount; i++) {
         value = rs.getObject(i);
-        entity.init(labelNames[i], value);
+        name = labelNames[i];
+        conversion = entity.getConversion(name);
+        if (conversion != null) {
+          value = conversion.read(value);
+        }
+        entity.init(name, value);
       }
       result.add((T) entity);
     }

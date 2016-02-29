@@ -21,6 +21,14 @@ public abstract class Entity<M extends Entity> {
   private Map<String, Object> modifyAttrs = new CaseInsensitiveMap<Object>();
 
   /**
+   * get Conversion to convert attr
+   *
+   * @param attr
+   * @return
+   */
+  public abstract Conversion getConversion(String attr);
+
+  /**
    * Return attribute Map.
    * Danger! The update method will ignore the attribute if you change it directly.
    * You must use set method to change attribute that update method can handle it.
@@ -354,6 +362,15 @@ public abstract class Entity<M extends Entity> {
     if (generatedKey != null && !generatedKey.isEmpty()) {
       attrValueMap.remove(generatedKey);
     }
+
+    Conversion conversion;
+    for (Map.Entry<String, Object> attrValueEntry : attrValueMap.entrySet()) {
+      conversion = getConversion(attrValueEntry.getKey());
+      if (conversion != null) {
+        attrValueEntry.setValue(conversion.write(attrValueEntry.getValue()));
+      }
+    }
+
     Collection<Object> attrValueCollection = attrValueMap.values();
     return attrValueCollection.toArray(new Object[attrValueCollection.size()]);
   }

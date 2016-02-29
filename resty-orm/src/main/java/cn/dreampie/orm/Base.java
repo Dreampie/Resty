@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.entity.Conversion;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.entity.exception.EntityException;
 import cn.dreampie.common.util.Joiner;
@@ -50,6 +51,10 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
     } else {
       return (Class<? extends M>) clazz;
     }
+  }
+
+  public Conversion getConversion(String attr) {
+    return null;
   }
 
   /**
@@ -764,13 +769,25 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
       //参数
       Object[][] params = new Object[models.size()][columns.length];
 
+      String name;
+      Object value;
+      Conversion conversion;
+
       for (int i = 0; i < params.length; i++) {
         for (int j = 0; j < params[i].length; j++) {
           //如果是自动生成主键 使用生成器生成
           if (!generated && columns[j].equals(generatedKey) && models.get(i).get(generatedKey) == null) {
             models.get(i).set(columns[j], generator.generateKey());
           }
-          params[i][j] = models.get(i).get(columns[j]);
+          
+          name = columns[j];
+          value = models.get(i).get(name);
+          conversion = models.get(i).getConversion(name);
+          if (conversion != null) {
+            value = conversion.write(value);
+          }
+
+          params[i][j] = value;
         }
       }
 

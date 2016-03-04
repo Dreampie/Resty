@@ -755,9 +755,9 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
 
     String[] columns;
     if (generated) {
-      columns = getModifyAttrNames(generatedKey);
+      columns = firstModel.getModifyAttrNames(generatedKey);
     } else {
-      columns = getModifyAttrNames();
+      columns = firstModel.getModifyAttrNames();
     }
 
     //判断是否有更新

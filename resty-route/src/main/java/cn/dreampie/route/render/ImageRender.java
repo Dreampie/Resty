@@ -19,11 +19,9 @@ public class ImageRender extends Render {
 
   public void render(HttpRequest request, HttpResponse response, Object out) {
     if (out != null) {
-      ImageResult result = null;
+      ImageResult<RenderedImage> result = null;
       if (out instanceof RenderedImage) {
-        result = new ImageResult((RenderedImage) out);
-      } else if (out instanceof ImageResult) {
-        result = (ImageResult) out;
+        result = new ImageResult<RenderedImage>((RenderedImage) out);
       }
 
       if (result == null) {

@@ -33,6 +33,10 @@ public enum ContentType {
     throw new IllegalArgumentException("Invalid Content-Type: " + type);
   }
 
+  public String type() {
+    return type;
+  }
+
   public String value() {
     return value;
   }

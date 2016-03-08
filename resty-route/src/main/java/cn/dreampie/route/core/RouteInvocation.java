@@ -4,7 +4,6 @@ import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.WebException;
 import cn.dreampie.common.http.result.HttpStatus;
-import cn.dreampie.common.http.result.ImageResult;
 import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.spring.SpringBuilder;
 import cn.dreampie.common.spring.SpringHolder;
@@ -119,6 +118,12 @@ public class RouteInvocation {
     if (invokeResult instanceof WebResult) {
       WebResult webResult = (WebResult) invokeResult;
       response.setStatus(webResult.getStatus());
+      Map<String, String> headers = webResult.getHeaders();
+      if (headers != null && headers.size() > 0) {
+        for (Map.Entry<String, String> headersEntry : headers.entrySet()) {
+          response.setHeader(headersEntry.getKey(), headersEntry.getValue());
+        }
+      }
       result = webResult.getResult();
     } else {
       result = invokeResult;
@@ -127,19 +132,16 @@ public class RouteInvocation {
     //file render
     if ((result instanceof File && extension.equals("")) || extension.equals(RenderFactory.FILE)) {
       RenderFactory.getFileRender().render(request, response, result);
-    } else
-      //image render
-      if (((result instanceof ImageResult || result instanceof RenderedImage) && extension.equals(""))
-          || extension.equals(RenderFactory.IMAGE)) {
-        //如果是string  表示为文件类型
-        if (result instanceof String) {
-          RenderFactory.getFileRender().render(request, response, result);
-        } else {
-          RenderFactory.getImageRender().render(request, response, result);
-        }
+    } else if ((result instanceof RenderedImage && extension.equals("")) || extension.equals(RenderFactory.IMAGE)) {
+      //如果是string  表示为文件类型
+      if (result instanceof String) {
+        RenderFactory.getFileRender().render(request, response, result);
       } else {
-        RenderFactory.get(extension).render(request, response, result);
+        RenderFactory.getImageRender().render(request, response, result);
       }
+    } else {
+      RenderFactory.get(extension).render(request, response, result);
+    }
   }
 
   /**

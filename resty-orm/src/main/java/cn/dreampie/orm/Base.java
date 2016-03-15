@@ -1080,7 +1080,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return list
    */
   public List<M> findTopBy(int topNumber, String where, Object... params) {
-    return fullPaginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where), params).getList();
+    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where), params).getList();
   }
 
   /**
@@ -1093,7 +1093,7 @@ public abstract class Base<M extends Base> extends Entity<M> implements External
    * @return list
    */
   public List<M> findColsTopBy(int topNumber, String columns, String where, Object... params) {
-    return fullPaginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params).getList();
+    return paginate(1, topNumber, getDialect().select(getTableMeta().getTableName(), getAlias(), where, columns.split(",")), params).getList();
   }
 
   /**

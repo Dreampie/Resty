@@ -250,7 +250,7 @@ public class Route {
     try {
       if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON.value())) {
         //从 queryString 取json
-        if (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) {
+        if (httpMethod.equals(HttpMethod.GET)) {
           jsonParams = request.getQueryString();
         } else {
           formParams = request.getQueryParams();
@@ -495,10 +495,12 @@ public class Route {
    * @return
    */
   private String getJson(HttpRequest request) {
-    String json;
+    String json = null;
     try {
       InputStream is = request.getContentStream();
-      json = StreamReader.readString(is);
+      if (is != null) {
+        json = StreamReader.readString(is);
+      }
     } catch (IOException e) {
       String msg = "Could not read inputStream when contentType is '" + request.getContentType() + "'.";
       logger.error(msg, e);

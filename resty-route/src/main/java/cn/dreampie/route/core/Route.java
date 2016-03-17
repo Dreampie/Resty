@@ -250,12 +250,12 @@ public class Route {
     try {
       if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON.value())) {
         //从 queryString 取json
-        String queryString = request.getQueryString();
-        if (Jsoner.isJson(queryString)) {
+        jsonParams = getJson(request);
+
+        if (jsonParams == null) {
           jsonParams = request.getQueryString();
         } else {
           formParams = request.getQueryParams();
-          jsonParams = getJson(request);
         }
 
         printMatchRoute(request.getContentType(), jsonParams, pathParams, formParams, null);

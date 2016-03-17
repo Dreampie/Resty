@@ -17,7 +17,7 @@ public class JsonRender extends Render {
     if (out != null) {
       response.setContentType(ContentType.JSON.value());
       if (out instanceof String) {
-        if (((String) out).startsWith("\"") || Jsoner.isJson((String) out)) {
+        if (Jsoner.isJson((String) out)) {
           write(request, response, (String) out);
         } else {
           write(request, response, "\"" + out + "\"");

@@ -19,6 +19,7 @@ import cn.dreampie.route.exception.InitException;
 import cn.dreampie.route.interceptor.Interceptor;
 import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.Validator;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
@@ -250,11 +251,13 @@ public class Route {
     try {
       if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON.value())) {
         //从 queryString 取json
-        jsonParams = getJson(request);
+        String queryString = request.getQueryString();
 
-        if (jsonParams == null) {
-          jsonParams = request.getQueryString();
+        if (queryString != null && (httpMethod.equals(HttpMethod.GET) || httpMethod.equals(HttpMethod.DELETE)) && Jsoner.isJson(queryString)) {
+          jsonParams = queryString;
+
         } else {
+          jsonParams = getJson(request);
           formParams = request.getQueryParams();
         }
 

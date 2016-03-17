@@ -195,6 +195,17 @@ public class Jsoner {
   }
 
   public static boolean isJson(String source) {
-    return source.startsWith("\"") || source.startsWith("{") || source.startsWith("[");
+    boolean result = false;
+    if (source != null) {
+      result = source.startsWith("\"") || source.startsWith("{") || source.startsWith("[");
+      if (!result) {
+        try {
+          result = JSON.parse(source) != null;
+        } catch (JSONException e) {
+          result = false;
+        }
+      }
+    }
+    return result;
   }
 }

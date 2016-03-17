@@ -250,7 +250,8 @@ public class Route {
     try {
       if (contentType != null && contentType.toLowerCase().contains(ContentType.JSON.value())) {
         //从 queryString 取json
-        if (httpMethod.equals(HttpMethod.GET)) {
+        String queryString = request.getQueryString();
+        if (Jsoner.isJson(queryString)) {
           jsonParams = request.getQueryString();
         } else {
           formParams = request.getQueryParams();

@@ -167,7 +167,7 @@ public class RedisProvider extends CacheProvider {
           }
         }
         //添加group key
-        addGroupKeys(shardedJedis, group, key);
+        addGroupKey(shardedJedis, group, key);
       } else {
         jedis = getJedis();
         if (jedis != null) {
@@ -181,7 +181,7 @@ public class RedisProvider extends CacheProvider {
           }
         }
         //添加到group key
-        addGroupKeys(jedis, group, key);
+        addGroupKey(jedis, group, key);
       }
     } catch (Exception e) {
       logger.warn("%s", e, e);
@@ -198,10 +198,14 @@ public class RedisProvider extends CacheProvider {
       shardedJedis = getShardedJedis();
       if (shardedJedis != null) {
         shardedJedis.del(jkey.getBytes());
+        //删除 group key
+        delGroupKey(shardedJedis, group, key);
       } else {
         jedis = getJedis();
         if (jedis != null) {
           jedis.del(jkey.getBytes());
+          //删除 group key
+          delGroupKey(jedis, group, key);
         }
       }
     } catch (Exception e) {
@@ -269,7 +273,7 @@ public class RedisProvider extends CacheProvider {
     return null;
   }
 
-  private void addGroupKeys(Object jedis, String group, String key) {
+  private void addGroupKey(Object jedis, String group, String key) {
     String groupKeys = group + Constant.CONNECTOR + "keys";
     byte[] gkey = groupKeys.getBytes();
 
@@ -286,5 +290,21 @@ public class RedisProvider extends CacheProvider {
     } else if (jedis instanceof Jedis) {
       ((Jedis) jedis).set(gkey, Serializer.serialize(groupKeyList));
     }
+  }
+
+  private void delGroupKey(Object jedis, String group, String key) {
+    String groupKeys = group + Constant.CONNECTOR + "keys";
+    byte[] gkey = groupKeys.getBytes();
+
+    List<String> groupKeyList = getGroupKeys(jedis, groupKeys);
+    if (groupKeyList != null && groupKeyList.contains(key)) {
+      groupKeyList.remove(key);
+      if (jedis instanceof ShardedJedis) {
+        ((ShardedJedis) jedis).set(gkey, Serializer.serialize(groupKeyList));
+      } else if (jedis instanceof Jedis) {
+        ((Jedis) jedis).set(gkey, Serializer.serialize(groupKeyList));
+      }
+    }
+
   }
 }

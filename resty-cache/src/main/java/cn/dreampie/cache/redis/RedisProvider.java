@@ -14,7 +14,6 @@ import redis.clients.util.Pool;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Dreampie on 15/4/24.
@@ -167,6 +166,8 @@ public class RedisProvider extends CacheProvider {
             shardedJedis.expire(jkey, RedisProvider.expired);
           }
         }
+        //添加group key
+        addGroupKeys(shardedJedis, group, key);
       } else {
         jedis = getJedis();
         if (jedis != null) {
@@ -179,6 +180,8 @@ public class RedisProvider extends CacheProvider {
             }
           }
         }
+        //添加到group key
+        addGroupKeys(jedis, group, key);
       }
     } catch (Exception e) {
       logger.warn("%s", e, e);
@@ -220,9 +223,15 @@ public class RedisProvider extends CacheProvider {
             j.flushDB();
           }
         } else if (event.getType().equals(CacheEvent.CacheEventType.GROUP)) {
+          //从分组里取出所有的key
+          String groupKeys = event.getGroup() + Constant.CONNECTOR + "keys";
           Collection<Jedis> shards = shardedJedis.getAllShards();
-          for (Jedis j : shards) {
-            delGroup(j, event);
+          List<String> groupKeyList = getGroupKeys(shardedJedis, groupKeys);
+
+          if (groupKeyList != null && groupKeyList.size() > 0) {
+            for (Jedis j : shards) {
+              j.del(groupKeyList.toArray(new String[groupKeyList.size()]));
+            }
           }
         }
       } else {
@@ -231,7 +240,13 @@ public class RedisProvider extends CacheProvider {
           if (event.getType().equals(CacheEvent.CacheEventType.ALL)) {
             jedis.flushDB();
           } else if (event.getType().equals(CacheEvent.CacheEventType.GROUP)) {
-            delGroup(jedis, event);
+            //从分组里取出所有的key
+            String groupKeys = event.getGroup() + Constant.CONNECTOR + "keys";
+            List<String> groupKeyList = getGroupKeys(jedis, groupKeys);
+
+            if (groupKeyList != null && groupKeyList.size() > 0) {
+              jedis.del(groupKeyList.toArray(new String[groupKeyList.size()]));
+            }
           }
         }
       }
@@ -242,12 +257,34 @@ public class RedisProvider extends CacheProvider {
     }
   }
 
-  private void delGroup(Jedis jedis, CacheEvent event) {
-    Set<String> keySet = jedis.keys(event.getGroup() + Constant.CONNECTOR + '*');
-    if (keySet != null && keySet.size() > 0) {
-      String[] keys = new String[keySet.size()];
-      jedis.del(keySet.toArray(keys));
+
+  private List<String> getGroupKeys(Object jedis, String groupKeys) {
+    byte[] gkey = groupKeys.getBytes();
+
+    if (jedis instanceof ShardedJedis) {
+      return (List<String>) Serializer.unserialize(((ShardedJedis) jedis).get(gkey));
+    } else if (jedis instanceof Jedis) {
+      return (List<String>) Serializer.unserialize(((Jedis) jedis).get(gkey));
     }
+    return null;
   }
 
+  private void addGroupKeys(Object jedis, String group, String key) {
+    String groupKeys = group + Constant.CONNECTOR + "keys";
+    byte[] gkey = groupKeys.getBytes();
+
+    List<String> groupKeyList = getGroupKeys(jedis, groupKeys);
+    if (groupKeyList == null) {
+      groupKeyList = new ArrayList<String>();
+    }
+    if (!groupKeyList.contains(key)) {
+      groupKeyList.add(key);
+    }
+
+    if (jedis instanceof ShardedJedis) {
+      ((ShardedJedis) jedis).set(gkey, Serializer.serialize(groupKeyList));
+    } else if (jedis instanceof Jedis) {
+      ((Jedis) jedis).set(gkey, Serializer.serialize(groupKeyList));
+    }
+  }
 }

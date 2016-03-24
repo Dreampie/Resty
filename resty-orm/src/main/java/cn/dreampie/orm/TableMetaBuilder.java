@@ -86,7 +86,7 @@ public class TableMetaBuilder {
     String tableName;
 
     if (table.contains(".")) {
-      String[] vals = table.split(".");
+      String[] vals = table.split("\\.");
 
       if (vals.length == 1) {
         tableName = vals[0];

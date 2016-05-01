@@ -52,6 +52,7 @@ public class ClientRequest {
     this.restPath = checkNotNull(restPath);
     if (encoding != null) {
       this.encoding = encoding;
+      this.contentType = ContentType.FORM.value() + ";charset=" + encoding;
     }
     this.params = params;
     this.headers = headers;

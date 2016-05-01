@@ -31,6 +31,9 @@ public class ClientRequest {
   private String contentType = ContentType.FORM.value() + ";charset=" + encoding;
   private String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36";
 
+  public ClientRequest() {
+    this("");
+  }
 
   public ClientRequest(String restPath) {
     this(restPath, Encoding.UTF_8.name());
@@ -202,8 +205,8 @@ public class ClientRequest {
   }
 
   /**
-   * @param name       param name
-   * @param filename   file name
+   * @param name        param name
+   * @param filename    file name
    * @param contentType
    * @param fileStream
    * @return

@@ -47,6 +47,8 @@ public class ClientConnection {
     this.loginRequest = loginRequest;
     if (clientRequest != null) {
       this.clientRequestTL.set(clientRequest);
+    }else{
+      this.clientRequestTL.set(new ClientRequest());
     }
     //add cookieManager
     cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);

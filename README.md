@@ -372,4 +372,7 @@ public void configPlugin(PluginLoader pluginLoader) {
 
 License <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License V2</a>
 
+捐赠：
+[支付宝](https://raw.githubusercontent.com/Dreampie/Resty/master/alipay.png)
+
 

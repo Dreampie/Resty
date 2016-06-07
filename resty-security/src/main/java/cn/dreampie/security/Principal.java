@@ -4,6 +4,7 @@ package cn.dreampie.security;
 import cn.dreampie.common.entity.Entity;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -15,7 +16,7 @@ public class Principal<M extends Entity> implements Serializable {
   private String username;
   private String password;
   private String salt;
-  private Set<String> credentials;
+  private Set<String> credentials = new HashSet<String>();
   private M model;
 
   public Principal(String username, String password, Set<String> credentials, M model) {

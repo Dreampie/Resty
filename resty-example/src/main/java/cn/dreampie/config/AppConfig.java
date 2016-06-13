@@ -54,10 +54,10 @@ public class AppConfig extends Config {
   }
 
   public void configInterceptor(InterceptorLoader interceptorLoader) {
-    //缓存
-    interceptorLoader.add(new CacheInterceptor());
     //权限拦截器
     interceptorLoader.add(new SecurityInterceptor(new MyAuthenticateService()));
+    //缓存
+    interceptorLoader.add(new CacheInterceptor());
     //事务的拦截器 @Transaction
     interceptorLoader.add(new TransactionInterceptor());
   }

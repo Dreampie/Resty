@@ -140,7 +140,7 @@ public class Credentials {
       }
     } else {
       boolean find = false;
-      if (principals.size() > 1000 || principals.size() <= 0 || System.currentTimeMillis() > lastAccess) {
+      if (principals.size() <= 0 || System.currentTimeMillis() > lastAccess) {
         principal = authenticateService.getPrincipal(username);
         principals.put(username, principal);
         lastAccess = System.currentTimeMillis() + expires;

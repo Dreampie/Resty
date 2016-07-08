@@ -5,11 +5,11 @@ import cn.dreampie.common.http.result.HttpStatus;
 /**
  * Created by wangrenhui on 15/1/11.
  */
-public class ClientResult {
+public class HttpClientResult {
   private HttpStatus status;
   private String result;
 
-  public ClientResult(HttpStatus status, String result) {
+  public HttpClientResult(HttpStatus status, String result) {
     this.status = status;
     this.result = result;
   }
@@ -23,7 +23,7 @@ public class ClientResult {
   }
 
   public String toString() {
-    return "ClientResult{" +
+    return "HttpClientResult{" +
         "status=" + status.getCode() +
         ", result='" + result + '\'' +
         '}';

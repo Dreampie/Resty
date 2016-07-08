@@ -9,12 +9,12 @@ import java.util.Map;
  * @date 2015-09-14
  * @what
  */
-public class ClientUser {
+public class HttpClientUser {
   private String username;
   private String password;
   private boolean rememberMe;
 
-  public ClientUser(String username, String password, boolean rememberMe) {
+  public HttpClientUser(String username, String password, boolean rememberMe) {
     this.username = username;
     this.password = password;
     this.rememberMe = rememberMe;

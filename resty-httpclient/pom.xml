@@ -3,16 +3,16 @@
   <parent>
     <artifactId>resty</artifactId>
     <groupId>cn.dreampie</groupId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>resty-client</artifactId>
-  <name>resty-client</name>
+  <artifactId>resty-httpClient</artifactId>
+  <name>resty-httpClient</name>
   <packaging>jar</packaging>
   <version>${parent.version}</version>
   <url>https://github.com/Dreampie/${parent.name}</url>
-  <description>Resty java client</description>
+  <description>Resty java httpClient</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

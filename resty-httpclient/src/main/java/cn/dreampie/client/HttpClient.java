@@ -15,67 +15,67 @@ import java.net.HttpURLConnection;
 /**
  * Resty  client
  */
-public class Client extends ClientConnection {
+public class HttpClient extends HttpClientConnection {
 
-  private static final Logger logger = Logger.getLogger(Client.class);
+  private static final Logger logger = Logger.getLogger(HttpClient.class);
 
-  private ClientRequire clientRequire;
+  private HttpClientRequire httpClientRequire;
 
-  public Client(String apiUrl) {
+  public HttpClient(String apiUrl) {
     super(apiUrl);
   }
 
-  public Client(String apiUrl, String loginApi, ClientUser user) {
-    this(apiUrl, new ClientRequest(loginApi, user.reserveMap()), null);
+  public HttpClient(String apiUrl, String loginApi, HttpClientUser user) {
+    this(apiUrl, new HttpClientRequest(loginApi, user.reserveMap()), null);
   }
 
-  public Client(String apiUrl, ClientRequire clientRequire) {
-    this(apiUrl, null, clientRequire);
+  public HttpClient(String apiUrl, HttpClientRequire httpClientRequire) {
+    this(apiUrl, null, httpClientRequire);
   }
 
-  public Client(String apiUrl, String loginApi, ClientUser user, ClientRequire clientRequire) {
-    this(apiUrl, new ClientRequest(loginApi, user.reserveMap()), clientRequire);
+  public HttpClient(String apiUrl, String loginApi, HttpClientUser user, HttpClientRequire httpClientRequire) {
+    this(apiUrl, new HttpClientRequest(loginApi, user.reserveMap()), httpClientRequire);
   }
 
-  public Client(String apiUrl, ClientRequest loginRequest, ClientRequire clientRequire) {
-    this(apiUrl, loginRequest, null, clientRequire);
+  public HttpClient(String apiUrl, HttpClientRequest loginRequest, HttpClientRequire httpClientRequire) {
+    this(apiUrl, loginRequest, null, httpClientRequire);
   }
 
-  public Client(String apiUrl, ClientRequest loginRequest, ClientRequest clientRequest, ClientRequire clientRequire) {
-    super(apiUrl, loginRequest, clientRequest);
-    if (clientRequire != null) {
-      this.clientRequire = clientRequire;
+  public HttpClient(String apiUrl, HttpClientRequest loginRequest, HttpClientRequest httpClientRequest, HttpClientRequire httpClientRequire) {
+    super(apiUrl, loginRequest, httpClientRequest);
+    if (httpClientRequire != null) {
+      this.httpClientRequire = httpClientRequire;
     } else {
-      this.clientRequire = new ClientRequire();
+      this.httpClientRequire = new HttpClientRequire();
     }
   }
 
-  public Client build(ClientRequest clientRequest) {
-    if (clientRequest == null) {
-      throw new ClientException("ClientRequest must not null.");
+  public HttpClient build(HttpClientRequest httpClientRequest) {
+    if (httpClientRequest == null) {
+      throw new ClientException("HttpClientRequest must not null.");
     }
-    this.clientRequestTL.set(clientRequest);
+    this.clientRequestTL.set(httpClientRequest);
     return this;
   }
 
 
-  public ClientResult get() {
+  public HttpClientResult get() {
     return ask(HttpMethod.GET);
   }
 
-  public ClientResult post() {
+  public HttpClientResult post() {
     return ask(HttpMethod.POST);
   }
 
-  public ClientResult put() {
+  public HttpClientResult put() {
     return ask(HttpMethod.PUT);
   }
 
-  public ClientResult patch() {
+  public HttpClientResult patch() {
     return ask(HttpMethod.PATCH);
   }
 
-  public ClientResult delete() {
+  public HttpClientResult delete() {
     return ask(HttpMethod.DELETE);
   }
 
@@ -84,7 +84,7 @@ public class Client extends ClientConnection {
    *
    * @return responseData
    */
-  private ClientResult ask(String httpMethod) {
+  private HttpClientResult ask(String httpMethod) {
     HttpURLConnection conn = null;
     try {
       conn = getHttpConnection(httpMethod);
@@ -112,14 +112,14 @@ public class Client extends ClientConnection {
     }
   }
 
-  private ClientResult login(String httpMethod, ClientRequest clientRequest) {
+  private HttpClientResult login(String httpMethod, HttpClientRequest httpClientRequest) {
     //login
-    ClientResult result = build(loginRequest).post();
+    HttpClientResult result = build(loginRequest).post();
     if (result.getStatus() != HttpStatus.OK) {
       throw new ClientException("Login error " + result.getStatus().getCode() + ", " + result.getResult());
     } else {
-      if (clientRequest != null) {
-        result = build(clientRequest).ask(httpMethod);
+      if (httpClientRequest != null) {
+        result = build(httpClientRequest).ask(httpMethod);
       }
     }
     return result;
@@ -132,7 +132,7 @@ public class Client extends ClientConnection {
    * @return
    * @throws IOException
    */
-  private ClientResult readResponse(String httpMethod, HttpURLConnection conn) throws IOException {
+  private HttpClientResult readResponse(String httpMethod, HttpURLConnection conn) throws IOException {
     int httpCode = conn.getResponseCode();
     logger.debug("Connection done. The server's response code is: %s", httpCode);
     InputStream is = null;
@@ -142,8 +142,8 @@ public class Client extends ClientConnection {
       is = conn.getInputStream();
     }
 
-    ClientResult result = null;
-    ClientRequest clientRequest = clientRequestTL.get();
+    HttpClientResult result = null;
+    HttpClientRequest httpClientRequest = clientRequestTL.get();
     try {
       if (is == null) {
         if (httpCode >= HttpURLConnection.HTTP_BAD_REQUEST) {
@@ -152,10 +152,10 @@ public class Client extends ClientConnection {
       }
 
       if (is == null) {
-        logger.warn("Api " + clientRequest.getRestPath() + " response is null!!");
+        logger.warn("Api " + httpClientRequest.getRestPath() + " response is null!!");
       } else {
         //是否是下载文件
-        String downloadFile = clientRequest.getDownloadFile();
+        String downloadFile = httpClientRequest.getDownloadFile();
         if (isSuccess && downloadFile != null) {
           File file;
           File fileOrDirectory = new File(downloadFile);
@@ -183,17 +183,17 @@ public class Client extends ClientConnection {
           }
 
           FileRenamer fileRenamer = null;
-          if (!clientRequest.isOverwrite() && renamer != null) {
+          if (!httpClientRequest.isOverwrite() && renamer != null) {
             fileRenamer = renamer;
           }
-          result = new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());
+          result = new HttpClientResult(HttpStatus.havingCode(httpCode), StreamReader.readFile(is, conn.getContentLength(), file, fileRenamer).getPath());
         } else {
-          result = new ClientResult(HttpStatus.havingCode(httpCode), StreamReader.readString(is, clientRequest.getEncoding()));
+          result = new HttpClientResult(HttpStatus.havingCode(httpCode), StreamReader.readString(is, httpClientRequest.getEncoding()));
           //重新登录情况
-          if (loginRequest != null && clientRequire.relogin(result)) {
+          if (loginRequest != null && httpClientRequire.relogin(result)) {
             logger.info("Relogin to server.");
-            if (!clientRequest.equals(loginRequest)) {
-              return login(httpMethod, clientRequest);
+            if (!httpClientRequest.equals(loginRequest)) {
+              return login(httpMethod, httpClientRequest);
             }
           }
           logger.debug("Reading an OK (%s) response", httpCode);

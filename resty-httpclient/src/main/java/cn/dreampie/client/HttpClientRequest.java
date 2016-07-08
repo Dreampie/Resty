@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
-public class ClientRequest {
+public class HttpClientRequest {
   private String restPath;
   private String encoding = Encoding.UTF_8.name();
   private Map<String, String> params = Maper.of();
@@ -27,31 +27,31 @@ public class ClientRequest {
   private int readTimeOut = 10000;
   private boolean overwrite = false;
   private String downloadFile;
-  private Map<String, ClientFile> uploadFiles = Maper.of();
+  private Map<String, HttpClientFile> uploadFiles = Maper.of();
   private String contentType = ContentType.FORM.value() + ";charset=" + encoding;
   private String userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36";
 
-  public ClientRequest() {
+  public HttpClientRequest() {
     this("");
   }
 
-  public ClientRequest(String restPath) {
+  public HttpClientRequest(String restPath) {
     this(restPath, Encoding.UTF_8.name());
   }
 
-  public ClientRequest(String restPath, String encoding) {
+  public HttpClientRequest(String restPath, String encoding) {
     this(restPath, encoding, Maper.<String, String>of());
   }
 
-  public ClientRequest(String restPath, Map<String, String> params) {
+  public HttpClientRequest(String restPath, Map<String, String> params) {
     this(restPath, null, params);
   }
 
-  public ClientRequest(String restPath, String encoding, Map<String, String> params) {
+  public HttpClientRequest(String restPath, String encoding, Map<String, String> params) {
     this(restPath, encoding, params, Maper.<String, String>of());
   }
 
-  public ClientRequest(String restPath, String encoding, Map<String, String> params, Map<String, String> headers) {
+  public HttpClientRequest(String restPath, String encoding, Map<String, String> params, Map<String, String> headers) {
     this.restPath = checkNotNull(restPath);
     if (encoding != null) {
       this.encoding = encoding;
@@ -80,7 +80,7 @@ public class ClientRequest {
     return this.encoding;
   }
 
-  public ClientRequest setEncoding(String encoding) {
+  public HttpClientRequest setEncoding(String encoding) {
     this.encoding = encoding;
     return this;
   }
@@ -89,7 +89,7 @@ public class ClientRequest {
     return this.params;
   }
 
-  public ClientRequest setParams(Map<String, String> params) {
+  public HttpClientRequest setParams(Map<String, String> params) {
     this.params = params;
     return this;
   }
@@ -98,12 +98,12 @@ public class ClientRequest {
     return this.headers;
   }
 
-  public ClientRequest setHeaders(Map<String, String> headers) {
+  public HttpClientRequest setHeaders(Map<String, String> headers) {
     this.headers = headers;
     return this;
   }
 
-  public ClientRequest addParam(String name, String value) {
+  public HttpClientRequest addParam(String name, String value) {
     this.params.put(name, value);
     return this;
   }
@@ -112,7 +112,7 @@ public class ClientRequest {
     return contentType;
   }
 
-  public ClientRequest setContentType(String contentType) {
+  public HttpClientRequest setContentType(String contentType) {
     this.contentType = contentType;
     return this;
   }
@@ -121,7 +121,7 @@ public class ClientRequest {
     return userAgent;
   }
 
-  public ClientRequest setUserAgent(String userAgent) {
+  public HttpClientRequest setUserAgent(String userAgent) {
     this.userAgent = userAgent;
     return this;
   }
@@ -130,7 +130,7 @@ public class ClientRequest {
     return jsonParam;
   }
 
-  public ClientRequest setJsonParam(String jsonParam) {
+  public HttpClientRequest setJsonParam(String jsonParam) {
     setContentType(ContentType.JSON.value() + ";charset=" + encoding);
     this.jsonParam = checkNotNull(jsonParam, "Json param could not be null.");
     return this;
@@ -140,7 +140,7 @@ public class ClientRequest {
     return URLEncoder.encode(jsonParam, encoding);
   }
 
-  public ClientRequest addHeader(String key, String value) {
+  public HttpClientRequest addHeader(String key, String value) {
     this.headers.put(key, value);
     return this;
   }
@@ -149,7 +149,7 @@ public class ClientRequest {
     return connectTimeOut;
   }
 
-  public ClientRequest setConnectTimeOut(int connectTimeOut) {
+  public HttpClientRequest setConnectTimeOut(int connectTimeOut) {
     this.connectTimeOut = connectTimeOut;
     return this;
   }
@@ -158,7 +158,7 @@ public class ClientRequest {
     return readTimeOut;
   }
 
-  public ClientRequest setReadTimeOut(int readTimeOut) {
+  public HttpClientRequest setReadTimeOut(int readTimeOut) {
     this.readTimeOut = readTimeOut;
     return this;
   }
@@ -167,7 +167,7 @@ public class ClientRequest {
     return overwrite;
   }
 
-  public ClientRequest setDownloadFile(String downloadFile, boolean overwrite) {
+  public HttpClientRequest setDownloadFile(String downloadFile, boolean overwrite) {
     this.downloadFile = Checker.checkNotNull(downloadFile, "Download file could not be null.");
     this.overwrite = overwrite;
     return this;
@@ -177,29 +177,29 @@ public class ClientRequest {
     return downloadFile;
   }
 
-  public ClientRequest setDownloadFile(String downloadFile) {
+  public HttpClientRequest setDownloadFile(String downloadFile) {
     setDownloadFile(downloadFile, false);
     return this;
   }
 
-  public Map<String, ClientFile> getUploadFiles() {
+  public Map<String, HttpClientFile> getUploadFiles() {
     return uploadFiles;
   }
 
-  public ClientRequest setUploadFiles(Map<String, ClientFile> uploadFiles) {
+  public HttpClientRequest setUploadFiles(Map<String, HttpClientFile> uploadFiles) {
     this.uploadFiles = uploadFiles;
     setContentType(ContentType.MULTIPART.value() + ";charset=" + encoding);
     return this;
   }
 
-  public ClientRequest addUploadFile(String name, String filepath) throws FileNotFoundException {
-    this.uploadFiles.put(name, new ClientFile(filepath));
+  public HttpClientRequest addUploadFile(String name, String filepath) throws FileNotFoundException {
+    this.uploadFiles.put(name, new HttpClientFile(filepath));
     setContentType(ContentType.MULTIPART.value() + ";charset=" + encoding);
     return this;
   }
 
-  public ClientRequest addUploadFile(String name, File file) throws FileNotFoundException {
-    this.uploadFiles.put(name, new ClientFile(file));
+  public HttpClientRequest addUploadFile(String name, File file) throws FileNotFoundException {
+    this.uploadFiles.put(name, new HttpClientFile(file));
     setContentType(ContentType.MULTIPART.value() + ";charset=" + encoding);
     return this;
   }
@@ -211,8 +211,8 @@ public class ClientRequest {
    * @param fileStream
    * @return
    */
-  public ClientRequest addUploadFile(String name, String filename, String contentType, InputStream fileStream) {
-    this.uploadFiles.put(name, new ClientFile(filename, contentType, fileStream));
+  public HttpClientRequest addUploadFile(String name, String filename, String contentType, InputStream fileStream) {
+    this.uploadFiles.put(name, new HttpClientFile(filename, contentType, fileStream));
     setContentType(ContentType.MULTIPART.value() + ";charset=" + encoding);
     return this;
   }

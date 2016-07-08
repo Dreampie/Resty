@@ -12,22 +12,22 @@ import static cn.dreampie.common.util.Checker.checkNotNull;
 /**
  * Created by Dreampie on 16/1/5.
  */
-public class ClientFile {
+public class HttpClientFile {
   private String name;
   private String contentType;
   private InputStream inputStream;
 
-  public ClientFile(String filepath) throws FileNotFoundException {
+  public HttpClientFile(String filepath) throws FileNotFoundException {
     this(new File(filepath));
   }
 
-  public ClientFile(File file) throws FileNotFoundException {
+  public HttpClientFile(File file) throws FileNotFoundException {
     this.name = file.getName();
     this.contentType = HttpTyper.getContentTypeFromFileName(name);
     this.inputStream = new FileInputStream(file);
   }
 
-  public ClientFile(String name, String contentType, InputStream inputStream) {
+  public HttpClientFile(String name, String contentType, InputStream inputStream) {
     this.name = name;
     this.contentType = contentType;
     this.inputStream = checkNotNull(inputStream);

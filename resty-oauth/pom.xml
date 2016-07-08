@@ -7,26 +7,43 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>resty-common</artifactId>
+  <artifactId>resty-oauth</artifactId>
   <packaging>jar</packaging>
   <version>${parent.version}</version>
-  <name>resty-common</name>
+  <name>resty-mail</name>
   <url>https://github.com/Dreampie/${parent.name}</url>
-  <description>Resty common tools</description>
+  <description>Resty mail httpClient</description>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <resty.version>${parent.version}</resty.version>
+    <commons-email.version>1.3.3</commons-email.version>
     <fastjson.version>1.2.5</fastjson.version>
-    <spring-context.version>4.2.1.RELEASE</spring-context.version>
-    <servlet.version>3.1.0</servlet.version>
   </properties>
 
   <dependencies>
 
     <dependency>
       <groupId>cn.dreampie</groupId>
-      <artifactId>resty-log</artifactId>
+      <artifactId>resty-common</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-route</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-security</artifactId>
+      <version>${resty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.dreampie</groupId>
+      <artifactId>resty-orm</artifactId>
       <version>${resty.version}</version>
     </dependency>
 
@@ -34,30 +51,7 @@
       <groupId>com.alibaba</groupId>
       <artifactId>fastjson</artifactId>
       <version>${fastjson.version}</version>
-      <scope>provided</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>${spring-context.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>${servlet.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!--jdk1.6   不支持servlet3.0-->
-    <!--<dependency>-->
-    <!--<groupId>javax.servlet</groupId>-->
-    <!--<artifactId>servlet-api</artifactId>-->
-    <!--<version>2.5</version>-->
-    <!--<scope>provided</scope>-->
-    <!--</dependency>-->
   </dependencies>
 
   <build>

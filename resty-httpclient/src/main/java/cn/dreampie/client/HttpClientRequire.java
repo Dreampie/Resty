@@ -7,7 +7,7 @@ import java.net.HttpURLConnection;
  * @date 2015-09-14
  * @what
  */
-public class ClientRequire {
+public class HttpClientRequire {
 
   /**
    * 重新登录的条件
@@ -15,7 +15,7 @@ public class ClientRequire {
    * @param result
    * @return
    */
-  public boolean relogin(ClientResult result) {
+  public boolean relogin(HttpClientResult result) {
     return result.getStatus().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED;
   }
 }

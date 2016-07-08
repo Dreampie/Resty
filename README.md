@@ -213,39 +213,39 @@ public void configPlugin(PluginLoader pluginLoader) {
 3.极简的客户端设计，支持各种请求，文件上传和文件下载（支持断点续传）
 
 ```java
-  Client client=null;//创建客户端对象
+  Client httpClient=null;//创建客户端对象
   //启动resty-example项目，即可测试客户端
   String apiUrl = "http://localhost:8081/api/v1.0";
   //如果不需要 使用账号登陆
-  //client = new Client(apiUrl);
+  //httpClient = new Client(apiUrl);
   //如果有账号权限限制  需要登陆
-  client = new Client(apiUrl, "/tests/login", "u", "123");
+  httpClient = new Client(apiUrl, "/tests/login", "u", "123");
 
   //该请求必须  登陆之后才能访问  未登录时返回 401  未认证
   ClientRequest authRequest = new ClientRequest("/users");
-  ClientResult authResult = client.build(authRequest).get();
+  ClientResult authResult = httpClient.build(authRequest).get();
   System.out.println(authResult.getResult());
 
   //get
   ClientRequest getRequest = new ClientRequest("/tests");
-  ClientResult getResult = client.build(getRequest).get();
+  ClientResult getResult = httpClient.build(getRequest).get();
   System.out.println(getResult.getResult());
 
   //post
   ClientRequest postRequest = new ClientRequest("/tests");
   postRequest.addParam("test", Jsoner.toJSONString(Maper.of("a", "谔谔")));
-  ClientResult postResult = client.build(postRequest).post();
+  ClientResult postResult = httpClient.build(postRequest).post();
   System.out.println(postResult.getResult());
 
   //put
   ClientRequest putRequest = new ClientRequest("/tests/x");
-  ClientResult putResult = client.build(putRequest).put();
+  ClientResult putResult = httpClient.build(putRequest).put();
   System.out.println(putResult.getResult());
 
 
   //delete
   ClientRequest deleteRequest = new ClientRequest("/tests/a");
-  ClientResult deleteResult = client.build(deleteRequest).delete();
+  ClientResult deleteResult = httpClient.build(deleteRequest).delete();
   System.out.println(deleteResult.getResult());
 
 
@@ -253,14 +253,14 @@ public void configPlugin(PluginLoader pluginLoader) {
   ClientRequest uploadRequest = new ClientRequest("/tests/resty");
   uploadRequest.addUploadFiles("resty", ClientTest.class.getResource("/resty.jar").getFile());
   uploadRequest.addParam("des", "test file  paras  测试笔");
-  ClientResult uploadResult = client.build(uploadRequest).post();
+  ClientResult uploadResult = httpClient.build(uploadRequest).post();
   System.out.println(uploadResult.getResult());
 
 
   //download  支持断点续传
   ClientRequest downloadRequest = new ClientRequest("/tests/file");
   downloadRequest.setDownloadFile(ClientTest.class.getResource("/resty.jar").getFile().replace(".jar", "x.jar"));
-  ClientResult downloadResult = client.build(downloadRequest).get();
+  ClientResult downloadResult = httpClient.build(downloadRequest).get();
   System.out.println(downloadResult.getResult());
 ```
 

@@ -1,7 +1,7 @@
 package cn.dreampie.example;
 
-import cn.dreampie.client.Client;
-import cn.dreampie.client.ClientRequest;
+import cn.dreampie.client.HttpClientRequest;
+import cn.dreampie.client.HttpClient;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -15,7 +15,7 @@ public class ThreadTest {
     final CountDownLatch begin = new CountDownLatch(1);
     final CountDownLatch end = new CountDownLatch(num);
 
-    final Client client = new Client("http://127.0.0.1:9090/api/v1.0");
+    final HttpClient httpClient = new HttpClient("http://127.0.0.1:9090/api/v1.0");
 
     for (int i = 0; i < num; i++) {
       final int finalI = i;
@@ -25,9 +25,9 @@ public class ThreadTest {
             System.out.println(finalI + " ready !");
             begin.await();
             // execute your logic
-            ClientRequest request = new ClientRequest("/sessions");
+            HttpClientRequest request = new HttpClientRequest("/sessions");
             request.addParam("username", "testuser" + finalI).addParam("password", "123").addParam("rememberMe", "true");
-            System.out.println(client.build(request).post());
+            System.out.println(httpClient.build(request).post());
 
             Thread.sleep((long) (Math.random() * 10000));
           } catch (Throwable e) {

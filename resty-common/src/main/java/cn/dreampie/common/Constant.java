@@ -85,7 +85,7 @@ public final class Constant {
 
       oauthSigninUrl = constants.get("app.oauthSigninUrl");
       oauthErrorUrl = constants.get("app.oauthErrorUrl");
-      oauthExpires = constants.getInt("app.oauthExpires");
+      oauthExpires = constants.getInt("app.oauthExpires", 0);
     }
   }
 }

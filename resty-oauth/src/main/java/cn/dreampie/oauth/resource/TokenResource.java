@@ -50,15 +50,15 @@ public class TokenResource extends Resource {
 
       Token token = new Token(c);
       Authorizes.addToken(token);
-      Openid openid = Openid.DAO.findFirstBy("user_id=? AND client_id=?", token.getUserId(), token.getClientId());
-      if (openid == null) {
-        Openid newOpenid = new Openid();
-        newOpenid.set("user_id", token.getUserId()).set("client_id", token.getClientId()).set("open_id", UUID.randomUUID().toString().replaceAll("-", ""))
+      OpenID openID = OpenID.DAO.findFirstBy("user_id=? AND client_id=?", token.getUserId(), token.getClientId());
+      if (openID == null) {
+        OpenID newOpenID = new OpenID();
+        newOpenID.set("user_id", token.getUserId()).set("client_id", token.getClientId()).set("open_id", UUID.randomUUID().toString().replaceAll("-", ""))
             .set("created_at", new Date()).set("creater_id", token.getUserId()).save();
       }
       String refreshToken = UUID.randomUUID().toString().replaceAll("-", "");
       Authorizes.addRefreshToken(refreshToken, token);
-      AccessToken accessToken = new AccessToken(token.getToken(), token.getExpires(), refreshToken, openid.<String>get("open_id"), token.getScope());
+      AccessToken accessToken = new AccessToken(token.getToken(), token.getExpires(), refreshToken, openID.<String>get("open_id"), token.getScope());
       return new WebResult(HttpStatus.OK, accessToken);
     }
   }
@@ -80,9 +80,9 @@ public class TokenResource extends Resource {
       if (!Arrays.asList(oldClient.getGrant().split(",")).contains(grant_type)) {
         return new WebResult(HttpStatus.FOUND, Maper.<String, String>of("location", Constant.oauthErrorUrl + redirectParam + "&error=grant_type_not_support"));
       }
-      Openid openid = Openid.DAO.findFirstBy("user_id=? AND client_id=?", token.getUserId(), token.getClientId());
+      OpenID openID = OpenID.DAO.findFirstBy("user_id=? AND client_id=?", token.getUserId(), token.getClientId());
 
-      AccessToken accessToken = new AccessToken(token.getToken(), token.getExpires(), null, openid.<String>get("open_id"), token.getScope());
+      AccessToken accessToken = new AccessToken(token.getToken(), token.getExpires(), null, openID.<String>get("open_id"), token.getScope());
       return new WebResult(HttpStatus.OK, accessToken);
     }
   }

@@ -150,6 +150,20 @@ public class Subject {
     credentials.removePrincipal(current().getUsername());
   }
 
+  public static void addCredentials(Credential... cs) {
+    credentials.addCredentials(cs);
+    credentials.removePrincipal(current().getUsername());
+  }
+
+  public static void addCredentials(Set<Credential> cs) {
+    credentials.addCredentials(cs);
+    credentials.removePrincipal(current().getUsername());
+  }
+
+  public static void removeAllCredentials() {
+    credentials.removeAllCredentials();
+  }
+
   /**
    * 当前api需要的权限值
    *

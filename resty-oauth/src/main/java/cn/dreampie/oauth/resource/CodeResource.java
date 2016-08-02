@@ -70,7 +70,7 @@ public class CodeResource extends Resource {
           scopes.add(scope);
         }
       }
-      Entity user = Subject.getPrincipal().getModel();
+      Entity<?> user = Subject.getPrincipal().getModel();
       int userId = user.<Integer>get("id");
       Code code = new Code(UUID.randomUUID().toString().replaceAll("-", ""), oldClient.<Integer>get("id"), userId, Constant.oauthExpires, scopes);
       Authorizes.addCode(code);//cache code

@@ -1,10 +1,10 @@
 package cn.dreampie.security.credential;
 
+import cn.dreampie.cache.SimpleCache;
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.CaseInsensitiveMap;
 import cn.dreampie.security.AuthenticateService;
 import cn.dreampie.security.Principal;
-import cn.dreampie.cache.SimpleCache;
 
 import java.util.*;
 
@@ -28,14 +28,28 @@ public class Credentials {
     this.lastAccess = System.currentTimeMillis() + expires;
   }
 
+  public void addCredentials(Credential... credentials) {
+    Set<Credential> credentialSet = new HashSet<Credential>(Arrays.asList(credentials));
+    addCredentials(credentialSet);
+  }
+
+  public void addCredentials(Set<Credential> credentialSet) {
+    addCredentials(credentialSet, credentialMap);
+  }
+
   /**
    * 加倒认证map
    *
    * @param credentialSet 认证set
    */
-  private Map<String, Map<String, Set<Credential>>> addCredentials(Set<Credential> credentialSet) {
+  private Map<String, Map<String, Set<Credential>>> setCredentials(Set<Credential> credentialSet) {
     Map<String, Map<String, Set<Credential>>> credentialMap = new CaseInsensitiveMap<Map<String, Set<Credential>>>();
 
+    addCredentials(credentialSet, credentialMap);
+    return credentialMap;
+  }
+
+  private void addCredentials(Set<Credential> credentialSet, Map<String, Map<String, Set<Credential>>> credentialMap) {
     Map<String, Set<Credential>> credentials;
     Set<Map.Entry<String, Set<Credential>>> credentialsEntrySet;
     String httpMethod;
@@ -93,7 +107,6 @@ public class Credentials {
         credentialMap.put(httpMethod, credentialDESCMap);
       }
     }
-    return credentialMap;
   }
 
 
@@ -107,14 +120,16 @@ public class Credentials {
       //load  all  cache
       credentialMap = SimpleCache.instance().get(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
       if (credentialMap == null) {
-        credentialMap = addCredentials(authenticateService.getAllCredentials());
+        Set<Credential> credentialASCSet = new TreeSet<Credential>(new CredentialASC());
+        credentialASCSet.addAll(authenticateService.getAllCredentials());
+        credentialMap = setCredentials(credentialASCSet);
         SimpleCache.instance().add(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY, credentialMap);
       }
     } else {
       if (credentialMap.size() <= 0 || System.currentTimeMillis() > lastAccess) {
         Set<Credential> credentialASCSet = new TreeSet<Credential>(new CredentialASC());
         credentialASCSet.addAll(authenticateService.getAllCredentials());
-        credentialMap = addCredentials(credentialASCSet);
+        credentialMap = setCredentials(credentialASCSet);
         lastAccess = System.currentTimeMillis() + expires;
       }
     }
@@ -167,6 +182,17 @@ public class Credentials {
       SimpleCache.instance().remove(Principal.PRINCIPAL_DEF_KEY, username);
     } else {
       principals.remove(username);
+    }
+  }
+
+  /**
+   * 删除列表缓存
+   */
+  public void removeAllCredentials() {
+    if (Constant.cacheEnabled) {
+      SimpleCache.instance().remove(Credential.CREDENTIAL_DEF_KEY, Credential.CREDENTIAL_ALL_KEY);
+    } else {
+      credentialMap.clear();
     }
   }
 }

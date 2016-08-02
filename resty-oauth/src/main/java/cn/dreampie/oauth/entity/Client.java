@@ -23,7 +23,7 @@ public class Client extends Model<Client> {
         int[] scopeIds = new int[clientScopes.size()];
         int i = 0;
         for (ClientScope clientScope : clientScopes) {
-          scopeIds[i++] = clientScope.get("scope_id");
+          scopeIds[i++] = clientScope.<Integer>get("scope_id");
         }
         Set<Scope> scopes = new HashSet<Scope>(Scope.DAO.findInIds(scopeIds));
 
@@ -61,7 +61,7 @@ public class Client extends Model<Client> {
         int[] grantIds = new int[clientGrants.size()];
         int i = 0;
         for (ClientGrant clientGrant : clientGrants) {
-          grantIds[i++] = clientGrant.get("grant_id");
+          grantIds[i++] = clientGrant.<Integer>get("grant_id");
         }
         Set<Grant> grants = new HashSet<Grant>(Grant.DAO.findInIds(grantIds));
 

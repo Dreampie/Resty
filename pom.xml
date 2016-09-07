@@ -6,6 +6,7 @@
   <packaging>pom</packaging>
   <version>1.3.0-SNAPSHOT</version>
   <modules>
+    <module>resty-server</module>
     <module>resty-route</module>
     <module>resty-orm</module>
     <module>resty-log</module>
@@ -13,7 +14,7 @@
     <module>resty-cache</module>
     <module>resty-upload</module>
     <module>resty-security</module>
-    <module>resty-httpClient</module>
+    <module>resty-httpclient</module>
     <module>resty-quartz</module>
     <module>resty-mail</module>
     <module>resty-captcha</module>

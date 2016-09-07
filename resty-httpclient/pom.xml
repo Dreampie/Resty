@@ -7,8 +7,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>resty-httpClient</artifactId>
-  <name>resty-httpClient</name>
+  <artifactId>resty-httpclient</artifactId>
+  <name>resty-httpclient</name>
   <packaging>jar</packaging>
   <version>${parent.version}</version>
   <url>https://github.com/Dreampie/${parent.name}</url>

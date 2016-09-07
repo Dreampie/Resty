@@ -17,10 +17,12 @@
     <File>${log.base}.log</File>
   </appender>
 
+  <logger name="org.eclipse.jetty.server.session" level="NONE"/>
 
   <root level="DEBUG">
     <appender-ref ref="STDOUT"/>
     <appender-ref ref="FILE"/>
   </root>
+
 
 </configuration>

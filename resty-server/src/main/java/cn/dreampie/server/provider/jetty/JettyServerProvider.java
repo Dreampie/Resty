@@ -71,19 +71,11 @@ public class JettyServerProvider extends RestyServer {
     sessionManager.setSessionIdPathParameterName(null);
 
     server.setHandler(webAppContext);
-    try {
-      server.start();
-      server.join();
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-    }
+    server.start();
+    server.join();
   }
 
-  public void stop() {
-    try {
-      server.stop();
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-    }
+  public void stop() throws Exception {
+    server.stop();
   }
 }

@@ -47,6 +47,6 @@ public abstract class RestyServer {
 
   public abstract void start() throws Exception;
 
-  public abstract void stop();
+  public abstract void stop() throws Exception;
 
 }

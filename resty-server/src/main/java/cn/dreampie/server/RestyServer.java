@@ -14,6 +14,8 @@ public abstract class RestyServer {
 
   protected boolean useHttpSession = false;
   protected String rootPath;
+  protected String classPath;
+  protected String webXmlPath;
 
   protected ReloadRunnable reloadRunnable;
   protected ReloadObserver reloadObserver;

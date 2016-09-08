@@ -43,14 +43,16 @@ public class JettyServerProvider extends RestyServer {
     webAppContext.setParentLoaderPriority(true);
     webAppContext.setThrowUnavailableOnStartupException(true);
 
-    rootPath = new File(classLoader.getResource(".").toURI()).getParentFile().getParentFile().getCanonicalFile().getAbsolutePath() + "/";
+    classPath = classLoader.getResource(".").getPath();
+    rootPath = new File(classPath).getParentFile().getParentFile().getCanonicalFile().getAbsolutePath() + "/";
 
     File webappDir = new File(rootPath + resourceBase);
     if (!webappDir.exists() || !webappDir.isDirectory()) {
       throw new IllegalArgumentException("Could not found webapp directory or it is not directory.");
     }
     String webappUrl = webappDir.getAbsolutePath();
-    webAppContext.setDescriptor(webappUrl + "/WEB-INF/web.xml");
+    webXmlPath = webappUrl + "/WEB-INF/web.xml";
+    webAppContext.setDescriptor(webXmlPath);
     webAppContext.setContextPath(contextPath);
     webAppContext.setResourceBase(webappUrl);
 
@@ -85,7 +87,7 @@ public class JettyServerProvider extends RestyServer {
     }
 
     if (Constant.devEnable) {
-      reloadRunnable = new ReloadRunnable(rootPath, this);
+      reloadRunnable = new ReloadRunnable(this);
       reloadObserver = new ReloadObserver(reloadRunnable, this);
       reloadRunnable.addObserver(reloadObserver);
 

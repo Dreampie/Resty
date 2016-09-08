@@ -31,7 +31,7 @@ maven使用方式：
 <dependency>
     <groupId>cn.dreampie</groupId>
     <artifactId>resty-route</artifactId>
-    <version>1.0</version>
+    <version>1.3.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -55,6 +55,8 @@ maven使用方式：
 -----------
 
 重大更新：
+
+1.3.0更新内容： 使用jetty作为嵌入式热加载默认实现(只要java文件进行编译就会重新加载)，resty-captcha验证码功能...
 
 1.2.0更新内容：使用header来控制api版本，基于数据源的读写分离，更简单的tableSetting.[详情查看](http://www.oschina.net/news/68791/resty-1-2-0-snapshot)
 

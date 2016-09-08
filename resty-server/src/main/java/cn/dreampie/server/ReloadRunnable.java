@@ -15,7 +15,6 @@ public class ReloadRunnable extends Observable implements Runnable {
 
   public static final int SCAN_INTERVAL_DEFAULT = 1000;
   public static final int RELOAD_INTERVAL_DEFAULT = 1000;
-  private String rootPath;
   private int scanInterval;
   private int restartInterval;
   private Set<File> files;
@@ -23,17 +22,16 @@ public class ReloadRunnable extends Observable implements Runnable {
   private long lastErrorModified = 0;
   private RestyServer server;
 
-  public ReloadRunnable(String rootPath, RestyServer server) {
-    this(SCAN_INTERVAL_DEFAULT, RELOAD_INTERVAL_DEFAULT, rootPath, server);
+  public ReloadRunnable(RestyServer server) {
+    this(SCAN_INTERVAL_DEFAULT, RELOAD_INTERVAL_DEFAULT, server);
   }
 
-  public ReloadRunnable(int scanInterval, int restartInterval, String rootPath, RestyServer server) {
+  public ReloadRunnable(int scanInterval, int restartInterval, RestyServer server) {
     this.scanInterval = scanInterval;
     this.restartInterval = restartInterval;
     this.server = server;
-    this.rootPath = rootPath;
 
-    this.files = FileScaner.of().isAbsolutePath(true).include(server.classLoader.getResource(".").getPath(), rootPath + "pom.xml").scanToFile();
+    this.files = FileScaner.of().isAbsolutePath(true).include(server.classPath, server.webXmlPath, server.rootPath + "pom.xml").scanToFile();
     for (File file : files) {
       fileModifieds.put(file.getAbsolutePath(), file.lastModified());
     }
@@ -60,7 +58,7 @@ public class ReloadRunnable extends Observable implements Runnable {
       Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
       while (!Thread.currentThread().isInterrupted()) {
         Thread.sleep(scanInterval);
-        this.files = FileScaner.of().isAbsolutePath(true).include(server.classLoader.getResource(".").getPath(), rootPath + "pom.xml").scanToFile();
+        this.files = FileScaner.of().isAbsolutePath(true).include(server.classPath, server.webXmlPath, server.rootPath + "pom.xml").scanToFile();
 
         Iterator<File> fileIterator = files.iterator();
         while (fileIterator.hasNext()) {

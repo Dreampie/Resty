@@ -8,7 +8,6 @@ import cn.dreampie.server.provider.jetty.JettyServerProvider;
 public class ExampleApplication {
 
   public static void main(String[] args) throws Exception {
-    System.out.println("xxxxxx");
     new JettyServerProvider().build().start();
   }
 }

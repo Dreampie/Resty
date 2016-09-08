@@ -14,7 +14,7 @@ public final class Constant {
 
   public final static String CONNECTOR = "::";
   public final static String encoding;//编码
-  public final static boolean devMode;//是否使用开发模式
+  public final static boolean devEnable;//是否使用开发模式
   public final static boolean cacheEnabled;//是否开启缓存
   public final static boolean oneParamParse;//单一参数不用传参数名字
   public final static String uploadDirectory;//文件上传默认目录
@@ -42,7 +42,7 @@ public final class Constant {
     }
     if (constants == null) {
       encoding = Encoding.UTF_8.toString();
-      devMode = false;
+      devEnable = false;
       cacheEnabled = false;
       oneParamParse = false;
       uploadDirectory = File.separator + "upload" + File.separator;
@@ -59,7 +59,7 @@ public final class Constant {
       oauthExpires = 0;
     } else {
       encoding = constants.get("app.encoding", Encoding.UTF_8.name());
-      devMode = constants.getBoolean("app.devMode", false);
+      devEnable = constants.getBoolean("app.devEnable", false);
       cacheEnabled = constants.getBoolean("app.cacheEnabled", false);
       oneParamParse = constants.getBoolean("app.oneParamParse", false);
       uploadDirectory = constants.get("app.uploadDirectory", File.separator + "upload" + File.separator);

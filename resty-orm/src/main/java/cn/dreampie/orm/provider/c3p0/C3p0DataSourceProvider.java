@@ -7,10 +7,12 @@ import cn.dreampie.orm.dialect.DialectFactory;
 import cn.dreampie.orm.exception.DBException;
 import cn.dreampie.orm.provider.DataSourceProvider;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.mchange.v2.c3p0.DataSources;
 import com.mchange.v2.c3p0.impl.C3P0Defaults;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
+import java.sql.SQLException;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -190,7 +192,12 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
   }
 
   public void close() {
-    ds.close();
+    try {
+      ds.close();
+      DataSources.destroy(ds);
+    } catch (SQLException e) {
+      throw new DBException("ComboPooledDataSource close error.");
+    }
   }
 
   public C3p0DataSourceProvider setDriverClass(String driverClass) {

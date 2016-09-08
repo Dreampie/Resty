@@ -121,4 +121,11 @@ public abstract class ExceptionHolder {
    * @param isHandled
    */
   public abstract void hold(HttpRequest request, HttpResponse response, Exception exception, boolean[] isHandled);
+
+  public static void clear() {
+    defaultUrl = null;
+    forward = false;
+    forwardMap.clear();
+    redirectMap.clear();
+  }
 }

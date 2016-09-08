@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
 /**
  * The constant for Resty runtime.
  */
-final public class ConstantLoader {
+final public class ConstantLoader extends Loader {
 
   public void setDefaultForward(String url) {
     ExceptionHolder.setDefaultForward(url);
@@ -61,6 +61,12 @@ final public class ConstantLoader {
 
   public void addJsonDeserializer(Type type, ObjectDeserializer deserializer) {
     Jsoner.addDeserializer(type, deserializer);
+  }
+
+  public void clear() {
+    ExceptionHolder.clear();
+    RenderFactory.clear();
+    Jsoner.clear();
   }
 }
 

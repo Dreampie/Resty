@@ -9,18 +9,25 @@ import java.util.List;
 /**
  * The interceptors applied to all actions.
  */
-final public class InterceptorLoader {
+final public class InterceptorLoader extends Loader {
 
-  private final List<Interceptor> interceptorList = new ArrayList<Interceptor>();
+  private final List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
   public InterceptorLoader add(Interceptor interceptor) {
-    if (interceptor != null)
-      this.interceptorList.add(interceptor);
+    if (interceptor != null) {
+      if (!this.interceptors.contains(interceptor)) {
+        this.interceptors.add(interceptor);
+      }
+    }
     return this;
   }
 
   public Interceptor[] getInterceptorArray() {
-    Interceptor[] result = interceptorList.toArray(new Interceptor[interceptorList.size()]);
+    Interceptor[] result = interceptors.toArray(new Interceptor[interceptors.size()]);
     return result;
+  }
+
+  public void clear() {
+    interceptors.clear();
   }
 }

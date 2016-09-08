@@ -208,4 +208,9 @@ public class Jsoner {
     }
     return result;
   }
+
+  public static void clear() {
+    serializerFeatures = null;
+    deserializerFeatures = null;
+  }
 }

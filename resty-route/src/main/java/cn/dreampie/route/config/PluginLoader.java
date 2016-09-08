@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Plugins.
  */
-final public class PluginLoader {
+final public class PluginLoader extends Loader {
 
   private final List<Plugin> plugins = new ArrayList<Plugin>();
 
@@ -21,5 +21,9 @@ final public class PluginLoader {
 
   public List<Plugin> getPlugins() {
     return plugins;
+  }
+
+  public void clear() {
+    plugins.clear();
   }
 }

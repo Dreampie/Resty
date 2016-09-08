@@ -107,7 +107,7 @@ dao.useDS(dsmName).findBy(where,paras);
 ```java
 #not must auto load
 app.encoding=UTF-8
-app.devMode=true
+app.devEnable=true
 app.showRoute=false
 app.cacheEnabled=true
 #默认使用ehcacheProvider

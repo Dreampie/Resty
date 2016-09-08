@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * ResourceLoader.
  */
-final public class ResourceLoader {
+final public class ResourceLoader extends Loader {
   private static final Logger logger = Logger.getLogger(ResourceLoader.class);
 
   private final Set<Class<? extends Resource>> resources = new HashSet<Class<? extends Resource>>();
@@ -52,7 +52,7 @@ final public class ResourceLoader {
   }
 
   /**
-   * exclude scan packages  eg. cn.dreampie.resource
+   * exclude scanToClass packages  eg. cn.dreampie.resource
    *
    * @param packages packages
    * @return
@@ -75,7 +75,7 @@ final public class ResourceLoader {
   }
 
   /**
-   * scan packages  eg. cn.dreampie.resource
+   * scanToClass packages  eg. cn.dreampie.resource
    *
    * @param packages packages
    * @return
@@ -88,9 +88,9 @@ final public class ResourceLoader {
   public void build() {
     if (includeResourcePackages.size() > 0) {
       if (includeResources.size() <= 0) {
-        includeResources = ClassScaner.of(Resource.class).includePackages(includeResourcePackages).scan();
+        includeResources = ClassScaner.of(Resource.class).include(includeResourcePackages).scanToClass();
       } else {
-        includeResources.addAll(ClassScaner.of(Resource.class).includePackages(includeResourcePackages).<Resource>scan());
+        includeResources.addAll(ClassScaner.of(Resource.class).include(includeResourcePackages).scanToClass());
       }
     }
     boolean isExclude = false;
@@ -119,6 +119,14 @@ final public class ResourceLoader {
 
   public Set<Class<? extends Resource>> getResources() {
     return resources;
+  }
+
+  public void clear() {
+    resources.clear();
+    excludeResources.clear();
+    includeResources.clear();
+    includeResourcePackages.clear();
+    excludeResourcePackages.clear();
   }
 }
 

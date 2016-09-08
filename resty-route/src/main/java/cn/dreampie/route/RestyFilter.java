@@ -92,10 +92,12 @@ public final class RestyFilter implements Filter {
   }
 
   public void destroy() {
-    try {
-      restyIniter.stop();
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
+    if (restyIniter != null) {
+      try {
+        restyIniter.stop();
+      } catch (Exception e) {
+        logger.error(e.getMessage(), e);
+      }
     }
   }
 

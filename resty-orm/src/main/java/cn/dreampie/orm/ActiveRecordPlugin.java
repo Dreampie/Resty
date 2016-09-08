@@ -51,7 +51,7 @@ public class ActiveRecordPlugin implements Plugin {
   }
 
   /**
-   * exclude scan packages  eg. cn.dreampie.resource
+   * exclude scanToClass packages  eg. cn.dreampie.resource
    *
    * @param packages packages
    * @return
@@ -74,7 +74,7 @@ public class ActiveRecordPlugin implements Plugin {
   }
 
   /**
-   * scan packages  eg. cn.dreampie.resource
+   * scanToClass packages  eg. cn.dreampie.resource
    *
    * @param packages packages
    * @return
@@ -87,9 +87,9 @@ public class ActiveRecordPlugin implements Plugin {
   public boolean start() {
     if (includeClassPackages.size() > 0) {
       if (includeClasses.size() <= 0) {
-        includeClasses = ClassScaner.of(Model.class).includePackages(includeClassPackages).scan();
+        includeClasses = ClassScaner.of(Model.class).include(includeClassPackages).scanToClass();
       } else {
-        includeClasses.addAll(ClassScaner.of(Model.class).includePackages(includeClassPackages).<Model>scan());
+        includeClasses.addAll(ClassScaner.of(Model.class).include(includeClassPackages).scanToClass());
       }
     } else {
       logger.warn("You not include any packages for dsmName: " + dsmName);

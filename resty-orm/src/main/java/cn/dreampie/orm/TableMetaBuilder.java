@@ -23,7 +23,7 @@ public class TableMetaBuilder {
     TableMeta temp = null;
     Connection conn = null;
     try {
-      conn = dsm.getWriteDataSource().getConnection();
+      conn = dsm.getReadConnection();
       for (TableMeta tableMeta : tableMetas) {
         temp = tableMeta;
         temp.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
@@ -42,7 +42,7 @@ public class TableMetaBuilder {
 
     String message = e.getMessage();
     if (e instanceof ConnectException) {
-      message = "Could not connect dataSource for name '" + dsm.getWriteDsName() + "'";
+      message = "Could not connect dataSource for name '" + dsm.getDsmName() + "'";
     } else {
       if (temp != null) {
         message = "Could not create table object, maybe the table " + temp.getTableName() + " is not exists.";

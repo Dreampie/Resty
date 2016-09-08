@@ -5,14 +5,23 @@ package cn.dreampie.server;
  */
 public abstract class RestyServer {
 
-  public String host = "localhost";
-  public int port = 8080;
+  protected String host = "localhost";
+  protected int port = 8080;
   protected boolean isBuild = false;
 
-  public String contextPath = "/";
-  public String resourceBase = "src/main/webapp";
+  protected String contextPath = "/";
+  protected String resourceBase = "src/main/webapp";
 
-  public boolean useHttpSession = false;
+  protected boolean useHttpSession = false;
+  protected String rootPath;
+
+  protected ReloadRunnable reloadRunnable;
+  protected ReloadObserver reloadObserver;
+  protected Thread watchThread;
+
+  protected ClassLoader classLoader = RestyServer.class.getClassLoader();
+  protected StackTraceElement stack;
+  protected String mainFile;
 
   public RestyServer setContextPath(String contextPath) {
     this.contextPath = contextPath;
@@ -27,26 +36,36 @@ public abstract class RestyServer {
     this.useHttpSession = useHttpSession;
   }
 
-  public RestyServer build() {
+  public RestyServer build() throws Exception {
     this.build(port, host);
     return this;
   }
 
-  public RestyServer build(int port) {
+  public RestyServer build(int port) throws Exception {
     this.build(port, host);
     return this;
   }
 
-  public RestyServer build(int port, String host) {
+  public RestyServer build(int port, String host) throws Exception {
     this.port = port;
     this.host = host;
     this.isBuild = true;
+    init();
+
+    StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
+    stack = stacks[stacks.length - 1];
+    String[] names = stack.getFileName().split("\\.");
+    mainFile = stack.getClassName().replaceAll("\\.", "/") + "." + names[1];
     return this;
   }
 
+  protected abstract void init() throws Exception;
 
   public abstract void start() throws Exception;
 
   public abstract void stop() throws Exception;
 
+  public abstract void destroy() throws Exception;
+
+  public abstract void restartWebApp() throws Exception;
 }

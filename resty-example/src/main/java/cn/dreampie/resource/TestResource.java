@@ -95,7 +95,7 @@ public class TestResource extends ApiResource {
 
   @GET("/headers")
   public Headers headers(Headers headers) {
-    return headers;
+    return null;
   }
 
   @GET("/boom")

@@ -28,7 +28,7 @@ public final class RestyIniter {
     //add handler
     //must after route build
     Handler routeHandler = new RouteHandler(routeBuilder);
-    handler = HandlerFactory.getHandler(configIniter.getHandlerLoader().getHandlerList(), routeHandler);
+    handler = HandlerFactory.getHandler(configIniter.getHandlerLoader().getHandlers(), routeHandler);
     //start job when config over
     config.afterStart();
   }
@@ -36,6 +36,7 @@ public final class RestyIniter {
   public void stop() {
     config.beforeStop();
     configIniter.stopPlugins();
+    configIniter.clear();
   }
 
 

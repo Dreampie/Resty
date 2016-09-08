@@ -1,8 +1,12 @@
 package cn.dreampie.server.provider.jetty;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.util.Lister;
 import cn.dreampie.log.Logger;
+import cn.dreampie.server.ReloadObserver;
+import cn.dreampie.server.ReloadRunnable;
 import cn.dreampie.server.RestyServer;
+import cn.dreampie.server.ServerException;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.util.resource.ResourceCollection;
@@ -23,10 +27,9 @@ public class JettyServerProvider extends RestyServer {
   private static final Logger logger = Logger.getLogger(JettyServerProvider.class);
 
   private Server server;
+  private WebAppContext webAppContext;
 
-  public void start() throws Exception {
-
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+  protected void init() throws Exception {
 
     InputStream jettyInputStream = classLoader.getResourceAsStream("jetty-server.xml");
     if (jettyInputStream != null) {
@@ -34,17 +37,20 @@ public class JettyServerProvider extends RestyServer {
     } else {
       server = new Server(port);
     }
-    Server server = new Server(port);
-    WebAppContext webAppContext = new WebAppContext();
+    server = new Server(port);
+    webAppContext = new WebAppContext();
 
     webAppContext.setParentLoaderPriority(true);
     webAppContext.setThrowUnavailableOnStartupException(true);
-    File webappDir = new File(new File(classLoader.getResource(".").toURI()).getParentFile().getParentFile().getCanonicalFile().getAbsolutePath() + "/" + resourceBase);
+
+    rootPath = new File(classLoader.getResource(".").toURI()).getParentFile().getParentFile().getCanonicalFile().getAbsolutePath() + "/";
+
+    File webappDir = new File(rootPath + resourceBase);
     if (!webappDir.exists() || !webappDir.isDirectory()) {
       throw new IllegalArgumentException("Could not found webapp directory or it is not directory.");
     }
     String webappUrl = webappDir.getAbsolutePath();
-    webAppContext.setDescriptor(webappUrl + "WEB-INF/web.xml");
+    webAppContext.setDescriptor(webappUrl + "/WEB-INF/web.xml");
     webAppContext.setContextPath(contextPath);
     webAppContext.setResourceBase(webappUrl);
 
@@ -71,11 +77,43 @@ public class JettyServerProvider extends RestyServer {
     sessionManager.setSessionIdPathParameterName(null);
 
     server.setHandler(webAppContext);
+  }
+
+  public void start() throws Exception {
+    if (!isBuild) {
+      throw new ServerException("You must build it before start");
+    }
+
+    if (Constant.devEnable) {
+      reloadRunnable = new ReloadRunnable(rootPath, this);
+      reloadObserver = new ReloadObserver(reloadRunnable, this);
+      reloadRunnable.addObserver(reloadObserver);
+
+      watchThread = new Thread(reloadRunnable, "RestyServer-Watcher");//启动文件监控线程
+      watchThread.start();
+    }
     server.start();
     server.join();
   }
 
   public void stop() throws Exception {
+    if (Constant.devEnable) {
+      if (!watchThread.isInterrupted()) {
+        watchThread.interrupt();
+      }
+    }
+    webAppContext.stop();
     server.stop();
+  }
+
+  public void destroy() throws Exception {
+    webAppContext.destroy();
+    server.destroy();
+  }
+
+  public void restartWebApp() throws Exception {
+    webAppContext.stop();
+    logger.info("JettyServer restart...");
+    webAppContext.start();
   }
 }

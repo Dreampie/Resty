@@ -1,5 +1,6 @@
 package cn.dreampie.orm;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.log.Logger;
 import cn.dreampie.orm.dialect.Dialect;
 import cn.dreampie.orm.exception.TransactionException;
@@ -208,9 +209,19 @@ public class DataSourceMeta {
    * 关闭数据源
    */
   public final void close() {
-    writeDataSourceProvider.close();
-    if (readDataSourceProvider != null) {
-      readDataSourceProvider.close();
+    Connection connection = connectionHolder.get();
+    try {
+      if (connection != null) {
+        connection.close();
+      }
+    } catch (SQLException e) {
+      logger.warn("Could not close connection!", e);
+    }
+    if (!Constant.devEnable) {
+      writeDataSourceProvider.close();
+      if (readDataSourceProvider != null) {
+        readDataSourceProvider.close();
+      }
     }
   }
 

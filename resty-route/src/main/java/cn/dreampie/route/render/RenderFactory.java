@@ -15,12 +15,15 @@ public class RenderFactory {
   public final static String FILE = "file";
   public final static String IMAGE = "image";
   private static String defaultExtension = JSON;
-  private static Map<String, Render> renderMap = new HashMap<String, Render>() {{
+
+  private static Map<String, Render> RENDERMAP_DEFAULT = new HashMap<String, Render>() {{
     put(JSON, new JsonRender());
     put(TEXT, new TextRender());
     put(FILE, new FileRender());
     put(IMAGE, new ImageRender());
   }};
+
+  private static Map<String, Render> renderMap = RENDERMAP_DEFAULT;
 
 
   public static void add(String extension, Render render) {
@@ -82,5 +85,10 @@ public class RenderFactory {
 
   public static Render getImageRender() {
     return renderMap.get(IMAGE);
+  }
+
+  public static void clear() {
+    defaultExtension = JSON;
+    renderMap = RENDERMAP_DEFAULT;
   }
 }

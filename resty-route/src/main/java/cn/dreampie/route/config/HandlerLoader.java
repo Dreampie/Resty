@@ -9,17 +9,24 @@ import java.util.List;
 /**
  * Handlers.
  */
-final public class HandlerLoader {
+final public class HandlerLoader extends Loader {
 
-  private final List<Handler> handlerList = new ArrayList<Handler>();
+  private final List<Handler> handlers = new ArrayList<Handler>();
 
   public HandlerLoader add(Handler handler) {
-    if (handler != null)
-      handlerList.add(handler);
+    if (handler != null) {
+      if (!handlers.contains(handler)) {
+        handlers.add(handler);
+      }
+    }
     return this;
   }
 
-  public List<Handler> getHandlerList() {
-    return handlerList;
+  public List<Handler> getHandlers() {
+    return handlers;
+  }
+
+  public void clear() {
+    handlers.clear();
   }
 }

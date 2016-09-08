@@ -92,6 +92,9 @@ public final class RestyFilter implements Filter {
   }
 
   public void destroy() {
+    if (excludesPattern != null) {
+      excludesPattern.clear();
+    }
     if (restyIniter != null) {
       try {
         restyIniter.stop();

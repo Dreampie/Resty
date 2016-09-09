@@ -45,9 +45,7 @@ public class FileScaner extends Scaner<FileScaner> {
           baseDir = baseDir.replaceAll("\\.", "/");
         }
         File file = new File(baseDir);
-        if (file.exists()) {
-          return Collections.enumeration(Lister.<URL>of(file.toURI().toURL()));
-        }
+        return Collections.enumeration(Lister.<URL>of(file.toURI().toURL()));
       } catch (MalformedURLException e) {
         logger.error(e.getMessage(), e);
       }

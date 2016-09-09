@@ -258,13 +258,13 @@ public abstract class Scaner<S> {
   }
 
   public Scaner include(String... pathOrPackages) {
-    checkNotNull(pathOrPackages, "File packages could not be null.");
+    checkNotNull(pathOrPackages, "File path or packages could not be null.");
     Collections.addAll(includePathOrPackages, pathOrPackages);
     return this;
   }
 
   public Scaner include(Set<String> pathOrPackages) {
-    checkNotNull(pathOrPackages, "File packages could not be null.");
+    checkNotNull(pathOrPackages, "File path or packages could not be null.");
     for (String pkg : pathOrPackages) {
       this.includePathOrPackages.add(pkg);
     }

@@ -21,6 +21,8 @@ public class ReloadRunnable extends Observable implements Runnable {
   private Map<String, Long> fileModifieds = new HashMap<String, Long>();
   private long lastErrorModified = 0;
   private RestyServer server;
+  private FileScaner fileScaner;
+  private String[] includeFiles;
 
   public ReloadRunnable(RestyServer server) {
     this(SCAN_INTERVAL_DEFAULT, RELOAD_INTERVAL_DEFAULT, server);
@@ -31,7 +33,9 @@ public class ReloadRunnable extends Observable implements Runnable {
     this.restartInterval = restartInterval;
     this.server = server;
 
-    this.files = FileScaner.of().isAbsolutePath(true).include(server.classPath, server.webXmlPath, server.rootPath + "pom.xml").scanToFile();
+    this.includeFiles = new String[]{server.classPath, server.webXmlPath, server.rootPath + "pom.xml"};
+    this.fileScaner = FileScaner.of().isAbsolutePath(true);
+    this.files = fileScaner.include(includeFiles).scanToFile();
     for (File file : files) {
       fileModifieds.put(file.getAbsolutePath(), file.lastModified());
     }
@@ -58,7 +62,7 @@ public class ReloadRunnable extends Observable implements Runnable {
       Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
       while (!Thread.currentThread().isInterrupted()) {
         Thread.sleep(scanInterval);
-        this.files = FileScaner.of().isAbsolutePath(true).include(server.classPath, server.webXmlPath, server.rootPath + "pom.xml").scanToFile();
+        this.files = this.fileScaner.include(includeFiles).scanToFile();
 
         Iterator<File> fileIterator = files.iterator();
         while (fileIterator.hasNext()) {

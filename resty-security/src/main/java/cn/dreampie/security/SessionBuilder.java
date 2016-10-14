@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public abstract class SessionBuilder {
   public final static String ANONYMOUS = "anonymous";
-  public final static String DEFAULT_SESSION_NAME = "SESSION";
+  public final static String DEFAULT_SESSION_TOKEN_NAME = "Session-Token";
   public static final int DEFAULT_EXPIRES = 30 * 60 * 1000;
   public static final int DEFAULT_REMEMBER_DAY = 7;
   public static final int DEFAULT_LIMIT = -1;
@@ -57,7 +57,7 @@ public abstract class SessionBuilder {
     if (sessionName != null && !sessionName.isEmpty()) {
       this.sessionName = sessionName;
     } else {
-      this.sessionName = DEFAULT_SESSION_NAME;
+      this.sessionName = DEFAULT_SESSION_TOKEN_NAME;
     }
     this.sessions = new Sessions(expires, limit);
     Subject.init(rememberDay, new Credentials(authenticateService, expires), authenticateService.getPasswordService());

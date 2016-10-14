@@ -1,10 +1,9 @@
 package cn.dreampie.route.core;
 
 import cn.dreampie.common.http.HttpRequest;
-import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.exception.HttpException;
+import cn.dreampie.common.http.result.HttpResponse;
 import cn.dreampie.common.http.result.HttpStatus;
-import cn.dreampie.common.http.result.WebResult;
 import cn.dreampie.common.spring.SpringBuilder;
 import cn.dreampie.common.spring.SpringHolder;
 import cn.dreampie.log.Logger;
@@ -81,7 +80,7 @@ public class RouteInvocation {
           for (String name : allParamNames) {
             if (HttpRequest.class.isAssignableFrom(allParamTypes.get(i))) {
               args[i++] = routeMatch.getRequest();
-            } else if (HttpResponse.class.isAssignableFrom(allParamTypes.get(i))) {
+            } else if (cn.dreampie.common.http.HttpResponse.class.isAssignableFrom(allParamTypes.get(i))) {
               args[i++] = routeMatch.getResponse();
             } else if (Headers.class.isAssignableFrom(allParamTypes.get(i))) {
               args[i++] = routeMatch.getHeaders();
@@ -113,18 +112,18 @@ public class RouteInvocation {
   public void render(Object invokeResult) {
     Object result;
     HttpRequest request = routeMatch.getRequest();
-    HttpResponse response = routeMatch.getResponse();
+    cn.dreampie.common.http.HttpResponse response = routeMatch.getResponse();
     //通过特定的webresult返回并携带状态码
-    if (invokeResult instanceof WebResult) {
-      WebResult webResult = (WebResult) invokeResult;
-      response.setStatus(webResult.getStatus());
-      Map<String, String> headers = webResult.getHeaders();
+    if (invokeResult instanceof HttpResponse) {
+      HttpResponse httpResponse = (HttpResponse) invokeResult;
+      response.setStatus(httpResponse.getStatus());
+      Map<String, String> headers = httpResponse.getHeaders();
       if (headers != null && headers.size() > 0) {
         for (Map.Entry<String, String> headersEntry : headers.entrySet()) {
           response.setHeader(headersEntry.getKey(), headersEntry.getValue());
         }
       }
-      result = webResult.getResult();
+      result = httpResponse.getResult();
     } else {
       result = invokeResult;
     }
@@ -166,7 +165,7 @@ public class RouteInvocation {
       }
 
       if (errors.size() > 0) {
-        throw new WebException(status, errors);
+        throw new HttpException(status, errors);
       }
     }
   }

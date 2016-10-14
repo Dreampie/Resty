@@ -8,41 +8,41 @@ import java.util.Map;
 /**
  * Created by ice on 14-12-19.
  */
-public class ImageResult<T extends RenderedImage> extends WebResult<T> {
+public class ImageResponse<T extends RenderedImage> extends HttpResponse<T> {
 
   private final String type;
 
-  public ImageResult(HttpStatus status, String type) {
+  public ImageResponse(HttpStatus status, String type) {
     super(status);
     this.type = type;
   }
 
-  public ImageResult(HttpStatus status, String type, Map<String, String> headers) {
+  public ImageResponse(HttpStatus status, String type, Map<String, String> headers) {
     super(status, headers);
     this.type = type;
   }
 
-  public ImageResult(T result) {
+  public ImageResponse(T result) {
     super(result);
     this.type = ContentType.PNG.type();
   }
 
-  public ImageResult(T result, String type) {
+  public ImageResponse(T result, String type) {
     super(result);
     this.type = type;
   }
 
-  public ImageResult(T result, String type, Map<String, String> headers) {
+  public ImageResponse(T result, String type, Map<String, String> headers) {
     super(result, headers);
     this.type = type;
   }
 
-  public ImageResult(HttpStatus status, T result, String type) {
+  public ImageResponse(HttpStatus status, T result, String type) {
     super(status, result);
     this.type = type;
   }
 
-  public ImageResult(HttpStatus status, T result, String type, Map<String, String> headers) {
+  public ImageResponse(HttpStatus status, T result, String type, Map<String, String> headers) {
     super(status, result, headers);
     this.type = type;
   }

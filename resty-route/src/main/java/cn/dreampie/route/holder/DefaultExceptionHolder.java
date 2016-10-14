@@ -4,7 +4,7 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.Render;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
@@ -20,19 +20,19 @@ public class DefaultExceptionHolder extends ExceptionHolder {
     String restPath = request.getRestPath();
     Render render = RenderFactory.getByUrl(restPath);
     String message;
-    if (exception instanceof WebException) {
-      WebException webException = (WebException) exception;
+    if (exception instanceof HttpException) {
+      HttpException httpException = (HttpException) exception;
       //api访问 所有的异常 以httpStatus返回
       if (Constant.apiPrefix == null || restPath.startsWith(Constant.apiPrefix)) {
-        message = Jsoner.toJSON(webException.getContent());
+        message = Jsoner.toJSON(httpException.getContent());
         if (logger.isWarnEnabled()) {
-          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + webException.getStatus().getCode() + " " + message);
+          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + httpException.getStatus().getCode() + " " + message);
         }
-        response.setStatus(webException.getStatus());
+        response.setStatus(httpException.getStatus());
         render.render(request, response, message);
       } else {
         //其他访问  跳转到 指定页面
-        go(response, webException.getStatus(), isHandled);
+        go(response, httpException.getStatus(), isHandled);
       }
     } else {
       message = exception.getMessage();

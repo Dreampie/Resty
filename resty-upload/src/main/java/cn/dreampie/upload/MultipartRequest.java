@@ -2,7 +2,7 @@ package cn.dreampie.upload;
 
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.UploadedFile;
-import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.util.Lister;
 import cn.dreampie.common.util.stream.FileRenamer;
 import cn.dreampie.log.Logger;
@@ -253,7 +253,7 @@ public class MultipartRequest {
         filePart = (FilePart) part;
         contentType = filePart.getContentType();
         if ((allowTypes.size() > 0 && !allowTypes.contains(contentType)) || (deniedTypes.size() > 0 && deniedTypes.contains(contentType))) {
-          throw new WebException("Denied upload file type '" + filePart.getContentType() + "'.");
+          throw new HttpException("Denied upload file type '" + filePart.getContentType() + "'.");
           //continue;
         }
 

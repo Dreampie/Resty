@@ -82,7 +82,7 @@ public class Client extends Model<Client> {
     if (this.get("grant") == null) {
       getGrants();
     }
-    return this.get("scope");
+    return this.get("grant");
   }
 
   public int[] getGrantIds() {

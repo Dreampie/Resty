@@ -1,6 +1,6 @@
 package cn.dreampie.security;
 
-import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.matcher.AntPathMatcher;
 import cn.dreampie.log.Logger;
@@ -69,7 +69,7 @@ public class Subject {
     checkNotNull(password, "Password could not be null.");
     Principal principal = credentials.getPrincipal(username);
     if (principal == null) {
-      throw new WebException(HttpStatus.NOT_FOUND, "User not found.");
+      throw new HttpException(HttpStatus.NOT_FOUND, "User not found.");
     }
     boolean match;
     String salt = principal.getSalt();
@@ -92,7 +92,7 @@ public class Subject {
       authenticateAs(username, expires);
       logger.info("Session authentication as " + username);
     } else {
-      throw new WebException(HttpStatus.UNPROCESSABLE_ENTITY, "Password not match.");
+      throw new HttpException(HttpStatus.UNPROCESSABLE_ENTITY, "Password not match.");
     }
   }
 
@@ -229,10 +229,10 @@ public class Subject {
       Principal principal = getPrincipal();
       if (principal != null) {
         if (!principal.hasCredential(needCredential)) {
-          throw new WebException(HttpStatus.FORBIDDEN);
+          throw new HttpException(HttpStatus.FORBIDDEN);
         }
       } else {
-        throw new WebException(HttpStatus.UNAUTHORIZED);
+        throw new HttpException(HttpStatus.UNAUTHORIZED);
       }
     }
   }

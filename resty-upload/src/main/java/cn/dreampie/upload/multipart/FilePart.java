@@ -1,6 +1,6 @@
 package cn.dreampie.upload.multipart;
 
-import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.util.stream.FileRenamer;
 
 import java.io.*;
@@ -169,7 +169,7 @@ public class FilePart extends Part {
         File parent = file.getParentFile();
         if (!parent.exists()) {
           if (!parent.mkdirs()) {
-            throw new WebException("Directory " + parent + " not exists and can not create directory.");
+            throw new HttpException("Directory " + parent + " not exists and can not create directory.");
           }
         }
         dir = parent;

@@ -4,35 +4,35 @@ import java.util.Map;
 
 /**
  * Created by ice on 14-12-19.
- * A WebResult can be raised to make resty return immediately an HTTP response with a specific HTTP status.
+ * A HttpResponse can be raised to make resty return immediately an HTTP response with a specific HTTP status.
  */
-public class WebResult<T> {
+public class HttpResponse<T> {
 
   private final HttpStatus status;
   private final T result;
   private final Map<String, String> headers;
 
-  public WebResult(HttpStatus status) {
+  public HttpResponse(HttpStatus status) {
     this(status, null, null);
   }
 
-  public WebResult(HttpStatus status, Map<String, String> headers) {
+  public HttpResponse(HttpStatus status, Map<String, String> headers) {
     this(status, null, headers);
   }
 
-  public WebResult(T result) {
+  public HttpResponse(T result) {
     this(HttpStatus.OK, result, null);
   }
 
-  public WebResult(T result, Map<String, String> headers) {
+  public HttpResponse(T result, Map<String, String> headers) {
     this(HttpStatus.OK, result, headers);
   }
 
-  public WebResult(HttpStatus status, T result) {
+  public HttpResponse(HttpStatus status, T result) {
     this(status, result, null);
   }
 
-  public WebResult(HttpStatus status, T result, Map<String, String> headers) {
+  public HttpResponse(HttpStatus status, T result, Map<String, String> headers) {
     this.status = status;
     this.result = result;
     this.headers = headers;

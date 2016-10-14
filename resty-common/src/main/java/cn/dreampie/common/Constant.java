@@ -27,7 +27,7 @@ public final class Constant {
   public final static String exceptionHolder;//exception 处理
   public static final String[] xForwardedSupports;
 
-  public static final String oauthSigninUrl;
+  public static final String oauthSignInUrl;
   public static final String oauthErrorUrl;
   public static final int oauthExpires;
 
@@ -54,7 +54,7 @@ public final class Constant {
       apiPrefix = null;
       exceptionHolder = null;
       xForwardedSupports = new String[]{"127.0.0.1"};
-      oauthSigninUrl = "";
+      oauthSignInUrl = "";
       oauthErrorUrl = "";
       oauthExpires = 0;
     } else {
@@ -83,7 +83,7 @@ public final class Constant {
         xForwardedSupports = xForwardedSupportsStr.split(",");
       }
 
-      oauthSigninUrl = constants.get("app.oauthSigninUrl");
+      oauthSignInUrl = constants.get("app.oauthSignInUrl");
       oauthErrorUrl = constants.get("app.oauthErrorUrl");
       oauthExpires = constants.getInt("app.oauthExpires", 0);
     }

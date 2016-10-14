@@ -2,7 +2,7 @@ package cn.dreampie.common;
 
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.exception.HttpException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.RenderedImage;
@@ -26,7 +26,7 @@ public abstract class Render {
       writer = response.getWriter();
       writer.print(content);
     } catch (IOException e) {
-      throw new WebException(e.getMessage());
+      throw new HttpException(e.getMessage());
     }
   }
 
@@ -36,7 +36,7 @@ public abstract class Render {
       outputStream = response.getOutputStream();
       ImageIO.write(content, type, outputStream);
     } catch (Exception e) {
-      throw new WebException(e.getMessage());
+      throw new HttpException(e.getMessage());
     }
   }
 }

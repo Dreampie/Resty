@@ -3,7 +3,7 @@ package cn.dreampie.route.handler.cors;
 import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.Lister;
@@ -90,7 +90,7 @@ public class CORSHandler extends Handler {
           if (chainPreflight)
             logger.debug("Preflight cross-origin request to %s forwarded to application", request.getRestPath());
           else
-            throw new WebException(HttpStatus.FORBIDDEN, "Unauthorized CORS request");
+            throw new HttpException(HttpStatus.FORBIDDEN, "Unauthorized CORS request");
         } else {
           logger.debug("Cross-origin request to %s is a non-simple cross-origin request", request.getRestPath());
           handleSimpleResponse(request, response, origin);

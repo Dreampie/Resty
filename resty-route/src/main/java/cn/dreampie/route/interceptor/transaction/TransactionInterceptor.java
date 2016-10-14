@@ -1,6 +1,6 @@
 package cn.dreampie.route.interceptor.transaction;
 
-import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.orm.DataSourceMeta;
 import cn.dreampie.orm.Metadata;
 import cn.dreampie.orm.transaction.Transaction;
@@ -49,8 +49,8 @@ public class TransactionInterceptor implements Interceptor {
         if (cause == null) {
           cause = t;
         }
-        if (cause instanceof WebException) {
-          throw (WebException) cause;
+        if (cause instanceof HttpException) {
+          throw (HttpException) cause;
         } else {
           throw new InterceptorException(cause.getMessage(), cause);
         }

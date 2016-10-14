@@ -4,7 +4,7 @@ import cn.dreampie.common.Render;
 import cn.dreampie.common.http.ContentType;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
-import cn.dreampie.common.http.exception.WebException;
+import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.log.Logger;
 
@@ -27,9 +27,9 @@ public class FileRender extends Render {
       }
 
       if (file == null) {
-        throw new WebException(HttpStatus.NOT_FOUND, "File not support '" + out + "'.");
+        throw new HttpException(HttpStatus.NOT_FOUND, "File not support '" + out + "'.");
       } else if (!file.exists()) {
-        throw new WebException(HttpStatus.NOT_FOUND, "File not found '" + file.getName() + "'.");
+        throw new HttpException(HttpStatus.NOT_FOUND, "File not found '" + file.getName() + "'.");
       } else {
         try {
           long p = 0L;
@@ -118,7 +118,7 @@ public class FileRender extends Render {
         } catch (IOException ie) {
           // 忽略 ClientAbortException 之类的异常
         } catch (Exception e) {
-          throw new WebException(e.getMessage());
+          throw new HttpException(e.getMessage());
         }
       }
     }

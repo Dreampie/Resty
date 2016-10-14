@@ -11,9 +11,7 @@ import org.apache.commons.pool2.impl.BaseObjectPoolConfig;
 import redis.clients.jedis.*;
 import redis.clients.util.Pool;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Dreampie on 15/4/24.
@@ -21,6 +19,7 @@ import java.util.List;
 public class RedisProvider extends CacheProvider {
 
   private static final Logger logger = Logger.getLogger(RedisProvider.class);
+  private static final int PAGE_SIZE = 128;
 
   private static final Pool pool;
   private static final String host;
@@ -161,27 +160,32 @@ public class RedisProvider extends CacheProvider {
         shardedJedis.set(jkey, Serializer.serialize(cache));
         if (expired != -1) {
           shardedJedis.expire(jkey, expired);
+          //添加group key
+          addGroupKey(shardedJedis, group, key, expired);
         } else {
           if (RedisProvider.expired != -1) {
             shardedJedis.expire(jkey, RedisProvider.expired);
+            //添加group key
+            addGroupKey(shardedJedis, group, key, RedisProvider.expired);
           }
         }
-        //添加group key
-        addGroupKey(shardedJedis, group, key);
       } else {
         jedis = getJedis();
         if (jedis != null) {
           jedis.set(jkey, Serializer.serialize(cache));
           if (expired != -1) {
             jedis.expire(jkey, expired);
+            //添加到group key
+            addGroupKey(jedis, group, key, expired);
           } else {
             if (RedisProvider.expired != -1) {
               jedis.expire(jkey, RedisProvider.expired);
+
+              //添加到group key
+              addGroupKey(jedis, group, key, RedisProvider.expired);
             }
           }
         }
-        //添加到group key
-        addGroupKey(jedis, group, key);
       }
     } catch (Exception e) {
       logger.warn("%s", e, e);
@@ -229,14 +233,32 @@ public class RedisProvider extends CacheProvider {
         } else if (event.getType().equals(CacheEvent.CacheEventType.GROUP)) {
           //从分组里取出所有的key
           String groupKeys = event.getGroup() + Constant.CONNECTOR + "keys";
+          byte[] gkey = groupKeys.getBytes();
           Collection<Jedis> shards = shardedJedis.getAllShards();
-          List<String> groupKeyList = getGroupKeys(shardedJedis, groupKeys);
 
-          if (groupKeyList != null && groupKeyList.size() > 0) {
-            for (Jedis j : shards) {
-              j.del(groupKeyList.toArray(new String[groupKeyList.size()]));
+          int offset = 0;
+          boolean finished = false;
+
+          do {
+            // need to paginate the keys
+            Set<byte[]> rawKeys = shardedJedis.zrange(gkey, (offset) * PAGE_SIZE, (offset + 1) * PAGE_SIZE - 1);
+            finished = rawKeys.size() < PAGE_SIZE;
+            offset++;
+            if (!rawKeys.isEmpty()) {
+              List<byte[]> groupedKeys = new ArrayList<byte[]>();
+              for (byte[] rawKey : rawKeys) {
+                groupedKeys.add(getGroupedKey(gkey, rawKey));
+              }
+
+              byte[][] groupedRawKeys = groupedKeys.toArray(new byte[groupedKeys.size()][]);
+
+              for (Jedis j : shards) {
+                j.del(groupedRawKeys);
+              }
             }
-          }
+          } while (!finished);
+
+          shardedJedis.del(groupKeys);
         }
       } else {
         jedis = getJedis();
@@ -246,11 +268,26 @@ public class RedisProvider extends CacheProvider {
           } else if (event.getType().equals(CacheEvent.CacheEventType.GROUP)) {
             //从分组里取出所有的key
             String groupKeys = event.getGroup() + Constant.CONNECTOR + "keys";
-            List<String> groupKeyList = getGroupKeys(jedis, groupKeys);
+            byte[] groupRawKey = groupKeys.getBytes();
+            int offset = 0;
+            boolean finished = false;
 
-            if (groupKeyList != null && groupKeyList.size() > 0) {
-              jedis.del(groupKeyList.toArray(new String[groupKeyList.size()]));
-            }
+            do {
+              // need to paginate the keys
+              Set<byte[]> rawKeys = jedis.zrange(groupRawKey, (offset) * PAGE_SIZE, (offset + 1) * PAGE_SIZE - 1);
+              finished = rawKeys.size() < PAGE_SIZE;
+              offset++;
+              if (!rawKeys.isEmpty()) {
+                List<byte[]> groupedKeys = new ArrayList<byte[]>();
+                for (byte[] rawKey : rawKeys) {
+                  groupedKeys.add(getGroupedKey(groupRawKey, rawKey));
+                }
+
+                byte[][] groupedRawKeys = groupedKeys.toArray(new byte[groupedKeys.size()][]);
+                jedis.del(groupedRawKeys);
+              }
+            } while (!finished);
+            jedis.del(groupKeys);
           }
         }
       }
@@ -261,50 +298,76 @@ public class RedisProvider extends CacheProvider {
     }
   }
 
-
-  private List<String> getGroupKeys(Object jedis, String groupKeys) {
-    byte[] gkey = groupKeys.getBytes();
-
+  private Set<byte[]> getGroupRawKeys(Object jedis, String groupKeys) {
+    byte[] groupRawKey = groupKeys.getBytes();
+    Set<byte[]> rawKeys = null;
     if (jedis instanceof ShardedJedis) {
-      return (List<String>) Serializer.unserialize(((ShardedJedis) jedis).get(gkey));
+      rawKeys = ((ShardedJedis) jedis).zrange(groupRawKey, 0, -1);
     } else if (jedis instanceof Jedis) {
-      return (List<String>) Serializer.unserialize(((Jedis) jedis).get(gkey));
+      rawKeys = ((Jedis) jedis).zrange(groupRawKey, 0, -1);
     }
-    return null;
+    return rawKeys;
   }
 
-  private void addGroupKey(Object jedis, String group, String key) {
-    String groupKeys = group + Constant.CONNECTOR + "keys";
-    byte[] gkey = groupKeys.getBytes();
+  private List<String> getGroupKeys(Object jedis, String groupKeys) {
+    List<String> keys = new ArrayList<String>();
+    Set<byte[]> rawKeys = getGroupRawKeys(jedis, groupKeys);
+    if (rawKeys != null && rawKeys.size() > 0) {
+      for (byte[] rawKey : rawKeys) {
+        keys.add((String) Serializer.unserialize(rawKey));
+      }
+    }
+    return keys;
+  }
 
-    List<String> groupKeyList = getGroupKeys(jedis, groupKeys);
-    if (groupKeyList == null) {
-      groupKeyList = new ArrayList<String>();
-    }
-    if (!groupKeyList.contains(key)) {
-      groupKeyList.add(key);
-    }
+  private void addGroupKey(Object jedis, String group, String key, int expired) {
+    String groupKeys = group + Constant.CONNECTOR + "keys";
+    byte[] groupRawKey = groupKeys.getBytes();
 
     if (jedis instanceof ShardedJedis) {
-      ((ShardedJedis) jedis).set(gkey, Serializer.serialize(groupKeyList));
+      ((ShardedJedis) jedis).zadd(groupRawKey, System.currentTimeMillis() + expired * 1000L, Serializer.serialize(key));
     } else if (jedis instanceof Jedis) {
-      ((Jedis) jedis).set(gkey, Serializer.serialize(groupKeyList));
+      ((Jedis) jedis).zadd(groupRawKey, System.currentTimeMillis() + expired * 1000L, Serializer.serialize(key));
     }
   }
 
   private void delGroupKey(Object jedis, String group, String key) {
     String groupKeys = group + Constant.CONNECTOR + "keys";
-    byte[] gkey = groupKeys.getBytes();
+    byte[] groupRawKey = groupKeys.getBytes();
 
-    List<String> groupKeyList = getGroupKeys(jedis, groupKeys);
-    if (groupKeyList != null && groupKeyList.contains(key)) {
-      groupKeyList.remove(key);
-      if (jedis instanceof ShardedJedis) {
-        ((ShardedJedis) jedis).set(gkey, Serializer.serialize(groupKeyList));
-      } else if (jedis instanceof Jedis) {
-        ((Jedis) jedis).set(gkey, Serializer.serialize(groupKeyList));
-      }
+    if (jedis instanceof ShardedJedis) {
+      ((ShardedJedis) jedis).zrem(groupRawKey, Serializer.serialize(key));
+      ((ShardedJedis) jedis).zremrangeByScore(groupRawKey, 0, System.currentTimeMillis());
+    } else if (jedis instanceof Jedis) {
+      ((Jedis) jedis).zrem(groupRawKey, Serializer.serialize(key));
+      ((Jedis) jedis).zremrangeByScore(groupRawKey, 0, System.currentTimeMillis());
     }
 
+  }
+
+  /**
+   * 获取添加了region的key
+   *
+   * @param groupRawKey
+   * @param rawKey
+   * @return
+   */
+  private byte[] getGroupedKey(byte[] groupRawKey, byte[] rawKey) {
+    byte[] regionedKey = Arrays.copyOf(groupRawKey, groupRawKey.length + rawKey.length);
+    System.arraycopy(rawKey, 0, regionedKey, groupRawKey.length, rawKey.length);
+    return regionedKey;
+  }
+
+  /**
+   * 从regionedkey取出rawKey
+   *
+   * @param groupedKey
+   * @param groupRawKey
+   * @return
+   */
+  private byte[] getRawKey(byte[] groupedKey, byte[] groupRawKey) {
+    byte[] rawKey = new byte[groupedKey.length - groupRawKey.length];
+    System.arraycopy(groupedKey, groupRawKey.length, rawKey, 0, rawKey.length);
+    return rawKey;
   }
 }

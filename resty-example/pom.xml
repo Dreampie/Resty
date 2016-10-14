@@ -103,6 +103,7 @@
       <groupId>cn.dreampie</groupId>
       <artifactId>resty-server</artifactId>
       <version>${resty.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <!--<dependency>-->

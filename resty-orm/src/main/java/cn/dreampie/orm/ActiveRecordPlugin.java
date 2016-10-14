@@ -36,6 +36,7 @@ public class ActiveRecordPlugin implements Plugin {
     this.dsmName = dsmName;
     this.writeDataSourceProvider = writeDataSourceProvider;
     this.readDataSourceProvider = readDataSourceProvider;
+
   }
 
   public ActiveRecordPlugin addExcludeClasses(Class<? extends Model>... classes) {

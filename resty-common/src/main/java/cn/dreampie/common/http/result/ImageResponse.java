@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Created by ice on 14-12-19.
  */
-public class ImageResponse<T extends RenderedImage> extends HttpResponse<T> {
+public class ImageResponse<T extends RenderedImage> extends ApiResponse<T> {
 
   private final String type;
 

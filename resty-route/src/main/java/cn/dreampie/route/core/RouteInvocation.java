@@ -2,7 +2,7 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.exception.HttpException;
-import cn.dreampie.common.http.result.HttpResponse;
+import cn.dreampie.common.http.result.ApiResponse;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.spring.SpringBuilder;
 import cn.dreampie.common.spring.SpringHolder;
@@ -114,16 +114,16 @@ public class RouteInvocation {
     HttpRequest request = routeMatch.getRequest();
     cn.dreampie.common.http.HttpResponse response = routeMatch.getResponse();
     //通过特定的webresult返回并携带状态码
-    if (invokeResult instanceof HttpResponse) {
-      HttpResponse httpResponse = (HttpResponse) invokeResult;
-      response.setStatus(httpResponse.getStatus());
-      Map<String, String> headers = httpResponse.getHeaders();
+    if (invokeResult instanceof ApiResponse) {
+      ApiResponse apiResponse = (ApiResponse) invokeResult;
+      response.setStatus(apiResponse.getStatus());
+      Map<String, String> headers = apiResponse.getHeaders();
       if (headers != null && headers.size() > 0) {
         for (Map.Entry<String, String> headersEntry : headers.entrySet()) {
           response.setHeader(headersEntry.getKey(), headersEntry.getValue());
         }
       }
-      result = httpResponse.getResult();
+      result = apiResponse.getResult();
     } else {
       result = invokeResult;
     }

@@ -4,35 +4,35 @@ import java.util.Map;
 
 /**
  * Created by ice on 14-12-19.
- * A HttpResponse can be raised to make resty return immediately an HTTP response with a specific HTTP status.
+ * A ApiResponse can be raised to make resty return immediately an HTTP response with a specific HTTP status.
  */
-public class HttpResponse<T> {
+public class ApiResponse<T> {
 
   private final HttpStatus status;
   private final T result;
   private final Map<String, String> headers;
 
-  public HttpResponse(HttpStatus status) {
+  public ApiResponse(HttpStatus status) {
     this(status, null, null);
   }
 
-  public HttpResponse(HttpStatus status, Map<String, String> headers) {
+  public ApiResponse(HttpStatus status, Map<String, String> headers) {
     this(status, null, headers);
   }
 
-  public HttpResponse(T result) {
+  public ApiResponse(T result) {
     this(HttpStatus.OK, result, null);
   }
 
-  public HttpResponse(T result, Map<String, String> headers) {
+  public ApiResponse(T result, Map<String, String> headers) {
     this(HttpStatus.OK, result, headers);
   }
 
-  public HttpResponse(HttpStatus status, T result) {
+  public ApiResponse(HttpStatus status, T result) {
     this(status, result, null);
   }
 
-  public HttpResponse(HttpStatus status, T result, Map<String, String> headers) {
+  public ApiResponse(HttpStatus status, T result, Map<String, String> headers) {
     this.status = status;
     this.result = result;
     this.headers = headers;

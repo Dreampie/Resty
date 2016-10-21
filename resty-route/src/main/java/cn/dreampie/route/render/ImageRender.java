@@ -6,7 +6,7 @@ import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.http.result.HttpStatus;
-import cn.dreampie.common.http.result.ImageResponse;
+import cn.dreampie.common.http.result.ImageResult;
 import cn.dreampie.log.Logger;
 
 import java.awt.image.RenderedImage;
@@ -19,9 +19,9 @@ public class ImageRender extends Render {
 
   public void render(HttpRequest request, HttpResponse response, Object out) {
     if (out != null) {
-      ImageResponse<RenderedImage> result = null;
+      ImageResult<RenderedImage> result = null;
       if (out instanceof RenderedImage) {
-        result = new ImageResponse<RenderedImage>((RenderedImage) out);
+        result = new ImageResult<RenderedImage>((RenderedImage) out);
       }
 
       if (result == null) {

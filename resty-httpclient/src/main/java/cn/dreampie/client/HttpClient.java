@@ -1,6 +1,6 @@
 package cn.dreampie.client;
 
-import cn.dreampie.client.exception.ClientException;
+import cn.dreampie.client.exception.HttpClientException;
 import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.stream.FileRenamer;
@@ -52,7 +52,7 @@ public class HttpClient extends HttpClientConnection {
 
   public HttpClient build(HttpClientRequest httpClientRequest) {
     if (httpClientRequest == null) {
-      throw new ClientException("HttpClientRequest must not null.");
+      throw new HttpClientException("HttpClientRequest must not null.");
     }
     this.clientRequestTL.set(httpClientRequest);
     return this;
@@ -92,8 +92,8 @@ public class HttpClient extends HttpClientConnection {
       return readResponse(httpMethod, conn);
     } catch (Exception e) {
 
-      if (e instanceof ClientException) {
-        throw (ClientException) e;
+      if (e instanceof HttpClientException) {
+        throw (HttpClientException) e;
       } else {
         String message = e.getMessage();
         if (message == null) {
@@ -102,7 +102,7 @@ public class HttpClient extends HttpClientConnection {
             message = cause.getMessage();
           }
         }
-        throw new ClientException(message, e);
+        throw new HttpClientException(message, e);
       }
     } finally {
       if (conn != null) {
@@ -116,7 +116,7 @@ public class HttpClient extends HttpClientConnection {
     //login
     HttpClientResult result = build(loginRequest).post();
     if (result.getStatus() != HttpStatus.OK) {
-      throw new ClientException("Login error " + result.getStatus().getCode() + ", " + result.getResult());
+      throw new HttpClientException("Login error " + result.getStatus().getCode() + ", " + result.getResult());
     } else {
       if (httpClientRequest != null) {
         result = build(httpClientRequest).ask(httpMethod);
@@ -171,7 +171,7 @@ public class HttpClient extends HttpClientConnection {
               }
             }
             if (fileName == null) {
-              throw new ClientException("Server not return filename, you must set it.");
+              throw new HttpClientException("Server not return filename, you must set it.");
             }
             // Write it to that dir the user supplied,
             // with the filename it arrived with

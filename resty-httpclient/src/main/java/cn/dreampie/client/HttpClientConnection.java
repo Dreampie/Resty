@@ -1,6 +1,6 @@
 package cn.dreampie.client;
 
-import cn.dreampie.client.exception.ClientException;
+import cn.dreampie.client.exception.HttpClientException;
 import cn.dreampie.common.http.ContentType;
 import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.util.stream.DefaultFileRenamer;
@@ -73,7 +73,7 @@ public class HttpClientConnection {
    */
   public void setRenamer(FileRenamer renamer) {
     if (renamer == null) {
-      throw new ClientException("FileRenamer must not null.");
+      throw new HttpClientException("FileRenamer must not null.");
     }
     this.renamer = renamer;
   }
@@ -85,7 +85,7 @@ public class HttpClientConnection {
       sslContext.init(null, tm, new java.security.SecureRandom());
       return sslContext.getSocketFactory();
     } catch (Exception e) {
-      throw new ClientException(e.getMessage(), e);
+      throw new HttpClientException(e.getMessage(), e);
     }
   }
 

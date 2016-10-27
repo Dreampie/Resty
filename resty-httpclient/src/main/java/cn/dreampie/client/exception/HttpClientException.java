@@ -1,14 +1,14 @@
 package cn.dreampie.client.exception;
 
 /**
- * ClientException
+ * HttpClientException
  */
-public class ClientException extends RuntimeException {
+public class HttpClientException extends RuntimeException {
 
   /**
    * Constructor.
    */
-  public ClientException() {
+  public HttpClientException() {
   }
 
   /**
@@ -16,7 +16,7 @@ public class ClientException extends RuntimeException {
    *
    * @param message Exception message.
    */
-  public ClientException(String message) {
+  public HttpClientException(String message) {
     super(message);
   }
 
@@ -25,7 +25,7 @@ public class ClientException extends RuntimeException {
    *
    * @param cause An exception.
    */
-  public ClientException(Throwable cause) {
+  public HttpClientException(Throwable cause) {
     super(cause);
   }
 
@@ -35,7 +35,7 @@ public class ClientException extends RuntimeException {
    * @param message Exception message.
    * @param cause   An exception.
    */
-  public ClientException(String message, Throwable cause) {
+  public HttpClientException(String message, Throwable cause) {
     super(message, cause);
   }
 

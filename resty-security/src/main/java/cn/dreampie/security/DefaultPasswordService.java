@@ -13,11 +13,11 @@ public class DefaultPasswordService implements PasswordService {
   }
 
   public String crypto(String password) {
-    return Cryptor.crypto("SHA-512", password);
+    return Cryptor.crypto(Cryptor.SHA512, password);
   }
 
   public String crypto(String password, String salt) {
-    return Cryptor.crypto("SHA-512", password, salt);
+    return Cryptor.crypto(Cryptor.SHA512, password, salt);
   }
 
   public boolean match(String password, String result) {

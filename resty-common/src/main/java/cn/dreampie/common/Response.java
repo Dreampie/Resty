@@ -2,6 +2,7 @@ package cn.dreampie.common;
 
 import cn.dreampie.common.http.result.HttpStatus;
 
+import javax.servlet.http.Cookie;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -52,6 +53,8 @@ public interface Response {
   PrintWriter getWriter() throws IOException;
 
   OutputStream getOutputStream() throws IOException;
+
+  Response addCookie(Cookie cookie);
 
   Response addCookie(String name, String value);
 

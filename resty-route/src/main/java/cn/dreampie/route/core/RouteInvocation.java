@@ -12,6 +12,7 @@ import cn.dreampie.route.render.RenderFactory;
 import cn.dreampie.route.valid.ValidResult;
 import cn.dreampie.route.valid.Validator;
 
+import javax.servlet.http.Cookie;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.lang.reflect.Method;
@@ -84,6 +85,8 @@ public class RouteInvocation {
               args[i++] = routeMatch.getResponse();
             } else if (Headers.class.isAssignableFrom(allParamTypes.get(i))) {
               args[i++] = routeMatch.getHeaders();
+            } else if (Cookies.class.isAssignableFrom(allParamTypes.get(i))) {
+              args[i++] = routeMatch.getCookies();
             } else if (Params.class.isAssignableFrom(allParamTypes.get(i))) {
               args[i++] = routeMatch.getParams();
             } else {
@@ -113,7 +116,7 @@ public class RouteInvocation {
     Object result;
     HttpRequest request = routeMatch.getRequest();
     cn.dreampie.common.http.HttpResponse response = routeMatch.getResponse();
-    //通过特定的webresult返回并携带状态码
+    //通过特定的httpResult返回并携带状态码
     if (invokeResult instanceof HttpResult) {
       HttpResult httpResult = (HttpResult) invokeResult;
       response.setStatus(httpResult.getStatus());
@@ -123,6 +126,13 @@ public class RouteInvocation {
           response.setHeader(headersEntry.getKey(), headersEntry.getValue());
         }
       }
+      List<Cookie> cookies = httpResult.getCookies();
+      if (cookies != null && cookies.size() > 0) {
+        for (Cookie cookie : cookies) {
+          response.addCookie(cookie);
+        }
+      }
+
       result = httpResult.getResult();
     } else {
       result = invokeResult;
@@ -158,7 +168,7 @@ public class RouteInvocation {
 
       for (Validator validator : validators) {
         //数据验证
-        vr = validator.validate(params);
+        vr = validator.validate(params, routeMatch);
         errors.putAll(vr.getErrors());
         if (!status.equals(vr.getStatus()))
           status = vr.getStatus();

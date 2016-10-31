@@ -15,6 +15,7 @@ public class RouteMatch {
   private final String extension;
   private final Params params;
   private final Headers headers;
+  private final Cookies cookies;
   private final HttpRequest request;
   private final HttpResponse response;
 
@@ -27,6 +28,7 @@ public class RouteMatch {
     this.extension = checkNotNull(extension);
     this.request = checkNotNull(request);
     this.headers = new Headers(request.getHeaders());
+    this.cookies = new Cookies(request.getCookiesMap());
     this.response = checkNotNull(response);
   }
 
@@ -52,6 +54,10 @@ public class RouteMatch {
 
   public Headers getHeaders() {
     return headers;
+  }
+
+  public Cookies getCookies() {
+    return cookies;
   }
 
   public String toString() {

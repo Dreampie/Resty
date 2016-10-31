@@ -1,7 +1,9 @@
 package cn.dreampie.common.http;
 
+import cn.dreampie.common.Constant;
 import cn.dreampie.common.Response;
 import cn.dreampie.common.http.result.HttpStatus;
+import cn.dreampie.log.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
@@ -10,12 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 
 /**
  * Date: 2/6/13
  * Time: 9:40 PM
  */
 public class HttpResponse extends AbstractResponse<HttpServletResponse> {
+  public static final Logger logger = Logger.getLogger(HttpResponse.class);
+
   private final HttpServletResponse response;
   private final HttpServletRequest request;
 
@@ -35,6 +40,11 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
     return response.getOutputStream();
   }
 
+  public Response addCookie(Cookie cookie) {
+    response.addCookie(cookie);
+    return this;
+  }
+
   public Response addCookie(String name, String value, int expiration) {
     return addCookie(name, value, expiration, true);
   }
@@ -42,14 +52,18 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
   public Response addCookie(String name, String value, int expiration, boolean httpOnly) {
     Cookie existingCookie = HttpRequest.getCookie(request.getCookies(), name);
     if (existingCookie != null) {
-      if ("/".equals(existingCookie.getPath())
+      if (Constant.cookiePath.equals(existingCookie.getPath())
           || existingCookie.getPath() == null // in some cases cookies set on path '/' are returned with a null path
           ) {
         // update existing cookie
-        existingCookie.setPath("/");
+        existingCookie.setPath(Constant.cookiePath);
         existingCookie.setValue(value);
         existingCookie.setMaxAge(expiration);
-//        existingCookie.setHttpOnly(httpOnly);
+        if (Constant.cookieHttpOnly) {
+          setHttpOnly(existingCookie);
+        }
+        existingCookie.setSecure(Constant.cookieSecure);
+        existingCookie.setDomain(Constant.cookieDomain);
         response.addCookie(existingCookie);
       } else {
         // we have an existing cookie on another path: clear it, and add a new cookie on root path
@@ -58,16 +72,24 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
         response.addCookie(existingCookie);
 
         Cookie c = new Cookie(name, value);
-        c.setPath("/");
+        c.setPath(Constant.cookiePath);
         c.setMaxAge(expiration);
-//        c.setHttpOnly(httpOnly);
+        if (Constant.cookieHttpOnly) {
+          setHttpOnly(existingCookie);
+        }
+        c.setSecure(Constant.cookieSecure);
+        c.setDomain(Constant.cookieDomain);
         response.addCookie(c);
       }
     } else {
       Cookie c = new Cookie(name, value);
-      c.setPath("/");
+      c.setPath(Constant.cookiePath);
       c.setMaxAge(expiration);
-//      c.setHttpOnly(httpOnly);
+      if (Constant.cookieHttpOnly) {
+        setHttpOnly(c);
+      }
+      c.setSecure(Constant.cookieSecure);
+      c.setDomain(Constant.cookieDomain);
       response.addCookie(c);
     }
     return this;
@@ -77,7 +99,7 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
   public Response clearCookie(String cookie) {
     Cookie existingCookie = HttpRequest.getCookie(request.getCookies(), cookie);
     if (existingCookie != null) {
-      existingCookie.setPath("/");
+      existingCookie.setPath(Constant.cookiePath);
       existingCookie.setValue("");
       existingCookie.setMaxAge(0);
       response.addCookie(existingCookie);
@@ -108,6 +130,18 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
       return (T) response;
     }
     throw new IllegalArgumentException("Underlying implementation is HttpServletResponse, not " + clazz.getName());
+  }
+
+  public void setHttpOnly(Cookie cookie) {
+    try {
+      Field field = Cookie.class.getDeclaredField("httpOnly");
+      field.setAccessible(true);
+      field.set(cookie, true);
+    } catch (NoSuchFieldException e) {
+      logger.warn("Could not support 'httpOnly', upgrade servlet solve it.");
+    } catch (IllegalAccessException e) {
+      logger.error(e.getMessage(), e);
+    }
   }
 
   public void reset() {

@@ -2,6 +2,7 @@ package cn.dreampie.resource;
 
 import cn.dreampie.common.util.matcher.PatternMatcher;
 import cn.dreampie.route.core.Params;
+import cn.dreampie.route.core.RouteMatch;
 import cn.dreampie.route.valid.ValidResult;
 import cn.dreampie.route.valid.Validator;
 
@@ -10,7 +11,7 @@ import cn.dreampie.route.valid.Validator;
  */
 public class SigninValidator extends Validator {
 
-  public ValidResult validate(Params params) {
+  public ValidResult validate(Params params, RouteMatch routeMatch) {
 
     ValidResult result = new ValidResult();
 

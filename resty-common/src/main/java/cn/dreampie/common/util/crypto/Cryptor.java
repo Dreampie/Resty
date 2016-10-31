@@ -12,29 +12,43 @@ import java.util.List;
 
 public class Cryptor {
 
+  public static final String MD2 = "MD2";
+  public static final String MD5 = "MD5";
+
+  public static final String SHA1 = "SHA-1";
+  public static final String SHA256 = "SHA-256";
+  public static final String SHA384 = "SHA-384";
+  public static final String SHA512 = "SHA-512";
+
+  public static final String HMACMD5 = "HmacMD5";
+  public static final String HMACSHA1 = "HmacSHA1";
+  public static final String HMACSHA256 = "HmacSHA256";
+  public static final String HMACSHA384 = "HmacSHA384";
+  public static final String HMACSHA512 = "HmacSHA512";
+
   private static List<String> mds = new ArrayList<String>() {{
-    add("MD2");
+    add(MD2);
 //    add("MD4"); Bouncy Castle
-    add("MD5");
+    add(MD5);
   }};
 
   private static List<String> shas = new ArrayList<String>() {{
-    add("SHA-1");
+    add(SHA1);
 //    add("SHA-224"); Bouncy Castle
-    add("SHA-256");
-    add("SHA-384");
-    add("SHA-512");
+    add(SHA256);
+    add(SHA384);
+    add(SHA512);
   }};
 
   private static List<String> macs = new ArrayList<String>() {{
 //    add("HmacMD2");  Bouncy Castle
 //    add("HmacMD4"); Bouncy Castle
-    add("HmacMD5");
-    add("HmacSHA1");
+    add(HMACMD5);
+    add(HMACSHA1);
 //    add("HmacSHA224");Bouncy Castle
-    add("HmacSHA256");
-    add("HmacSHA384");
-    add("HmacSHA512");
+    add(HMACSHA256);
+    add(HMACSHA384);
+    add(HMACSHA512);
   }};
 
   public static String crypto(String algorithm, String message) {

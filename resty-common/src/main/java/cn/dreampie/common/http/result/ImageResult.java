@@ -2,7 +2,9 @@ package cn.dreampie.common.http.result;
 
 import cn.dreampie.common.http.ContentType;
 
+import javax.servlet.http.Cookie;
 import java.awt.image.RenderedImage;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +24,11 @@ public class ImageResult<T extends RenderedImage> extends HttpResult<T> {
     this.type = type;
   }
 
+  public ImageResult(HttpStatus status, String type, List<Cookie> cookies) {
+    super(status, cookies);
+    this.type = type;
+  }
+
   public ImageResult(T result) {
     super(result);
     this.type = ContentType.PNG.type();
@@ -37,13 +44,28 @@ public class ImageResult<T extends RenderedImage> extends HttpResult<T> {
     this.type = type;
   }
 
+  public ImageResult(T result, String type, List<Cookie> cookies) {
+    super(result, cookies);
+    this.type = type;
+  }
+
   public ImageResult(HttpStatus status, T result, String type) {
     super(status, result);
     this.type = type;
   }
 
+  public ImageResult(HttpStatus status, T result, String type, List<Cookie> cookies) {
+    super(status, result, cookies);
+    this.type = type;
+  }
+
   public ImageResult(HttpStatus status, T result, String type, Map<String, String> headers) {
-    super(status, result, headers);
+    super(status, result, headers, null);
+    this.type = type;
+  }
+
+  public ImageResult(HttpStatus status, T result, String type, Map<String, String> headers, List<Cookie> cookies) {
+    super(status, result, headers, cookies);
     this.type = type;
   }
 

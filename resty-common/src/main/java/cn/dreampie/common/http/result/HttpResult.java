@@ -23,6 +23,10 @@ public class HttpResult<T> {
     this(status, null, headers, null);
   }
 
+  public HttpResult(HttpStatus status, List<Cookie> cookies) {
+    this(status, null, null, cookies);
+  }
+
   public HttpResult(T result) {
     this(HttpStatus.OK, result, null);
   }

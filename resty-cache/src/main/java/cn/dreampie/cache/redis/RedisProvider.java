@@ -54,6 +54,7 @@ public class RedisProvider extends CacheProvider {
       poolConfig.setJmxEnabled(config.getBoolean("redis.pool.jmxEnabled", BaseObjectPoolConfig.DEFAULT_JMX_ENABLE));
       poolConfig.setJmxNamePrefix(config.get("redis.pool.jmxNamePrefix", BaseObjectPoolConfig.DEFAULT_JMX_NAME_PREFIX));
 
+      //hp[0] is hostname,hp[1] is port,hp[2] is the password of redis
       if (shardHost != null) {
         String[] shards = shardHost.split(",");
         List<JedisShardInfo> shardInfos = new ArrayList<JedisShardInfo>();
@@ -62,7 +63,7 @@ public class RedisProvider extends CacheProvider {
           hp = s.split(":");
           shardInfo = new JedisShardInfo(hp[0], Integer.parseInt(hp[1]), timeout);
           if (hp.length >= 3) {
-            shardInfo.setPassword(hp[3]);
+            shardInfo.setPassword(hp[2]);
           }
           shardInfos.add(shardInfo);
         }
@@ -70,7 +71,11 @@ public class RedisProvider extends CacheProvider {
       } else {
         if (host != null) {
           hp = host.split(":");
-          pool = new JedisPool(poolConfig, hp[0], Integer.parseInt(hp[1]));
+          if(hp.length >= 3){
+        	pool = new JedisPool(poolConfig, hp[0], Integer.parseInt(hp[1]), timeout, hp[2]);
+          } else {
+            pool = new JedisPool(poolConfig, hp[0], Integer.parseInt(hp[1]), timeout);
+          }
         } else {
           pool = null;
           logger.error("Could not found 'redis.host' or 'redis.shard.host'");
@@ -97,11 +102,12 @@ public class RedisProvider extends CacheProvider {
     if (pool != null && pool instanceof JedisPool) {
       jedis = (Jedis) pool.getResource();
     }
+    //hp[0] is hostname,hp[1] is port,hp[2] is the password of redis
     if (jedis == null) {
       String[] hp = host.split(":");
       jedis = new Jedis(hp[0], Integer.parseInt(hp[1]), timeout);
       if (hp.length >= 3) {
-        jedis.auth(hp[3]);
+        jedis.auth(hp[2]);
       }
     }
     return jedis;

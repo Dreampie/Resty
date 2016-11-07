@@ -10,6 +10,7 @@ import cn.dreampie.security.credential.Credentials;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static cn.dreampie.common.util.Checker.checkNotNull;
 
@@ -47,7 +48,7 @@ public class Subject {
 
   private static Session authenticateAs(String username, long expires) {
     Session session = current();
-    return updateCurrent(new Session(session.getSessionKey(), username, session.getValues(), expires));
+    return updateCurrent(new Session(UUID.randomUUID().toString(), username, session.getValues(), expires));
   }
 
   private static Session clearPrincipal() {

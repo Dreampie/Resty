@@ -21,7 +21,7 @@ public abstract class Entity<M extends Entity> {
   private Map<String, Object> modifyAttrs = new CaseInsensitiveMap<Object>();
 
   /**
-   * get Conversion to convert attr
+   * getMessage Conversion to convert attr
    *
    * @param attr
    * @return

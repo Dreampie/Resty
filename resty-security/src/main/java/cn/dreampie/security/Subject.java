@@ -1,7 +1,7 @@
 package cn.dreampie.security;
 
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.exception.HttpException;
-import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.matcher.AntPathMatcher;
 import cn.dreampie.log.Logger;
 import cn.dreampie.security.credential.Credential;
@@ -70,7 +70,7 @@ public class Subject {
     checkNotNull(password, "Password could not be null.");
     Principal principal = credentials.getPrincipal(username);
     if (principal == null) {
-      throw new HttpException(HttpStatus.NOT_FOUND, "User not found.");
+      throw new HttpException(HttpMessage.USERNAME_NOT_FOUND);
     }
     boolean match;
     String salt = principal.getSalt();
@@ -91,9 +91,9 @@ public class Subject {
       }
       //授权用户
       authenticateAs(username, expires);
-      logger.info("Session authentication as " + username);
+      logger.debug("Session authentication as " + username);
     } else {
-      throw new HttpException(HttpStatus.UNPROCESSABLE_ENTITY, "Password not match.");
+      throw new HttpException(HttpMessage.PASSWORD_ERROR);
     }
   }
 
@@ -101,7 +101,7 @@ public class Subject {
     //add cache
     Principal principal = getPrincipal();
     if (principal != null) {
-      logger.info("Session leave authentication " + principal.getUsername());
+      logger.debug("Session leave authentication " + principal.getUsername());
     }
     //清理用户
     clearPrincipal();
@@ -225,15 +225,15 @@ public class Subject {
    */
   public static void check(String httpMethod, String path) {
     String needCredential = need(httpMethod, path);
-    logger.info(httpMethod + " " + path + " need credential " + needCredential);
+    logger.debug(httpMethod + " " + path + " need credential " + needCredential);
     if (needCredential != null) {
       Principal principal = getPrincipal();
       if (principal != null) {
         if (!principal.hasCredential(needCredential)) {
-          throw new HttpException(HttpStatus.FORBIDDEN);
+          throw new HttpException(HttpMessage.FORBIDDEN);
         }
       } else {
-        throw new HttpException(HttpStatus.UNAUTHORIZED);
+        throw new HttpException(HttpMessage.UNAUTHORIZED);
       }
     }
   }

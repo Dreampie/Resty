@@ -1,5 +1,6 @@
 package cn.dreampie.upload;
 
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.exception.HttpException;
@@ -253,7 +254,8 @@ public class MultipartRequest {
         filePart = (FilePart) part;
         contentType = filePart.getContentType();
         if ((allowTypes.size() > 0 && !allowTypes.contains(contentType)) || (deniedTypes.size() > 0 && deniedTypes.contains(contentType))) {
-          throw new HttpException("Denied upload file type '" + filePart.getContentType() + "'.");
+          logger.error("Denied upload file type '" + filePart.getContentType() + "'.");
+          throw new HttpException(HttpMessage.UNSUPPORTED_MEDIA_TYPE);
           //continue;
         }
 

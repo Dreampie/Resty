@@ -1,6 +1,7 @@
 package cn.dreampie.route.core.multipart;
 
 import cn.dreampie.common.Constant;
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.util.stream.FileRenamer;
@@ -63,7 +64,8 @@ public class MultipartBuilder {
 
     if (!saveDir.exists()) {
       if (!saveDir.mkdirs()) {
-        throw new HttpException("Directory " + saveDirectory + " not exists and can not create directory.");
+        logger.error("Directory " + saveDirectory + " not exists and can not create directory.");
+        throw new HttpException(HttpMessage.FILE_UPLOAD_ERROR);
       }
     }
 
@@ -78,7 +80,8 @@ public class MultipartBuilder {
       MultipartRequest multipartRequest = new MultipartRequest(request, saveDir, maxPostSize, encoding, fileRenamer, uploadAllows, Constant.uploadDenieds);
       multipartParam = new MultipartParam(multipartRequest.getFiles(), multipartRequest.getParams());
     } catch (IOException e) {
-      throw new HttpException(e.getMessage());
+      logger.error(e.getMessage(), e);
+      throw new HttpException(HttpMessage.FILE_UPLOAD_ERROR);
     }
     return multipartParam;
   }

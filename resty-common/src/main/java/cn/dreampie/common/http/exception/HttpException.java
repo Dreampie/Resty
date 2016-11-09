@@ -1,6 +1,12 @@
 package cn.dreampie.common.http.exception;
 
+import cn.dreampie.common.http.HttpMessage;
+import cn.dreampie.common.http.result.ErrorResult;
 import cn.dreampie.common.http.result.HttpStatus;
+import cn.dreampie.common.util.Lister;
+import cn.dreampie.common.util.json.Jsoner;
+
+import java.util.List;
 
 /**
  * Created by ice on 14-12-19.
@@ -11,28 +17,27 @@ public class HttpException extends RuntimeException {
   private final HttpStatus status;
   private final Object content;
 
-  public HttpException(HttpStatus status) {
-    this(status, status.getDesc());
+  public HttpException(String key) {
+    this(key, HttpMessage.getMessage(key));
   }
 
-  public HttpException(String message) {
-    this(HttpStatus.BAD_REQUEST, message);
+  public HttpException(HttpStatus status, String key) {
+    this(status, key, HttpMessage.getMessage(key));
   }
 
-  public HttpException(Object content) {
-    this(HttpStatus.BAD_REQUEST, content);
+  public HttpException(String key, String message) {
+    this(HttpMessage.getStatus(key), key, message);
   }
 
-  public HttpException(HttpStatus status, String message) {
-    super(message);
+  public HttpException(HttpStatus status, String key, String message) {
+    this(status, Lister.<ErrorResult>of(new ErrorResult(key, message)));
+  }
+
+
+  public HttpException(HttpStatus status, List<ErrorResult> errors) {
+    super(Jsoner.toJSON(errors));
     this.status = status;
-    this.content = null;
-  }
-
-  public HttpException(HttpStatus status, Object content) {
-    super();
-    this.status = status;
-    this.content = content;
+    this.content = errors;
   }
 
   public HttpStatus getStatus() {

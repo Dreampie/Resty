@@ -1,8 +1,10 @@
 package cn.dreampie.route;
 
 import cn.dreampie.common.Constant;
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
+import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.util.matcher.AntPathMatcher;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.config.Config;
@@ -43,7 +45,8 @@ public final class RestyFilter implements Filter {
       restyIniter = new RestyIniter(config, filterConfig.getServletContext());
       handler = restyIniter.getHandler();
     } catch (Exception e) {
-      throw new ServletException(e.getMessage(), e);
+      logger.error(e.getMessage(), e);
+      throw new HttpException(HttpMessage.INTERNAL_SERVER_ERROR);
     }
   }
 

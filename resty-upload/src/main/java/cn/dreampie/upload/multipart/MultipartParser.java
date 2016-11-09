@@ -1,8 +1,10 @@
 package cn.dreampie.upload.multipart;
 
 import cn.dreampie.common.http.ContentType;
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.exception.HttpException;
+import cn.dreampie.log.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +50,8 @@ import java.util.Vector;
  * @see cn.dreampie.upload.MultipartRequest
  */
 public class MultipartParser {
+
+  public static final Logger logger = Logger.getLogger(MultipartParser.class);
 
   /**
    * default encoding
@@ -149,13 +153,14 @@ public class MultipartParser {
     }
 
     if (type == null || !type.toLowerCase().startsWith(ContentType.MULTIPART.value())) {
-      throw new HttpException("Posted content type isn't '" + ContentType.MULTIPART.value() + "'.");
+      logger.error("Posted content type isn't '" + ContentType.MULTIPART.value() + "'.");
+      throw new HttpException(HttpMessage.UNSUPPORTED_MEDIA_TYPE);
     }
     // Check the content length to prevent denial of service attacks
     int length = req.getContentLength();
     if (length > maxSize) {
-      throw new HttpException("Posted content length of " + length +
-          " exceeds limit of " + maxSize + ".");
+      logger.error("Posted content length of " + length + " exceeds limit of " + maxSize + ".");
+      throw new HttpException(HttpMessage.REQUEST_ENTITY_TOO_LARGE);
     }
 
     // Get the boundary string; it's included in the content type.

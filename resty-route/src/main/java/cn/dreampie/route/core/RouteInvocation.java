@@ -2,6 +2,7 @@ package cn.dreampie.route.core;
 
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.exception.HttpException;
+import cn.dreampie.common.http.result.ErrorResult;
 import cn.dreampie.common.http.result.HttpResult;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.spring.SpringBuilder;
@@ -15,8 +16,9 @@ import cn.dreampie.route.valid.Validator;
 import javax.servlet.http.Cookie;
 import java.awt.image.RenderedImage;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -101,7 +103,11 @@ public class RouteInvocation {
         //输出结果
         render(invokeResult);
       } catch (Exception e) {
-        route.throwException(e);
+        if (e instanceof InvocationTargetException) {
+          route.throwException(e.getCause());
+        } else {
+          route.throwException(e);
+        }
       }
     }
   }
@@ -162,14 +168,14 @@ public class RouteInvocation {
     Validator[] validators = route.getValidators();
 
     if (validators.length > 0) {
-      Map<String, Object> errors = new HashMap<String, Object>();
+      List<ErrorResult> errors = new ArrayList<ErrorResult>();
       HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
       ValidResult vr;
 
       for (Validator validator : validators) {
         //数据验证
         vr = validator.validate(params, routeMatch);
-        errors.putAll(vr.getErrors());
+        errors.addAll(vr.getErrors());
         if (!status.equals(vr.getStatus()))
           status = vr.getStatus();
       }
@@ -179,7 +185,6 @@ public class RouteInvocation {
       }
     }
   }
-
 
   public Method getMethod() {
     return route.getMethod();

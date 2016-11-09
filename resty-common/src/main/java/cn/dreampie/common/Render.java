@@ -1,8 +1,10 @@
 package cn.dreampie.common;
 
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.HttpException;
+import cn.dreampie.log.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.RenderedImage;
@@ -15,6 +17,8 @@ import java.io.PrintWriter;
  */
 public abstract class Render {
 
+  public static final Logger logger = Logger.getLogger(Render.class);
+
   /**
    * Render to client
    */
@@ -26,7 +30,8 @@ public abstract class Render {
       writer = response.getWriter();
       writer.print(content);
     } catch (IOException e) {
-      throw new HttpException(e.getMessage());
+      logger.error(e.getMessage(), e);
+      throw new HttpException(HttpMessage.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -36,7 +41,8 @@ public abstract class Render {
       outputStream = response.getOutputStream();
       ImageIO.write(content, type, outputStream);
     } catch (Exception e) {
-      throw new HttpException(e.getMessage());
+      logger.error(e.getMessage(), e);
+      throw new HttpException(HttpMessage.INTERNAL_SERVER_ERROR);
     }
   }
 }

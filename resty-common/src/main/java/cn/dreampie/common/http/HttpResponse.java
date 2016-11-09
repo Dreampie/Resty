@@ -63,7 +63,9 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
           setHttpOnly(existingCookie);
         }
         existingCookie.setSecure(Constant.cookieSecure);
-        existingCookie.setDomain(Constant.cookieDomain);
+        if (Constant.cookieDomain != null) {
+          existingCookie.setDomain(Constant.cookieDomain);
+        }
         response.addCookie(existingCookie);
       } else {
         // we have an existing cookie on another path: clear it, and add a new cookie on root path
@@ -78,7 +80,9 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
           setHttpOnly(existingCookie);
         }
         c.setSecure(Constant.cookieSecure);
-        c.setDomain(Constant.cookieDomain);
+        if (Constant.cookieDomain != null) {
+          c.setDomain(Constant.cookieDomain);
+        }
         response.addCookie(c);
       }
     } else {
@@ -89,7 +93,9 @@ public class HttpResponse extends AbstractResponse<HttpServletResponse> {
         setHttpOnly(c);
       }
       c.setSecure(Constant.cookieSecure);
-      c.setDomain(Constant.cookieDomain);
+      if (Constant.cookieDomain != null) {
+        c.setDomain(Constant.cookieDomain);
+      }
       response.addCookie(c);
     }
     return this;

@@ -1,39 +1,40 @@
 package cn.dreampie.route.valid;
 
+import cn.dreampie.common.http.result.ErrorResult;
 import cn.dreampie.common.http.result.HttpStatus;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ice on 15-1-26.
  */
 public class ValidResult {
-  private Map<String, Object> errors = new HashMap<String, Object>();
+  private List<ErrorResult> errors = new ArrayList<ErrorResult>();
 
   private HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
 
   public ValidResult() {
   }
 
-  public ValidResult(Map<String, Object> errors) {
+  public ValidResult(List<ErrorResult> errors) {
     this.errors = errors;
   }
 
-  public ValidResult(Map<String, Object> errors, HttpStatus status) {
+  public ValidResult(HttpStatus status, List<ErrorResult> errors) {
     this.errors = errors;
     this.status = status;
   }
 
-  public void addError(String name, Object error) {
-    this.errors.put(name, error);
+  public void addError(String name, String error) {
+    this.errors.add(new ErrorResult(name, error));
   }
 
-  public Map<String, Object> getErrors() {
+  public List<ErrorResult> getErrors() {
     return errors;
   }
 
-  public void setErrors(Map<String, Object> errors) {
+  public void setErrors(List<ErrorResult> errors) {
     this.errors = errors;
   }
 

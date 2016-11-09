@@ -5,7 +5,6 @@ import cn.dreampie.common.Constant;
 import cn.dreampie.common.entity.Entity;
 import cn.dreampie.common.http.*;
 import cn.dreampie.common.http.exception.HttpException;
-import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.Joiner;
 import cn.dreampie.common.util.analysis.ParamAttribute;
 import cn.dreampie.common.util.analysis.ParamNamesScaner;
@@ -109,7 +108,7 @@ public class Route {
       i = 0;
       for (Validator validator : validators) {
         try {
-          paramAttr = ParamNamesScaner.getParamNames(validator.getClass().getMethod("validate", Params.class));
+          paramAttr = ParamNamesScaner.getParamNames(validator.getClass().getMethod("validate", Params.class, RouteMatch.class));
         } catch (NoSuchMethodException e) {
           throw new InitException(e.getMessage(), e);
         }
@@ -223,7 +222,7 @@ public class Route {
     if (headers.size() > 0) {
       for (Map.Entry<String, String> headersEntry : headers.entrySet()) {
         if (!headersEntry.getValue().equals(request.getHeader(headersEntry.getKey()))) {
-          throw new HttpException(HttpStatus.NOT_ACCEPTABLE, "Your header not match route.");
+          throw new HttpException(HttpMessage.HEADER_NOT_MATCH);
         }
       }
     }
@@ -452,43 +451,9 @@ public class Route {
     if (throwable instanceof HttpException) {
       throw (HttpException) throwable;
     } else {
-      HttpException exception = getWebException(throwable, 0);
-      Throwable cause = throwable.getCause();
-      if (cause != null) {
-        logger.error("Route method invoke error.", cause);
-      } else {
-        logger.error("Route method invoke error.", throwable);
-      }
-      throw exception;
+      logger.error(throwable.getMessage(), throwable);
+      throw new HttpException(HttpMessage.INTERNAL_SERVER_ERROR);
     }
-  }
-
-  private HttpException getWebException(Throwable throwable, int deep) {
-    HttpException result = null;
-
-    String message = throwable.getMessage();
-    if (message == null) {
-      Throwable cause = throwable.getCause();
-      if (cause != null) {
-        if (cause instanceof HttpException) {
-          result = (HttpException) cause;
-        } else {
-          message = cause.getMessage();
-          if (message == null && !throwable.equals(cause) && deep < 100) {
-            result = getWebException(cause, ++deep);
-          }
-        }
-      }
-    } else {
-      if (throwable instanceof HttpException) {
-        result = (HttpException) throwable;
-      }
-    }
-
-    if (result == null) {
-      result = new HttpException(HttpStatus.INTERNAL_SERVER_ERROR, message);
-    }
-    return result;
   }
 
   /**
@@ -507,7 +472,7 @@ public class Route {
     } catch (IOException e) {
       String msg = "Could not read inputStream when contentType is '" + request.getContentType() + "'.";
       logger.error(msg, e);
-      throw new HttpException(msg);
+      throw new HttpException(HttpMessage.INTERNAL_SERVER_ERROR);
     }
     return json;
   }

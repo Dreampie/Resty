@@ -2,10 +2,10 @@ package cn.dreampie.route.render;
 
 import cn.dreampie.common.Render;
 import cn.dreampie.common.http.ContentType;
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.HttpException;
-import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.http.result.ImageResult;
 import cn.dreampie.log.Logger;
 
@@ -25,7 +25,8 @@ public class ImageRender extends Render {
       }
 
       if (result == null) {
-        throw new HttpException(HttpStatus.NOT_FOUND, "Image not support '" + out + "'.");
+        logger.error("Image not support '" + out + "'.");
+        throw new HttpException(HttpMessage.NOT_FOUND);
       } else {
         response.setContentType(ContentType.typeOf(result.getType()).value());
         write(request, response, result.getType(), result.getResult());

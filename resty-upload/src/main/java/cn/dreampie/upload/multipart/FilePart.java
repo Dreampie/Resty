@@ -1,7 +1,9 @@
 package cn.dreampie.upload.multipart;
 
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.util.stream.FileRenamer;
+import cn.dreampie.log.Logger;
 
 import java.io.*;
 
@@ -17,6 +19,8 @@ import java.io.*;
  * @version 1.0, 2000/10/27, initial revision
  */
 public class FilePart extends Part {
+
+  public static final Logger logger = Logger.getLogger(FilePart.class);
 
   private File dir;
   /**
@@ -169,7 +173,8 @@ public class FilePart extends Part {
         File parent = file.getParentFile();
         if (!parent.exists()) {
           if (!parent.mkdirs()) {
-            throw new HttpException("Directory " + parent + " not exists and can not create directory.");
+            logger.error("Directory " + parent + " not exists and can not create directory.");
+            throw new HttpException(HttpMessage.FILE_UPLOAD_ERROR);
           }
         }
         dir = parent;

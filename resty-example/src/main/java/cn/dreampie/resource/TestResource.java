@@ -2,10 +2,10 @@ package cn.dreampie.resource;
 
 import cn.dreampie.captcha.CaptchaFactory;
 import cn.dreampie.captcha.service.Captcha;
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.UploadedFile;
 import cn.dreampie.common.http.exception.HttpException;
 import cn.dreampie.common.http.result.HttpResult;
-import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.Maper;
 import cn.dreampie.orm.Record;
 import cn.dreampie.orm.TableSetting;
@@ -32,14 +32,14 @@ public class TestResource extends ApiResource {
   @Autowired
   private HelloService helloService;
 
-  @GET(value = "/:get", headers = {"Accept: application/vnd.resty.v1+json"})
+  @GET(value = "/:get")
   public HttpResult<List<User>> get(String get, Date x, cn.dreampie.common.http.HttpResponse response) {
-//    throw new HttpException(HttpStatus.NO_CONTENT, "xxx");
+    throw new HttpException(HttpMessage.NOT_FOUND);
 //    response.addCookie( "xxxx", "hh");
 //    System.out.println("xxxxx" + x);
 //    System.out.println(helloService.hello());
     //如果需要返回请求状态  new HttpResult
-    return new HttpResult<List<User>>(HttpStatus.OK, User.dao.findAll());
+//    return new HttpResult<List<User>>(HttpStatus.OK, User.dao.findAll());
   }
 
   @POST("/:post")

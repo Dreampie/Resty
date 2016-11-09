@@ -49,11 +49,11 @@ public class Proper {
    * Example:<br>
    * Proper.use("config.txt", "UTF-8");<br>
    * Proper.use("other_config.txt", "UTF-8");<br><br>
-   * String userName = Proper.get("userName");<br>
-   * String password = Proper.get("password");<br><br>
+   * String userName = Proper.getMessage("userName");<br>
+   * String password = Proper.getMessage("password");<br><br>
    * <p/>
-   * userName = Proper.use("other_config.txt").get("userName");<br>
-   * password = Proper.use("other_config.txt").get("password");<br><br>
+   * userName = Proper.use("other_config.txt").getMessage("userName");<br>
+   * password = Proper.use("other_config.txt").getMessage("password");<br><br>
    * <p/>
    * Proper.use("com/jfinal/config_in_sub_directory_of_classpath.txt");
    *
@@ -85,7 +85,7 @@ public class Proper {
    * <p/>
    * Example:<br>
    * Proper.use(new File("/var/config/my_config.txt"), "UTF-8");<br>
-   * Strig userName = Proper.use("my_config.txt").get("userName");
+   * Strig userName = Proper.use("my_config.txt").getMessage("userName");
    *
    * @param file     the properties File object
    * @param encoding the encoding

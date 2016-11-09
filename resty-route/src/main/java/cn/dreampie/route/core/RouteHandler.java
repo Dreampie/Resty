@@ -1,10 +1,10 @@
 package cn.dreampie.route.core;
 
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.HttpMethod;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.HttpException;
-import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.log.Logger;
 import cn.dreampie.route.handler.Handler;
 
@@ -68,7 +68,7 @@ public final class RouteHandler extends Handler {
     } else {
       if (!restPath.equals("/") && supportMethod) {
         // no route matched
-        throw new HttpException(HttpStatus.SERVICE_UNAVAILABLE, "API is unavailable,check request body.");
+        throw new HttpException(HttpMessage.API_NOT_FOUND);
       } else {
         isHandled[0] = false;
       }

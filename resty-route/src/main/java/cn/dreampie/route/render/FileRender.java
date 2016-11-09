@@ -2,6 +2,7 @@ package cn.dreampie.route.render;
 
 import cn.dreampie.common.Render;
 import cn.dreampie.common.http.ContentType;
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.HttpException;
@@ -27,9 +28,11 @@ public class FileRender extends Render {
       }
 
       if (file == null) {
-        throw new HttpException(HttpStatus.NOT_FOUND, "File not support '" + out + "'.");
+        logger.error("File not support '" + out + "'.");
+        throw new HttpException(HttpMessage.FILE_DOWNLOAD_ERROR);
       } else if (!file.exists()) {
-        throw new HttpException(HttpStatus.NOT_FOUND, "File not found '" + file.getName() + "'.");
+        logger.error("File not found '" + file.getName() + "'.");
+        throw new HttpException(HttpMessage.FILE_DOWNLOAD_ERROR);
       } else {
         try {
           long p = 0L;
@@ -40,7 +43,7 @@ public class FileRender extends Render {
           String rangBytes = "";
           fileLength = file.length();
 
-          // get file content
+          // getMessage file content
           InputStream ins = new FileInputStream(file);
           bis = new BufferedInputStream(ins);
 
@@ -118,7 +121,8 @@ public class FileRender extends Render {
         } catch (IOException ie) {
           // 忽略 ClientAbortException 之类的异常
         } catch (Exception e) {
-          throw new HttpException(e.getMessage());
+          logger.error(e.getMessage(), e);
+          throw new HttpException(HttpMessage.INTERNAL_SERVER_ERROR);
         }
       }
     }

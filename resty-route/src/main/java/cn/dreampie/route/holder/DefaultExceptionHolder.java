@@ -2,9 +2,11 @@ package cn.dreampie.route.holder;
 
 import cn.dreampie.common.Constant;
 import cn.dreampie.common.Render;
+import cn.dreampie.common.http.HttpMessage;
 import cn.dreampie.common.http.HttpRequest;
 import cn.dreampie.common.http.HttpResponse;
 import cn.dreampie.common.http.exception.HttpException;
+import cn.dreampie.common.http.result.ErrorResult;
 import cn.dreampie.common.http.result.HttpStatus;
 import cn.dreampie.common.util.json.Jsoner;
 import cn.dreampie.log.Logger;
@@ -26,7 +28,7 @@ public class DefaultExceptionHolder extends ExceptionHolder {
       if (Constant.apiPrefix == null || restPath.startsWith(Constant.apiPrefix)) {
         message = Jsoner.toJSON(httpException.getContent());
         if (logger.isWarnEnabled()) {
-          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + httpException.getStatus().getCode() + " " + message);
+          logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\", error: " + httpException.getStatus().getCode() + " " + message);
         }
         response.setStatus(httpException.getStatus());
         render.render(request, response, message);
@@ -43,10 +45,10 @@ public class DefaultExceptionHolder extends ExceptionHolder {
         }
       }
       if (logger.isErrorEnabled()) {
-        logger.warn("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\" error : " + HttpStatus.BAD_REQUEST.getCode() + " " + message, exception);
+        logger.error("Request \"" + request.getHttpMethod() + " " + request.getRestPath() + "\", error: " + HttpStatus.INTERNAL_SERVER_ERROR.getCode() + " " + message, exception);
       }
       response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-      render.render(request, response, message);
+      render.render(request, response, new ErrorResult(HttpMessage.INTERNAL_SERVER_ERROR));
     }
   }
 }

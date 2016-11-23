@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -30,6 +31,19 @@ public class SqlTest {
   @Before
   public void setUp() throws Exception {
     ActiveRecord.init();
+  }
+
+
+  @Test
+  public void testTable() {
+    Record recordDAO = new Record();
+    String tableName = "tst_" + new Date().getTime();
+    recordDAO.execute("CREATE TABLE " + tableName + "(id INT NOT NULL AUTO_INCREMENT,name VARCHAR(100) NOT NULL,PRIMARY KEY(id));");
+    Record tstDAO = new Record(new TableSetting(tableName));
+    Iterator iterator = tstDAO.getTableMeta().getColumnMetadata().values().iterator();
+    while (iterator.hasNext()) {
+      System.out.println(iterator.next().toString());
+    }
   }
 
   @Test

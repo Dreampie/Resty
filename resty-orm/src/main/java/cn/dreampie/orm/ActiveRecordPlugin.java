@@ -129,7 +129,7 @@ public class ActiveRecordPlugin implements Plugin {
       //model 元数据
       TableMetaBuilder.buildTableMeta(tableMetas, dsm);
     } else {
-      logger.warn("Could not load any model for   " + dsmName + ".");
+      logger.warn("Could not load any model for '" + dsmName + "'.");
     }
     //Record 解析支持
     Jsoner.addConfig(Record.class, ModelSerializer.instance(), ModelDeserializer.instance());

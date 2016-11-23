@@ -7,7 +7,7 @@ import cn.dreampie.orm.callable.ResultSetCall;
 import cn.dreampie.orm.page.FullPage;
 import cn.dreampie.resource.user.model.User;
 import cn.dreampie.resource.user.model.UserInfo;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -26,10 +26,10 @@ import java.util.List;
 @FixMethodOrder(MethodSorters.JVM)
 public class SqlTest {
 
-  private TableSetting tableSetting = new TableSetting("sec_user", true);
+  private static final String tableName = "tst_" + new Date().getTime();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeClass
+  public static void init() {
     ActiveRecord.init();
   }
 
@@ -37,14 +37,21 @@ public class SqlTest {
   @Test
   public void testTable() {
     Record recordDAO = new Record();
-    String tableName = "tst_" + new Date().getTime();
     recordDAO.execute("CREATE TABLE " + tableName + "(id INT NOT NULL AUTO_INCREMENT,name VARCHAR(100) NOT NULL,PRIMARY KEY(id));");
+  }
+
+
+  @Test
+  public void testColumn() {
     Record tstDAO = new Record(new TableSetting(tableName));
     Iterator iterator = tstDAO.getTableMeta().getColumnMetadata().values().iterator();
     while (iterator.hasNext()) {
       System.out.println(iterator.next().toString());
     }
   }
+
+
+  private TableSetting tableSetting = new TableSetting("sec_user", true);
 
   @Test
   public void testSql() {

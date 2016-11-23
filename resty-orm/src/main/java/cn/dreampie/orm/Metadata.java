@@ -86,7 +86,7 @@ public class Metadata {
       defaultDsmName = dsmName;
     }
     if (dataSourceMetaMap.containsKey(dsmName)) {
-      logger.error("Covering multiple dataSources for dsmName '%s'.", dsmName);
+      logger.error("Contains multiple dataSources for dsmName '%s'.", dsmName);
     }
     return dataSourceMetaMap.put(dsmName, dsm);
   }

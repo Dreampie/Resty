@@ -62,7 +62,7 @@ public enum QueryCache {
    * @param cache     object to cache.
    */
   public void add(String dsmName, String tableName, String type, String query, Object[] params, Object cache) {
-    add(type, dsmName, tableName, query, params, cache, -1);
+    add(dsmName, tableName, type, query, params, cache, -1);
   }
 
   public void add(String dsmName, String tableName, String type, String query, Object[] params, Object cache, int expired) {

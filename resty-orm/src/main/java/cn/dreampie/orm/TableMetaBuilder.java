@@ -22,13 +22,18 @@ public class TableMetaBuilder {
   public static Set<TableMeta> buildTableMeta(Set<TableMeta> tableMetas, DataSourceMeta dsm) {
     TableMeta temp = null;
     Connection conn = null;
+    SortedMap<String, ColumnMeta> columns;
     try {
       conn = dsm.getReadConnection();
       for (TableMeta tableMeta : tableMetas) {
         temp = tableMeta;
-        temp.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
-        //添加到model元数据集合
-        Metadata.addTableMeta(temp);
+
+        columns = fetchMetaColumns(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName());
+        if (columns != null && columns.size() > 0) {
+          temp.setColumnMetadata(columns);
+          //添加到columns元数据集合
+          Metadata.addTableMeta(temp);
+        }
       }
     } catch (Exception e) {
       logAcess(dsm, temp, e);
@@ -38,33 +43,16 @@ public class TableMetaBuilder {
     return tableMetas;
   }
 
-  private static void logAcess(DataSourceMeta dsm, TableMeta temp, Exception e) {
-
-    String message = e.getMessage();
-    if (e instanceof ConnectException) {
-      message = "Could not connect dataSource for name '" + dsm.getDsmName() + "'";
-    } else {
-      if (temp != null) {
-        message = "Could not create table object, maybe the table " + temp.getTableName() + " is not exists.";
-      }
-    }
-
-    if (message == null) {
-      Throwable throwable = e.getCause();
-      if (throwable != null) {
-        message = throwable.getMessage();
-      }
-    }
-    throw new DBException(message, e);
-  }
-
   public static TableMeta buildTableMeta(TableMeta tableMeta, DataSourceMeta dsm) {
     Connection conn = null;
     try {
-      conn = dsm.getWriteDataSource().getConnection();
-      tableMeta.setColumnMetadata(fetchMetaParams(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName()));
-      //添加到record元数据集合
-      Metadata.addTableMeta(tableMeta);
+      conn = dsm.getReadConnection();
+      SortedMap<String, ColumnMeta> columns = fetchMetaColumns(conn.getMetaData(), conn.getMetaData().getDatabaseProductName(), tableMeta.getTableName());
+      if (columns != null && columns.size() > 0) {
+        tableMeta.setColumnMetadata(columns);
+        //添加到columns元数据集合
+        Metadata.addTableMeta(tableMeta);
+      }
     } catch (Exception e) {
       logAcess(dsm, tableMeta, e);
     } finally {
@@ -80,7 +68,7 @@ public class TableMetaBuilder {
    * @return
    * @throws java.sql.SQLException
    */
-  private static SortedMap<String, ColumnMeta> fetchMetaParams(DatabaseMetaData databaseMetaData, String databaseProductName, String table) throws SQLException {
+  private static SortedMap<String, ColumnMeta> fetchMetaColumns(DatabaseMetaData databaseMetaData, String databaseProductName, String table) throws SQLException {
     // Valid table name format: tablename or schemaname.tablename
     String schema = null;
     String tableName;
@@ -145,6 +133,24 @@ public class TableMetaBuilder {
     }
     return columns;
   }
+  
+  private static void logAcess(DataSourceMeta dsm, TableMeta temp, Exception e) {
 
+    String message = e.getMessage();
+    if (e instanceof ConnectException) {
+      message = "Could not connect dataSource for name '" + dsm.getDsmName() + "'";
+    } else {
+      if (temp != null) {
+        message = "Could not create table object, maybe the table " + temp.getTableName() + " is not exists.";
+      }
+    }
 
+    if (message == null) {
+      Throwable throwable = e.getCause();
+      if (throwable != null) {
+        message = throwable.getMessage();
+      }
+    }
+    throw new DBException(message, e);
+  }
 }

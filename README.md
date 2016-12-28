@@ -24,13 +24,13 @@ Resty例子：[resty-demo](https://github.com/Dreampie/resty-demo)
 其他开发者贡献的插件:[Beetl扩展(大鹏)](https://github.com/zhaopengme/Resty-ext)  [Shiro扩展(zhoulieqing)](http://git.oschina.net/zhoulieqing/resty-shiro)
 [MongoPlugin(T-baby)](https://github.com/T-baby/MongoDB-Plugin)
 
-有兴趣一起维护该框架的，可以联系我，进入合作开发
+> 有兴趣一起维护该框架的，可以联系我，进入合作开发
 
-规范：新建分支 `feature/日期` 在readme里添加一个TODO list描述
+规范：提前说明功能，新建分支 `feature/日期` 功能 `fix/日期` 修复 在readme里添加一个TODO list描述
 
-- [ ] a task list item todo [@Dreampie](https://github.com/Dreampie)
+- [x] feature/20161228 a task list item done [@Dreampie](https://github.com/Dreampie)
 
-- [x] a task list item done [@Dreampie](https://github.com/Dreampie)
+- [ ] feature/20161229 a task list item todo [@Dreampie](https://github.com/Dreampie)
 
 最后所以合作者一起代码review，合格之后合并到master
 

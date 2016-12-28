@@ -98,7 +98,7 @@ public final class Constant {
       oauthExpires = constants.getInt("app.oauthExpires", 0);
 
       cookieSecure = constants.getBoolean("app.cookieSecure", false);
-      cookieHttpOnly = constants.getBoolean("app.cookieSecure", false);
+      cookieHttpOnly = constants.getBoolean("app.cookieHttpOnly", false);
       cookieDomain = constants.get("app.cookieDomain");
       cookiePath = constants.get("app.cookiePath", "/");
     }

@@ -17,7 +17,7 @@ Java开发指南:[Java style guide](https://github.com/Dreampie/java-style-guide
 
 Api设计指南:[Http api design](https://github.com/Dreampie/http-api-design-ZH_CN)
 
-Resty例子：[resty-demo](https://github.com/Dreampie/resty-demo)
+Resty例子： [resty-samples](https://github.com/Dreampie/resty-samples)(纯接口) [resty-demo](https://github.com/Dreampie/resty-demo)(带界面)
 
 开发群: <a target="_blank" href="http://shang.qq.com/wpa/qunwpa?idkey=8fc9498714ebbc3675cc5a5035858004154ef4645ebc9c128dfd76688d32179b"><img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="极简Restful框架 - Resty" title="极简Restful框架 - Resty"></a>
 

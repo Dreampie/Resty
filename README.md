@@ -2,6 +2,14 @@
 Resty 一款极简的restful轻量级的web框架
 ===========
 
+更新说明
+
+----
+
+- [x] feature/20170203 强化Stringer工具和让日志支持彩色输出方便开发者调试 [@t-baby](https://github.com/t-baby)
+
+----
+
 [![Join the chat at https://gitter.im/Dreampie/Resty](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Dreampie/Resty?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 [![Issue Stats](http://issuestats.com/github/Dreampie/Resty/badge/pr?style=flat)](http://issuestats.com/github/Dreampie/Resty) 
 [![Issue Stats](http://issuestats.com/github/Dreampie/Resty/badge/issue?style=flat)](http://issuestats.com/github/Dreampie/Resty)

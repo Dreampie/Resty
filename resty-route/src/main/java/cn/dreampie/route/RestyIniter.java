@@ -25,6 +25,8 @@ public final class RestyIniter {
     //build route
     RouteBuilder routeBuilder = new RouteBuilder(configIniter.getResourceLoader(), configIniter.getInterceptorLoader());
     routeBuilder.build();
+    //after router build
+    config.afterRouterBuild(routeBuilder.getRoutesMap());
     //add handler
     //must after route build
     Handler routeHandler = new RouteHandler(routeBuilder);

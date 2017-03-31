@@ -1,6 +1,11 @@
 package cn.dreampie.route.config;
 
 
+import cn.dreampie.route.core.Route;
+
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Config.
  * <p/>
@@ -38,6 +43,11 @@ public class Config {
   public void configHandler(HandlerLoader handlerLoader) {
   }
 
+  /**
+   * Call back after Resty router build
+   */
+  public void afterRouterBuild(Map<String, Map<String, Set<Route>>> routesMap) {
+  }
 
   /**
    * Call back after Resty start

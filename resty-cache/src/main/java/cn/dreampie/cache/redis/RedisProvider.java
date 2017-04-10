@@ -133,18 +133,18 @@ public class RedisProvider extends CacheProvider {
   }
 
   public <T> T getCache(String group, String key) {
-    String jkey = getRedisKey(group, key);
+    String cacheKey = getRedisKey(group, key);
     ShardedJedis shardedJedis = null;
     Jedis jedis = null;
     try {
       shardedJedis = getShardedJedis();
       T cahe = null;
       if (shardedJedis != null) {
-        cahe = (T) Serializer.unserialize(shardedJedis.get(jkey.getBytes()));
+        cahe = (T) Serializer.unserialize(shardedJedis.get(cacheKey.getBytes()));
       } else {
         jedis = getJedis();
         if (jedis != null) {
-          cahe = (T) Serializer.unserialize(jedis.get(jkey.getBytes()));
+          cahe = (T) Serializer.unserialize(jedis.get(cacheKey.getBytes()));
         }
       }
       return cahe;
@@ -160,37 +160,43 @@ public class RedisProvider extends CacheProvider {
     ShardedJedis shardedJedis = null;
     Jedis jedis = null;
     try {
-      byte[] jkey = getRedisKey(group, key).getBytes();
+      byte[] cacheKey = getRedisKey(group, key).getBytes();
       shardedJedis = getShardedJedis();
       if (shardedJedis != null) {
-        shardedJedis.set(jkey, Serializer.serialize(cache));
+        shardedJedis.set(cacheKey, Serializer.serialize(cache));
         if (expired != -1) {
-          shardedJedis.expire(jkey, expired);
+          shardedJedis.expire(cacheKey, expired);
           //添加group key
           addGroupKey(shardedJedis, group, key, expired);
+          return;
         } else {
           if (RedisProvider.expired != -1) {
-            shardedJedis.expire(jkey, RedisProvider.expired);
+            shardedJedis.expire(cacheKey, RedisProvider.expired);
             //添加group key
             addGroupKey(shardedJedis, group, key, RedisProvider.expired);
+            return;
           }
         }
+        addGroupKey(shardedJedis, group, key);
       } else {
         jedis = getJedis();
         if (jedis != null) {
-          jedis.set(jkey, Serializer.serialize(cache));
+          jedis.set(cacheKey, Serializer.serialize(cache));
           if (expired != -1) {
-            jedis.expire(jkey, expired);
+            jedis.expire(cacheKey, expired);
             //添加到group key
             addGroupKey(jedis, group, key, expired);
+            return;
           } else {
             if (RedisProvider.expired != -1) {
-              jedis.expire(jkey, RedisProvider.expired);
+              jedis.expire(cacheKey, RedisProvider.expired);
 
               //添加到group key
               addGroupKey(jedis, group, key, RedisProvider.expired);
+              return;
             }
           }
+          addGroupKey(jedis, group, key);
         }
       }
     } catch (Exception e) {
@@ -201,19 +207,19 @@ public class RedisProvider extends CacheProvider {
   }
 
   public void removeCache(String group, String key) {
-    String jkey = getRedisKey(group, key);
+    String cacheKey = getRedisKey(group, key);
     ShardedJedis shardedJedis = null;
     Jedis jedis = null;
     try {
       shardedJedis = getShardedJedis();
       if (shardedJedis != null) {
-        shardedJedis.del(jkey.getBytes());
+        shardedJedis.del(cacheKey.getBytes());
         //删除 group key
         delGroupKey(shardedJedis, group, key);
       } else {
         jedis = getJedis();
         if (jedis != null) {
-          jedis.del(jkey.getBytes());
+          jedis.del(cacheKey.getBytes());
           //删除 group key
           delGroupKey(jedis, group, key);
         }
@@ -237,9 +243,10 @@ public class RedisProvider extends CacheProvider {
             j.flushDB();
           }
         } else if (event.getType().equals(CacheEvent.CacheEventType.GROUP)) {
+          byte[] groupRawKey=event.getGroup().getBytes();
           //从分组里取出所有的key
           String groupKeys = event.getGroup() + Constant.CONNECTOR + "keys";
-          byte[] gkey = groupKeys.getBytes();
+          byte[] groupRawKeys = groupKeys.getBytes();
           Collection<Jedis> shards = shardedJedis.getAllShards();
 
           int offset = 0;
@@ -247,13 +254,13 @@ public class RedisProvider extends CacheProvider {
 
           do {
             // need to paginate the keys
-            Set<byte[]> rawKeys = shardedJedis.zrange(gkey, (offset) * PAGE_SIZE, (offset + 1) * PAGE_SIZE - 1);
+            Set<byte[]> rawKeys = shardedJedis.zrange(groupRawKeys, (offset) * PAGE_SIZE, (offset + 1) * PAGE_SIZE - 1);
             finished = rawKeys.size() < PAGE_SIZE;
             offset++;
             if (!rawKeys.isEmpty()) {
               List<byte[]> groupedKeys = new ArrayList<byte[]>();
               for (byte[] rawKey : rawKeys) {
-                groupedKeys.add(getGroupedKey(gkey, rawKey));
+                groupedKeys.add(getGroupedKey(groupRawKey, rawKey));
               }
 
               byte[][] groupedRawKeys = groupedKeys.toArray(new byte[groupedKeys.size()][]);
@@ -272,15 +279,17 @@ public class RedisProvider extends CacheProvider {
           if (event.getType().equals(CacheEvent.CacheEventType.ALL)) {
             jedis.flushDB();
           } else if (event.getType().equals(CacheEvent.CacheEventType.GROUP)) {
+            byte[] groupRawKey=event.getGroup().getBytes();
             //从分组里取出所有的key
             String groupKeys = event.getGroup() + Constant.CONNECTOR + "keys";
-            byte[] groupRawKey = groupKeys.getBytes();
+            byte[] groupRawKeys = groupKeys.getBytes();
+
             int offset = 0;
             boolean finished = false;
 
             do {
               // need to paginate the keys
-              Set<byte[]> rawKeys = jedis.zrange(groupRawKey, (offset) * PAGE_SIZE, (offset + 1) * PAGE_SIZE - 1);
+              Set<byte[]> rawKeys = jedis.zrange(groupRawKeys, (offset) * PAGE_SIZE, (offset + 1) * PAGE_SIZE - 1);
               finished = rawKeys.size() < PAGE_SIZE;
               offset++;
               if (!rawKeys.isEmpty()) {
@@ -304,49 +313,31 @@ public class RedisProvider extends CacheProvider {
     }
   }
 
-  private Set<byte[]> getGroupRawKeys(Object jedis, String groupKeys) {
-    byte[] groupRawKey = groupKeys.getBytes();
-    Set<byte[]> rawKeys = null;
-    if (jedis instanceof ShardedJedis) {
-      rawKeys = ((ShardedJedis) jedis).zrange(groupRawKey, 0, -1);
-    } else if (jedis instanceof Jedis) {
-      rawKeys = ((Jedis) jedis).zrange(groupRawKey, 0, -1);
-    }
-    return rawKeys;
-  }
-
-  private List<String> getGroupKeys(Object jedis, String groupKeys) {
-    List<String> keys = new ArrayList<String>();
-    Set<byte[]> rawKeys = getGroupRawKeys(jedis, groupKeys);
-    if (rawKeys != null && rawKeys.size() > 0) {
-      for (byte[] rawKey : rawKeys) {
-        keys.add((String) Serializer.unserialize(rawKey));
-      }
-    }
-    return keys;
+  private void addGroupKey(Object jedis, String group, String key){
+    addGroupKey(jedis,group,key,-1);
   }
 
   private void addGroupKey(Object jedis, String group, String key, int expired) {
     String groupKeys = group + Constant.CONNECTOR + "keys";
-    byte[] groupRawKey = groupKeys.getBytes();
+    byte[] groupRawKeys = groupKeys.getBytes();
 
     if (jedis instanceof ShardedJedis) {
-      ((ShardedJedis) jedis).zadd(groupRawKey, System.currentTimeMillis() + expired * 1000L, Serializer.serialize(key));
+      ((ShardedJedis) jedis).zadd(groupRawKeys, expired > 0 ? System.currentTimeMillis() + expired * 1000L : expired, Serializer.serialize(key));
     } else if (jedis instanceof Jedis) {
-      ((Jedis) jedis).zadd(groupRawKey, System.currentTimeMillis() + expired * 1000L, Serializer.serialize(key));
+      ((Jedis) jedis).zadd(groupRawKeys, expired > 0 ? System.currentTimeMillis() + expired * 1000L : expired, Serializer.serialize(key));
     }
   }
 
   private void delGroupKey(Object jedis, String group, String key) {
     String groupKeys = group + Constant.CONNECTOR + "keys";
-    byte[] groupRawKey = groupKeys.getBytes();
+    byte[] groupRawKeys = groupKeys.getBytes();
 
     if (jedis instanceof ShardedJedis) {
-      ((ShardedJedis) jedis).zrem(groupRawKey, Serializer.serialize(key));
-      ((ShardedJedis) jedis).zremrangeByScore(groupRawKey, 0, System.currentTimeMillis());
+      ((ShardedJedis) jedis).zrem(groupRawKeys, Serializer.serialize(key));
+      ((ShardedJedis) jedis).zremrangeByScore(groupRawKeys, 0, System.currentTimeMillis());
     } else if (jedis instanceof Jedis) {
-      ((Jedis) jedis).zrem(groupRawKey, Serializer.serialize(key));
-      ((Jedis) jedis).zremrangeByScore(groupRawKey, 0, System.currentTimeMillis());
+      ((Jedis) jedis).zrem(groupRawKeys, Serializer.serialize(key));
+      ((Jedis) jedis).zremrangeByScore(groupRawKeys, 0, System.currentTimeMillis());
     }
 
   }
@@ -359,6 +350,9 @@ public class RedisProvider extends CacheProvider {
    * @return
    */
   private byte[] getGroupedKey(byte[] groupRawKey, byte[] rawKey) {
+    byte[] connectorRawKey=Constant.CONNECTOR.getBytes();
+    byte[] connectedRawKey = Arrays.copyOf(groupRawKey, groupRawKey.length + connectorRawKey.length);
+    System.arraycopy(connectorRawKey, 0, connectedRawKey, groupRawKey.length, connectorRawKey.length);
     byte[] regionedKey = Arrays.copyOf(groupRawKey, groupRawKey.length + rawKey.length);
     System.arraycopy(rawKey, 0, regionedKey, groupRawKey.length, rawKey.length);
     return regionedKey;

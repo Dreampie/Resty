@@ -128,12 +128,12 @@ public class RedisProvider extends CacheProvider {
     }
   }
 
-  private String getRedisKey(String group, String key) {
+  private String getCacheKey(String group, String key) {
     return group + Constant.CONNECTOR + key;
   }
 
   public <T> T getCache(String group, String key) {
-    String cacheKey = getRedisKey(group, key);
+    String cacheKey = getCacheKey(group, key);
     ShardedJedis shardedJedis = null;
     Jedis jedis = null;
     try {
@@ -160,7 +160,7 @@ public class RedisProvider extends CacheProvider {
     ShardedJedis shardedJedis = null;
     Jedis jedis = null;
     try {
-      byte[] cacheKey = getRedisKey(group, key).getBytes();
+      byte[] cacheKey = getCacheKey(group, key).getBytes();
       shardedJedis = getShardedJedis();
       if (shardedJedis != null) {
         shardedJedis.set(cacheKey, Serializer.serialize(cache));
@@ -207,7 +207,7 @@ public class RedisProvider extends CacheProvider {
   }
 
   public void removeCache(String group, String key) {
-    String cacheKey = getRedisKey(group, key);
+    String cacheKey = getCacheKey(group, key);
     ShardedJedis shardedJedis = null;
     Jedis jedis = null;
     try {

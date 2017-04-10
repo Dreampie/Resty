@@ -69,7 +69,7 @@ public enum QueryCache {
 
     if (enabled) {
       String group = getGroup(dsmName, tableName);
-      cacheProvider.addCache(group, getKey(group, type, query, params), cache, expired);
+      cacheProvider.addCache(group, getKey(type, query, params), cache, expired);
     }
   }
 
@@ -89,7 +89,7 @@ public enum QueryCache {
 
     if (enabled) {
       String group = getGroup(dsmName, tableName);
-      String key = getKey(group, type, query, params);
+      String key = getKey(type, query, params);
       Object item = cacheProvider.getCache(group, key);
       if (item == null) {
         logAccess(group, query, params, "Miss");
@@ -101,14 +101,14 @@ public enum QueryCache {
     return null;
   }
 
-  private String getKey(String group, String type, String query, Object[] params) {
-    return group + Constant.CONNECTOR + type + Constant.CONNECTOR + query + Constant.CONNECTOR + (params == null ? null : Arrays.asList(params).toString());
+  private String getKey(String type, String query, Object[] params) {
+    return type + Constant.CONNECTOR + query + Constant.CONNECTOR + (params == null ? null : Arrays.asList(params).toString());
   }
 
   public void remove(String dsmName, String tableName, String type, String query, Object[] params) {
     if (enabled) {
       String group = getGroup(dsmName, tableName);
-      cacheProvider.removeCache(group, getKey(group, type, query, params));
+      cacheProvider.removeCache(group, getKey(type, query, params));
     }
   }
 

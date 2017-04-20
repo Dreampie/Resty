@@ -32,7 +32,7 @@ public class TestResource extends ApiResource {
   @Autowired
   private HelloService helloService;
 
-  @GET(value = "/:get")
+  @GET(value = "/:get", headers = {"Accept: application/vnd.resty.v1+json"})
   public HttpResult<List<User>> get(String get, Date x, cn.dreampie.common.http.HttpResponse response) {
     throw new HttpException(HttpMessage.NOT_FOUND);
 //    response.addCookie( "xxxx", "hh");

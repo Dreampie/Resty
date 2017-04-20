@@ -52,11 +52,11 @@ maven使用方式：
 <dependency>
     <groupId>cn.dreampie</groupId>
     <artifactId>resty-route</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.3.0.RELEASE</version>
 </dependency>
 ```
 
-2.如果使用带有-SNAPSHOT后缀的包，请添加该仓库
+2.如果使用带有SNAPSHOT后缀的包，请添加该仓库
 ```xml
 <repositories>
     <repository>

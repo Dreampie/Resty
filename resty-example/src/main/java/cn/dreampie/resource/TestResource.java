@@ -86,6 +86,15 @@ public class TestResource extends ApiResource {
     return testfile;
   }
 
+  //上传文件
+  @POST("/files")
+  @FILE(renamer = MyFileRenamer.class)
+  public Map<String,UploadedFile> upload(Map<String,UploadedFile> files, String des) {
+    //如果上传文件的同时 有参数  注意UploadedFile  参数的名字 需要和input的name对应
+    System.out.println(des);
+    return files;
+  }
+
   //下载文件
   @GET("/file")
   public File download() {

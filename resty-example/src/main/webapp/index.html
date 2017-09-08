@@ -6,10 +6,20 @@
   <title>配置</title>
 </head>
 <body>
+上传单文件
 <form action="/api/v1.0/tests/file" method="post" enctype="multipart/form-data">
-  <input type="file" name="testfile"/>
-  <input type="text" name="des"/>
-  <button type="submit">提交</button>
+  <input type="file" name="testfile"/><br/>
+  <input type="text" name="des"/><br/>
+  <button type="submit">提交</button><br/>
 </form>
+===================================<br/>
+上传多文件
+<form action="/api/v1.0/tests/files" method="post" enctype="multipart/form-data">
+  <input type="file" name="testfile1"/><br/>
+  <input type="file" name="testfile2"/><br/>
+  <input type="text" name="des"/><br/>
+  <button type="submit">提交</button><br/>
+</form>
+
 </body>
 </html>

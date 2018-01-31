@@ -30,7 +30,7 @@ public class Slf4jLoggerProvider implements LoggerProvider {
         }
 
         public void debug(String message, Object... args) {
-            logger.debug(Colorer.cyan(String.format(message, args)));
+            logger.debug(Colorer.cyan(String.format(message, args)),args);
         }
 
         public void debug(String message, Throwable t) {
@@ -46,7 +46,7 @@ public class Slf4jLoggerProvider implements LoggerProvider {
         }
 
         public void info(String message, Object... args) {
-            logger.info(Colorer.blue(String.format(message, args)));
+            logger.info(Colorer.blue(String.format(message, args)),args);
         }
 
         public void info(String message, Throwable t) {
@@ -62,7 +62,7 @@ public class Slf4jLoggerProvider implements LoggerProvider {
         }
 
         public void warn(String message, Object... args) {
-            logger.warn(Colorer.yellow(String.format(message, args)));
+            logger.warn(Colorer.yellow(String.format(message, args)),args);
         }
 
         public void warn(String message, Throwable t) {
@@ -78,7 +78,7 @@ public class Slf4jLoggerProvider implements LoggerProvider {
         }
 
         public void error(String message, Object... args) {
-            logger.error(Colorer.red(String.format(message, args)));
+            logger.error(Colorer.red(String.format(message, args)),args);
         }
 
         public void error(String message, Throwable t) {

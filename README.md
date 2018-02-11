@@ -52,7 +52,7 @@ maven使用方式：
 <dependency>
     <groupId>cn.dreampie</groupId>
     <artifactId>resty-route</artifactId>
-    <version>1.3.0.RELEASE</version>
+    <version>1.3.1.SNAPSHOT</version>
 </dependency>
 ```
 

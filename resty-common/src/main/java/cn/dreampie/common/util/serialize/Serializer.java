@@ -35,7 +35,7 @@ public class Serializer {
    * @param bytes byte数据
    * @return Object
    */
-  public static Object unserialize(byte[] bytes) {
+  public static Object deserialize(byte[] bytes) {
     ByteArrayInputStream bais = null;
     try {
       if (bytes != null) {

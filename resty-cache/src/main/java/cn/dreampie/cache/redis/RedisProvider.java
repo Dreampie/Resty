@@ -140,11 +140,11 @@ public class RedisProvider extends CacheProvider {
       shardedJedis = getShardedJedis();
       T cahe = null;
       if (shardedJedis != null) {
-        cahe = (T) Serializer.unserialize(shardedJedis.get(cacheKey.getBytes()));
+        cahe = (T) Serializer.deserialize(shardedJedis.get(cacheKey.getBytes()));
       } else {
         jedis = getJedis();
         if (jedis != null) {
-          cahe = (T) Serializer.unserialize(jedis.get(cacheKey.getBytes()));
+          cahe = (T) Serializer.deserialize(jedis.get(cacheKey.getBytes()));
         }
       }
       return cahe;
@@ -350,24 +350,8 @@ public class RedisProvider extends CacheProvider {
    * @return
    */
   private byte[] getGroupedKey(byte[] groupRawKey, byte[] rawKey) {
-    byte[] connectorRawKey=Constant.CONNECTOR.getBytes();
-    byte[] connectedRawKey = Arrays.copyOf(groupRawKey, groupRawKey.length + connectorRawKey.length);
-    System.arraycopy(connectorRawKey, 0, connectedRawKey, groupRawKey.length, connectorRawKey.length);
-    byte[] regionedKey = Arrays.copyOf(groupRawKey, groupRawKey.length + rawKey.length);
-    System.arraycopy(rawKey, 0, regionedKey, groupRawKey.length, rawKey.length);
+    String cacheKey = new String(groupRawKey) + Constant.CONNECTOR + Serializer.deserialize(rawKey);
+    byte[] regionedKey = cacheKey.getBytes();
     return regionedKey;
-  }
-
-  /**
-   * 从regionedkey取出rawKey
-   *
-   * @param groupedKey
-   * @param groupRawKey
-   * @return
-   */
-  private byte[] getRawKey(byte[] groupedKey, byte[] groupRawKey) {
-    byte[] rawKey = new byte[groupedKey.length - groupRawKey.length];
-    System.arraycopy(groupedKey, groupRawKey.length, rawKey, 0, rawKey.length);
-    return rawKey;
   }
 }

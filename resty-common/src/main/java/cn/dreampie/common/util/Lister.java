@@ -17,12 +17,12 @@ public class Lister {
 
   public static <T> List<T> copyOf(List<T> objects) {
     if (objects == null || objects.size() == 0) return new ArrayList<T>();
-    return (List<T>) Serializer.unserialize(Serializer.serialize(objects));
+    return (List<T>) Serializer.deserialize(Serializer.serialize(objects));
   }
 
   public static <T> List<T> copyOf(List<T> dist, List<T> source) {
     if (source == null || source.size() == 0) return dist;
-    dist.addAll((List<T>) Serializer.unserialize(Serializer.serialize(source)));
+    dist.addAll((List<T>) Serializer.deserialize(Serializer.serialize(source)));
     return dist;
   }
 }

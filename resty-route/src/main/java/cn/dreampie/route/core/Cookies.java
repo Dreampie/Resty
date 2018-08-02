@@ -10,9 +10,9 @@ import java.util.Map;
  * @what
  */
 public class Cookies extends Params {
-  public Cookies(final Map<String, String> headers) {
+  public Cookies(final Map<String, String> cookies) {
     super(new CaseInsensitiveMap<Object>() {{
-      putAll(headers);
+      putAll(cookies);
     }});
   }
 }

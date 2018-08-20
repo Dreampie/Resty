@@ -107,7 +107,7 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.maxPoolPreparedStatementPerConnectionSize = prop.getInt("druid." + dsName + ".maxPoolPreparedStatementPerConnectionSize", 10);
 
     this.validationQuery = prop.get("druid." + dsName + ".validationQuery", this.dialect.validQuery());
-    buidDataSource();
+    buildDataSource();
   }
 
   public DruidDataSourceProvider(String url, String user, String password) {
@@ -133,10 +133,10 @@ public class DruidDataSourceProvider implements DataSourceProvider {
     this.dialect = DialectFactory.get(dbType);
     this.driverClass = driverClass == null ? dialect.driverClass() : driverClass;
     this.showSql = showSql;
-    buidDataSource();
+    buildDataSource();
   }
 
-  private void buidDataSource() {
+  private void buildDataSource() {
     //init druid
     ds = new DruidDataSource();
     ds.setUrl(url);

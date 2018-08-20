@@ -97,7 +97,7 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     this.automaticTestTable = prop.get("c3p0." + dsName + ".testOnBorrow", C3P0Defaults.automaticTestTable());
 
     this.preferredTestQuery = prop.get("c3p0." + dsName + ".preferredTestQuery", this.dialect.validQuery());
-    buidDataSource();
+    buildDataSource();
   }
 
   public C3p0DataSourceProvider(String url, String user, String password) {
@@ -130,10 +130,10 @@ public class C3p0DataSourceProvider implements DataSourceProvider {
     this.dialect = DialectFactory.get(dbType);
     this.driverClass = driverClass == null ? dialect.driverClass() : driverClass;
     this.showSql = showSql;
-    buidDataSource();
+    buildDataSource();
   }
 
-  private void buidDataSource() {
+  private void buildDataSource() {
     //init druid
     ds = new ComboPooledDataSource();
     ds.setJdbcUrl(url);

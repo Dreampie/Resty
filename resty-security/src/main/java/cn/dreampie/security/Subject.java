@@ -199,7 +199,7 @@ public class Subject {
   private static String matchPath(String httpMethod, String path, Map<String, Map<String, Set<Credential>>> credentialMap) {
     if (credentialMap != null && credentialMap.size() > 0) {
       Map<String, Set<Credential>> credentials = credentialMap.get(httpMethod);
-      if (credentials.size() > 0) {
+      if (credentials != null && credentials.size() > 0) {
         Set<Map.Entry<String, Set<Credential>>> credentialsEntry = credentials.entrySet();
         Set<Credential> credentialSet;
         for (Map.Entry<String, Set<Credential>> credentialEntry : credentialsEntry) {

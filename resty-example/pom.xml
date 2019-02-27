@@ -29,14 +29,14 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <servlet.version>2.5</servlet.version>
-    <fastjson.version>1.2.5</fastjson.version>
+    <fastjson.version>1.2.31</fastjson.version>
     <resty.version>${project.parent.version}</resty.version>
     <ehcache.version>2.6.6</ehcache.version>
     <c3p0.version>0.9.1.2</c3p0.version>
     <druid.version>1.0.13</druid.version>
     <mysql.version>5.1.34</mysql.version>
     <logback.version>1.1.2</logback.version>
-    <jedis.version>2.6.2</jedis.version>
+    <jedis.version>2.10.2</jedis.version>
     <spring-context.version>4.2.1.RELEASE</spring-context.version>
   </properties>
 

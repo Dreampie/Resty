@@ -19,7 +19,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <resty.version>${parent.version}</resty.version>
-    <fastjson.version>1.2.5</fastjson.version>
+    <fastjson.version>1.2.31</fastjson.version>
     <servlet.version>3.1.0</servlet.version>
   </properties>
 

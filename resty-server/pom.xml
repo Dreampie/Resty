@@ -18,7 +18,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <servlet.version>3.1.0</servlet.version>
     <resty.version>${parent.version}</resty.version>
-    <jetty.version>9.3.24.v20180605</jetty.version>
+    <jetty.version>9.4.34.v20201102</jetty.version>
     <undertow.version>2.0.0.Alpha1</undertow.version>
   </properties>
 

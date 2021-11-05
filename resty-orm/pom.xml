@@ -21,7 +21,7 @@
     <druid.version>1.0.13</druid.version>
     <c3p0.version>0.9.1.2</c3p0.version>
     <ehcache.version>2.6.6</ehcache.version>
-    <mysql.version>5.1.34</mysql.version>
+    <mysql.version>8.0.16</mysql.version>
 
     <logback.version>1.1.2</logback.version>
   </properties>
